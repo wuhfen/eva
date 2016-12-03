@@ -1,0 +1,109 @@
+{% extends "default/base.html" %}
+{% block title %}机房IDC{% endblock %}
+
+{% block assistant-header %} 机房 {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="panel panel-default float-e-margins">
+            <div class="panel-heading"><h3 class="text-primary"><label for="name">机房基本信息</label></h3></div>
+            <div class="panel-body">
+                <div class="text-left">
+                    <table class="table">
+                        <tr>
+                            <td class="text-success"><strong>机房名称</strong></td>
+                            <td>{{ idc_data.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>机房负责人</strong></td>
+                            <td>{{ idc_data.contacts }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>机房电话</strong></td>
+                            <td>{{ idc_data.idc_phone }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>负责人电话</strong></td>
+                            <td>{{ idc_data.contacts_phone }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>机房地址</strong></td>
+                            <td>{{ idc_data.idc_addr }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>机房带宽</strong></td>
+                            <td>{{ idc_data.bandwidth }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-success"><strong>机房供应商</strong></td>
+                            <td>{{ idc_data.operator }}</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="text-success"><strong>机房区域</strong></td>
+                            <td>
+                                <table class="table">
+                                {% for i in idc_moudle %}
+                                    <tr>
+                                        <td>{{ i.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </table>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="text-success"><strong>备注</strong></td>
+                            <td>{{ idc_data.memo }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel panel-default float-e-margins">
+            <div class="panel-heading"><h3 class="text-primary"><label for="name">机房区域信息</label></h3></div>
+
+            <div class="panel-body">
+                <div class="text-left">
+                    <table class="table">
+                        <tr>
+                            <th class="text-success"><strong>区域名称</strong></th>
+                            <th class="text-success"><strong>所属机柜</strong></th>
+                            <th class="text-success"><strong>备注</strong></th>
+                        </tr>
+                        {% for i in idc_moudle %}
+                        <tr>
+                            <td>{{ i.name }}</td>
+                            <td>
+                                <table class="table">
+                                {% for c in all_cabinet %}
+                                    {% if i.name == c.model.name %}
+                                    <tr>
+                                        <td>{{ c.name }}</td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </table>
+                            </td>
+                            <td>{{ i.memo }} </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel panel-default float-e-margins">
+            <div class="panel-heading"><h3 class="text-primary"><label for="name">机房修改记录</label></h3></div>
+            <div class="panel-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

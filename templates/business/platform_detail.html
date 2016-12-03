@@ -1,0 +1,182 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+
+{% block title %} 平台详情|platform detail{% endblock %}
+
+
+    {% block assistant-header %} <h3> 平台详情|platform detail</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">业务管理</a></li>
+        <li><a href="{% url 'platform_detail' platform.uuid %}">业务平台详情</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+
+<div class="col-lg-9">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>平台基本信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th class="text-info">平台名</th>
+                    <td>{{ platform.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">平台代号</th>
+                    <td>{{ platform.nic_name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">状态</th>
+                    <td>{% if platform.status == True %}在用{% else %}停用{% endif %}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端源站</th>
+                    <td>
+                        {% for s in platform.front_station.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端代理</th>
+                    <td>
+                        {% for s in platform.front_proxy.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端图片站</th>
+                    <td>
+                        {% for s in platform.front_image_site.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端下载站</th>
+                    <td>
+                        {% for s in platform.front_download_site.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端动态资源处理站</th>
+                    <td>
+                        {% for s in platform.front_active_site.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端动态资源缓存站</th>
+                    <td>
+                        {% for s in platform.front_active_cache.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端数据库接口</th>
+                    <td>{{ platform.front_db_site }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端cdn</th>
+                    <td>{{ platform.front_cdn }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端高防</th>
+                    <td>{{ platform.front_high_protection }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台源站</th>
+                    <td>
+                        {% for s in platform.backend_station.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台代理</th>
+                    <td>
+                        {% for s in platform.backend_proxy.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台图片站</th>
+                    <td>
+                        {% for s in platform.backend_image_site.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台动态资源处理站</th>
+                    <td>
+                        {% for s in platform.backend_active_site.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台数据库接口</th>
+                    <td>{{ platform.backend_db_site }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">第三方反代节点</th>
+                    <td>{{ platform.backend_db_site }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">介绍</th>
+                    <td>
+                        {% for s in platform.third_party_node.all %}
+                            <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-lg-3">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>更新日志 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+        <div><a href="#" class="btn btn-info btn-xs">点击修改平台信息</a></div>
+        </div>
+    </div>
+
+
+
+</div>
+
+</div>
+{% endblock %}

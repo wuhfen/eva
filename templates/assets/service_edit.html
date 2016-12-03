@@ -1,0 +1,42 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} Edit Service {% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form class="form-horizontal" method="post" action="" role="form">{% csrf_token %}
+                {{ lf|bootstrap_horizontal }}
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                         <button type="submit" class="btn btn-primary btn-block">修改</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("button").click(function(){
+          jQuery.ajax({
+            url: "{% url 'service_edit' uuid %}",                  // 提交的页面
+            data: $('.form-horizontal').serialize(), // 从表单中获取数据
+            type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+            dataType:'text',
+            success: function(msg){
+                var idcedit = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                              parent.layer.close(idcedit); //执行关闭
+            }
+          });
+        });
+      return false;
+    });
+</script>
+
+{% endblock content %}

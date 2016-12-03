@@ -1,0 +1,107 @@
+{% extends "default/base.html" %}
+{% block title %}DomainName{% endblock %}
+
+{% block head %}
+
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 域名同步 <small>RSYNC DOMAIN</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/business/business_list/">业务列表</a></li>
+        <li><a href="/business/domain_rsync/">域名同步</a></li>
+
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>{{ business.name }}所有域名</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+
+                <tr>
+                    <th>业务名称</th>
+                    <td>{{ business.name }}</td>
+                    <td></td>
+
+                </tr>
+                <tr>
+                    <th>业务平台</th>
+                    <td>{{ business.platform }}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <th>前端域名</th>
+                    <td>
+                        {% for s in business.domainname_set.all %}
+                            {% if s.use == '0' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action='{% url "domain_rsync_to_server" %}' method="get" >
+                            <input type="text" name="uuid" hidden="hidden" value ={{ business.uuid }}>
+                            <input type="text" name="use" hidden="hidden" value="0">
+                            <button type="submit" class="btn btn-xs btn-info">同步</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th>接口域名</th>
+                    <td>
+                        {% for s in business.domainname_set.all %}
+                            {% if s.use == '1' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action='{% url "domain_rsync_to_server" %}' method="get" >
+                            <input type="text" name="uuid" hidden="hidden" value ={{ business.uuid }}>
+                            <input type="text" name="use" hidden="hidden" value="1">
+                            <button type="submit" class="btn btn-xs btn-info">同步</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th>后台域名</th>
+                    <td>
+                        {% for s in business.domainname_set.all %}
+                            {% if s.use == '2' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form action='{% url "domain_rsync_to_server" %}' method="get" >
+                            <input type="text" name="uuid" hidden="hidden" value ={{ business.uuid }}>
+                            <input type="text" name="use" hidden="hidden" value="2">
+                            <button type="submit" class="btn btn-xs btn-info">同步</button>
+                        </form>
+                    </td>
+                </tr>
+              </table>
+            </div>
+        <div class="box-footer">
+            <a href="#" class="btn btn-xs btn-info project-delete">添加域名</a>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

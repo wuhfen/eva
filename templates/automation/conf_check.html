@@ -1,0 +1,26 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} check config file {% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="box box-info">
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <tr>
+                {% for i in bb %}
+                        <td>{{ i }}</td>
+                {% endfor %}
+
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,48 @@
+{% extends 'default/base.html' %}
+
+{% block title %} 添加用户 {% endblock %}
+
+{% block assistant-header %} 添加用户 | ADD CustomUser 
+
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">用户管理</a></li>
+        <li><a href="/accounts/register/">添加用户</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+{% load bootstrap %}
+
+<div class="box box-info">
+    <div class="box-header with-border">
+        请填写用户资料
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                <i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        {% if form.errors %}
+         <div class="alert alert-block alert-danger">
+                    请确认帐号是否存在或其它选项是否已添写
+         </div>
+          {% endif %}
+        <form class="form-horizontal" method="post" action="{% url 'add_user' %}" role="form">{% csrf_token %}
+             {{ data| bootstrap_horizontal }}
+            <div class="form-group">
+               <div class="col-sm-4 col-sm-offset-5">
+                   <button class="btn btn-white" type="submit"> 重置 </button>
+                   <button class="btn btn-primary" type="submit"> 提交 </button>
+               </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+{% endblock content %}

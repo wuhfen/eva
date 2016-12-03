@@ -1,0 +1,209 @@
+  <aside class="main-sidebar">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+      <!-- Sidebar user panel -->
+      {% if request.user.is_anonymous %}
+      <div class="user-panel">
+        <div class="pull-left image">
+          <img src="/static/admin-test/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+        </div>
+        <div class="pull-left info">
+          <p>GUest</p>
+          <a href="#"><i class="fa fa-circle text-muted"></i> Not Online</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="user-panel">
+        <div class="pull-left image">
+          <img src="/static/admin-test/dist/img/wuxiubo.jpg" class="img-circle" alt="User Image">
+        </div>
+        <div class="pull-left info">
+          <p>{{request.user}}</p>
+          <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+        </div>
+      </div>
+      {% endif %}
+      <!-- search form -->
+      <form action="#" method="get" class="sidebar-form">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+        </div>
+      </form>
+      <!-- /.search form -->
+      <!-- sidebar menu: : style can be found in sidebar.less -->
+      <ul class="sidebar-menu">
+        <li class="header">MAIN NAVIGATION</li>
+        <li>
+          <a href="/index/">
+            <i class="fa fa-dashboard"></i> <span>仪表盘</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/">
+            <i class="fa fa-database"></i> <span>数据库Admin</span>
+          </a>
+        </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-laptop "></i> <span>资产管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu ">
+            <li><a href="{% url 'server_list' %}"><i class="fa fa-circle-o"></i> 资产列表</a></li>
+            <li><a href="{% url 'server_add' %}"><i class="fa fa-circle-o"></i> 添加服务器</a></li>
+            <li><a href="{% url 'virtual_add' %}"><i class="fa fa-circle-o"></i> 添加虚拟机</a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i> 添加网络设备</a></li>
+          </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-coffee"></i> <span>项目管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+            <li id="business_manager">
+                <a href="#"><i class="fa fa-circle-o"></i>业务管理
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a href="{% url 'business_list' %}"><i class="fa fa-circle-o"></i> 业务列表</a></li>
+                    <li><a href="{% url 'platform_list' %}"><i class="fa fa-circle-o"></i> 业务平台</a></li>
+                    <li><a href="{% url 'business_add' %}"><i class="fa fa-circle-o"></i> 添加业务</a></li>
+                </ul>
+            </li>
+            <li><a href="{% url 'line_add' %}"><i class="fa fa-circle-o"></i> 添加产品线</a></li>
+            <li><a href="{% url 'line_list' %}"><i class="fa fa-circle-o"></i> 查看产品线</a></li>
+            <li><a href="{% url 'project_add' %}"><i class="fa fa-circle-o"></i> 添加项目</a></li>
+            <li><a href="{% url 'project_list' %}"><i class="fa fa-circle-o"></i> 查看项目</a></li>
+            <li><a href="{% url 'service_add' %}"><i class="fa fa-circle-o"></i> 添加服务</a></li>
+            <li><a href="{% url 'service_list' %}"><i class="fa fa-circle-o"></i> 查看服务</a></li>
+
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-delicious"></i> <span>机房管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+            <li><a href="{% url 'idc_add' %}"><i class="fa fa-circle-o"></i> 添加机房</a></li>
+            <li><a href="{% url 'idc_list' %}"><i class="fa fa-circle-o"></i> 查看机房</a></li>
+            <li><a href="{% url 'moudle_add' %}"><i class="fa fa-circle-o"></i> 添加机房区域</a></li>
+            <li><a href="{% url 'moudle_list' %}"><i class="fa fa-circle-o"></i> 查看机房区域</a></li>
+            <li><a href="{% url 'cabinet_add' %}"><i class="fa fa-circle-o"></i> 添加机柜</a></li>
+            <li><a href="{% url 'cabinet_list' %}"><i class="fa fa-circle-o"></i> 查看机柜</a></li>
+            </ul>
+        </li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-gamepad"></i> <span>自动化管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名管理</a></li>
+            <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 后台线路切换</a></li>
+            <li id="allow_admin">
+              <a href="#"><i class="fa fa-circle-o"></i> 后台白名单
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li id="iptables_delete"><a href="{% url 'delete-ip' %}"><i class="fa fa-circle-o"></i> 查看白名单</a></li>
+                <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 添加白名单</a></li>
+              </ul>
+          </li>
+          <li>
+              <a href="#"><i class="fa fa-circle-o"></i> API白名单
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a href="#"><i class="fa fa-circle-o"></i> 查看白名单</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i> 添加白名单</a></li>
+              </ul>
+          </li>
+        </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span>版本发布</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+            <li><a href="{% url 'tools_list' %}"><i class="fa fa-circle-o"></i> 版本仓库</a></li>
+            <li><a href="{% url 'conf_list' %}"><i class="fa fa-circle-o"></i> 项目配置</a></li>
+            <li><a href="{% url 'deploy_list' %}"><i class="fa fa-circle-o"></i> 我的上线单</a></li>
+            <li><a href="{% url 'deploy_business' %}"><i class="fa fa-circle-o"></i> 提交上线单</a></li>
+            <!-- <li><a href="#"><i class="fa fa-circle-o"></i> 添加用户</a></li> -->
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-users" ></i> <span>用户管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+            <li><a href="{% url 'department_list' %}"><i class="fa fa-circle-o"></i> 查看部门</a></li>
+            <li><a href="{% url 'user_list' %}"><i class="fa fa-circle-o"></i> 查看用户</a></li>
+            <li><a href="{% url 'department_add' %}"><i class="fa fa-circle-o"></i> 添加部门</a></li>
+            <li><a href="{% url 'add_user' %}"><i class="fa fa-circle-o"></i> 添加用户</a></li>
+            </ul>
+        </li>
+        <li class="treeview">
+            <a href="#"><i class="fa fa-key"></i> <span>权限管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+            <li><a href="{% url 'auth_index' %}"><i class="fa fa-circle-o"></i> 权限分配</a></li>
+            <li><a href="{% url 'auth_group_add' %}"><i class="fa fa-circle-o"></i> 创建权限组</a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i> 发布权限</a></li>
+            </ul>
+        </li>
+        <li><a href="#"><i class="fa fa-files-o"></i><span>日志审计</span></a></li>
+        <li class="header">LABELS</li>
+        <li><a href="/accounts/login/"><i class="fa fa-bell"></i> <span>登录</span></a></li>
+        <li><a href="/accounts/logout/"><i class="fa fa-bell-o"></i> <span>退出</span></a></li>
+
+      </ul>
+    </section>
+    <!-- /.sidebar -->
+  </aside>
+
+
+<script>
+//动态添加active的js
+
+$(function () {
+  var _nava= $('ul.sidebar-menu li a');
+  var _url = window.location.href;
+  var _host = window.location.host;
+
+  var _type = $('ol.breadcrumb li a').eq(1).text();
+
+  for(var i = 0; i<_nava.length ; i++){
+    var _atext = _nava.eq(i).text();
+    var _astr = _nava.eq(i).attr('href');
+    if(_url.indexOf(_astr) != -1 || _atext == _type){
+      _nava.eq(i).parents('li').addClass('active').siblings().removeClass('active');
+    }else if(_url == ('http://'+_host+'/')){
+      _nava.eq(0).addClass('active').siblings().removeClass('active');
+    }
+  }
+
+  });
+
+
+</script>

@@ -1,0 +1,22 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 详情页 {% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="box box-info">
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+
+                {{ cf|bootstrap_horizontal }}
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

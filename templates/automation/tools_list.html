@@ -1,0 +1,112 @@
+{% extends "default/base.html" %}
+{% block title %}仓库{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 仓库列表 <small>project</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'tools_list' %}">仓库列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>仓库列表</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>版本工具</th>
+                    <th>仓库名称</th>
+                    <th>地址</th>
+                    <th>账号</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.title }}</td>
+                        <td>{{ v.address }}</td>
+                        <td>{{ v.user }}</td>
+
+                        <td>
+                            <a href="{% url 'tools_edit' v.uuid %}" class="btn btn-xs btn-primary tools-edit">修改</a>
+                            <a href="{% url 'tools_delete' v.uuid %}" class="btn btn-xs btn-danger tools-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            <a href="{% url 'tools_add' %}" class="btn btn-xs btn-info">添加仓库</a>
+            
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(".tools-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改服务器信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+    $(".tools-delete").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定删除吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,682 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 修改服务器信息|Edit Server{% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h3>修改服务器信息|Asset List</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">资产管理</a></li>
+        <li><a href="/assets/server_list/">修改服务器信息</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <form class="form-horizontal" action="" id="server_add"  method="post" name="horizontal" role="form" autocomplete="off">
+        {% csrf_token %}
+        <dir class="col-md-6 col-lg-5">
+            <div class="box box-info">
+                <div class="box-header with-border"><h4>服务器信息</h4>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                            <i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="form-group">
+                        <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
+                            <tr>
+                                <!-- <th>服务器名</th> -->
+                                <td>{{ sf.name|bootstrap_horizontal }}</td>
+                            </tr>
+                             <tr>
+                                <td>{{ af.asset_type|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>ssh host</th> -->
+                                <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>ssh port</th> -->
+                                <td>{{ sf.ssh_port|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>ssh password</th> -->
+                                <td>{{ sf.ssh_password|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>远控卡IP</th> -->
+                                <td>{{ sf.ipmitool|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>资产编号</th> -->
+                                <td>{{ af.asset_number|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>用途</th> -->
+                                <td>{{ af.purpose|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>使用情况</th> -->
+                                <td>{{ af.status|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>冗余级别</th> -->
+                                <td>{{ sf.Raid_level|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>硬盘总容量(GB)</th> -->
+                                <td>{{ sf.Disk_total|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>内存总容量(GB)</th> -->
+                                <td>{{ sf.RAM_total|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>品牌型号</th> -->
+                                <td>{{ sf.model|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>系统状态</th> -->
+                                <td>{{ sf.system_status|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>系统类型</th> -->
+                                <td>{{ sf.os_type|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>系统版本</th> -->
+                                <td>{{ sf.os_version|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>系统版本号</th> -->
+                                <td>{{ sf.os_release|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>系统内核</th> -->
+                                <td>{{ sf.os_kernel |bootstrap_horizontal}}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>所属机房</th> -->
+                                <td>{{ sf.idc |bootstrap_horizontal }}{{ server.idc }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>所属机柜</th> -->
+                                <td>{{ sf.cabinet|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>机器位置</th> -->
+                                <td>{{ sf.server_cabinet_id|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>设备供应商</th> -->
+                                <td>{{ af.manufactory|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                               <!--  <th>购买日期</th> -->
+                                <td>{{ af.trade_date|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>保修期</th> -->
+                                <td>{{ af.expire_date|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>价格</th> -->
+                                <td>{{ af.price|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>保修期</th> -->
+                                <td>{{ af.price_total|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                               <!--  <th>服务器SN号</th> -->
+                                <td>{{ sf.server_sn |bootstrap_horizontal}}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>快速服务码</th> -->
+                                <td>{{ sf.Services_Code|bootstrap_horizontal }} </td>
+                            </tr>
+                            <tr>
+                                <!-- <th>资产管理员</th> -->
+                                <td>{{ af.manager|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>备注</th> -->
+                                <td>{{ af.memo |bootstrap_horizontal}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </dir>
+
+
+        <dir class="col-md-6 col-lg-7">
+<!--网卡-->
+            <div class="form-group">
+
+                <div class="box box-info">
+                    <div class="box-header with-border"><h4>网卡信息</h4>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fa fa-times"></i></button>
+                            <a href="{% url 'nic_add' asset.uuid %}" type="button" class="btn btn-box-tool add-information" data-widget="add" data-toggle="tooltip" title="添加网卡">
+                        <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="box-body">
+                            <table id="table-style" class="table table-hover table-striped table-bordered">
+                                <thead align="center"> 
+                                    <tr>
+                                        <th >网卡名</th>  
+                                        <th >用途</th>  
+                                        <th >IP</th>  
+                                        <th >子网掩码</th>
+                                        <th >MAC</th>
+                                        <th >网卡型号</th>
+                                        <th >操作</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody align="center"> 
+                                    {% for i in nic %}
+                                        <tr>
+                                            <td>{{ i.name }}</td>
+                                            <td>{{ i.memo }}</td>
+                                            <td>{{ i.ipaddress }}</td>
+                                            <td>{{ i.netmask }}</td>
+                                            <td>{{ i.macaddress }}</td>
+                                            <td>{{ i.model }}</td>
+
+<!--                                             <td ><input class="form-control" type="text" name="nic_name" value={{ i.name }}></td>  
+                                            <td ><input class="form-control" type="text" name="nic_memo" value={{ i.memo }}></td>  
+                                            <td ><input class="form-control" type="text" name="nic_ipaddress" value={{ i.ipaddress }}></td>  
+                                            <td ><input class="form-control" type="text" name="nic_netmask" value={{ i.netmask }}></td>
+                                            <td ><input class="form-control" type="text" name="nic_macaddress" value={{ i.macaddress }}></td>
+                                            <td ><input class="form-control" type="text" name="nic_model" value={{ i.model }}></td> -->
+                                            <td >
+                                                <a id="delete-nic" type="button" class="btn btn-danger btn-xs nic-delete" href="{% url 'nic_delete' i.uuid %}">删除</a>
+                                                <a id="edit-nic" type="button" class="btn btn-primary btn-xs add-information" href="{% url 'nic_edit' i.uuid %}">修改</a>
+                                            </td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+
+            </div>
+
+
+<!--CPU修改-->
+            <div class="form-group">
+                <div class="box box-info">
+                    <div class="box-header with-border"><h4>CPU信息</h4>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fa fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="box-body">
+                        <table id="table-style" class="table table-hover table-striped table-bordered">
+                            <tr>
+                                <th>CPU型号</th>
+                                <th>CPU颗数</th>
+                                <th>CPU核数</th>
+                                <th>备注</th>
+                            </tr>
+                            <tr>
+                                <td>{{ cf.cpu_model }}</td>
+                                <td>{{ cf.cpu_count }}</td>
+                                <td>{{ cf.cpu_core_count }}</td>
+                                <td>{{ cf.memo }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+<!--内存修改-->
+            <div class="form-group">
+
+                <div class="box box-info">
+                    <div class="box-header with-border"><h4>内存信息</h4>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fa fa-times"></i></button>
+                            <a href="{% url 'ram_add' asset.uuid %}" type="button" class="btn btn-box-tool add-information" data-widget="add" data-toggle="tooltip" title="添加内存">
+                        <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="box-body">
+                            <table id="table-style" class="table table-hover table-striped table-bordered">
+                                <thead align="center"> 
+                                    <tr>
+                                        <th >型号</th>  
+                                        <th >容量</th>  
+                                        <th >插槽</th>  
+                                        <th >SN号</th>
+                                        <th >备注</th>
+                                        <th >操作</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody align="center"> 
+                                    {% for i in ram %}
+                                        <tr>
+                                            <!-- <td ><input class="form-control" type="text" name="ram_model" value={{ i.model }}></td>   -->
+                                            <td >{{ i.model }}</td>  
+                                            <td >{{ i.capacity }}</td>  
+                                            <td >{{ i.slot }}</td>  
+                                            <td >{{ i.sn }}</td>  
+                                            <td >{{ i.memo }}</td>  
+
+
+<!--                                             <td ><input class="form-control" type="text" name="ram_capacity" value={{ i.capacity }}></td>  
+                                            <td ><input class="form-control" type="text" name="ram_slot" value={{ i.slot }}></td>  
+                                            <td ><input class="form-control" type="text" name="ram_sn" value={{ i.sn }}></td>
+                                            <td ><input class="form-control" type="text" name="ram_memo" value={{ i.memo }}></td> -->
+                                            <td >
+                                                <a id="delete-ram" type="button" class="btn btn-danger btn-xs nic-delete" href="{% url 'ram_delete' i.uuid %}">删除</a>
+                                                <a id="edit-ram" type="button" class="btn btn-primary btn-xs add-information" href="{% url 'ram_edit' i.uuid %}">修改</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+
+            </div>
+
+
+
+<!--硬盘修改-->
+            <div class="form-group">
+
+                <div class="box box-info">
+                    <div class="box-header with-border"><h4>硬盘信息</h4>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fa fa-times"></i></button>
+                            <a href="{% url 'disk_add' asset.uuid %}" type="button" class="btn btn-box-tool add-information" data-widget="add" data-toggle="tooltip" title="添加硬盘">
+                        <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="box-body">
+                            <table id="table-style" class="table table-hover table-striped table-bordered">
+                                <thead align="center"> 
+                                    <tr>
+                                        <th >型号</th>  
+                                        <th >容量</th>
+                                        <th >接口类型</th>  
+                                        <th >插槽</th>  
+                                        <th >SN号</th>
+                                        <th >生产厂家</th>  
+                                        <th >备注</th>
+                                        <th >操作</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody align="center"> 
+                                    {% for i in disk %}
+                                        <tr>
+                                            <td >{{ i.model }}</td>  
+                                            <td >{{ i.capacity }}</td>  
+                                            <td >{{ i.iface_type }}</td>  
+                                            <td >{{ i.slot }}</td>  
+                                            <td >{{ i.sn }}</td>  
+                                            <td >{{ i.manufactory }}</td>  
+                                            <td >{{ i.memo }}</td>  
+<!--                                             <td ><input class="form-control" type="text" name="disk_model" value={{ i.model }}></td>  
+                                            <td ><input class="form-control" type="text" name="disk_capacity" value={{ i.capacity }}></td> 
+                                            <td ><input class="form-control" type="text" name="disk_iface_type" value={{ i.iface_type }}></td> 
+                                            <td ><input class="form-control" type="text" name="disk_slot" value={{ i.slot }}></td>  
+                                            <td ><input class="form-control" type="text" name="disk_sn" value={{ i.sn }}></td>
+                                            <td ><input class="form-control" type="text" name="disk_manufactory" value={{ i.manufactory }}></td>
+                                            <td ><input class="form-control" type="text" name="disk_memo" value={{ i.memo }}></td> -->
+                                            <td >
+                                                <a id="delete-disk" type="button" class="btn btn-danger btn-xs nic-delete" href="{% url 'disk_delete' i.uuid %}">删除</a>
+                                                <a id="edit-disk" type="button" class="btn btn-primary btn-xs add-information" href="{% url 'disk_edit' i.uuid %}">修改</a>
+
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+
+            </div>
+
+
+<!--raid卡修改-->
+            <div class="form-group">
+
+                <div class="box box-info">
+                    <div class="box-header with-border"><h4>RAID卡信息</h4>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                <i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                <i class="fa fa-times"></i></button>
+                            <a href="{% url 'raid_add' asset.uuid %}" type="button" class="btn btn-box-tool add-information" data-widget="add" data-toggle="tooltip" title="添加raid卡">
+                        <i class="fa fa-plus-square"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="box-body">
+                            <table id="table-style" class="table table-hover table-striped table-bordered">
+                                <thead align="center"> 
+                                    <tr>
+                                        <th >型号</th>  
+                                        <th >插槽</th>  
+                                        <th >SN号</th>
+                                        <th >备注</th>
+                                        <th >操作</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody align="center"> 
+                                    {% for i in raid %}
+                                        <tr>
+                                            <td >{{ i.model }}</td>  
+                                            <td >{{ i.slot }}</td>  
+                                            <td >{{ i.sn }}</td>  
+                                            <td >{{ i.memo }}</td>  
+<!--                                             <td ><input class="form-control" type="text" name="raid_model" value={{ i.model }}></td>  
+                                            <td ><input class="form-control" type="text" name="raid_slot" value={{ i.slot }}></td>  
+                                            <td ><input class="form-control" type="text" name="raid_sn" value={{ i.sn }}></td>
+                                            <td ><input class="form-control" type="text" name="raid_memo" value={{ i.memo }}></td> -->
+                                            <td >
+                                                <a id="delete-raid" type="button" class="btn btn-danger btn-xs nic-delete" href="{% url 'raid_delete' i.uuid %}">删除</a>
+                                                <a id="edit-raid" type="button" class="btn btn-primary btn-xs add-information" href="{% url 'raid_edit' i.uuid %}">修改</a>
+
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="rom">
+<!--所属项目-->
+                <div class="col-lg-6 col-md-6">
+                    <div class="box box-info">
+                        <div class="box-header with-border"> 服务器所属项目 
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                    <i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <select id="id_projects" size="10" class="form-control m-b" multiple>
+                                    {% for i in projects %}
+                                            <option value="{{ i.uuid }}">{{ i }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="btn-group" style="margin-top: 50px;">
+                                        <button type="button" class="btn btn-primary btn-block" onclick="move_right('id_projects', 'id_project')"><i class="fa fa-long-arrow-right"></i></button>
+                                        <button type="button" class="btn btn-primary btn-block" onclick="move_left('id_project', 'id_projects')"><i class="fa fa-long-arrow-left"></i> </button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div>
+                                        <select id="id_project" name="project" class="form-control m-b" size="10"  multiple>
+                                            {% for s in project_host %}
+                                                <option value="{{ s.uuid }}" selected="selected">{{ s.project_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <!--运行服务-->
+                <div class="col-lg-6 col-md-6">
+                    <div class="box box-info">
+                        <div class="box-header with-border"> 服务器运行程序 
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                    <i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="form-group">
+                                <div class="col-sm-5">
+                                    <select id="id_services" size="10" class="form-control m-b" multiple>
+                                    {% for i in services %}
+                                        <option value="{{ i.uuid }}">{{ i }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <div class="btn-group" style="margin-top: 50px;">
+                                        <button type="button" class="btn btn-primary btn-block" onclick="move_right('id_services', 'id_service')"><i class="fa  fa-long-arrow-right"></i></button>
+                                        <button type="button" class="btn btn-primary btn-block" onclick="move_left('id_service', 'id_services')"><i class="fa  fa-long-arrow-left"></i> </button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div>
+                                        <select id="id_service" name="service" class="form-control m-b" size="10"  multiple>
+                                            {% for s in service_host %}
+                                                <option value="{{ s.uuid }}" selected>{{ s.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+<!--标签-->
+
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-5">
+                    <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                    <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+                </div>
+            </div>
+
+
+        </dir>
+
+
+
+
+
+
+
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#server_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "name": {
+                rule: "required;check_node",
+                tip: "输入主机名",
+                ok: "",
+                msg: {required: "必须填写!"},
+                data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
+            },
+            "macaddress": {
+                rule: "required;check_mac",
+                tip: "输入MAC",
+                ok: "",
+                msg: {required: "必须填写!"}
+            },
+            "ssh_host":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "ipmitool":{
+                rule: "check_ip",
+                tip: "远控卡ip",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "manager":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "asset_number":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "system":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "idc":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            }
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+
+</script>
+
+
+
+<script>
+    $(".add-information").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改服务器信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+$(".nic-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+</script>
+
+<script type="text/javascript">
+//左右移动的select选项js
+function move_left(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+            $(this).attr("selected",'false');
+        }
+        $(this).attr("selected",'true');
+    });
+}
+function move_right(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+        }
+
+    });
+}
+
+// function move_all(from, to){
+//     $("#"+from).children().each(function(){
+//         $("#"+to).append(this);
+//     });
+// }
+
+</script>
+
+{% endblock  %}

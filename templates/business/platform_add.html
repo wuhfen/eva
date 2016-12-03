@@ -1,0 +1,84 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加平台|Add PlatForm{% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h3>添加平台|Add PlatForm</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">平台管理</a></li>
+        <li><a href="{% url 'platform_list' %}">平台列表</a></li>
+        <li><a href="{% url 'platform_add' %}">添加平台</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <form class="form-horizontal" action="" id="virtual_edit"  method="post" name="horizontal" role="form" autocomplete="off">
+        {% csrf_token %}
+            <div class="box box-info">
+                <div class="box-header with-border"><h4>平台信息</h4>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                            <i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="form-group">
+                        <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
+                            <tr>
+                                <!-- <th>服务器名</th> -->
+                                <td>{{ pf.name|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>代号</th> -->
+                                <td>{{ pf.nic_name|bootstrap_horizontal }}</td>
+                            </tr>
+                             <tr>
+                                <td>{{ pf.status|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>备注</th> -->
+                                <td>{{ pf.description |bootstrap_horizontal}}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>CDN</th> -->
+                                <td>{{ pf.front_cdn|bootstrap_horizontal }}</td>
+                            </tr>
+                             <tr>
+                                <!-- <th>高仿</th> -->
+                                <td>{{ pf.front_high_protection|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>前端数据库接口</th> -->
+                                <td>{{ pf.front_db_site |bootstrap_horizontal}}</td>
+                            </tr>
+                            <tr>
+                                <!-- <th>后台数据库接口</th> -->
+                                <td>{{ pf.backend_db_site |bootstrap_horizontal}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <div class="form-group">
+            <div class="col-sm-4 col-sm-offset-5">
+                <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'default/base.html' %}
+
+{% block title %} ERROR {% endblock %}
+
+{% block assistant-header %} 提示页面 {% endblock %}
+
+{% block content %}
+
+    <style>
+    .voilet{float:right;}
+    .jumbotron{margin-top:10px;height:500px;}
+    .wrapper{background:#ffffff;width:100%;}
+
+
+
+    </style>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="jumbotron" >
+            <h2>
+                欢迎使用自动化运维管理系统
+            </h2>
+            <p>
+                <div class="alert alert-dismissable alert-danger">
+                    <h4>
+                        警告!
+                    </h4> <strong>Warning!</strong> 无此权限
+                </div>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+{% endblock  %}

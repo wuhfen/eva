@@ -1,0 +1,85 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 资产添加|Add Asset {% endblock %}
+
+
+
+
+{% block assistant-header %} 添加服务器|Add Asset {% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+
+
+
+<form id="form" action="" novalidate="novalidate" >
+  {% csrf_token %}
+        <div class="box-header">添加服务器信息
+          <div class="columns btn-group pull-right">
+            <input type="button" value="添加" onclick="addTable();">
+          </div>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+            <table data-toggle="table" data-row-style="rowStyle" class="table table-hover table-bordered" id="myTable">
+              <tr align="center"> 
+                  <th >网卡名</th>  
+                  <th >用途</th>  
+                  <th >MAC</th>
+                  <th >IP</th>  
+                  <th >子网掩码</th>
+                  <th >网卡型号</th>
+                  <th >操作</th>
+              </tr>
+            </table>
+            </div>
+      <button id="submit" type="submit" class="btn btn-success">提交</button>
+    </div>
+</form>
+</div>
+
+<script>
+
+var num = 0;
+    function addTable(){
+        var tableHtml ="";
+        tableHtml += '<tr id="tr'+num+'">'
+                 +'<td><input class="form-control" id="nic_name'+num+'" type="text" name="nic_name'+num+'" /></td>'
+                 +'<td><input class="form-control" id="nic_memo'+num+'" type="text" name="nic_memo'+num+'"/></td>'
+                 +'<td><input class="form-control" id="nic_macaddress'+num+'" type="text" verify="mac" name="nic_macaddress'+num+'"/></td>'
+                 +'<td><input class="form-control" id="nic_ipaddress'+num+'" type="text" verify="ip" name="nic_ipaddress'+num+'"/></td>'
+                 +'<td><input class="form-control" id="nic_netmask'+num+'" type="text" verify="ip" name="nic_netmask'+num+'"/></td>'
+                 +'<td><input class="form-control" id="nic_model'+num+'" type="text" name="nic_model'+num+'"/></td>'
+                 +'<td><a style="cursor: pointer; color: blue;" onclick="removeTr('+num+')">删除</a>'
+                     // +'<a id="edit'+num+'" class="edit" style="cursor: pointer; color: blue;" onclick="editDataByOne('+num+')">修改</a>'
+                     // +'<a id="save'+num+'" class="hide" style="cursor: pointer; color: blue;" onclick="saveByOne('+num+')">保存</a>'
+                 +'</td>'
+                 +'</tr>';
+        
+        var elements = $("#myTable").children().length;    //表示id为“mtTable”的标签下的子标签的个数
+        
+        $("#myTable").children().eq(elements - 1).after(tableHtml); //在表头之后添加空白行
+        num++;     
+    }
+
+//删除行
+function removeTr(trNum){
+    $("#tr"+trNum).remove();
+}
+//编辑行
+// function editDataByOne(trNum){
+//     $this = $("#tr"+trNum);
+//     $(".form-control",$this).removeAttr("readonly");
+// }
+// //保存行
+// function saveByOne(trNum){
+//     $this = $("#tr"+trNum);
+//     $(".form-control",$this).attr("readonly","readonly");
+// }
+</script>
+
+
+
+{% endblock %}

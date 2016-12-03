@@ -1,0 +1,11 @@
+{% extends "default/base.html" %}
+{% block title %}结果{% endblock %}
+
+{% block content %}
+<div class="col-lg-12 center-block">
+    <h2 class="text-success text-center">操作成功</h2> 
+    <a class="btn btn-default" href="/index/" role="button">返回首页</a>
+   <!--  <a class="btn btn-default" href="{% url 'linechange' %}" role="button">返回上一页</a> -->
+    <a class="btn btn-default" href="#" role="button" onclick="self.location=document.referrer;">返回上一页</a>
+</div>
+{% endblock %}

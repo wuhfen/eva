@@ -1,0 +1,93 @@
+{% extends "default/base.html" %}
+{% block title %}我的上线单{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 发布更新列表 <small>project</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'deploy_list' %}">发布更新列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>上线任务清单</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>申请人</th>
+                    <th>关联项目</th>
+                    <th>标题</th>
+                    <th>添加时间</th>
+                    <th>发布时间</th>
+                    <th>分支</th>
+                    <th>CommitID</th>
+                    <th>标签Tag</th>
+                    <th>发布原因</th>
+                    <th>状态</th>
+                    <th>版本保留</th>
+
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in deploy_list %}
+                    <tr>
+                        <td>{{ v.executive_user }}</td>
+                        <td>{{ v.confile }}</td>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.ctime }}</td>
+                        <td>{{ v.execution_time }}</td>
+                        <td>{{ v.branches }}</td>
+                        <td>{{ v.release }}</td>
+                        <td>{{ v.tag }}</td>
+                        <td>{{ v.memo }}</td>
+                        <td>{{ v.status }}</td>
+                        <td>{{ v.exist }}</td>
+
+
+                        <td>
+                            {% if v.status == "未发布" %}
+
+                                <a href="{% url 'deploy_online' v.uuid %}" class="btn btx-xs btn-success"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 部署</a>
+                                <a href="#" class="btn btx-xs btn-warning"><i class="fa fa-trash-o" aria-hidden="true"></i> 删除</a>
+                            {% endif %}
+                            {% if v.exist == 'True' %}
+                                <a href="#" class="btn btx-xs btn-danger"><i class="fa fa-reply" aria-hidden="true"></i> 回滚</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+        <div class="box-footer">
+            <a href="{% url 'deploy_business' %}" class="btn btn-xs btn-info">提交上线任务</a>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "default/base.html" %}
+{% block title %}平台{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 平台管理 <small>platform</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="#">平台管理</a></li>
+        <li class="active"><a href="/business/platform_list/">平台列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>平台列表</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+                <a href="{% url 'platform_add' %}" type="button" class="btn btn-box-tool" data-widget="add" data-toggle="tooltip" title="添加平台"><i class="fa fa-plus-square"></i></a>
+            </div>
+        </div>
+        <form id="platform_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th class="text-center"><input type="checkbox" id="select_all"></th>
+                    <th>平台名称</th>
+                    <th>平台状态</th>
+                    <th>前端源站</th>
+                    <th>前端代理</th>
+                    <th>后台源站</th>
+                    <th>后台代理</th>
+                    <th>后台白名单</th>
+                    <th>第三方反代节点</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in platform_data %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
+                        <td>{{ v.name }}</td>
+                        <td>{% if v.status == True %}平台在用{% else %}平台停用{% endif %}</td>
+                        <td>
+                            {% for s in v.front_station.all %}
+                                <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.front_proxy.all %}
+                                <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.backend_station.all %}
+                                <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.backend_proxy.all %}
+                                <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.iptables_set.all %}
+                                <span class="label label-pill label-success">{{ s.i_source_ip }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.third_party_node.all %}
+                                <span class="label label-pill label-success">{{ s.ssh_host }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="{% url 'platform_detail' v.uuid %}" class="btn btn-xs btn-info">详情</a>
+                            <a href="{% url 'platform_edit' v.uuid %}" class="btn btn-xs btn-primary">修改</a>
+                            <!-- <a href="{% url 'platform_edit' v.uuid %}" class="btn btn-xs btn-primary">添加白名单</a> -->
+                            <a href="#" class="btn btn-xs btn-danger project-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            Footer
+        </div>
+    </div>
+</div>
+
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+</script>
+{% endblock %}

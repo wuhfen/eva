@@ -1,0 +1,50 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+
+{% block title %} 修改内存条 {% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h5 class="text-info">{{ ram_data.asset.server }}</h5>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal" method="post" action="" id="nic_add" role="form">
+                {% csrf_token %}
+                <table class="table table-hover table-striped table-bordered">
+                    {{ rf|bootstrap_horizontal }}
+                </table>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                         <a href="{% url 'ram_edit' ram_data.uuid %}" type="button" class="btn btn-primary btn-block" id="tijiao">保存</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#tijiao").click(function(){
+          var url= $(this).attr("href");
+          jQuery.ajax({
+            url: url,                  // 提交的页面
+            data: $('.form-horizontal').serialize(), // 从表单中获取数据
+            type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+            dataType:'text',
+            success: function(msg){
+                var nicadd = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                              parent.layer.close(nicadd); //执行关闭
+            }
+          });
+        });
+      return false;
+    });
+</script>
+
+{% endblock content %}

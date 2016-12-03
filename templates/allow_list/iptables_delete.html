@@ -1,0 +1,112 @@
+{% extends "default/base.html" %}
+{% block title %}防火墙{% endblock %}
+
+{% block assistant-header %} 源站IP查询
+	<ol class="breadcrumb">
+		<li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+		<li><a href="#">自动化管理</a></li>
+		<li><a href="/allow/iptables_delete/">后台白名单</a></li>
+	</ol>
+
+{% endblock %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="box">
+	<div class="box-header with-border">
+		<h4 class="text-primary">请选择要查询的站点</h4>
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+				<i class="fa fa-minus"></i></button>
+			<button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+				<i class="fa fa-times"></i></button>
+		</div>
+	</div>
+	<div class="box-body">
+		<form role="form" action="" method="post">
+			{% csrf_token %}
+			<div class="col-lg-8 col-mt-4">
+				<div class="form-group">
+					{{ ff.comment }}
+					<button type="submit" class="btn btn-info btn-sm" name="searchcomment">
+						<span class="glyphicon glyphicon-search"></span>
+					</button>
+				</div>
+			</div>
+			<div class="col-lg-4 col-mt-8">
+				<div class="form-group">
+					<label for="ip">
+					<input class="form-control" type="text" name="searchip" id="ip" placeholder="输入ip查询"></label>
+					<button type="submit" class="btn btn-info btn-sm" >
+					<span class="glyphicon glyphicon-search"></span>
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+<!-- 	<div class="box-footer">
+		Footer
+	</div> -->
+</div>
+
+
+<div class="box">
+	<div class="box-header with-border">
+		<h4 class="text-primary">规则清单</h4>
+		<div class="box-tools pull-right">
+			<button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+				<i class="fa fa-minus"></i></button>
+			<button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+				<i class="fa fa-times"></i></button>
+		</div>
+	</div>
+
+	<div class="box-body">
+		<p>目前共有 {{ search_rules|length }} 条规则</p>
+		{% if infos %}
+		    <p style="color:red;">
+		    {{ infos }}
+		    </p>
+		{% endif %}
+		<div class="table-responsive">
+			<table class="table table-hover table-striped">
+				<tr>
+					<th>编号</th>
+					<th>IP地址</th>
+					<th>站点备注</th>
+					<th>新站老站</th>
+					<th>添加时间</th>
+					<th>添加用户</th>
+					{% if perms.Allow_list.delete_iptables %}
+					<th>动作</th>
+					{% endif %}
+				</tr>
+			{% for v in search_rules %}
+				<tr>
+				<form role="form" action="" method="post">
+				{% csrf_token %}
+					<td>{{ v.id }}</td>
+					<td>{{ v.i_source_ip }}</td>
+					<td>{{ v.i_comment }}</td>
+					<td>{{ v.i_tag }}</td>
+					<td>{{ v.i_date_time }}</td>
+					<td>{{ v.i_user }}</td>
+					{% if perms.Allow_list.delete_iptables %}
+					<td>
+						<button type="submit" class="btn btn-danger" name="delete" value={{ v.id }}>
+					      <span class="glyphicon glyphicon-remove"></span> 删除
+					    </button>
+					</td>
+					{% endif %}
+				</form>
+				</tr>
+			{% endfor %}
+			</table>
+		</div>
+	</div>
+
+</div>
+
+
+
+{% endblock %}

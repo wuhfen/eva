@@ -1,0 +1,91 @@
+{% extends "default/base.html" %}
+{% block title %}项目{% endblock %}
+
+{% block assistant-header %}
+    <h1> 项目 <small>project</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="#">assets</a></li>
+        <li class="active"><a href="/assets/project_list/">project_list</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+<div class="box">
+        <div class="box-header with-border">
+        <h4 class="text-primary">项目列表</h4>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>编号</th>
+                        <th>项目名称</th>
+                        <th>产品线</th>
+                        <th>负责人</th>
+                        <th>简介</th>
+                        <th>项目组成员</th>
+                        <th>操作</th>
+
+                    </tr>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.sort }}</td>
+                        <td>{{ v.project_name }}</td>
+                        <td>{{ v.line }}</td>
+                        <td>{{ v.project_contact }}</td>
+                        <td>{{ v.description }}</td>
+                        <td>{{ v.project_user_group }}</td>
+                        <td>
+                            <a href="{% url 'project_edit' v.uuid %}" class="btn btn-xs btn-primary project-edit">修改</a>
+                            <a href="{% url 'project_delete' v.uuid %}" class="btn btn-xs btn-primary project-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+</div>
+
+<script>
+    $(".project-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '项目修改',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+$(".project-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 项目|Add Line {% endblock %}
+
+{% block assistant-header %} 添加项目 {% endblock %}
+
+{% block content %}
+
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">请填写下列需求</div>
+        <!-- 小body -->
+        <div class="panel-body">
+            <form role="form" action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            <dir class="form-group col-sm-11 col-md-10" id="content-block">
+                {{ pf.project_name|bootstrap_horizontal }}
+                {{ pf.aliases_name|bootstrap_horizontal }}
+                {{ pf.project_contact|bootstrap_horizontal }}
+                {{ pf.line|bootstrap_horizontal }}
+                {{ pf.project_user_group|bootstrap_horizontal }}
+                <div class="hr-line-dashed"></div>
+                {{ pf.description|bootstrap_horizontal }}
+                {{ pf.sort|bootstrap_horizontal }}
+            </dir>
+            <div class="form-group col-sm-offset-2 col-sm-8">
+                <button type="reset" id="btn-submit" class="btn btn-primary">重置</button>
+                <button type="submit" id="btn-submit" class="btn btn-primary">保存</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

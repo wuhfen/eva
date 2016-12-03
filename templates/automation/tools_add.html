@@ -1,0 +1,107 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加仓库|Add repo {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>仓库管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'tools_list' %}">仓库列表</a></li>
+        <li><a href="{% url 'tools_add' %}">添加仓库</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+
+            <div class="col-md-10 col-lg-10">
+                    <div class="box box-info">
+                        <div class="box-header with-border">填写基本信息
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                                    <i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                                    <i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            {% for i in tf_errors %}
+                                <p class="text-danger">{{ i }}</p>
+                            {% endfor %}
+                            <form class="form-horizontal" action="" id="tools_add"  method="post" name="horizontal" role="form" autocomplete="off">
+                                {% csrf_token %}
+                            <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
+                                {{ tf|bootstrap_horizontal }}
+                            </table>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-5">
+                                        <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                                        <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+            </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#tools_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "name": {
+                rule: "required",
+                tip: "选择工具",
+                ok: "",
+                msg: {required: "必须填写!"},
+            },
+            "title": {
+                rule: "required",
+                tip: "展示标题",
+                ok: "",
+                msg: {required: "必须填写!"},
+            },
+            "address": {
+                rule: "required",
+                tip: "url地址",
+                ok: "",
+                msg: {required: "必须填写!"},
+            },
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+
+</script>
+
+{% endblock content %}

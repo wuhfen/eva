@@ -1,0 +1,185 @@
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#sidebar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><span>鼎泰科技</span>自动化系统</a>
+				<ul class="user-menu">
+					<li class="dropdown pull-right">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> User <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> 个人资料</a></li>
+							<li><a href="/accounts/changepasswd/"><svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> 修改密码</a></li>
+							<li><a href="/accounts/logout/"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> 退出登录</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+							
+		</div>
+	</nav>
+
+
+	<div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+		<form role="search">
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Search">
+			</div>
+		</form>
+		<ul class="nav menu">
+			<li class="active"><a href="/index/"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg> 主页</a></li>
+			{% if perms.assets.add_asset %}
+			<li class="parent">
+				<a href="#assetsmanager" data-toggle="collapse">
+					<span><svg class="glyph stroked home"><use xlink:href="#stroked-home"/></svg></span> 资产管理 
+				</a>
+				<ul class="children collapse" id="assetsmanager">
+					<li class="parent">
+						<a href="#addassets" data-toggle="collapse"><span><svg class="glyph stroked desktop computer and mobile"><use xlink:href="#stroked-desktop-computer-and-mobile"/></svg></span>添加资产</a>
+						<ul class="children collapse" id="addassets">
+							<li><a href="{% url 'server_add' %}"><span class="glyphicon glyphicon-plus-sign"></span>添加服务器</a></li>
+							<li><span class="glyphicon glyphicon-plus-sign"></span>添加虚拟机</li>
+							<li><span class="glyphicon glyphicon-plus-sign"></span>添加交换机</li>
+							<li><span class="glyphicon glyphicon-plus-sign"></span>添加路由器</li>
+							<li><span class="glyphicon glyphicon-plus-sign"></span>添加防火墙</li>
+							<li><span class="glyphicon glyphicon-plus-sign"></span>添加其他资产</li>
+						</ul>
+					</li>
+					<li class="parent">
+						<a href="#servermanager" data-toggle="collapse">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 服务器管理
+						</a>
+						<ul class="children collapse" id="servermanager">
+						<li><a href="#"><span class="glyphicon glyphicon-book"></span>资产列表</a> </li>
+						<li><a href="{% url 'server_add' %}"><span class="glyphicon glyphicon-plus-sign"></span>添加服务器</a> </li>
+						</ul>
+					</li>
+					
+					<li>
+						<a class="" href="{% url 'department_list' %}">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 系统管理
+						</a>
+					</li>
+				</ul>
+			</li>
+			<li class="parent">
+						<a href="#idcmanager" data-toggle="collapse">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 机房管理
+						</a>
+						<ul class="children collapse" id="idcmanager">
+							<li><a href="{% url 'idc_add' %}"><span class="glyphicon glyphicon-plus"></span>添加机房</a> </li>
+							<li><a href="{% url 'idc_list' %}"><span class="glyphicon glyphicon-search"></span>查看机房</a> </li>
+							<li><a href="{% url 'moudle_add' %}"><span class="glyphicon glyphicon-plus"></span>添加机房区域</a> </li>
+							<li><a href="{% url 'moudle_list' %}"><span class="glyphicon glyphicon-search"></span>查看机房区域</a> </li>
+							<li><a href="{% url 'cabinet_add' %}"><span class="glyphicon glyphicon-plus"></span>添加机柜</a> </li>
+							<li><a href="{% url 'cabinet_list' %}"><span class="glyphicon glyphicon-search"></span>查看机柜</a> </li>
+						</ul>
+					</li>
+			<li class="parent">
+				<a href="#project" data-toggle="collapse">
+					<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 项目管理
+				</a>
+				<ul class="children collapse" id="project">
+					<li><a href="{% url 'line_add' %}"><span class="glyphicon glyphicon-random"></span>添加产品线</a> </li>
+					<li><a href="{% url 'line_list' %}"><span class="glyphicon glyphicon-search"></span>查看产品线</a> </li>
+					<li><a href="{% url 'project_add' %}"><span class="glyphicon glyphicon-leaf"></span>添加项目</a> </li>
+					<li><a href="{% url 'project_list' %}"><span class="glyphicon glyphicon-search"></span>查看项目</a> </li>
+					<li><a href="{% url 'service_add' %}"><span class="glyphicon glyphicon-leaf"></span>添加服务</a> </li>
+					<li><a href="{% url 'service_list' %}"><span class="glyphicon glyphicon-search"></span>查看服务</a> </li>
+				</ul>
+			</li>
+			{% endif %}
+			{% if perms.admin.add_log_entry %}
+			<li><a href="/admin/"><svg class="glyph stroked calendar"><use xlink:href="#stroked-calendar"></use></svg> 后台</a></li>
+			{% endif %}
+			{% if perms.Allow_list.add_iptables %}
+			<li class="parent">
+				<a href="#automanager" data-toggle="collapse"><span><svg class="glyph stroked round coffee mug"><use xlink:href="#stroked-round-coffee-mug"/></svg></span>自动化管理</a>
+				<ul class="children collapse" id="automanager">
+					<li class="parent">
+						<a href="#backend-iptables" data-toggle="collapse"><span><svg class="glyph stroked calendar blank"><use xlink:href="#stroked-calendar-blank"/></svg></span>后台白名单</a>
+						<ul class="children collapse" id="backend-iptables">
+							<li><a href="{% url 'iptables' %}"><span class="glyphicon glyphicon-plus"></span> 白名单添加</a></li>
+							<li><a href="{% url 'delete-ip' %}"><span class="glyphicon glyphicon-search"></span> 白名单查看</a></li>
+						</ul>
+					</li>
+					<li class="parent">
+						<a href="#api-iptables" data-toggle="collapse"><span><svg class="glyph stroked calendar blank"><use xlink:href="#stroked-calendar-blank"/></svg></span>API白名单</a>
+						<ul class="children collapse" id="api-iptables">
+							<li><a href="#"><span class="glyphicon glyphicon-plus"></span> 白名单添加</a></li>
+							<li><a href="#"><span class="glyphicon glyphicon-search"></span> 白名单查看</a></li>
+						</ul>
+					</li>
+					<li><a href="{% url 'linechange' %}"><svg class="glyph stroked pencil"><use xlink:href="#stroked-pencil"></use></svg> 后台线路切换</a></li>
+				</ul>
+			</li>
+			{% endif %}
+			<!-- 开始下拉选择按钮项 -->
+			{% if perms.accounts.add_customuser %}
+			<li class="parent ">
+				<a href="#sub-item-1" data-toggle="collapse">
+					<span><svg class="glyph stroked male user "><use xlink:href="#stroked-male-user"/></svg></span> 用户管理 
+				</a>
+				<ul class="children collapse" id="sub-item-1">
+					<li>
+						<a class="" href="{% url 'add_user' %}">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 添加用户
+						</a>
+					</li>
+					<li>
+						<a class="" href="{% url 'user_list' %}">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 查看用户
+						</a>
+					</li>
+					<li>
+						<a class="" href="{% url 'department_add' %}">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 添加部门
+						</a>
+					</li>
+					<li>
+						<a class="" href="{% url 'department_list' %}">
+							<svg class="glyph stroked chevron-right"><use xlink:href="#stroked-chevron-right"></use></svg> 查看部门
+						</a>
+					</li>
+				</ul>
+			</li>
+			{% endif %}
+			{% if perms.auth.add_permission %}
+			<li role="presentation" class="divider"></li>
+			<li class="parent">
+				<a href="#sub-item-2" data-toggle="collapse">
+					<span><svg class="glyph stroked lock"><use xlink:href="#stroked-lock"></use></svg></span> 权限管理 
+				</a>
+				<ul class="children collapse" id="sub-item-2">
+					<li>
+						<a class="" href="{% url 'auth_index' %}">
+							<svg class="glyph stroked plus sign"><use xlink:href="#stroked-plus-sign"></use></svg> 权限分配
+						</a>
+					</li>
+					<li>
+						<a class="" href="{% url 'auth_group_add' %}">
+							<svg class="glyph stroked plus sign"><use xlink:href="#stroked-plus-sign"></use></svg> 创建权限组
+						</a>
+					</li>
+					<li>
+						<a class="" href="#">
+							<svg class="glyph stroked plus sign"><use xlink:href="#stroked-plus-sign"></use></svg> 发布权限
+						</a>
+					</li>
+				</ul>
+				
+			</li>
+			{% endif %}
+			{% if perms.accounts.add_server_auth %}
+			<li><a href="#"><svg class="glyph stroked clipboard with paper"><use xlink:href="#stroked-clipboard-with-paper"></use></svg> 日志审计</a></li>
+			{% endif %}
+			<li role="presentation" class="divider"></li>
+			<li><a href="/accounts/login/"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> 登 录 </a></li>
+			<li><a href="/accounts/logout/"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> 退 出 </a></li>
+		</ul>
+
+	</div>

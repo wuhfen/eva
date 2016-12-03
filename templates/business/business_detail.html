@@ -1,0 +1,160 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+
+{% block title %} 业务详情|platform detail{% endblock %}
+
+
+    {% block assistant-header %} <h3> 业务详情|platform detail</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'business_list' %}">业务管理</a></li>
+        <li><a href="{% url 'business_detail' business_data.uuid %}">业务详情</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+
+<div class="col-lg-9">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>业务基本信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th class="text-info">业务全名</th>
+                    <td>{{ business_data.full_name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">业务简称</th>
+                    <td>{{ business_data.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">发布代号</th>
+                    <td>{{ business_data.nic_name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">平台</th>
+                    <td>{{ business_data.platform.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">建站时间</th>
+                    <td>{{ business_data.initsite_data }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">负责人</th>
+                    <td>{{ business_data.functionary.username }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">专员</th>
+                    <td>{{ business_data.ds_contact.username }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">客户名</th>
+                    <td>{{ business_data.agent_contact }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">客户电话</th>
+                    <td>{{ business_data.agent_contact_method }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">客户联系方式</th>
+                    <td>{{ business_data.other_contact_method }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">业务状态</th>
+                    <td>
+                        {% if business_data.status == '0' %}正常运转{% elif business_data.status == '1' %}维护升级{% elif business_data.status == '2' %}迁移过渡{% else %}停止运转{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">状态变更时间</th>
+                    <td>
+                        {{ business_data.status_update_date }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端源站web文件</th>
+                    <td>{{ business_data.front_station_web_file }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端源站web文件路径</th>
+                    <td>{{ business_data.front_station_web_dir }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端代理web文件</th>
+                    <td>{{ business_data.front_proxy_web_file }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端代理web文件路径</th>
+                    <td>{{ business_data.front_proxy_web_dir }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台源站web文件</th>
+                    <td>{{ business_data.backend_station_web_file }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台源站web文件路径</th>
+                    <td>{{ business_data.backend_station_web_dir }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台代理web文件</th>
+                    <td>{{ business_data.backend_proxy_web_file }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台代理web文件路径</th>
+                    <td>{{ business_data.backend_proxy_web_dir }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">第三方反代web文件</th>
+                    <td>{{ business_data.third_proxy_web_file }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">第三方反代web文件路径</th>
+                    <td>{{ business_data.third_proxy_web_dir }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">业务介绍</th>
+                    <td>
+                        {{ business_data.description }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-lg-3">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>更新日志 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+        <div><a href="{% url 'business_edit' business_data.uuid %}" class="btn btn-info btn-xs">修改业务信息</a></div>
+        </div>
+    </div>
+
+
+
+</div>
+
+</div>
+{% endblock %}

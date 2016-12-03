@@ -1,0 +1,471 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 资产添加|Add Asset {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 添加虚拟机
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">资产管理</a></li>
+        <li><a href="/assets/virtual_add/">添加虚拟机</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+<form class="form-horizontal" action="" id="virtual_add"  method="post" name="horizontal" role="form" autocomplete="off">
+{% csrf_token %}
+<div class="col-md-6 col-lg-5">
+    <div class="box box-info">
+        <div class="box-header with-border">添加虚拟机信息
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            {% for e in ff_error %}
+                <p style="color:red;">{{ e }} <br /></p>
+            {% endfor %}
+            <div class="form-group">
+            <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
+                <tr>
+                    <!-- <th>服务器名</th> -->
+                    <td>{{ sf.name|bootstrap_horizontal }}</td>
+                </tr>
+                 <tr hidden="hidden">
+                    <td>{{ af.asset_type|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>ssh host</th> -->
+                    <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>ssh port</th> -->
+                    <td>{{ sf.ssh_port|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>ssh password</th> -->
+                    <td>{{ sf.ssh_password|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>资产编号</th> -->
+                    <td>{{ af.asset_number|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>用途</th> -->
+                    <td>{{ af.purpose|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>使用情况</th> -->
+                    <td>{{ af.status|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>冗余级别</th> -->
+                    <td>{{ sf.Raid_level|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>硬盘总容量(GB)</th> -->
+                    <td>{{ sf.Disk_total|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>内存总容量(GB)</th> -->
+                    <td>{{ sf.RAM_total|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>虚拟主机父主机</th> -->
+                    <td>{{ sf.parent |bootstrap_horizontal}}</td>
+                </tr>
+                <tr>
+                    <!-- <th>设备供应商</th> -->
+                    <td>{{ af.manufactory|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                   <!--  <th>购买日期</th> -->
+                    <td>{{ af.trade_date|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>保修期</th> -->
+                    <td>{{ af.expire_date|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>价格</th> -->
+                    <td>{{ af.price|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>保修期</th> -->
+                    <td>{{ af.price_total|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>资产管理员</th> -->
+                    <td>{{ af.manager|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>备注</th> -->
+                    <td>{{ af.memo |bootstrap_horizontal}}</td>
+                </tr>
+            </table>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6 col-lg-7">
+<!--网卡信息-->
+    <div class="box box-info">
+        <div class="box-header with-border"> 添加网卡信息 
+
+            <div class="columns btn-group pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="add" data-toggle="tooltip" title="add" onclick="addTable();">
+                    <i class="fa fa-plus-square"></i></button>
+            </div>
+        </div>
+        <!-- 小body -->
+        <div class="box-body">
+
+            <div class="form-group">
+            <table data-toggle="table" data-row-style="rowStyle" class="table table-hover table-bordered" id="myTable">
+              <tr align="center"> 
+                  <th >网卡名</th>  
+                  <th >用途</th>  
+                  <th >MAC</th>
+                  <th >IP</th>  
+                  <th >子网掩码</th>
+                  <th >操作</th>
+              </tr>
+            </table>
+            </div>
+
+        </div>
+    </div>
+
+<!--下面是系统信息-->
+    <div class="box box-info">
+        <div class="box-header with-border"> 添加系统信息 
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="form-group">
+            <table data-toggle="table" id="table-cpu" data-row-style="rowStyle" class="table table-hover table-bordered">
+                <tr>
+                    <!-- <th>系统状态</th> -->
+                    <td>{{ sf.system_status|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>系统类型</th> -->
+                    <td>{{ sf.os_type|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>系统版本</th> -->
+                    <td>{{ sf.os_version|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>系统版本号</th> -->
+                    <td>{{ sf.os_release|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>系统内核</th> -->
+                    <td>{{ sf.os_kernel |bootstrap_horizontal}}</td>
+                </tr>
+                <tr>
+                    <!-- <th>虚拟机环境</th> -->
+                    <td>{{ sf.env|bootstrap_horizontal }}</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+<!--下面是cpu信息-->
+    <div class="box box-info">
+        <div class="box-header with-border"> 添加CPU信息 
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <div class="box-body">
+            <div class="form-group">
+            <table data-toggle="table" id="table-cpu" data-row-style="rowStyle" class="table table-hover table-bordered">
+            <tr>
+                <th>CPU型号</th>
+                <th>物理cpu个数</th>
+                <th>cpu核数</th>
+                <th>备注</th>
+                
+            </tr>
+            <tr>
+                <td>{{ cf.cpu_model }}</td>
+                <td>{{ cf.cpu_count }}</td>
+                <td>{{ cf.cpu_core_count }}</td>
+                <td>{{ cf.memo}}</td>
+            </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+
+<!--所属项目-->
+    <div class="row">
+        <div class="col-lg-6 col-md-6">
+            <div class="box box-info">
+                <div class="box-header with-border"> 服务器所属项目 
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                            <i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <select id="groups" size="10" class="form-control m-b" multiple>
+                            {% for i in projects %}
+                                    <option value="{{ i.uuid }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="btn-group" style="margin-top: 50px;">
+                                <button type="button" class="btn btn-primary btn-block" onclick="move_right('groups', 'groups_selected')"><i class="fa fa-long-arrow-right"></i></button>
+                                <button type="button" class="btn btn-primary btn-block" onclick="move_left('groups_selected', 'groups')"><i class="fa fa-long-arrow-left"></i> </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div>
+                                <select id="groups_selected" name="project" class="form-control m-b" size="10"  multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!--运行服务-->
+        <div class="col-lg-6 col-md-6">
+            <div class="box box-info">
+                <div class="box-header with-border"> 服务器运行程序 
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                            <i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <select id="services" size="10" class="form-control m-b" multiple>
+                            {% for i in services %}
+                                <option value="{{ i.uuid }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="btn-group" style="margin-top: 50px;">
+                                <button type="button" class="btn btn-primary btn-block" onclick="move_right('services', 'services_selected')"><i class="fa  fa-long-arrow-right"></i></button>
+                                <button type="button" class="btn btn-primary btn-block" onclick="move_left('services_selected', 'services')"><i class="fa  fa-long-arrow-left"></i> </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-5">
+                            <div>
+                                <select id="services_selected" name="service" class="form-control m-b" size="10"  multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+<!--所属机房-->
+<!--     <div class="box box-info">
+
+    </div> -->
+    <div class="form-group">
+        <div class="col-sm-4 col-sm-offset-5">
+            <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+            <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+        </div>
+    </div>
+</div>
+
+</form>
+</div>
+
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#virtual_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_top",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "name": {
+                rule: "required;check_node",
+                tip: "输入主机名",
+                ok: "",
+                msg: {required: "必须填写!"},
+                data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
+            },
+             "nic_name0":{
+                rule: "required;check_node",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "nic_macaddress0":{
+                rule: "required;check_mac",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "nic_ipaddress0":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "nic_name1":{
+                rule: "required;check_node",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "nic_macaddress1":{
+                rule: "required;check_mac",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "nic_ipaddress1":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "ssh_host":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "manager":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "asset_number":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "system_status":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            }
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+
+</script>
+
+
+
+<script>
+var numo = 0;
+//定义网卡的js
+    function addTable(){
+        var tableHtml ="";
+        tableHtml += '<tr id="tr'+numo+'">'
+                 +'<td><input class="form-control" id="nic_name'+numo+'" type="text" placeholder="必填 eth0..." name="nic_name'+numo+'" /></td>'
+                 +'<td><input class="form-control" id="nic_memo'+numo+'" type="text" placeholder="内网 or 外网" name="nic_memo'+numo+'"/></td>'
+                 +'<td><input class="form-control" id="nic_macaddress'+numo+'" type="text" placeholder="必填" name="nic_macaddress'+numo+'"/></td>'
+                 +'<td><input class="form-control" id="nic_ipaddress'+numo+'" type="text" placeholder="必填 0.0.0.0" name="nic_ipaddress'+numo+'"/></td>'
+                 +'<td><input class="form-control" id="nic_netmask'+numo+'" type="text" name="nic_netmask'+numo+'"/></td>'
+                 +'<td><a class="btn btn-primary" onclick="removeTr('+numo+')">移除</a>'
+                 +'</td>'
+                 +'</tr>';
+        
+        var elements = $("#myTable").children().length;    //表示id为“mtTable”的标签下的子标签的个数
+        
+        $("#myTable").children().eq(elements - 1).after(tableHtml); //在表头之后添加空白行
+        numo++;     
+    }
+
+//移除行
+function removeTr(trNum){
+    $("#tr"+trNum).remove();
+}
+
+//左右移动的select选项js
+function move_left(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+            $(this).attr("selected",'false');
+        }
+        $(this).attr("selected",'true');
+    });
+}
+function move_right(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+        }
+
+    });
+}
+
+// function move_all(from, to){
+//     $("#"+from).children().each(function(){
+//         $("#"+to).append(this);
+//     });
+// }
+
+
+</script>
+{% endblock content %}

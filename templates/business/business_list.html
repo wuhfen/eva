@@ -1,0 +1,179 @@
+{% extends "default/base.html" %}
+{% block title %}业务{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 业务管理 <small>project</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/business/business_list/">业务列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>业务列表</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th class="text-center"><input type="checkbox" id="select_all"></th>
+                    <th>业务名称</th>
+                    <th>代号</th>
+                    <th>业务平台</th>
+
+                    <th>业务状态</th>
+                    <th>状态变更时间</th>
+                    <th>前端域名</th>
+                    <th>接口域名</th>
+                    <th>后台域名</th>
+                    <th>后台白名单</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in business_data %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.nic_name }}</td>
+
+                        <td>{% if v.site_type == 'old_site' %}老平台{% else %}新平台{% endif %}</td>
+
+                        <td>{% if v.status == '0' %}正常运转{% elif v.status == '1' %}维护升级{% elif v.status == '2' %}迁移过渡{% else %}停止运转{% endif %}</td>
+                        <td>{{ v.status_update_date }}</td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '0' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '1' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '2' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ v.backend_allow_list }}</td>
+
+                        <td>
+                            <a href="{% url 'business_detail' v.uuid %}" class="btn btn-xs btn-info">详情</a>
+                            <a href="{% url 'business_edit' v.uuid %}" class="btn btn-xs btn-primary business-edit">修改</a>
+                            <a href="{% url 'domain_rsync' v.uuid %}" class="btn btn-xs btn-warning">域名同步</a>
+                            <a href="{% url 'business_delete' v.uuid %}" class="btn btn-xs btn-danger business-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            <a href="{% url 'business_add' %}" class="btn btn-xs btn-info project-delete">添加业务</a>
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+
+
+
+    </script>
+
+<script type="text/javascript">
+
+    $(".business-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改服务器信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+    $(".business-delete").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定删除吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+
+
+</script>
+{% endblock %}

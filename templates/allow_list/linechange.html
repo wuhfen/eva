@@ -1,0 +1,139 @@
+{% extends "default/base.html" %}
+{% block title %}Change Page{% endblock %}
+
+{% block assistant-header %} 线路切换|Change Line {% endblock %}
+
+{% block content %}
+
+<div class="box">
+	<div class="box-header with-border">
+		<h3 class="text-primary">客户列表</h3>
+		<div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+        </div>
+	</div>
+	<div class="box-body">
+	<form role="form" action="" method="post">{% csrf_token %}
+			<div class="form-group">
+				<label>请选择客户</label><br>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent1" value="chengxin" >
+					诚信</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent2" value="yifa" >
+					易发</label>
+					<label class="checkbox-inline">
+					<input type="radio" name="choiceagent" id="agent3" value="flb" >
+					菲律宾</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent4" value="bogou" >
+					博狗</label>
+					<label class="checkbox-inline">
+					<input type="radio" name="choiceagent" id="agent5" value="shouxin" >
+					守信</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent6" value="amwnsr" >
+					威尼斯人</label>
+					<label class="checkbox-inline">
+					<input type="radio" name="choiceagent" id="agent7" value="meigaomei" >
+					美高梅</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent8" value="kuke" >
+					酷客</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent9" value="dafa" >
+					大发</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceagent" id="agent10" value="yongli" >
+					永利</label>
+			</div>
+			<div class="form-group">
+				<label>请选择线路</label><br>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceline" id="choice2" value="line_one" >
+					线路一</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceline" id="choice3" value="line_two" >
+					线路二</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceline" id="choice3" value="line_three" >
+					线路三</label>
+					<label class="checkbox-inline"> 
+					<input type="radio" name="choiceline" id="choice4" value="line_four" >
+					线路四</label>
+
+			</div>
+			<div class="form-group">
+				<button type="submit" name="search" class="btn btn-info">
+					<span class="glyphicon glyphicon-search"></span> 查询
+				</button> 
+				<button type="submit" class="btn btn-info" name="change">
+					<span class="glyphicon glyphicon-refresh" ></span> 切换
+				</button>
+			</div>
+	</form>
+	{% for e in line_errors %}
+	    <p style="color:red;">{{ e }} <br /></p>
+	{% endfor %}
+	</div>
+</div>
+
+<div class="box">
+	<div class="box-header with-border">
+		<h3 class="text-primary">线路列表</h3>
+		<div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+              <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+              <i class="fa fa-times"></i></button>
+        </div>
+	</div>
+		<div class="box-body">
+		
+			<p>目前共有 {{ search_lines|length }} 条线路</p>
+			{% if infos %}
+			    <p style="color:red;">
+			    {{ infos }}
+			    </p>
+			{% endif %}
+
+			<div class="table-responsive">
+				<table class="table table-hover table-striped">
+					<tr>
+						<th>源站</th>
+						<th>供应商</th>
+						<th>线路</th>
+						<th>地址</th>
+						<th>状态</th>
+					</tr>
+				{% for v in search_lines %}
+					<tr>
+					<form role="form" action="" method="post">
+					{% csrf_token %}
+						<td>{{ v.host_ip }}</td>
+						<td>{{ v.agent }}</td>
+						<td>{{ v.comment }}</td>
+						<td>{{ v.line }}</td>
+						<td>{{ v.status }}</td>
+<!-- 						<td>
+							<button type="submit" class="btn btn-danger" name="change" value={{ v.id }}>
+						      <span class="glyphicon glyphicon-refresh"></span> 切换
+						    </button>
+						</td> -->
+					</form>
+					</tr>
+				{% endfor %}
+
+				</table>
+			</div>
+
+		</div>
+</div>
+
+
+
+
+{% endblock %}

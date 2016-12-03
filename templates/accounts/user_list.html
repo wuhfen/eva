@@ -1,0 +1,97 @@
+{% extends 'default/base.html' %}
+
+{% block title %} 查看用户 {% endblock %}
+
+{% block assistant-header %} 用户列表 | CustomUser List 
+
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">用户管理</a></li>
+        <li><a href="/accounts/user_list/">查看用户</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="box box-info">
+<!--         <div class="ibox float-e-margins"> -->
+                <div class="box-options">
+                    <ul class="nav nav-pills">
+                        <li class="user_list"><a href="{% url 'user_list' %}" class="text-center"><span class="glyphicon glyphicon-user"></span> 在职人员 </a></li>
+                        <li class="old"><a href="{% url 'old_user' %}" class="text-center"><span class="glyphicon glyphicon-ok"></span> 离职人员 </a></li>
+                        <li class="user_forbidden"><a href="{% url 'forbidden_user' %}" class="text-center"><span class="glyphicon glyphicon-remove"></span> 禁用帐号</a></li>
+                    </ul>
+                </div>
+                <div class="clearfix visible-xs-block"></div>
+
+            <div class="box-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>部门</th>
+                            <th>用户id</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    {% for i in uf %}
+                        <tbody>
+                            <tr>
+                                <td>{{ i.username }}</td>
+                                <td>{{ i.first_name }}</td>
+                                <td>
+                                    {% if i.department %}
+                                    {{ i.department }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ i.id| add:30000 }}</td>
+                                <td>
+                                    {% if i.is_active  and i.is_staff%}
+                                        <i class="fa fa-check-circle-o" style="color:#279048">正常</i>
+                                    {% elif not i.is_staff and i.is_active%}
+                                        <i class="fa fa-ban">禁用</i>
+                                    {% else %}
+                                        <i class="fa fa-ban">离职</i>
+                                    {% endif %}</td>
+                                <td>
+                                    {% if request.user.is_superuser or request.session.fun_auth.edit_user %}
+                                    <a href="/accounts/user_edit/{{ i.id }}/" class="btn btn-xs btn-info">修改</a>
+                                    {% if not i.is_staff and i.is_active %}
+                                        <a href="/accounts/status/{{ i.id }}/" class="btn btn-success btn-xs status">恢复</a>
+                                    {% else %}
+                                         <a href="/accounts/status/{{ i.id }}/" class="btn btn-xs btn-warning status">禁用</a>
+                                        {% endif %}
+                                    <a href="/accounts/delete/{{ i.id }}/" class="btn btn-xs btn-danger status">删除</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        <!-- </div> -->
+    </div>
+
+<script>
+$(function() {
+    $(document).on("click", ".status", function (e) {
+        e.preventDefault();
+        var url = $(this).attr("href");
+        $.ajax({
+            type: "GET",
+            url: url
+        }).done(function (data) {
+            window.location.reload();
+        });
+        return false;
+    });
+})
+</script>
+    <script type="text/javascript">
+    var two = document.location.pathname.split("/")[2];
+    $("." + two).addClass('active');
+</script>
+{% endblock content %}

@@ -1,0 +1,29 @@
+
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="pills" href="{% url 'auth_index' %}" class="text-center"><span class="glyphicon glyphicon-indent-left"></span> 权限组 </a></li>
+        <li class="swan_auth"><a data-toggle="pills" href="/auth/swan_auth/push_auth/" class="text-center"><span class="glyphicon glyphicon-plane"></span> 发布权限 </a></li>
+        <li class="host"><a data-toggle="pills" href="/auth/host/user_list/" class="text-center"><span class="glyphicon glyphicon-compressed"></span> 服务器授权 </a></li>
+        <li class="search ol-sm-2 col-lg-4" style="float: right">
+            <form role="search" id="search_form" method="get" action="">
+                <div class="input-group">
+                    <input type="text" class="form-control input-md" id="search_input" name="keyword" placeholder="Search">
+                    <input type="text" style="display: none">
+                    <div class="input-group-btn">
+                    <button id='search_btn' type="button" class="btn btn-md btn-primary" onclick="log_search()">
+                        Search
+                    </button>
+                    </div>
+                </div>
+            </form>
+        </li>
+    </ul>
+
+
+<!-- 右侧菜单栏控制 -->
+<!-- <script type="text/javascript">
+    var three = document.location.pathname.split("/")[2];
+    if (str == "swan"){
+        $("." + str).addClass('active');
+    }
+         $("." + three).addClass('active');
+</script> -->

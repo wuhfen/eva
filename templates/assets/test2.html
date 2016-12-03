@@ -1,0 +1,60 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% load projects_tag %}
+{% block title %} Test {% endblock %}
+
+<!-- {% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %} -->
+
+
+{% block assistant-header %} 测试
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">资产管理</a></li>
+        <li><a href="/assets/server_add/">测试</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-info">
+    <div class="box-header with-border"><h4>服务器信息列表</h4>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                <i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        <dir class="form-group col-sm-12 col-md-12" id="content-block">
+        <table id="host_info" class="table table-striped table-bordered table-hover">
+        <tr>
+            <th>主机名</th>
+            <th>IP</th>
+            <th>PORT</th>
+            <th>服务</th>
+            <th>项目</th>
+            <th>机房</th>
+        </tr>
+            <td>{{ servers.name }}</td>
+            <td>{{ servers.ssh_host }}</td>
+            <td>{{ servers.port }}</td>
+            <td>{{ servers.service.all|group_str2 }}</td>
+            <td>{% for s in servers.uuid|business_list %}
+                <a href="#" class="btn btn-primary">{{ s }}</a>
+                {% endfor %}
+            </td>
+            <td>{{ servers.idc }}</td>
+        </table>
+        </dir>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

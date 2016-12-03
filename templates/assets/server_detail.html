@@ -1,0 +1,427 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% load projects_tag %}
+
+{% block title %} 服务器详情|Server detail{% endblock %}
+
+<!-- {% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %} -->
+
+
+    {% block assistant-header %} <h3> 服务器详情|Server detail</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">资产管理</a></li>
+        <li><a href="#">服务器详情</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+
+<div class="col-lg-4">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>服务器基本信息 </strong></h4>
+            <p class="text-warning"><i class="fa  fa-lightbulb-o"></i><small>  此服务器属于物理机</small></p>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th class="text-info">主机名</th>
+                    <td>{{ server.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">SSH-IP</th>
+                    <td>{{ server.ssh_host }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">SSH-PORT</th>
+                    <td>{{ server.ssh_port }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">远控卡ip</th>
+                    <td>{{ server.ipmitool }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">CPU颗数</th>
+                    <td>{{ server.asset.cpu.cpu_count }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">内存(GB)</th>
+                    <td>{{ server.asset.cpu.cpu_core_count }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">硬盘(GB)</th>
+                    <td>{{ server.asset.cpu.cpu_core_count }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">冗余级别</th>
+                    <td>{{ server.Raid_level }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">系统状态</th>
+                    {% if server.system_status == 0 %}
+                        <td>未安装</td>
+                    {% else %}
+                        <td>已安装</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th class="text-info">系统详情</th>
+                    <td>{{ server.os_type }}|{{ server.os_version }}|{{ server.os_release }}|{{ server.os_kernel }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">所属项目</th>
+                    <td>
+                    {% for s in server.project.all %}
+                        <span class="label label-pill label-success">{{ s.project_name }}</span>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">运行服务</th>
+                    <td>
+                    {% for s in server.service.all %}
+                        <span class="label label-pill label-success">{{ s.name }} -- {{ s.port }}</span>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">所属机房</th>
+                    <td>{{ server.idc.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">所属机柜</th>
+                    <td>{{ server.cabinet.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">放置位置</th>
+                    <td>{{ server.server_cabinet_id }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">品牌型号</th>
+                    <td>{{ server.model }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">资产编号</th>
+                    <td>{{ asset.asset_number }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">用途</th>
+                    <td>{{ asset.purpose }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">资产状态</th>
+                    {% if asset.status == 'on' %}
+                        <td>线上使用</td>
+                    {% elif asset.status == 'in' %}
+                        <td>报废</td>
+                    {% else %}
+                        <td>闲置</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <th class="text-info">供应商</th>
+                    <td>{{ asset.manufactory }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">购买日期</th>
+                    <td>{{ asset.trade_date }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">保修期</th>
+                    <td>{{ asset.expire_date }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">价格</th>
+                    <td>{{ asset.price }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">续保次数</th>
+                    <td>{{ asset.price_total }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">资产申请人</th>
+                    <td>{{ asset.applicant }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">资产管理员</th>
+                    <td>{{ asset.manager }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">服务器SN</th>
+                    <td>{{ server.server_sn }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">快速服务码</th>
+                    <td>{{ server.Services_Code }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">标签</th>
+                    <td>
+                    {% for s in asset.tags.all %}
+                        <span class="label label-pill label-success">{{ s.name }}</span>
+                    {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">备注</th>
+                    <td>{{ asset.memo }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-5">
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>网卡信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>网卡名</th>
+                    <th>用途</th>
+                    <th>IP地址</th>
+                    <th>子网掩码</th>
+                    <th>MAC地址</th>
+                    <th>型号</th>
+                    <th>sn</th>
+                </thead>
+                <tbody>
+                {% for i in nic_data %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.memo }}</td>
+                        <td>{{ i.ipaddress }}</td>
+                        <td>{{ i.netmask }}</td>
+                        <td>{{ i.macaddress }}</td>
+                        <td>{{ i.model }}</td>
+                        <td>{{ i.sn }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>CPU信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>型号</th>
+                    <th>颗数</th>
+                    <th>核数</th>
+                </thead>
+                <tbody>
+                    <td>{{ cpu_data.cpu_model }}</td>
+                    <td>{{ cpu_data.cpu_count }}</td>
+                    <td>{{ cpu_data.cpu_core_count }}</td>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>内存信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>型号</th>
+                    <th>容量</th>
+                    <th>插槽</th>
+                    <th>sn</th>
+                </thead>
+                <tbody>
+                {% for i in ram_data %}
+                    <tr>
+                        <td>{{ i.model }}</td>
+                        <td>{{ i.capacity }}</td>
+                        <td>{{ i.slot }}</td>
+                        <td>{{ i.sn }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>硬盘信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>型号</th>
+                    <th>容量</th>
+                    <th>接口</th>
+                    <th>制造商</th>
+                    <th>插槽</th>
+                    <th>sn</th>
+                </thead>
+                <tbody>
+                {% for i in disk_data %}
+                    <tr>
+                        <td>{{ i.model }}</td>
+                        <td>{{ i.capacity }}</td>
+                        <td>{{ i.iface_type }}</td>
+                        <td>{{ i.manufactory }}</td>
+                        <td>{{ i.slot }}</td>
+                        <td>{{ i.sn }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>冗余卡信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>型号</th>
+                    <th>插槽</th>
+                    <th>sn</th>
+                </thead>
+                <tbody>
+                {% for i in raid_data %}
+                    <tr>
+                        <td>{{ i.model }}</td>
+                        <td>{{ i.slot }}</td>
+                        <td>{{ i.sn }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>虚拟机信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <th>名称</th>
+                    <th>远程连接ip</th>
+                    <th>端口</th>
+                    <th>用处</th>
+                    <th>操作</th>
+                </thead>
+                <tbody>
+                {% for i in virtuals %}
+                    <tr>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.ssh_host }}</td>
+                        <td>{{ i.ssh_port }}</td>
+                        <td>{{ i.asset.purpose }}</td>
+                        <td>
+                            <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-xs btn-success">详情</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+
+</div>
+
+<div class="col-lg-3">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>更新日志 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+        <div><a href="{% url 'server_edit' server.uuid %}" class="btn btn-info btn-xs">点击修改服务器信息</a></div>
+
+        </div>
+    </div>
+
+
+
+</div>
+
+</div>
+{% endblock %}

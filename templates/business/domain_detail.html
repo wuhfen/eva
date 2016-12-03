@@ -1,0 +1,110 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+
+{% block title %} 域名详情|platform detail{% endblock %}
+
+
+    {% block assistant-header %} <h3> 域名详情|platform detail</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'domain_list' %}">域名管理</a></li>
+        <li><a href="{% url 'domain_detail' domain_data.uuid %}">域名详情</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+
+<div class="col-lg-9">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>域名基本信息 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th class="text-info">域名</th>
+                    <td>{{ domain_data.name }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">用途</th>
+                    <td>{% if domain_data.use == '0' %}前端域名{% elif domain_data.use == '1' %}接口域名{% else %}后台域名{% endif %}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">所属业务</th>
+                    <td>
+                    <a href="{% url 'business_detail' domain_data.business.uuid %}" class="btn btn-xs btn-info">{{ domain_data.business.name }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">域名状态</th>
+                    <td>
+                        {% if domain_data.state == '0' %}启用{% elif domain_data.state == '1' %}未启用{% elif domain_data.state == '2' %}被墙{% else %}弃用{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">当前状态</th>
+                    <td>
+                        {{ domain_data.status }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">状态码</th>
+                    <td>
+                        {{ domain_data.status_code }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">A记录</th>
+                    <td>
+                        {{ domain_data.address }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">供应商</th>
+                    <td>
+                        {{ domain_data.supplier }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">备注</th>
+                    <td>{{ domain_data.description }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-lg-3">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h4 class="text-info"><strong>更新日志 </strong></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+        <div><a href="{% url 'domain_edit' domain_data.uuid %}" class="btn btn-info btn-xs">修改域名信息</a></div>
+        </div>
+    </div>
+
+
+
+</div>
+
+</div>
+{% endblock %}

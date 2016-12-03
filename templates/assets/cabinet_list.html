@@ -1,0 +1,104 @@
+{% extends "default/base.html" %}
+{% block title %}机柜查看{% endblock %}
+
+{% block assistant-header %} 机柜 
+
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">机房管理</a></li>
+        <li><a href="/assets/idc_add/">添加机房</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+    <div class="box-header with-border">
+    机柜列表
+    <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+            <i class="fa fa-minus"></i></button>
+        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+            <i class="fa fa-times"></i></button>
+    </div>
+    </div>
+    <!-- 小body -->
+    <div class="box-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>机柜名称</th>
+                        <th>摆放区域</th>
+                        <th>机柜品牌</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.model.name }}</td>
+                        <td>{{ v.brander }}</td>
+                        <td>{{ v.memo }}</td>
+                        <td>
+                            <a href="{% url 'cabinet_edit' v.uuid %}" id="cabinetedit" class="btn btn-xs btn-primary cabinetedit">修改</a>
+                            <a href="{% url 'cabinet_delete' v.uuid %}" id="cabinet-delete" class="btn btn-xs btn-primary cabinet-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+// $('#cabinetedit').on('click', function(){
+//   layer.open({
+//   type: 2,
+//   title: 'iframe父子操作',
+//   maxmin: true,
+//   shadeClose: true, //点击遮罩关闭层
+//   area : ['800px' , '520px'],
+//   content: 'test/iframe.html'
+//   });
+// });
+
+
+
+$(".cabinetedit").on("click", function(event){
+     var url= $(this).attr("href");
+     var height = $(window).height();
+     // layer.msg('Hello layer');
+        layer.open({
+            type: 2,
+            title: '修改机房区域',
+            maxmin: true,
+            shade: 0.5,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['800px' , (height - 50) + 'px'],
+            end : function () {
+              location.reload();
+          },
+            content: url
+        });
+     event.preventDefault();
+});
+
+$(".cabinet-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+</script>
+{% endblock %}

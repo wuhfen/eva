@@ -1,0 +1,129 @@
+{% extends "default/base.html" %}
+
+{% block title %} 权限管理 {% endblock %}
+
+{% block assistant-header %} 权限列表
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">权限管理</a></li>
+        <li><a href="/auth/cmdb_auth_index/">权限分配</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+    <div class="box">
+<!--             <div class="ibox float-e-margins"> -->
+    <div class="box-header">
+        <h4> 权限分配详细信息列表 </h4>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                <i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                <i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body tabs">
+        {% include "cmdb_auth/active.html" %}
+
+        <div class="tab-content">
+            <table class="table table-striped table-bordered table-hover ">
+
+                <thead>
+                    <tr>
+                        <th class="text-center"> <i class="glyphicon glyphicon-user"></i>权限组 </th>
+                        <th class="text-center"> 描述 </th>
+                        <th class="text-center"> 成员人数 </th>
+                        <th class="text-center"> 状态 </th>
+                        <th class="text-center"> <li class="glyphicon glyphicon-cog"></li>管理操作 </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for i in data %}
+                    <tr class="gradeX">
+                        <td class="text-center" id="username"> {{ i.group_name }} </td>
+                        <td class="text-center" id="ip"> {{ i.explanation }} </td>
+                        <td class="text-center" id="ip"> {% for k,v in group_user_count.items %} {% if k == i.uuid %}{{ v }}{% endif %}{% endfor %} </td>
+                        {% if i.enable %}
+                            <td class="text-center"><a href="/auth/cmdb_group_status/{{ i.uuid }}/" class="voilet_restart"><span class="glyphicon glyphicon-ok" aria-hidden="true" style="color:#2ad49e"></span></a> </td>
+                        {% else %}
+                            <td class="text-center"><a href="/auth/cmdb_group_status/{{ i.uuid }}/" class="voilet_restart"><span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:#ff6846"></span> </a></td>
+                        {% endif %}
+                        <td class="text-center" id="start_time"> <a href="/auth/cmdb_group_auth_add/{{ i.uuid }}/" class="select_node"  >权限</a> |
+                            <a href="/auth/cmdb_group_user/{{ i.uuid }}/" class="select_node">成员</a> |
+                            <a href="/auth/cmdb_group_edit/{{ i.uuid }}/" class="select_node"><span class="glyphicon glyphicon-pencil" style="color:#2ad49e"></span>修改</a> |
+                            <a href="/auth/cmdb_group_delete/{{ i.uuid }}/" class="delete_group"><span class="glyphicon glyphicon-trash" style="color:#ff6846"></span>删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="/static/js/jquery-3.0.0.js"></script>
+<script type="text/javascript" src="/static/layer-v2.4/layer/layer.js"></script> -->
+
+
+<script>
+
+$(".delete_group").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+$(function() {
+    $(".select_node").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '权限分配',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                content: url
+            });
+         event.preventDefault();
+    });
+
+    $(".voilet_restart").on("click", function(e){
+         var url= $(this).attr("href");
+         layer.open({
+            type: 1,
+            title: '更改权限组状态',
+            skin: 'layui-layer-molv',
+            content: '你确定要修改权限组状态吗？',
+            closeBtn: 2,
+            shift: 4,
+            btn: ['确定'],
+            yes: function(index, layero){
+                $.ajax({
+                 type: "GET",
+                 url: url }).done(function(data) {
+                 window.location.reload();
+                 });
+            },
+        });
+        e.preventDefault();
+     });
+
+
+});
+</script>
+
+{% endblock content %}

@@ -1,0 +1,61 @@
+{% extends "default/base.html" %}
+{% block title %}域名{% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 域名管理 <small>domainname</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'domain_list'  %}">域名列表</a></li>
+        <li><a href="{% url 'domain_add_batch' %}">批量添加域名</a></li>
+      </ol>
+{% endblock %}
+
+
+{% block content %}
+
+
+
+<div class="row">
+    <div class="col-md-10 col-lg-10">
+        <div class="box box-info">
+            <div class="box-header with-border"><h4>填写域名信息</h4>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                        <i class="fa fa-minus"></i></button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                        <i class="fa fa-times"></i></button>
+                </div>
+            </div>
+
+                <div class="box-body">
+
+                    {% if emg %}
+                        <div class="alert alert-warning text-center">{{ emg }}</div>
+                    {% endif %}
+                    {% if smg %}
+                        <div class="alert alert-success text-center">{{ smg }}</div>
+                    {% endif %}
+                    <p>请严格按照文本框内主机信息格式填写, 每行一条域名, 具体格式如下: </p>
+                    <p class="text-info">域名 用处 所属业务名</p>
+                    <p class="text-success">域名格式:"www.XXXXX.com"</p>
+                    <p class="text-success">用处格式:"前端域名|接口域名|后台域名"三选一</p>
+                    <p class="text-success">业务名格式:"新菲律宾|老菲律宾"新老+简称</p>
+                    <form id="domainMulti" method="post" class="form-horizontal">
+                        {% csrf_token %}
+                        <div><textarea id="batch" name="batch" type="text" placeholder="www.baidu.com 前端域名 新菲律宾" class="form-control" style="width:600px;height:500px"></textarea></div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-4">
+                                <button class="btn btn-primary" type="reset"> 重置 </button>
+                                <button class="btn btn-primary" type="submit"> 提交 </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
