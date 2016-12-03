@@ -82,42 +82,6 @@ def iptables(request):
     return render(request,'allow_list/iptables.html',locals())
 
 
-# @permission_required('Allow_list.add_iptables', login_url='/allow/error/')
-# def iptables(request):
-#     ff = IptablesForm()
-#     fo_errors = []
-#     view_rules = Iptables.objects.filter(i_comment__contains="WEB_PORT_")
-#     if 'okk' in request.POST:
-#         ff = IptablesForm(request.POST)
-#         if ff.is_valid():
-#             ip = str(ff.cleaned_data.get('ipaddr'))
-#             comment = ff.cleaned_data.get('comment')
-#             remark = ff.cleaned_data.get('remark')
-#             if remark == u"only_new":
-#                 host_group = u"新平台"
-#                 chain = "INPUT"
-#             else:
-#                 host_group = u"老平台"
-#                 chain = "FORWARD"
-#             # else:
-#             #     host_group = u"全平台"
-#             #     chain = "INPUT"
-#             ip_api = "http://freeapi.ipip.net/%s" % ip
-#             req = urllib2.Request(ip_api)
-#             rel = urllib2.urlopen(req).read()
-#             result = rel.strip('[]').replace('\"','').split(',')
-#             # if ("中国" not in result) and ("香港" not in result):
-#             #     fo_errors.append("你输入的IP是:%s,IP属于:%s,添加状态：失败" % (ip,rel))
-#             if not fo_errors:
-#                 comment = u"WEB_PORT_%s" % comment
-#                 user = request.user
-#                 i = Iptables(i_comment=comment,i_chain=chain,i_source_ip=ip,i_user=user,i_remark=remark,i_tag=host_group)
-#                 i.save()
-#                 task = "/etc/ansible/insertip.yml"
-#                 ansiblex(task,ip,remark,comment)
-#                 return HttpResponseRedirect('/allow/welcome/')
-#     return render(request,'allow_list/iptables.html',locals())
-
 
 @permission_required('Allow_list.change_iptables', login_url='/allow/error/')
 def iptables_delete(request):
