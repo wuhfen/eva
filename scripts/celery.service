@@ -1,0 +1,12 @@
+[Unit]
+Description=Celery Service
+After=network.target
+[Service]
+Type=forking
+EnvironmentFile=/data/myproject/cmdb/celery.conf
+WorkingDirectory=/data/myproject/cmdb/
+ExecStart=/data/myproject/venv/bin/celery multi start ${CELERYD_NODES} -A ${CELERY_APP} --logfile=${CELERYD_LOG_FILE} -l=${CELERYD_LOG_LEVEL} --pidfile=${CELERYD_PID_FILE} ${CELERYD_OPTS}
+ExecStop=/data/myproject/venv/bin/celery multi stopwait ${CELERYD_NODES} --pidfile=${CELERYD_PID_FILE}
+ExecReload=/data/myproject/venv/bin/celery multi restart ${CELERYD_NODES} -A ${CELERY_APP} --logfile=${CELERYD_LOG_FILE} -l=${CELERYD_LOG_LEVEL} --pidfile=${CELERYD_PID_FILE} ${CELERYD_OPTS}
+[Install]
+WantedBy=multi-user.target
