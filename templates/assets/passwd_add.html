@@ -1,0 +1,53 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加sql权限 {% endblock %}
+
+{% block content %}
+
+
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form class="form-horizontal" method="post" action="" role="form">{% csrf_token %}
+                {{ sf.title|bootstrap_horizontal }}
+                {{ sf.listen|bootstrap_horizontal }}
+                {{ sf.port|bootstrap_horizontal }}
+                {{ sf.user|bootstrap_horizontal }}
+                {{ sf.dbname|bootstrap_horizontal }}
+                {{ sf.password|bootstrap_horizontal }}
+                {{ sf.memo|bootstrap_horizontal }}
+                <label hidden="hidden">{{ sf.server }}</label>
+                
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                         <button type="button" class="btn btn-primary btn-block">提交</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+          $("button").click(function(){
+            var url= $(this).attr("href");
+            jQuery.ajax({
+              url: "{% url 'add_sql_passwd' uuid %}",                  // 提交的页面
+              data: $('.form-horizontal').serialize(), // 从表单中获取数据
+              type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+              dataType:'text',
+              success: function(msg){
+                  var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                  window.parent.location.reload();
+                  window.parent.layer.close(index); //执行关闭
+              }
+            });
+          });
+          return false;
+    });
+ </script>
+
+{% endblock content %}
