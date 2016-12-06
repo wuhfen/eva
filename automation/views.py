@@ -15,7 +15,7 @@ import subprocess
 import json
 import time
 from django.http import JsonResponse
-from .tasks import deploy_use_ansible
+from .tasks import deploy_use_ansible,go_back_ansible
 from tempfile import NamedTemporaryFile
 from assets.models import Server
 from celery.result import AsyncResult
@@ -204,8 +204,8 @@ def deploy_add(request,uuid):
             tag_data = deploy(ctime=ctime,name=name,branches=branches,release=release,executive_user=executive_user,
                 confile=confile,check_conf=check_conf,status=status,tag=tag,memo=memo,execution_time=now,exist=False)
             tag_data.save()
+            return HttpResponseRedirect('/deploy/deploy_list/')
 
-            return HttpResponseRedirect('/success/')
         elif 'formbranch' in request.POST:
             name = request.POST.get('branch_name','')
             branches = request.POST.get('branches','')
@@ -219,7 +219,7 @@ def deploy_add(request,uuid):
             branch_data = deploy(ctime=ctime,name=name,branches=branches,release=release,executive_user=executive_user,
                 confile=confile,check_conf=check_conf,status=status,tag=tag,memo=memo,execution_time=now,exist=False)
             branch_data.save()
-            return HttpResponseRedirect('/success/')
+            return HttpResponseRedirect('/deploy/deploy_list/')
 
     return render(request,'automation/deploy_add.html',locals())
 
@@ -320,16 +320,19 @@ def deploy_online(request,uuid):
             res = subprocess.Popen(i,shell=True)
         ##step6 更新发布状态为已发布，更新发布时间，更新exist状态，将远程服务器上要删掉的commitid找出来，传给ansible
         now = int(time.time())
-        deploy.objects.filter(pk=uuid).update(status=u'已发布',execution_time=now,exist=True)
+        deploy.objects.filter(confile=conf_data).filter(status=u'已发布-使用中').update(status=u'已发布')
+        deploy.objects.filter(confile=conf_data).filter(status=u'已回滚-使用中').update(status=u'已发布')
 
-        alldata = deploy.objects.filter(exist=True).filter(confile=conf_data)
+        deploy.objects.filter(pk=uuid).update(status=u'已发布-使用中',execution_time=now,exist=True)
+
+        alldata = deploy.objects.filter(confile=conf_data).filter(exist=True)
         exist_num = alldata.count()
-        if int(exist_num) > int(max_number):
+        if int(exist_num) >= int(max_number):
             Lexist = [a.execution_time for a in alldata if a]
             a = min(Lexist)
-            deploy.objects.filter(execution_time=a).update(exist=False)
+            deploy.objects.filter(confile=conf_data).filter(execution_time=a).update(exist=False)
             expire_commit =  deploy.objects.get(execution_time=a).release
-            msg = "远程主机过期版本号为：%s" % expire_commit
+            msg = u"远程主机过期版本号为：%s" % expire_commit
         else:
             expire_commit = '123456789'   ## 如果有过期版本就删除，如果没有，为了防止误删，给过期的版本赋值为123456789
         ##step7-8-9 使用ansible将本地主机上的代码传送至远程服务器，并执行pre和post动作
@@ -355,3 +358,27 @@ def deploy_online(request,uuid):
     return render(request,'automation/deploy_online.html',locals())
 
 
+@permission_required('automation.Can_delete_deploy', login_url='/auth_error/')
+def go_back(request,uuid):
+    deploy_data = get_object_or_404(deploy,pk=uuid)
+    config_data = deploy_data.confile
+    groupname = "deploy_go_back"
+    inventory = create_inventory(config_data.uuid,groupname)
+    play_book = '/etc/ansible/deploy_go_back.yml'
+    pre_release_ob = config_data.pre_release
+    pre_release_list = [a for a in pre_release_ob.split('\r\n') if a]
+    pre_release = " && ".join(pre_release_list)
+    post_release_ob = config_data.post_release
+    post_release_list = [a for a in post_release_ob.split('\r\n') if a]
+    post_release = " && ".join(post_release_list)
+
+    job = go_back_ansible.delay(inventory,play_book,groupname,config_data.webroot_user,config_data.webroot,config_data.relaese_dir,deploy_data.release,pre_release,post_release)
+    if job:
+        task_id = job.id
+    now = int(time.time())
+    deploy.objects.filter(confile=config_data).filter(status=u'已发布-使用中').update(status=u'已发布')
+    deploy.objects.filter(confile=config_data).filter(status=u'已回滚-使用中').update(status=u'已发布')
+
+    deploy.objects.filter(pk=uuid).update(status=u'已回滚-使用中',execution_time=now,exist=True)
+
+    return HttpResponseRedirect('/success/')

@@ -5,9 +5,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 
-from assets.models import IDC, Service, Line, Project
+from assets.models import IDC, Service, Line, Project, sqlpasswd
 from assets.models import Asset, Server, NIC, RaidAdaptor, Disk, CPU, RAM
-from forms import ServerForm, AssetForm, CPUForm, RAMForm, DiskForm, NICForm, RaidForm
+from forms import ServerForm, AssetForm, CPUForm, RAMForm, DiskForm, NICForm, RaidForm, SQLpassForm
 # Create your views here.
 
 import re
@@ -471,3 +471,25 @@ def raid_delete(request,uuid):
     raid_data.delete()
 
     return HttpResponse('Delete Success!')
+
+@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+def look_server_passwd(request,uuid):
+    data = Server.objects.get(pk=uuid)
+    nic_data = NIC.objects.filter(asset=data.asset)
+    sql_data = sqlpasswd.objects.filter(server=data)
+    return render(request,'assets/passwd_list.html', locals()) 
+
+@permission_required('assets.Can_add_sqlpasswd', login_url='/auth_error/')
+def add_sql_passwd(request,uuid):
+    uuid = uuid
+    server = Server.objects.get(pk=uuid)
+    sf = SQLpassForm()
+    if request.method == 'POST':
+        sf = SQLpassForm(request.POST)
+        if sf.is_valid():
+            data = sf.save(commit=False)
+            data.server = server
+            data.save()
+            return HttpResponse('ADD Success!')
+
+    return render(request,'assets/passwd_add.html', locals()) 

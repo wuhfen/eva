@@ -44,8 +44,16 @@
                     <td>{{ server.name }}</td>
                 </tr>
                 <tr>
+                    <th class="text-info">ansible节点名</th>
+                    <td>{{ server.ansible_name }}</td>
+                </tr>
+                <tr>
                     <th class="text-info">SSH-IP</th>
                     <td>{{ server.ssh_host }}</td>
+                </tr>
+                <tr>
+                    <th class="text-info">SSH-USER</th>
+                    <td>{{ server.ssh_user }}</td>
                 </tr>
                 <tr>
                     <th class="text-info">SSH-PORT</th>

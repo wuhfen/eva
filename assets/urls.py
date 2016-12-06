@@ -82,6 +82,10 @@ urlpatterns = [
    url(r'^raid_edit/(?P<uuid>[^/]+)/$', views.raid_edit,name="raid_edit"),
 
 
+#"""服务器权限操作"""
+   url(r'^look_server_passwd/(?P<uuid>[^/]+)/$', views.look_server_passwd,name="look_server_passwd"),
+   url(r'^add_sql_passwd/(?P<uuid>[^/]+)/$', views.add_sql_passwd,name="add_sql_passwd"),
+   
 
 
 ]

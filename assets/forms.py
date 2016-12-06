@@ -25,7 +25,7 @@ class ServerForm(ModelForm):
     ssh_password = forms.CharField(label=u'SHH密钥',required=False,widget=forms.PasswordInput)
     class Meta:
         model = models.Server
-        fields = ['name','ipmitool','ssh_host','ssh_port','ssh_password','parent','Raid_level','Disk_total','RAM_total','project','service','model','env',
+        fields = ['name','ansible_name','ipmitool','ssh_user','ssh_host','ssh_port','ssh_password','parent','Raid_level','Disk_total','RAM_total','project','service','model','env',
                 'os_kernel','Raid_level','system_status','os_type','os_version','os_release','server_sn','Services_Code','idc','cabinet','server_cabinet_id']
 
 
@@ -56,3 +56,10 @@ class RaidForm(ModelForm):
     class Meta:
         model = models.RaidAdaptor
         fields = ["model","sn","slot","memo"]
+
+class SQLpassForm(ModelForm):
+    title = forms.CharField(label=u'应用版本',widget=forms.TextInput(attrs={'placeholder': 'mysql-5.6.0 or redis-2.3'}))
+    listen = forms.CharField(label=u'监听地址',widget=forms.TextInput(attrs={'placeholder': '0.0.0.0'}))
+    class Meta:
+        model = models.sqlpasswd
+        fields = '__all__'

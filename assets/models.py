@@ -187,6 +187,8 @@ class Server(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     asset = models.OneToOneField('Asset')
     name = models.CharField(verbose_name=u"主机名",max_length=64)
+    ansible_name = models.CharField(verbose_name=u"主机名",max_length=64,blank=True,default='ansible_host_name')
+    ssh_user = models.CharField(u'ssh用户',max_length=32,blank=True,default='root')
     ssh_host = models.GenericIPAddressField(u'SSH地址', blank=True,null=True,help_text=u'一般填写外网IP')
     ssh_port = models.SmallIntegerField(u'SSH端口', blank=True,null=True,default='22')
     ssh_password = models.CharField(verbose_name=u"SSH密钥",max_length=100, blank=True)
@@ -368,3 +370,17 @@ class  Tags(models.Model):
     class Meta:
         verbose_name = '资产Tag'
         verbose_name_plural = verbose_name
+
+
+class sqlpasswd(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    title = models.CharField(verbose_name='应用版本',max_length=32,blank=True)
+    listen = models.GenericIPAddressField(u'HOST', blank=True,null=True)
+    port = models.CharField(verbose_name='PORT',max_length=8,blank=True,default='3306')
+    user = models.CharField(verbose_name='USER',max_length=32,blank=True,default='root')
+    dbname = models.CharField(verbose_name='DBNAME',max_length=32,blank=True)
+    password = models.CharField(verbose_name='PASSWORD',max_length=32,blank=True)
+    server = models.ForeignKey('Server',blank=True,null=True)
+    memo = models.TextField(u'备注', blank=True,null=True)
+
+

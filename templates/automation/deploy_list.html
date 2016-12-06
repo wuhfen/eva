@@ -33,14 +33,13 @@
         </div>
 
             <div class="box-body">
-              <table id="example1" class="table table-bordered table-striped">
+              <table id="example1" class="table table-bordered table-striped tablesorter">
                 <thead>
                 <tr>
                     <th>申请人</th>
                     <th>关联项目</th>
                     <th>标题</th>
                     <th>添加时间</th>
-                    <th>发布时间</th>
                     <th>分支</th>
                     <th>CommitID</th>
                     <th>标签Tag</th>
@@ -59,7 +58,6 @@
                         <td>{{ v.confile }}</td>
                         <td>{{ v.name }}</td>
                         <td>{{ v.ctime }}</td>
-                        <td>{{ v.execution_time }}</td>
                         <td>{{ v.branches }}</td>
                         <td>{{ v.release }}</td>
                         <td>{{ v.tag }}</td>
@@ -74,8 +72,8 @@
                                 <a href="{% url 'deploy_online' v.uuid %}" class="btn btx-xs btn-success"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 部署</a>
                                 <a href="#" class="btn btx-xs btn-warning"><i class="fa fa-trash-o" aria-hidden="true"></i> 删除</a>
                             {% endif %}
-                            {% if v.exist == 'True' %}
-                                <a href="#" class="btn btx-xs btn-danger"><i class="fa fa-reply" aria-hidden="true"></i> 回滚</a>
+                            {% if v.exist == True %}
+                                <a href="{% url 'go_back' v.uuid %}" class="btn btx-xs btn-danger"><i class="fa fa-reply" aria-hidden="true"></i> 回滚</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -90,4 +88,21 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+</script>
+
 {% endblock %}

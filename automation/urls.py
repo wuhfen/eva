@@ -34,6 +34,8 @@ urlpatterns = [
     url(r'^deploy_online/(?P<uuid>[^/]+)/$', views.deploy_online, name="deploy_online"),
     url(r'^poll_state$', views.poll_state,name='poll_state'),
     url(r'^deploy_branch_select/', views.deploy_branch_select, name='deploy_branch_select'),
+    url(r'^go_back/(?P<uuid>[^/]+)/$', views.go_back, name="go_back"),
+    
 
 
 

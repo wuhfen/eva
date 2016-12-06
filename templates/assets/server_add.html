@@ -44,12 +44,20 @@
                     <!-- <th>服务器名</th> -->
                     <td>{{ sf.name|bootstrap_horizontal }}</td>
                 </tr>
+                <tr>
+                    <!-- <th>服务器名</th> -->
+                    <td>{{ sf.ansible_name|bootstrap_horizontal }}</td>
+                </tr>
                  <tr hidden="hidden">
                     <td>{{ af.asset_type|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
                     <!-- <th>ssh host</th> -->
                     <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
+                </tr>
+                <tr>
+                    <!-- <th>ssh host</th> -->
+                    <td>{{ sf.ssh_user|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
                     <!-- <th>ssh port</th> -->

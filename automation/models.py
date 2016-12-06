@@ -81,6 +81,7 @@ class deploy(models.Model):
     exist = models.BooleanField(default='False')
 
 
+
     class Meta:
         verbose_name = u'发布申请单'
         verbose_name_plural = verbose_name

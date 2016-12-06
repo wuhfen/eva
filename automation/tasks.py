@@ -17,3 +17,10 @@ def deploy_use_ansible(inventory,play_book,tmp_dir,webroot_user,webroot,release_
     return "200"
 
 
+@shared_task()
+def go_back_ansible(inventory,play_book,groupname,webroot_user,webroot,relaese_dir,release,pre_release,post_release):
+    ansiblex_deploy(vars1=inventory,vars2=play_book,vars3=groupname,vars4=webroot_user,vars5=webroot,vars6=relaese_dir,vars7=release,vars8=pre_release,vars9=post_release)
+    os.remove(inventory)
+    return "200"
+
+

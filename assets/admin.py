@@ -111,3 +111,6 @@ admin.site.register(models.Cabinet)
 
 #标签
 admin.site.register(models.Tags)
+
+#权限
+admin.site.register(models.sqlpasswd)
