@@ -1,0 +1,7 @@
+*.pyc
+migrations/
+db.sqlite3
+*.json
+*.sql
+*.retry
+
