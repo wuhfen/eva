@@ -1,5 +1,6 @@
 *.pyc
 migrations/
+!migrations/__init__.py
 db.sqlite3
 *.json
 *.sql

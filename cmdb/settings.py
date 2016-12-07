@@ -156,7 +156,6 @@ STATICFILES_DIRS = [
     ('css', os.path.join(STATIC_ROOT, 'css').replace('\\', '/')),
     ('images', os.path.join(STATIC_ROOT, 'images').replace('\\', '/')),
     ('bootstrap', os.path.join(STATIC_ROOT, 'bootstrap').replace('\\', '/')),
-    ('layer', os.path.join(STATIC_ROOT, 'layer').replace('\\', '/')),
     ('layer-v2.4', os.path.join(STATIC_ROOT, 'layer-v2.4').replace('\\', '/')),
     ('valodate', os.path.join(STATIC_ROOT, 'valodate').replace('\\', '/')),
 
