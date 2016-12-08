@@ -187,7 +187,7 @@ class Server(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     asset = models.OneToOneField('Asset')
     name = models.CharField(verbose_name=u"主机名",max_length=64)
-    ansible_name = models.CharField(verbose_name=u"主机名",max_length=64,blank=True,default='ansible_host_name')
+    ansible_name = models.CharField(verbose_name=u"ansible节点名",max_length=64,blank=True,default='ansible_host_name')
     ssh_user = models.CharField(u'ssh用户',max_length=32,blank=True,default='root')
     ssh_host = models.GenericIPAddressField(u'SSH地址', blank=True,null=True,help_text=u'一般填写外网IP')
     ssh_port = models.SmallIntegerField(u'SSH端口', blank=True,null=True,default='22')
