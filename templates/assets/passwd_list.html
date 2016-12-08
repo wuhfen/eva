@@ -9,18 +9,52 @@
 <div class="wrapper wrapper-content animated fadeInRight col-lg-12">
     <div class="panel panel-default">
         <div class="panel-body">
-          <p>使用者:{{ data.asset.manager }}</p>
-          <p>用途:{{ data.asset.purpose }}</p>
-          <p>SSH_IP:{{ data.ssh_host }}</p>
-          <p>SSH_PORT:{{ data.ssh_port }}</p>
-          <p>SSH_USER:{{ data.ssh_user }}</p>
-          <p>SSH_PASSWD:{{ data.ssh_password }}</p>
-          {% for i in nic_data %}
-            <p>其他IP:{{ i.ipaddress }}  说明:{{ i.memo }}</p>
-          {% endfor %}
-          <p>ssh {{ data.ssh_user }}@{{ data.ssh_host }} {{ data.ssh_password }}</p>
-          <p>ssh {{ data.ssh_user }}@{{ data.ssh_host }} -p {{ data.ssh_password }}</p>
-          <p>备注:{{ data.asset.memo }}</p>
+          <table class="table table-bordered table-striped">
+            <tbody>
+                <tr>
+                    <th>使用者:</th>
+                    <td>{{ data.asset.manager }}</td>
+                </tr>
+                <tr>
+                    <th>用途:</th>
+                    <td>{{ data.asset.purpose }}</td>
+                </tr>
+                <tr>
+                    <th>SSH_IP</th>
+                    <td>{{ data.ssh_host }}</td>
+                </tr>
+                
+                <tr>
+                  <th>SSH_PORT</th>
+                  <td>{{ data.ssh_port }}</td>
+                </tr>
+                <tr>
+                    <th>SSH_USER</th>
+                    <td>{{ data.ssh_user }}</td>
+                </tr>
+                <tr>
+                  <th>SSH_PASSWD:</th>
+                  <td>{{ data.ssh_password }}</td>
+                </tr>
+                {% for i in nic_data %}
+                  <tr>
+                      <th>其他IP:</th><td>{{ i.ipaddress }}</td>  <th>说明:</th><td>{{ i.memo }}</td>
+                  </tr>
+                {% endfor %}
+                <tr>
+                    <th>xshell登入</th>
+                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} {{ data.ssh_password }}</td>
+                </tr>
+                <tr>
+                    <th>命令行登入</th>
+                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} -p {{ data.ssh_password }}</td>
+                </tr>
+                <tr>
+                    <th>备注:</th>
+                    <td>{{ data.asset.remarks }}</td>
+                </tr>
+            </tbody>
+          </table>
 
 
           <table class="table table-hover">

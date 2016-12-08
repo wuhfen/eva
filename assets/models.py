@@ -172,7 +172,7 @@ class Asset(models.Model):
     tags = models.ManyToManyField('Tags' ,blank=True)
     applicant = models.CharField(verbose_name=u'资产申请者',max_length=64,null=True, blank=True)
     manager = models.ForeignKey(User, verbose_name=u'资产管理员',null=True, blank=True)
-    memo = models.TextField(u'备注', null=True, blank=True)
+    remarks = models.TextField(u'备注', blank=True)
     mark = models.BooleanField(default=False)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(blank=True, auto_now=True)
