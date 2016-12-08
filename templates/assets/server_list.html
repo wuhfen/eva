@@ -46,6 +46,7 @@
                   <th>CPU|内存(GB)|硬盘(GB)</th>
                   <th>项目</th>
                   <th>服务</th>
+                  <th>用途</th>
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
                   <!-- <th>资产类型</th> -->
@@ -73,6 +74,7 @@
                 <a href="#" class="btn btn-primary btn-xs">{{ s }}</a>
                 {% endfor %}</td>
                   <td>{{ i.service.all|group_str2 }}</td>
+                  <td>{{ i.asset.purpose }}</td>
                   <!-- <td>{{ i.idc }}</td> -->
                   <td>
                         {% if i.asset.status == 'on' %}
@@ -117,6 +119,7 @@
                   <th>CPU|内存(GB)|硬盘(GB)</th>
                   <th>项目</th>
                   <th>服务</th>
+                  <th>用途</th>
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
                   <!-- <th>资产类型</th> -->
@@ -129,7 +132,7 @@
             </div>
         </form>
         <div class="box-footer">
-            Footer
+            <a href="{% url 'server_add' %}" class="btn btn-xs btn-primary">添加服务器</a><a href="{% url 'virtual_add' %}" class="btn btn-xs btn-info">添加虚拟机</a>
         </div>
     </div>
 </div>

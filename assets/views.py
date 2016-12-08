@@ -146,8 +146,9 @@ def server_add(request):
                     if raid_model and raid_slot:
                         RaidAdaptor.objects.create(asset = asset_data,model=raid_model,slot=raid_slot,
                         sn=raid_sn,memo=raid_memo)
+            return render(request,'assets/asset_success.html', locals())
 
-            return HttpResponseRedirect('/allow/welcome/')
+            # return HttpResponseRedirect('/allow/welcome/')
         else:
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
@@ -211,7 +212,8 @@ def virtual_add(request):
                     if nic_name and nic_macaddress:
                         NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
                         ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
-            return HttpResponseRedirect('/allow/welcome/')
+            # return HttpResponseRedirect('/allow/welcome/')
+            return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/virtual_add.html', locals())
@@ -281,7 +283,9 @@ def server_edit(request,uuid):
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-            return HttpResponseRedirect('/allow/welcome/')
+            return render(request,'assets/asset_success.html', locals())
+
+            # return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/server_edit.html', locals())
 
 ###编辑虚拟主机信息###
@@ -318,7 +322,9 @@ def virtual_edit(request,uuid):
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-            return HttpResponseRedirect('/allow/welcome/')
+            # return HttpResponseRedirect('/allow/welcome/')
+            return render(request,'assets/asset_success.html', locals())
+            
     return render(request,'assets/virtual_edit.html', locals())
 
 ##网卡操作

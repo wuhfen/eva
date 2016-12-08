@@ -204,7 +204,7 @@ class Server(models.Model):
     (0, u"未安装系统"),
     (1, u"已安装系统"),
     )
-    system_status = models.IntegerField(verbose_name=u"系统状态", choices=SERVER_STATUS,blank=True,null=True)
+    system_status = models.IntegerField(verbose_name=u"系统状态",default=1, choices=SERVER_STATUS,blank=True,null=True)
     SYSTEM_OS = [(i, i) for i in (u"Linux", u"Windows","unix")]
     os_type  = models.CharField(u"系统类型", max_length=32, choices=SYSTEM_OS, blank=True,null=True)
     SYSTEM_VERSION = [(i, i) for i in (u"CentOS",u"Ubuntu",u"Windows Server")]
