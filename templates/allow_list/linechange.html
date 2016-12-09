@@ -1,5 +1,15 @@
 {% extends "default/base.html" %}
 {% block title %}Change Page{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/morris/morris.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+
+
+<script src="/static/admin-test/plugins/morris/morris.min.js"></script>
+
+
+
+{% endblock %}
 
 {% block assistant-header %} 线路切换|Change Line {% endblock %}
 
@@ -54,16 +64,16 @@
 				<label>请选择线路</label><br>
 					<label class="checkbox-inline"> 
 					<input type="radio" name="choiceline" id="choice2" value="line_one" >
-					线路一</label>
+					线路一47.90.37.137</label>
 					<label class="checkbox-inline"> 
 					<input type="radio" name="choiceline" id="choice3" value="line_two" >
-					线路二</label>
+					线路二119.28.13.102</label>
 					<label class="checkbox-inline"> 
 					<input type="radio" name="choiceline" id="choice3" value="line_three" >
-					线路三</label>
+					线路三119.9.108.157</label>
 					<label class="checkbox-inline">-
-						<input type="radio" name="choiceline" id="choice4" value="line_four" >
-					线路四</label>
+					<input type="radio" name="choiceline" id="choice4" value="line_four" >
+					线路四47.90.67.26</label>
 
 			</div>
 			<div class="form-group">
@@ -74,6 +84,7 @@
 					<span class="glyphicon glyphicon-refresh" ></span> 切换
 				</button>
 			</div>
+
 	</form>
 	{% for e in line_errors %}
 	    <p style="color:red;">{{ e }} <br /></p>
@@ -81,59 +92,94 @@
 	</div>
 </div>
 
-<div class="box">
-	<div class="box-header with-border">
-		<h3 class="text-primary">线路列表</h3>
-		<div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-        </div>
+
+<div class="row">
+
+	<div class="col-md-6">
+		<div class="box box-danger">
+			<div class="box-header with-border">
+				<h3 class="text-primary">线路列表</h3>
+				<div class="box-tools pull-right">
+		            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+		              <i class="fa fa-minus"></i></button>
+		            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+		              <i class="fa fa-times"></i></button>
+		        </div>
+			</div>
+				<div class="box-body">
+					<div class="table-responsive">
+						<table class="table table-hover table-striped">
+							<tr>
+								<th>供应商</th>
+								<th>正在使用</th>
+								<th>地址</th>
+							</tr>
+						{% for v in search_lines %}
+							<tr>
+							{% csrf_token %}
+								<td>{{ v.agent }}</td>
+								<td>{{ v.comment }}</td>
+								<td>{{ v.line }}</td>
+							</tr>
+						{% endfor %}
+						</table>
+					</div>
+				</div>
+		</div>
 	</div>
-		<div class="box-body">
-		
-			<p>目前共有 {{ search_lines|length }} 条线路</p>
-			{% if infos %}
-			    <p style="color:red;">
-			    {{ infos }}
-			    </p>
-			{% endif %}
 
-			<div class="table-responsive">
-				<table class="table table-hover table-striped">
-					<tr>
-						<th>源站</th>
-						<th>供应商</th>
-						<th>线路</th>
-						<th>地址</th>
-						<th>状态</th>
-					</tr>
-				{% for v in search_lines %}
-					<tr>
-					<form role="form" action="" method="post">
-					{% csrf_token %}
-						<td>{{ v.host_ip }}</td>
-						<td>{{ v.agent }}</td>
-						<td>{{ v.comment }}</td>
-						<td>{{ v.line }}</td>
-						<td>{{ v.status }}</td>
-<!-- 						<td>
-							<button type="submit" class="btn btn-danger" name="change" value={{ v.id }}>
-						      <span class="glyphicon glyphicon-refresh"></span> 切换
-						    </button>
-						</td> -->
-					</form>
-					</tr>
-				{% endfor %}
 
-				</table>
+	<div class="col-md-6">
+		<div class="box box-danger">
+			<div class="box-header with-border">
+				<h3 class="box-title">线路状态环形图</h3>
+				<div class="box-tools pull-right">
+				    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+				    </button>
+				    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+				</div>
 			</div>
 
+			<div class="box-body chart-responsive">
+			  <div class="chart" id="sales-chart" style="height: 300px; position: relative;"></div>
+			</div>
 		</div>
+	</div>
+
 </div>
+<script type="text/javascript">
+    //DONUT CHART
+    var flb_line = "{{ flb_data }}"
+    var chengxin_line = "{{ chengxin_data }}"
+    var yifa_line = "{{ yifa_data }}"
+    var bogou_line = "{{ bogou_data }}"
+    var shouxin_line = "{{ shouxin_data }}"
+    var amwnsr_line = "{{ amwnsr_data }}"
+    var meigaomei_line = "{{ meigaomei_data }}"
+    var kuke_line = "{{ kuke_data }}"
+    var dafa_line = "{{ dafa_data }}"
+    var yongli_line = "{{ yongli_data }}"
 
+    var donut = new Morris.Donut({
+      element: 'sales-chart',
+      resize: true,
+      colors: ["#3c8dbc", "#f56954", "#00a65a","#8ac007","#C0FF3E","#ff0080","#f39c12","#9932CC","#EE7621","#7FFFD4"],
+      data: [
+        {label: "诚信", value: chengxin_line},
+        {label: "易发", value: yifa_line},
+        {label: "菲律宾", value: flb_line},
+        {label: "博狗", value: bogou_line},
+        {label: "守信", value: shouxin_line},
+        {label: "威尼斯人", value: amwnsr_line},
+        {label: "美高梅", value: meigaomei_line},
+        {label: "酷客", value: kuke_line},
+        {label: "大发", value: dafa_line},
+        {label: "永利", value: yongli_line},
 
+      ],
+      hideHover: 'auto'
+    });
 
+</script>
 
 {% endblock %}

@@ -3,8 +3,8 @@ from django import forms
 from .models import Iptables
 
 class IptablesForm(forms.Form):
-    IPTABLE_CHOICES = [(i, i) for i in (u"鸿发国际", u"澳门娱乐城",u"一筒国际",u"四季城",u"金六福",u"云顶至尊",u"箐英会",u"新濠天地",u"法拉利保时捷",u"永利",u"金沙城",
-    u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
+    IPTABLE_CHOICES = [(i, i) for i in (u"鸿发", u"澳门娱乐城",u"一筒国际",u"四季城",u"金六福",u"云顶至尊",u"菁英会",u"新濠天地",u"法拉利",u"永利",u"金沙城",
+    u"美高梅",u"新葡京",u"澳门新葡京",u"大发-酷客",u"LV娱乐城",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗",u"守信",u"威尼斯人",u"金宝博",u"MOA办公室",u"其他" )]
     # class Meta:
     #     model = Iptables
     #     fields = '__all__'

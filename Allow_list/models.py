@@ -91,26 +91,26 @@ HOSTIP = (
 
 AGENT_CHOICE = [(i, i) for i in (u"诚信", u"易发", u"菲律宾", u"博狗", u"守信", u"威尼斯人", u"美高梅", u"酷客", u"大发", u"永利")]
 AGENT_NAME_CHOICE = [(i, i) for i in (u"chengxin", u"yifa", u"flb", u"bogou", u"shouxin", u"amwnsr", u"meigaomei", u"kuke", u"dafa", u"yongli")]
-LINE_CHOICE = [(i, i) for i in (u"203.88.164.73", u"119.28.13.102", u"119.9.108.157")]
-NUM_CHOICE = [(i, i) for i in (1, 2, 3)]
+LINE_CHOICE = [(i, i) for i in (u"47.90.37.137", u"119.28.13.102", u"119.9.108.157",u'47.90.67.26')]
+NUM_CHOICE = [(i, i) for i in (1, 2, 3,4)]
 
 STATUS_CHOICE = ((True, '使用中'), (False, '空闲'))
 
-COMMENT_CHOICE = [(i, i) for i in (u"线路一", u"线路二", u"线路三")]
+COMMENT_CHOICE = [(i, i) for i in (u"线路一", u"线路二", u"线路三",u"线路四")]
 
 
 
 class oldsite_line(models.Model):
     """docstring for oldsite_line"""
-    host_ip = models.GenericIPAddressField(max_length=15, default='47.90.52.200', choices=HOSTIP)
+    host_ip = models.TextField(u'后台反代站',blank=True, null=True)
     agent = models.CharField(max_length=50, default='诚信', choices=AGENT_CHOICE) #客户网站名称
     agent_name = models.CharField(max_length=50, default='chengxin', choices=AGENT_NAME_CHOICE) #客户网站拼写
-    line = models.CharField(max_length=50, default='203.88.164.73', choices=LINE_CHOICE)
+    line = models.CharField(max_length=50, default='47.90.37.137', choices=LINE_CHOICE)
     number = models.PositiveIntegerField(default=1, choices=NUM_CHOICE)
     status = models.BooleanField(default='False', choices=STATUS_CHOICE)
     comment = models.CharField(max_length=200, blank=True, default='线路一', choices=COMMENT_CHOICE)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    date_time = models.DateTimeField(auto_now=True)
+    date_time = models.CharField(max_length=38, blank=True,null=True)
 
     def __unicode__(self):
         return self.agent
