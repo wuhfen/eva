@@ -30,7 +30,7 @@ class DeployForm(ModelForm):
         model = models.deploy
         fields = '__all__'
 
-# class ScriptForm(ModelForm):
-#     class Meta:
-#         model = models.scriptrepo
-#         fields = '__all__'
+class ScriptForm(ModelForm):
+    class Meta:
+        model = models.scriptrepo
+        fields = '__all__'

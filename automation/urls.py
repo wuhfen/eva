@@ -40,12 +40,12 @@ urlpatterns = [
     url(r'^deploy_add_svn/(?P<uuid>[^/]+)/$', views.deploy_add_svn, name="deploy_add_svn"),
     url(r'^deploy_online_svn/(?P<uuid>[^/]+)/$', views.deploy_online_svn, name="deploy_online_svn"),
 
-#"""脚本发布"""
-    # url(r'^deploy_script/$', sviews.deploy_script, name="deploy_script"),
-    # url(r'^script_list/$', sviews.list_script, name="script_list"),
-    # url(r'^script_add/$', sviews.add_script, name="script_add"),
-    # url(r'^script_edit/(?P<uuid>[^/]+)/$', sviews.edit_script, name="script_edit"),
-    # url(r'^script_delete/(?P<uuid>[^/]+)/$', sviews.delete_script, name='script_delete'),
+"""脚本发布"""
+    url(r'^deploy_script/$', sviews.deploy_script, name="deploy_script"),
+    url(r'^script_list/$', sviews.list_script, name="script_list"),
+    url(r'^script_add/$', sviews.add_script, name="script_add"),
+    url(r'^script_edit/(?P<uuid>[^/]+)/$', sviews.edit_script, name="script_edit"),
+    url(r'^script_delete/(?P<uuid>[^/]+)/$', sviews.delete_script, name='script_delete'),
 
 
 

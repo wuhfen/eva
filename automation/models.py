@@ -104,22 +104,20 @@ class deploy(models.Model):
 
 
 
-# class scriptrepo(models.Model):
-#     #脚本参数
-#     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-#     name = models.CharField(_(u'发布名称'),max_length=64)
-#     command = models.CharField(_(u'命令'),max_length=128)
-#     server_ip = models.GenericIPAddressField(_(u'脚本服务器'),max_length=128)
+class scriptrepo(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(_(u'发布名称'),max_length=64)
+    command = models.CharField(_(u'命令'),max_length=128)
+    server_ip = models.GenericIPAddressField(_(u'脚本服务器'),max_length=128)
 
 
-# class scriptlog(models.Model):
-#     #脚本参数
-#     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-#     user =  models.ForeignKey(Users,verbose_name=u'用户')
-#     command = models.CharField(_(u'命令'),max_length=128)
-#     result = models.CharField(_(u'命令输出'),max_length=128)
-#     create_time = models.DateTimeField(auto_now_add=True)
-#     sort_time = models.IntegerField(default=0)
+class scriptlog(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    user =  models.ForeignKey(Users,verbose_name=u'用户')
+    command = models.CharField(_(u'命令'),max_length=128)
+    result = models.CharField(_(u'命令输出'),max_length=128)
+    create_time = models.DateTimeField(auto_now_add=True)
+    sort_time = models.IntegerField(default=0)
 
 
 
