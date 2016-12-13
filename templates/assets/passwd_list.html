@@ -12,7 +12,7 @@
           <table class="table table-bordered table-striped">
             <tbody>
                 <tr>
-                    <th>使用者:</th>
+                    <th>管理员:</th>
                     <td>{{ data.asset.manager }}</td>
                 </tr>
                 <tr>
@@ -43,11 +43,11 @@
                 {% endfor %}
                 <tr>
                     <th>xshell登入</th>
-                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} {{ data.ssh_password }}</td>
+                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} {{ data.ssh_port }}</td>
                 </tr>
                 <tr>
                     <th>命令行登入</th>
-                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} -p {{ data.ssh_password }}</td>
+                    <td>ssh {{ data.ssh_user }}@{{ data.ssh_host }} -p {{ data.ssh_port }}</td>
                 </tr>
                 <tr>
                     <th>备注:</th>

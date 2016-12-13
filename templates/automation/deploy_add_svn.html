@@ -1,0 +1,148 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 版本发布 {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>发布更新申请</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'deploy_list' %}">我的上线单</a></li>
+        <li><a href="{% url 'deploy_add' data.uuid %}">提交上线单</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+
+    <div class="col-md-12 col-lg-12">
+
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab"><strong class="text-info">版本号发布</strong></a></li>
+              <li><a href="#tab_2" data-toggle="tab"><strong class="text-info">分支发布|Branch</strong></a></li>
+              <li class="pull-right"><a href="#" class="text-muted"><i class="fa fa-gear"></i></a></li>
+            </ul>
+            <div class="tab-content">
+                {% for i in df_errors %}
+                    <p class="text-danger">{{ i }}</p>
+                {% endfor %}
+
+                    <div class="tab-pane active" id="tab_1">
+                    <form class="form-horizontal" action="" id="deploy_form_tag_add"  method="post" name="horizontal" role="form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-2 col-lg-2 " for="id_tag_name">发布标题</label>
+                            <div class=" col-sm-10 col-lg-10 ">
+                                <input class=" form-control" id="id_tag_name" maxlength="64" name="tag_name" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2 col-lg-2 " for="id_tag">仓库版本号</label>
+                            <div class=" col-sm-10 col-lg-10 ">
+                                <select class="form-control BranchSelect" id="id_tag" name="tag" aria-required="true" >
+                                        <option value="">--请选择--</option>
+                                    {% for i in job_result %}
+                                        <option value={{ i }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% if job_two_result %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-2 col-lg-2 " for="id_tag_two">副库版本号</label>
+                            <div class=" col-sm-10 col-lg-10 ">
+                                <select class="form-control BranchSelect" id="id_tag_two" name="tag_two" aria-required="true" >
+                                        <option value="">--请选择--</option>
+                                    {% for i in job_two_result %}
+                                        <option value={{ i }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if job_three_result %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-2 col-lg-2 " for="id_tag_three">叁库版本号</label>
+                            <div class=" col-sm-10 col-lg-10 ">
+                                <select class="form-control BranchSelect" id="id_tag_three" name="tag_three" aria-required="true" >
+                                        <option value="">--请选择--</option>
+                                    {% for i in job_three_result %}
+                                        <option value={{ i }}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-2 col-lg-2 " for="id_tag_memo">发布原因</label>
+                            <div class=" col-sm-10 col-lg-10 ">
+                                <textarea class=" form-control" cols="40" id="id_tag_memo" name="tag_memo" rows="10"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-5">
+                                <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                                <button class="btn btn-success btn-lg" type="submit" name="formsvntag"> 提交 </button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+              <!-- /.tab-pane -->
+                    <div class="tab-pane" id="tab_2">
+
+                    </div>
+              <!-- /.tab-pane -->
+            </div>
+            <!-- /.tab-content -->
+          </div>
+
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+     $(function () {
+         $("#id_branches").change(function () {
+
+             var tid = $("#id_branches option:selected").val();
+             var uuid = $("#id_uuid").val();
+
+             $.ajax({
+                 url: "/deploy/deploy_branch_select/?branch="+tid + '&uuid=' +uuid,
+                 type: "Get",
+                 contentType: "application/json",
+                 dataType: "json",
+                 success: function (data) {
+                     var ddl = $("#id_release");
+ 　　　　　　　　　　　　//删除节点
+                     $("#id_release option").remove();
+                     //转成Json对象
+                     for ( var i = 0; i < data.length; i++) { 
+                        ddl.append("<option value='"+data[i]+"'>"+ data[i]+ "</option>");
+                    }
+                 },
+                 error: function () {
+                     alert("Url Error");
+                 }
+             });
+         });
+     });
+
+</script>
+
+
+
+{% endblock content %}

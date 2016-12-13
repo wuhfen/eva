@@ -6,7 +6,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task,current_task
 from api.ansible_api import ansiblex_deploy
 import os
-
+from api.svn_api import Svnrepo
 
 @shared_task()
 def deploy_use_ansible(inventory,play_book,tmp_dir,webroot_user,webroot,release_dir,commit_id,expire_commit,pre_release,post_release,groupname):
@@ -23,4 +23,27 @@ def go_back_ansible(inventory,play_book,groupname,webroot_user,webroot,relaese_d
     os.remove(inventory)
     return "200"
 
+@shared_task()
+def svn_checkout_task(user,password,url,path,*args):
+    current_task.update_state(state="PROGRESS")
+    repo = Svnrepo(path,user,password)
+    repo.svn_checkout(url,path,*args)
+    return "svn_add_conf_200"
+
+
+@shared_task()
+def svn_update_log(user,password,path,limit,logfile,*args):
+
+    current_task.update_state(state="PROGRESS")
+    repo = Svnrepo(path,user,password)
+    repo.svn_update("all",*args)
+    res = repo.svn_get_reversion(logfile,limit)
+    return res
+
+@shared_task()
+def svn_update_task(user,password,path,reversion,*args):
+    current_task.update_state(state="PROGRESS")
+    repo = Svnrepo(path,user,password)
+    res = repo.svn_update(reversion,*args)
+    return res
 

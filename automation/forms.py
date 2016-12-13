@@ -14,6 +14,7 @@ class ConfileFrom(ModelForm):
     ENVIRONMENT_SELECT = (
     ("production",u"线上环境"),
     ("test",u"测试环境"),
+    ("huidu",u"灰度环境"),
     )
     name = forms.CharField(label=u'发布标题',widget=forms.TextInput(attrs={'placeholder': 'EX：新易发web主站'}))
 
@@ -27,4 +28,9 @@ class ConfileFrom(ModelForm):
 class DeployForm(ModelForm):
     class Meta:
         model = models.deploy
+        fields = '__all__'
+
+class ScriptForm(ModelForm):
+    class Meta:
+        model = models.scriptrepo
         fields = '__all__'

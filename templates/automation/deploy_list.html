@@ -38,14 +38,14 @@
                 <tr>
                     <th>申请人</th>
                     <th>关联项目</th>
+                    <th>SIT_ID</th>
                     <th>标题</th>
                     <th>添加时间</th>
                     <th>分支</th>
-                    <th>CommitID</th>
-                    <th>标签Tag</th>
+                    <th>CommitID1/2/3</th>
+                    <th>标签版本1/2/3</th>
                     <th>发布原因</th>
                     <th>状态</th>
-                    <th>版本保留</th>
 
 
                     <th>操作</th>
@@ -56,25 +56,37 @@
                     <tr>
                         <td>{{ v.executive_user }}</td>
                         <td>{{ v.confile }}</td>
+                        <td>{{ v.sit_id }}</td>
                         <td>{{ v.name }}</td>
                         <td>{{ v.ctime }}</td>
                         <td>{{ v.branches }}</td>
-                        <td>{{ v.release }}</td>
-                        <td>{{ v.tag }}</td>
+                        <td>{{ v.release }}/{{ v.release_two }}/{{ v.release_three }}</td>
+                        <td>{{ v.tag }}/{{ v.tag_two }}/{{ v.tag_three }}</td>
                         <td>{{ v.memo }}</td>
                         <td>{{ v.status }}</td>
-                        <td>{{ v.exist }}</td>
 
 
                         <td>
+                        {% if v.confile.tool.name == "GIT" %}
                             {% if v.status == "未发布" %}
 
                                 <a href="{% url 'deploy_online' v.uuid %}" class="btn btx-xs btn-success"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 部署</a>
-                                <a href="#" class="btn btx-xs btn-warning"><i class="fa fa-trash-o" aria-hidden="true"></i> 删除</a>
+                                <!-- <a href="#" class="btn btx-xs btn-warning"><i class="fa fa-trash-o" aria-hidden="true"></i> 删除</a> -->
                             {% endif %}
                             {% if v.exist == True %}
                                 <a href="{% url 'go_back' v.uuid %}" class="btn btx-xs btn-danger"><i class="fa fa-reply" aria-hidden="true"></i> 回滚</a>
                             {% endif %}
+                        {% endif %}
+                        {% if v.confile.tool.name == "Subversion" %}
+                            {% if v.status == "未发布" %}
+
+                                <a href="{% url 'deploy_online_svn' v.uuid %}" class="btn btx-xs btn-success"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 部署</a>
+                                <!-- <a href="#" class="btn btx-xs btn-warning"><i class="fa fa-trash-o" aria-hidden="true"></i> 删除</a> -->
+                            {% endif %}
+                            {% if v.exist == True %}
+                                <a href="{% url 'go_back' v.uuid %}" class="btn btx-xs btn-danger"><i class="fa fa-reply" aria-hidden="true"></i> 回滚</a>
+                            {% endif %}
+                        {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

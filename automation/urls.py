@@ -3,7 +3,7 @@
 
 from django.conf.urls import patterns, include, url
 from automation import views
-
+from automation import script_deploy as sviews
 
 urlpatterns = [
 #"""产品线增删查改"""
@@ -21,6 +21,8 @@ urlpatterns = [
     url(r'^conf_copy/(?P<uuid>[^/]+)/$', views.conf_copy, name='conf_copy'),
     url(r'^conf_check/(?P<uuid>[^/]+)/$', views.conf_check, name='conf_check'),
     # url(r'^conf_check/$', views.conf_check, name='conf_check'),
+    url(r'^conf_add_svn/$', views.conf_add_svn, name="conf_add_svn"),
+
 
 
 
@@ -35,8 +37,15 @@ urlpatterns = [
     url(r'^poll_state$', views.poll_state,name='poll_state'),
     url(r'^deploy_branch_select/', views.deploy_branch_select, name='deploy_branch_select'),
     url(r'^go_back/(?P<uuid>[^/]+)/$', views.go_back, name="go_back"),
-    
+    url(r'^deploy_add_svn/(?P<uuid>[^/]+)/$', views.deploy_add_svn, name="deploy_add_svn"),
+    url(r'^deploy_online_svn/(?P<uuid>[^/]+)/$', views.deploy_online_svn, name="deploy_online_svn"),
 
+#"""脚本发布"""
+    url(r'^deploy_script/$', sviews.deploy_script, name="deploy_script"),
+    url(r'^script_list/$', sviews.list_script, name="script_list"),
+    url(r'^script_add/$', sviews.add_script, name="script_add"),
+    url(r'^script_edit/(?P<uuid>[^/]+)/$', sviews.edit_script, name="script_edit"),
+    url(r'^script_delete/(?P<uuid>[^/]+)/$', sviews.delete_script, name='script_delete'),
 
 
 

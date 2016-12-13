@@ -1,0 +1,84 @@
+{% extends "default/base.html" %}
+{% block title %}脚本发布页{% endblock %}
+
+<!-- {% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %} -->
+
+
+{% block assistant-header %}
+    <h1> 脚本发布程序 <small>SCRIPT</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'deploy_script' %}">脚本发布</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>脚本配置参数</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+            <div class="box-body">
+            <dir class="col-md-4 col-lg-4">
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_command">发布命令<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                            <option value="">--请选择--</option>
+                            {% for i in data %}
+                                <option value={{ i.uuid }}>{{ i.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_parameter">脚本参数<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <input type="text" id="id_parameter" name="parameter" class="form-control" data-toggle="tooltip" title="多个参数使用空格隔开">
+                        <div class="help-block"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btn btn-success btn-lg" type="submit"> 执行脚本 </button>
+                    </div>
+
+
+
+                </form>
+            </dir>
+            <dir class="col-md-8 col-lg-8">
+                <h4><strong>操作日志</strong></h4>
+                {% for i in log_data %}
+                <p class="text-primary">用户：{{ i.user }} 时间：{{ i.create_time }}</p>
+                <p class="text-warning">执行脚本：{{ i.command }}</p>
+                <p class="text-success">返回结果：{{ i.result }}</p>
+                {% endfor %}
+            </dir>
+
+
+
+            </div>
+
+        <div class="box-footer">
+            <a href="{% url 'script_add' %}" class="btn btn-black btn-primary">添加发布脚本</a>
+            <a href="{% url 'script_list' %}" class="btn btn-black btn-primary">发布脚本列表</a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
