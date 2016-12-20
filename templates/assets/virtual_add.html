@@ -345,13 +345,13 @@
                 check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
             },
         fields: {
-            "name": {
-                rule: "required;check_node",
-                tip: "格式：字母+数字+下划线",
-                ok: "",
-                msg: {required: "必须填写!"},
-                data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
-            },
+            // "name": {
+            //     rule: "required;check_node",
+            //     tip: "格式：字母+数字+下划线",
+            //     ok: "",
+            //     msg: {required: "必须填写!"},
+            //     data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
+            // },
              "nic_name0":{
                 rule: "required;check_node",
                 tip: "",
@@ -370,24 +370,24 @@
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-             "nic_name1":{
-                rule: "required;check_node",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-             "nic_macaddress1":{
-                rule: "required;check_mac",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-            "nic_ipaddress1":{
-                rule: "required;check_ip",
-                tip: "输入ip地址",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
+            //  "nic_name1":{
+            //     rule: "required;check_node",
+            //     tip: "",
+            //     ok:"",
+            //     msg:{required: "必须填写!"}
+            // },
+            //  "nic_macaddress1":{
+            //     rule: "required;check_mac",
+            //     tip: "",
+            //     ok:"",
+            //     msg:{required: "必须填写!"}
+            // },
+            // "nic_ipaddress1":{
+            //     rule: "required;check_ip",
+            //     tip: "输入ip地址",
+            //     ok:"",
+            //     msg:{required: "必须填写!"}
+            // },
             "ssh_host":{
                 rule: "required;check_ip",
                 tip: "输入ip地址",

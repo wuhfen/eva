@@ -15,7 +15,7 @@ class AssetForm(ModelForm):
         ('contain', u'Docker'),
         ('others', u'其它类'),
     )
-    asset_number = forms.CharField(label=u'资产编号',widget=forms.TextInput(attrs={'placeholder': 'DT-server-20161014-001'}))
+    asset_number = forms.CharField(label=u'资产编号',required=False,widget=forms.TextInput(attrs={'placeholder': 'DT-server-20161014-001'}))
     asset_type = forms.CharField(label=u'资产类型',required=False,widget=forms.Select(attrs={'initial': 'serverhost','hidden': "hidden"}, choices=FAVORITE_COLORS_CHOICES))
     class Meta:
         model = models.Asset

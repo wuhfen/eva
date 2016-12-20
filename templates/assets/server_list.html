@@ -101,8 +101,8 @@
                       {% else %}
                           <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs">详情</a> 
                           <a href="{% url 'virtual_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a> 
-                          <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-info btn-xs">更新信息</a>
                       {% endif %}
+                      <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-success btn-xs">更新信息</a>
                       <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-danger btn-xs addpasswd">添加权限</a>
                       <a href="{% url 'look_server_passwd' i.uuid %}" class="btn btn-danger btn-xs lookpasswd">查看权限</a>
 

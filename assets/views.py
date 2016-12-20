@@ -511,16 +511,15 @@ def pull_server_information(request,uuid):
 
     if errors_info:
         if asset_type == "virtual":
-            return HttpResponseRedirect(reverse('/assets/virtual_detail')+'?uuid=%s' % uuid)
+            return HttpResponseRedirect('/assets/virtual_detail/' + '%s' % uuid)
         else:
-            return HttpResponseRedirect(reverse('/assets/server_detail')+'?uuid=%s' % uuid)
+            return HttpResponseRedirect('/assets/server_detail/' + '%s' % uuid)
     else:
         aa = asset_ansible_update([data],asset_type)
-    return HttpResponse(aa)
-        # if asset_type == "virtual":
-        #     return HttpResponseRedirect(reverse('/assets/virtual_detail')+'?uuid=%s' % uuid)
-        # else:
-        #     return HttpResponseRedirect(reverse('/assets/server_detail')+'?uuid=%s' % uuid)
+        if asset_type == "virtual":
+            return HttpResponseRedirect('/assets/virtual_detail/' + '%s' % uuid)
+        else:
+            return HttpResponseRedirect('/assets/server_detail/' + '%s' % uuid)
 
 
 
