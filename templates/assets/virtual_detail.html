@@ -15,7 +15,7 @@
     {% block assistant-header %} <h3> 虚拟机详情|virtual detail</h3>
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
-        <li><a href="#">资产管理</a></li>
+        <li><a href="{% url 'server_list' %}">资产管理</a></li>
         <li><a href="#">虚拟机详情</a></li>
     </ol>
 {% endblock %}
@@ -65,11 +65,11 @@
                 </tr>
                 <tr>
                     <th class="text-info">内存(GB)</th>
-                    <td>{{ server.asset.cpu.cpu_core_count }}</td>
+                    <td>{{ server.RAM_total }}</td>
                 </tr>
                 <tr>
                     <th class="text-info">硬盘(GB)</th>
-                    <td>{{ server.asset.cpu.cpu_core_count }}</td>
+                    <td>{{ server.Disk_total }}</td>
                 </tr>
                 <tr>
                     <th class="text-info">冗余级别</th>

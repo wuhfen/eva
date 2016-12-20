@@ -45,7 +45,7 @@
                     <td>{{ sf.name|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
-                    <!-- <th>ansible名</th> -->
+                    <!-- <th>服务器名</th> -->
                     <td>{{ sf.ansible_name|bootstrap_horizontal }}</td>
                 </tr>
                  <tr hidden="hidden">
@@ -56,7 +56,7 @@
                     <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
-                    <!-- <th>ssh user</th> -->
+                    <!-- <th>ssh host</th> -->
                     <td>{{ sf.ssh_user|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
@@ -347,7 +347,7 @@
         fields: {
             "name": {
                 rule: "required;check_node",
-                tip: "输入主机名",
+                tip: "格式：字母+数字+下划线",
                 ok: "",
                 msg: {required: "必须填写!"},
                 data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}

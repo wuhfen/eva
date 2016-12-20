@@ -5,7 +5,7 @@ from django.conf.urls import patterns, include, url
 from assets import views
 from assets.project_asset import views as pviews
 from assets.idc_asset import views as idcviews
-
+from assets.system_opt import views as sviews
 
 urlpatterns = [
 #"""产品线增删查改"""
@@ -85,7 +85,16 @@ urlpatterns = [
 #"""服务器权限操作"""
    url(r'^look_server_passwd/(?P<uuid>[^/]+)/$', views.look_server_passwd,name="look_server_passwd"),
    url(r'^add_sql_passwd/(?P<uuid>[^/]+)/$', views.add_sql_passwd,name="add_sql_passwd"),
-   
+   url(r'^pull_server_information/(?P<uuid>[^/]+)/$', views.pull_server_information, name="pull_server_information"),
 
+#"""系统初始化"""
+   url(r'^system_init/$', sviews.system_init,name="system_init"),
 
+   url(r'^system/publickey/list/$', sviews.public_key_list,name="public_key_list"),
+   url(r'^system/publickey/add/$', sviews.public_key_add,name="public_key_add"),
+   url(r'^system/publickey/delete/(?P<uuid>[^/]+)/$', sviews.public_key_delete,name="public_key_delete"),
+
+   url(r'^system/zabbix_agent/list/$', sviews.zabbix_agent_list,name="zabbix_agent_list"),
+   url(r'^system/zabbix_agent/add/$', sviews.zabbix_agent_add,name="zabbix_agent_add"),
+   url(r'^system/zabbix_agent/delete/(?P<uuid>[^/]+)/$', sviews.zabbix_agent_delete,name="zabbix_agent_delete"),
 ]

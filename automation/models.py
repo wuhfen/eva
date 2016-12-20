@@ -105,6 +105,7 @@ class deploy(models.Model):
 
 
 class scriptrepo(models.Model):
+    #脚本参数
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(_(u'发布名称'),max_length=64)
     command = models.CharField(_(u'命令'),max_length=128)
@@ -112,6 +113,7 @@ class scriptrepo(models.Model):
 
 
 class scriptlog(models.Model):
+    #脚本参数
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     user =  models.ForeignKey(Users,verbose_name=u'用户')
     command = models.CharField(_(u'命令'),max_length=128)

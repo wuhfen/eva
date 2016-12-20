@@ -1,0 +1,83 @@
+{% extends "default/base.html" %}
+{% block title %}ZABBIX{% endblock %}
+
+{% block assistant-header %} 系统初始化 {% endblock %}
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="box box-info">
+    <div class="box-header with-border">
+        <div class="col-lg-4"><h4>zabbix客户端配置信息</h4></div>
+        <div class="col-lg-8"><h4 class="text-right"><a href="{% url 'zabbix_agent_add' %}" class="btn btn-info zabbix-add" role="button"><span class="fa fa-key"></span>  添加配置文件</a></h4></div>
+
+        </div>
+        <div class="box-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>名称</th>
+                        <th>版本</th>
+                        <th>Server</th>
+                        <th>ListenPort</th>
+                        <th>ListenIP</th>
+                        <th>ServerActive</th>
+                        <th>操作</th>
+                    </tr>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.version }}</td>
+                        <td>{{ v.server }}</td>
+                        <td>{{ v.listenport }}</td>
+                        <td>{{ v.listenip }}</td>
+                        <td>{{ v.serveractive }}</td>
+                        <td>
+                            <a href="{% url 'zabbix_agent_delete' v.uuid %}" class="btn btn-xs btn-primary zabbix-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(".zabbix-add").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: 'KEY ADD',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                content: url,
+                end : function () {
+                  location.reload();
+              },
+            });
+         event.preventDefault();
+    });
+
+
+$(".zabbix-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "default/base.html" %}
+{% block title %}SYSTEM{% endblock %}
+
+
+
+{% block assistant-header %} <h3>系统操作|system action</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'server_list' %}">资产列表</a></li>
+        <li><a href="#">系统操作</a></li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <h3 class="text-primary">系统初始化</h3>
+        </div>
+        <div class="box-body">
+            <div class="role">
+                <form id="id_system_form" class="form-horizontal" action="" method="post" name="horizontal" role="form" autocomplete="off" >
+                        {% csrf_token %}
+
+                <div class="col-md-4 col-lg-4">
+                    <div class="panel-body">
+                        <h4 class="text-info text-center"><strong>选择任务</strong></h4><hr>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="check_box_list" value="pubkey">
+                                    同步公钥至远程主机
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="check_box_list" value="selinux">
+                                    selinux开关
+                                </label>
+                            </div>
+
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="check_box_list" value="install_zabbix_agent">
+                                    安装zabbix客户端
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_servers"><small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small>目标服务器</label>
+                            <textarea class=" form-control" cols="40" id="id_servers" name="servers" rows="10"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-5">
+                                <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                                <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-lg-4">
+                    <div class="panel-body">
+                        <h4 class="text-info text-center"><strong>配置任务</strong></h4><hr>
+                            <div class="form-group">
+                                <label class="text-right bolder" for="id_public_key">公钥配置<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                <div class="input-group margin">
+                                    <select class="form-control n-invalid" id="id_public_key" name="public_key" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <option value="">--请选择--</option>
+                                    {% for i in pubkey_data %}
+                                        <option value={{ i.uuid }}>{{ i.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                        <span class="input-group-btn">
+                                          <a href="{% url 'public_key_list' %}" class="btn btn-info btn-flat"><span class="fa fa-plus"></span></a>
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="text-right bolder" for="id_selinux_state">selinux状态<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                
+                                <div class="margin">
+                                    <select class="form-control n-invalid" id="id_selinux_state" name="selinux_state" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <option value="">--请选择--</option>
+                                        <option value='enforcing'>enforcing</option>
+                                        <option value='permissive'>permissive</option>
+                                        <option value='disabled'>disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="text-right bolder" for="id_zabbix_agent">zabbix客户端<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                
+                                <div class="input-group margin">
+                                    <select class="form-control n-invalid" id="id_zabbix_agent" name="zabbix_agent" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <option value="">--请选择--</option>
+                                    {% for i in zabbix_data %}
+                                        <option value={{ i.uuid }}>{{ i.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                        <span class="input-group-btn">
+                                          <a href="{% url 'zabbix_agent_list' %}" class="btn btn-info btn-flat"><span class="fa fa-plus"></span></a>
+                                        </span>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                </form>
+                <div class="col-md-4 col-lg-4">
+                    <div class="panel-body">
+                        <h4 class="text-info text-center"><strong>操作日志</strong></h4><hr>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -43,7 +43,7 @@
                                 <td>{{ sf.name|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
-                                <!-- <th>ansible的node名</th> -->
+                                <!-- <th>服务器名</th> -->
                                 <td>{{ sf.ansible_name|bootstrap_horizontal }}</td>
                             </tr>
                              <tr>
@@ -54,7 +54,7 @@
                                 <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
-                                <!-- <th>ssh user</th> -->
+                                <!-- <th>ssh host</th> -->
                                 <td>{{ sf.ssh_user|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
@@ -395,12 +395,12 @@
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-            // "asset_number":{
-            //     rule: "required;",
-            //     tip: "",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
+            "asset_number":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
             "system":{
                 rule: "required;",
                 tip: "",

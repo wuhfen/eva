@@ -160,7 +160,7 @@ class Asset(models.Model):
         ('in','报废'),
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    asset_number = models.CharField(verbose_name=u'资产编号',max_length=128, blank=True)
+    asset_number = models.CharField(verbose_name=u'资产编号',max_length=128, blank=True,null=True)
     asset_type = models.CharField(verbose_name=u'资产类型',max_length=64, blank=True)
     purpose = models.CharField(max_length=64,null=True, blank=True,verbose_name=u'用途')
     status = models.CharField(choices=Status_Status,max_length=64,verbose_name = u'设备状态',default='on')
@@ -186,12 +186,12 @@ class Asset(models.Model):
 class Server(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     asset = models.OneToOneField('Asset')
-    name = models.CharField(verbose_name=u"主机名",max_length=64)
+    name = models.CharField(verbose_name=u"主机名",max_length=64, blank=True,null=True)
     ansible_name = models.CharField(verbose_name=u"ansible节点名",max_length=64,blank=True,default='ansible_host_name')
-    ssh_user = models.CharField(u'ssh用户',max_length=32,blank=True,default='root')
-    ssh_host = models.GenericIPAddressField(u'SSH地址', blank=True,null=True,help_text=u'一般填写外网IP')
-    ssh_port = models.SmallIntegerField(u'SSH端口', blank=True,null=True,default='22')
-    ssh_password = models.CharField(verbose_name=u"SSH密钥",max_length=100, blank=True)
+    ssh_user = models.CharField(u'ssh用户',max_length=32,default='root')
+    ssh_host = models.GenericIPAddressField(u'SSH地址',help_text=u'一般填写外网IP',default='127.0.0.1')
+    ssh_port = models.SmallIntegerField(u'SSH端口', default='22')
+    ssh_password = models.CharField(verbose_name=u"SSH密钥",max_length=100)
     ipmitool = models.GenericIPAddressField(u'远控IP', blank=True,null=True)
     # #如果是虚拟机 那么他的宿主机是这个
     parent = models.ForeignKey('self',related_name='parent_server',blank=True,null=True,verbose_name=u"虚拟机父主机")
@@ -383,4 +383,18 @@ class sqlpasswd(models.Model):
     server = models.ForeignKey('Server',blank=True,null=True)
     memo = models.TextField(u'备注', blank=True,null=True)
 
+## 系统初始化
+class publickey(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(verbose_name='名称',max_length=32)
+    pubkey = models.TextField(u'公钥', blank=True)
 
+class zabbixagent(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(verbose_name='名称',max_length=32)
+    ZABBIX_VERSION = [(i, i) for i in (u"2.4", u"3.0","3.2")]
+    version = models.CharField(verbose_name='版本',max_length=32,choices=ZABBIX_VERSION)
+    server = models.GenericIPAddressField(u'Server',blank=True,null=True)
+    listenport = models.CharField(u'ListenPort',max_length=32)
+    listenip = models.CharField(u'ListenIP',max_length=32)
+    serveractive = models.GenericIPAddressField(u'ServerActive',blank=True,null=True)

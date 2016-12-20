@@ -9,7 +9,7 @@ from assets.models import IDC, Service, Line, Project, sqlpasswd
 from assets.models import Asset, Server, NIC, RaidAdaptor, Disk, CPU, RAM
 from forms import ServerForm, AssetForm, CPUForm, RAMForm, DiskForm, NICForm, RaidForm, SQLpassForm
 # Create your views here.
-
+from ansible_update_assert import asset_ansible_update
 import re
 
 def isValidIp(ip):  
@@ -146,9 +146,8 @@ def server_add(request):
                     if raid_model and raid_slot:
                         RaidAdaptor.objects.create(asset = asset_data,model=raid_model,slot=raid_slot,
                         sn=raid_sn,memo=raid_memo)
-            return render(request,'assets/asset_success.html', locals())
 
-            # return HttpResponseRedirect('/allow/welcome/')
+            return HttpResponseRedirect('/allow/welcome/')
         else:
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
@@ -212,7 +211,6 @@ def virtual_add(request):
                     if nic_name and nic_macaddress:
                         NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
                         ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
-            # return HttpResponseRedirect('/allow/welcome/')
             return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
@@ -283,9 +281,7 @@ def server_edit(request,uuid):
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-            return render(request,'assets/asset_success.html', locals())
-
-            # return HttpResponseRedirect('/allow/welcome/')
+            return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/server_edit.html', locals())
 
 ###编辑虚拟主机信息###
@@ -322,9 +318,7 @@ def virtual_edit(request,uuid):
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-            # return HttpResponseRedirect('/allow/welcome/')
-            return render(request,'assets/asset_success.html', locals())
-            
+            return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/virtual_edit.html', locals())
 
 ##网卡操作
@@ -420,7 +414,7 @@ def disk_add(request,uuid):
 
     return render(request,'assets/disk_add.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def disk_edit(request,uuid):
     disk_data = Disk.objects.get(pk=uuid)
     diskf = DiskForm(instance=disk_data)
@@ -433,7 +427,7 @@ def disk_edit(request,uuid):
 
     return render(request,'assets/disk_edit.html', locals())
 
-@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_Asset', login_url='/auth_error/')
 def disk_delete(request,uuid):
     disk_data = Disk.objects.get(pk=uuid)
     disk_data.delete()
@@ -441,7 +435,7 @@ def disk_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##raid卡
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def raid_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     raidf = RaidForm()
@@ -458,7 +452,7 @@ def raid_add(request,uuid):
 
     return render(request,'assets/raid_add.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def raid_edit(request,uuid):
     raid_data = RaidAdaptor.objects.get(pk=uuid)
     raidf = RaidForm(instance=raid_data)
@@ -471,7 +465,7 @@ def raid_edit(request,uuid):
 
     return render(request,'assets/raid_edit.html', locals())
 
-@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_Asset', login_url='/auth_error/')
 def raid_delete(request,uuid):
     raid_data = RaidAdaptor.objects.get(pk=uuid)
     raid_data.delete()
@@ -485,7 +479,7 @@ def look_server_passwd(request,uuid):
     sql_data = sqlpasswd.objects.filter(server=data)
     return render(request,'assets/passwd_list.html', locals()) 
 
-@permission_required('assets.Can_add_sqlpasswd', login_url='/auth_error/')
+@permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
 def add_sql_passwd(request,uuid):
     uuid = uuid
     server = Server.objects.get(pk=uuid)
@@ -499,3 +493,34 @@ def add_sql_passwd(request,uuid):
             return HttpResponse('ADD Success!')
 
     return render(request,'assets/passwd_add.html', locals()) 
+
+@permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
+def pull_server_information(request,uuid):
+    #"""自动拉取服务器的配置信息"""
+    # uuid = request.GET.get('uuid', '')
+    data = Server.objects.get(pk=uuid)
+    asset_type = data.asset.asset_type
+    ip = data.ssh_host
+    port = data.ssh_port
+    user = data.ssh_user
+    password = data.ssh_password
+    L = [ip,port,user,password,uuid]
+    errors_info = []
+    if '' in L:
+        errors_info.append("服务器ssh信息不完整！")
+
+    if errors_info:
+        if asset_type == "virtual":
+            return HttpResponseRedirect(reverse('/assets/virtual_detail')+'?uuid=%s' % uuid)
+        else:
+            return HttpResponseRedirect(reverse('/assets/server_detail')+'?uuid=%s' % uuid)
+    else:
+        aa = asset_ansible_update([data],asset_type)
+    return HttpResponse(aa)
+        # if asset_type == "virtual":
+        #     return HttpResponseRedirect(reverse('/assets/virtual_detail')+'?uuid=%s' % uuid)
+        # else:
+        #     return HttpResponseRedirect(reverse('/assets/server_detail')+'?uuid=%s' % uuid)
+
+
+

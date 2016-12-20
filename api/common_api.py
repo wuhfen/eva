@@ -7,7 +7,7 @@ import ssl
 
 from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
-
+from assets.models import Server
 
 def page_list_return(total, current=1):
     min_page = current - 2 if current - 4 > 0 else 1
@@ -58,3 +58,28 @@ def get_mask_ip(mask):
         ip_list.append(str(ip))
     ip_list = ip_list[1:]
     return ip_list
+
+def create_ansible_inventory(hostip_list,groupname):
+    hostsFile = NamedTemporaryFile(delete=False)
+    group = "[%s]" % groupname
+    Lfanzheng = [group]
+    for i in hostip_list:
+        i = Server.objects.get(ssh_host=i)
+        host = "%s ansible_ssh_port=%s ansible_ssh_use=%s ansible_ssh_pass=%s" % (i.ssh_host,i.ssh_port,i.ssh_user,i.ssh_password)
+        Lfanzheng.append(host)
+    for s in Lfanzheng:
+        hostsFile.write(s+'\n')
+    hostsFile.close()
+    return hostsFile.name
+
+
+def get_asset_info(asset):
+    info = {'hostname': asset.ssh_host, 'ip': asset.ssh_host, 'port': int(asset.ssh_port), 'username': asset.ssh_user,'password': asset.ssh_password }
+
+
+def gen_resource(ob):
+    res = []
+    for asset in ob:
+        info = {'hostname': asset.ssh_host, 'ip': asset.ssh_host, 'port': int(asset.ssh_port), 'username': asset.ssh_user,'password': asset.ssh_password }
+        res.append(info)
+    return res

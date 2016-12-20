@@ -15,8 +15,8 @@
     {% block assistant-header %} <h3>资产列表|Asset List</h3>
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
-        <li><a href="#">资产管理</a></li>
-        <li><a href="/assets/server_list/">资产列表</a></li>
+        <li><a href="{% url 'server_list' %}">资产列表</a></li>
+        <li><a href="#">资产详情</a></li>
     </ol>
 {% endblock %}
 
@@ -39,7 +39,7 @@
                 <thead>
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all"></th>
-                  <th>远程连接IP</th>
+                  <th>地址</th>
                   <th>ansible节点名</th>
                   <th>系统信息</th>
                   <!-- <th>系统状态</th> -->
@@ -101,6 +101,7 @@
                       {% else %}
                           <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs">详情</a> 
                           <a href="{% url 'virtual_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a> 
+                          <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-info btn-xs">更新信息</a>
                       {% endif %}
                       <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-danger btn-xs addpasswd">添加权限</a>
                       <a href="{% url 'look_server_passwd' i.uuid %}" class="btn btn-danger btn-xs lookpasswd">查看权限</a>
@@ -112,7 +113,7 @@
                 <tfoot>
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
-                  <th>远程连接IP</th>
+                  <th>地址</th>
                   <th>ansible节点名</th>
                   <th>系统信息</th>
                   <!-- <th>系统状态</th> -->
@@ -120,6 +121,7 @@
                   <th>项目</th>
                   <th>服务</th>
                   <th>用途</th>
+
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
                   <!-- <th>资产类型</th> -->
