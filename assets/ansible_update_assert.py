@@ -73,6 +73,12 @@ def get_ansible_asset_info(asset_ip, setup_info):
 
     for i in other_face_list:
         interface = "ansible_" + i
+        print i
+        try:
+            setup_info.get(interface).get("ipv4")
+        except AttributeError:
+            continue
+        print setup_info.get(interface)
         interface_ip = setup_info.get(interface).get("ipv4").get("address")
         interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
         interface_mac = setup_info.get(interface).get("macaddress")
