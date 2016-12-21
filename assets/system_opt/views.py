@@ -14,7 +14,7 @@ from api.ansible_api import MyRunner,MyTask,MyPlayTask
 import re
 import traceback
 
-
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def system_init(request):
     pubkey_data = publickey.objects.all()
     zabbix_data = zabbixagent.objects.all()
@@ -53,7 +53,7 @@ def system_init(request):
         return HttpResponseRedirect('/allow/welcome/')
 
     return render(request,'assets/system_init.html',locals())
-
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def public_key_add(request):
     pf = pubkeyForm()
     if request.method == 'POST':
@@ -63,15 +63,18 @@ def public_key_add(request):
             return HttpResponseRedirect('/assets/system/publickey/list/')
     return render(request,'assets/publickey_add.html',locals())
 
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def public_key_list(request):
     data = publickey.objects.all()
     return render(request,'assets/publickey_list.html',locals())
 
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def public_key_delete(request,uuid):
     data = get_object_or_404(publickey,pk=uuid)
     data.delete()
     return HttpResponse("DELETE SUCCESS!")
 
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def zabbix_agent_add(request):
     pf = zabbixagentForm()
     if request.method == 'POST':
@@ -81,10 +84,12 @@ def zabbix_agent_add(request):
             return HttpResponseRedirect('/assets/system/zabbix_agent/list/')
     return render(request,'assets/zabbix_agent_add.html',locals())
 
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def zabbix_agent_list(request):
     data = zabbixagent.objects.all()
     return render(request,'assets/zabbixagent_list.html',locals())
 
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def zabbix_agent_delete(request,uuid):
     data = get_object_or_404(zabbixagent,pk=uuid)
     data.delete()
