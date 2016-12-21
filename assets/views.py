@@ -161,7 +161,7 @@ def server_list(request):
     # return HttpResponse(servers.asset.nic)
     return render(request,'assets/server_list.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def virtual_add(request):
     sf = ServerForm()
     af = AssetForm()
@@ -211,6 +211,7 @@ def virtual_add(request):
                     if nic_name and nic_macaddress:
                         NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
                         ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
+            asset_ansible_update([server_data],asset_data.asset_type)
             return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
