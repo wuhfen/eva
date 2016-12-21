@@ -72,12 +72,13 @@ def deploy_script(request):
     now = int(time.time())
     log = scriptlog.objects.all()
     L = [i.sort_time for i in log]
-    now_log_time = max(L)
-    L.remove(now_log_time)
-    two_log_time = max(L)
-    log_one = scriptlog.objects.get(sort_time=now_log_time)
-    log_two = scriptlog.objects.get(sort_time=two_log_time)
-    log_data = [log_one,log_two]
+    if L:
+        now_log_time = max(L)
+        L.remove(now_log_time)
+        two_log_time = max(L)
+        log_one = scriptlog.objects.get(sort_time=now_log_time)
+        log_two = scriptlog.objects.get(sort_time=two_log_time)
+        log_data = [log_one,log_two]
 
     if request.method == 'POST':
         user = request.user                        ##日志记录

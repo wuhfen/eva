@@ -70,6 +70,10 @@
                                 <td>{{ sf.ipmitool|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
+                                <!-- <th>曾用IP</th> -->
+                                <td>{{ sf.old_ip|bootstrap_horizontal }}</td>
+                            </tr>
+                            <tr>
                                 <!-- <th>资产编号</th> -->
                                 <td>{{ af.asset_number|bootstrap_horizontal }}</td>
                             </tr>
@@ -561,13 +565,13 @@
                 check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
             },
         fields: {
-            "name": {
-                rule: "required;check_node",
-                tip: "输入主机名",
-                ok: "",
-                msg: {required: "必须填写!"},
-                data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
-            },
+            // "name": {
+            //     rule: "required;check_node",
+            //     tip: "输入主机名",
+            //     ok: "",
+            //     msg: {required: "必须填写!"},
+            //     data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
+            // },
             "macaddress": {
                 rule: "required;check_mac",
                 tip: "输入MAC",
@@ -580,24 +584,24 @@
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-            "ipmitool":{
-                rule: "check_ip",
-                tip: "远控卡ip",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
+            // "ipmitool":{
+            //     rule: "check_ip",
+            //     tip: "远控卡ip",
+            //     ok:"",
+            //     msg:{required: "必须填写!"}
+            // },
             "manager":{
                 rule: "required;",
                 tip: "",
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-            "asset_number":{
-                rule: "required;",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
+            // "asset_number":{
+            //     rule: "required;",
+            //     tip: "",
+            //     ok:"",
+            //     msg:{required: "必须填写!"}
+            // },
             "system":{
                 rule: "required;",
                 tip: "",

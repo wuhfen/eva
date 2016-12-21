@@ -190,7 +190,7 @@ class Server(models.Model):
     ansible_name = models.CharField(verbose_name=u"ansible节点名",max_length=64,blank=True,default='ansible_host_name')
     ssh_user = models.CharField(u'ssh用户',max_length=32,default='root')
     ssh_host = models.GenericIPAddressField(u'SSH地址',help_text=u'一般填写外网IP',default='127.0.0.1')
-    ssh_port = models.SmallIntegerField(u'SSH端口', default='22')
+    ssh_port = models.IntegerField(u'SSH端口', default='22')
     ssh_password = models.CharField(verbose_name=u"SSH密钥",max_length=100)
     ipmitool = models.GenericIPAddressField(u'远控IP', blank=True,null=True)
     # #如果是虚拟机 那么他的宿主机是这个
@@ -226,6 +226,8 @@ class Server(models.Model):
     # 虚拟机vps需要写环境，例如阿里云
     ENVIRONMENT = [(i, i) for i in (u"aliyun", u"aws", u"Tencent", u"pub")]
     env = models.CharField(max_length=32, blank=True, null=True, verbose_name=u"系统环境", choices=ENVIRONMENT)
+    old_ip = models.CharField(u'曾用IP',max_length=128,null=True, blank=True )
+
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(blank=True,auto_now=True)
     class Meta:

@@ -40,18 +40,21 @@
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all"></th>
                   <th>地址</th>
-                  <th>ansible节点名</th>
-                  <th>系统信息</th>
+                  <th>用途</th>
+
+                  <!-- <th>ansible节点名</th> -->
+                  <!-- <th>系统信息</th> -->
                   <!-- <th>系统状态</th> -->
-                  <th>CPU|内存(GB)|硬盘(GB)</th>
+                  <!-- <th>CPU|内存(GB)|硬盘(GB)</th> -->
                   <th>项目</th>
                   <th>服务</th>
-                  <th>用途</th>
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
+                  <th>曾用ip</th>
+
                   <!-- <th>资产类型</th> -->
                   <!-- <th>品牌型号</th> -->
-                  <th>保修期</th>
+                  <!-- <th>保修期</th> -->
                   <th>操作</th>
                 </tr>
                 </thead>
@@ -60,8 +63,10 @@
                 <tr>
                   <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
                   <td>{{ i.ssh_host }}</td>
-                  <td>{{ i.ansible_name }}</td>
-                  <td>{{ i.os_type }}|{{ i.os_version }}|{{ i.os_release }}</td>
+                  <td>{{ i.asset.purpose }}</td>
+
+                  <!-- <td>{{ i.ansible_name }}</td> -->
+                  <!-- <td>{{ i.os_type }}|{{ i.os_version }}|{{ i.os_release }}</td> -->
 <!--                   <td>
                         {% if i.system_status == 0 %}
                         <p class="text-danger">未安装</p>
@@ -69,12 +74,11 @@
                         <p class="text-success">已安装</p>
                         {% endif %}
                   </td> -->
-                  <td>{{ i.asset.cpu.cpu_count }}|{{ i.RAM_total }}|{{ i.Disk_total }}</td>
+                  <!-- <td>{{ i.asset.cpu.cpu_count }}|{{ i.RAM_total }}|{{ i.Disk_total }}</td> -->
                   <td>{% for s in i.uuid|business_list %}
                 <a href="#" class="btn btn-primary btn-xs">{{ s }}</a>
                 {% endfor %}</td>
                   <td>{{ i.service.all|group_str2 }}</td>
-                  <td>{{ i.asset.purpose }}</td>
                   <!-- <td>{{ i.idc }}</td> -->
                   <td>
                         {% if i.asset.status == 'on' %}
@@ -85,6 +89,7 @@
                             <p class="text-warning">闲置</p>
                         {% endif %}
                   </td>
+                  <td>{{ i.old_ip }}</td>
 <!--                     {% if i.asset.asset_type == 'serverhost' %}
                         <td>物理机</td>
                         <td>{{ i.model }}</td>
@@ -92,7 +97,7 @@
                         <td>虚拟机</td>
                         <td>{{ i.env }}</td>
                     {% endif %} -->
-                  <td>{{ i.asset.expire_date }}</td>
+                  <!-- <td>{{ i.asset.expire_date }}</td> -->
                   <td>
                       {% if i.asset.asset_type == 'serverhost' %}
                           <a href="{% url 'server_detail' i.uuid %}" class="btn btn-info btn-xs">详情</a>
@@ -114,19 +119,22 @@
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
                   <th>地址</th>
-                  <th>ansible节点名</th>
-                  <th>系统信息</th>
+                  <th>用途</th>
+
+                  <!-- <th>ansible节点名</th> -->
+                  <!-- <th>系统信息</th> -->
                   <!-- <th>系统状态</th> -->
-                  <th>CPU|内存(GB)|硬盘(GB)</th>
+                  <!-- <th>CPU|内存(GB)|硬盘(GB)</th> -->
                   <th>项目</th>
                   <th>服务</th>
-                  <th>用途</th>
 
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
+                  <th>曾用IP</th>
+
                   <!-- <th>资产类型</th> -->
                   <!-- <th>品牌型号</th> -->
-                  <th>保修期</th>
+                  <!-- <th>保修期</th> -->
                   <th>操作</th>
                 </tr>
                 </tfoot>
