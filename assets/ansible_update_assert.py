@@ -79,6 +79,9 @@ def get_ansible_asset_info(asset_ip, setup_info):
         except AttributeError:
             continue
         print setup_info.get(interface)
+        # interface_ip = "127.0.0.1"
+        # interface_netmask = "255.255.255.0"
+        # interface_mac = "bc:76:4e:1c:0c:49"
         interface_ip = setup_info.get(interface).get("ipv4").get("address")
         interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
         interface_mac = setup_info.get(interface).get("macaddress")
@@ -152,7 +155,6 @@ def asset_ansible_update(obj_list,asset_type):
                     k["netmask"] = v[-1]
                     nic_list.append(k)
 
-                # other_ip, mac, cpu, memory, disk, sn, system_type, system_version, brand, system_arch ,other= asset_info
                 asset_dic = {
                              "name": hostname,
                              "RAM_total": memory,
@@ -162,9 +164,9 @@ def asset_ansible_update(obj_list,asset_type):
                              "os_release": system_version,
                              "os_kernel": system_kernel,
                              }
-                print asset_dic
+                # print asset_dic
                 print nic_list
-                print cpu_dic
+                # print cpu_dic
                 cpu_data = asset.asset.cpu
                 nic_obj_all = asset.asset.nic_set.all()
                 if not nic_obj_all:

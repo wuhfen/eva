@@ -22,7 +22,7 @@ class AssetForm(ModelForm):
         fields = '__all__'
 
 class ServerForm(ModelForm):
-    ssh_password = forms.CharField(label=u'SHH密钥',required=False,widget=forms.PasswordInput)
+    # ssh_password = forms.CharField(label=u'SHH密码',required=False,widget=forms.PasswordInput)
     class Meta:
         model = models.Server
         fields = ['name','ansible_name','ipmitool','ssh_user','ssh_host','ssh_port','ssh_password','parent','Raid_level','Disk_total','RAM_total','project','service','model','env',

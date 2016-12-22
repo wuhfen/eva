@@ -53,6 +53,7 @@ def system_init(request):
         return HttpResponseRedirect('/allow/welcome/')
 
     return render(request,'assets/system_init.html',locals())
+
 @permission_required('assets.add_Asset', login_url='/auth_error/')
 def public_key_add(request):
     pf = pubkeyForm()

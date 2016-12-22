@@ -25,7 +25,7 @@ def isValidMac(mac):
 
 
 ## 服务器信息
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def server_add(request):
     sf = ServerForm()
     af = AssetForm()
@@ -152,7 +152,7 @@ def server_add(request):
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def server_list(request):
     # assets = Asset.objects.all()
     # assets = Asset.objects.get(asset_number="DT-test-02932")
@@ -211,14 +211,13 @@ def virtual_add(request):
                     if nic_name and nic_macaddress:
                         NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
                         ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
-            asset_ansible_update([server_data],asset_data.asset_type)
             return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/virtual_add.html', locals())
 
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def server_detail(request,uuid):
     """ 物理主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
@@ -233,7 +232,7 @@ def server_detail(request,uuid):
 
     return render(request,'assets/server_detail.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def virtual_detail(request,uuid):
     """ 虚拟主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
@@ -245,7 +244,7 @@ def virtual_detail(request,uuid):
     return render(request,'assets/virtual_detail.html', locals())
 
 ###编辑物理主机信息###
-@permission_required('assets.Can_change_Asset', login_url='/auth_error/')
+@permission_required('assets.change_Asset', login_url='/auth_error/')
 def server_edit(request,uuid):
     # server = get_object_or_404(Server, uuid=uuid)
     server = Server.objects.get(pk=uuid)
@@ -286,7 +285,7 @@ def server_edit(request,uuid):
     return render(request,'assets/server_edit.html', locals())
 
 ###编辑虚拟主机信息###
-@permission_required('assets.Can_change_Asset', login_url='/auth_error/')
+@permission_required('assets.change_Asset', login_url='/auth_error/')
 def virtual_edit(request,uuid):
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
@@ -323,7 +322,7 @@ def virtual_edit(request,uuid):
     return render(request,'assets/virtual_edit.html', locals())
 
 ##网卡操作
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def nic_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     nf = NICForm()
@@ -339,7 +338,7 @@ def nic_add(request,uuid):
 
     return render(request,'assets/nic_add.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def nic_edit(request,uuid):
     nic_data = NIC.objects.get(pk=uuid)
     nf = NICForm(instance=nic_data)
@@ -352,7 +351,7 @@ def nic_edit(request,uuid):
 
     return render(request,'assets/nic_edit.html', locals())
 
-@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_Asset', login_url='/auth_error/')
 def nic_delete(request,uuid):
     nic_data = NIC.objects.get(pk=uuid)
     nic_data.delete()
@@ -360,7 +359,7 @@ def nic_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##内存条操作
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def ram_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     rf = RAMForm()
@@ -377,7 +376,7 @@ def ram_add(request,uuid):
 
     return render(request,'assets/ram_add.html', locals())
 
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def ram_edit(request,uuid):
     ram_data = RAM.objects.get(pk=uuid)
     rf = RAMForm(instance=ram_data)
@@ -390,7 +389,7 @@ def ram_edit(request,uuid):
 
     return render(request,'assets/ram_edit.html', locals())
 
-@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_Asset', login_url='/auth_error/')
 def ram_delete(request,uuid):
     ram_data = RAM.objects.get(pk=uuid)
     ram_data.delete()
@@ -398,7 +397,7 @@ def ram_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##硬盘信息
-@permission_required('assets.Can_add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_Asset', login_url='/auth_error/')
 def disk_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     diskf = DiskForm()
@@ -473,7 +472,7 @@ def raid_delete(request,uuid):
 
     return HttpResponse('Delete Success!')
 
-@permission_required('assets.Can_delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_Asset', login_url='/auth_error/')
 def look_server_passwd(request,uuid):
     data = Server.objects.get(pk=uuid)
     nic_data = NIC.objects.filter(asset=data.asset)

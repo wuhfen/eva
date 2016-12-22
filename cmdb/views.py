@@ -5,6 +5,7 @@ from assets.models import Asset, NIC
 import time
 
 # Create your views here.
+@login_required()
 def index(request):
     return render(request,'default/index.html',locals())
 

@@ -44,12 +44,12 @@ def tools_add(request):
     # return HttpResponse("success")
     return render(request,'automation/tools_add.html',locals())
 
-@permission_required('automation.Can_add_Tools', login_url='/auth_error/')
+@permission_required('automation.add_Tools', login_url='/auth_error/')
 def tools_list(request):
     data = Tools.objects.all()
     return render(request,'automation/tools_list.html',locals())
 
-@permission_required('automation.Can_add_Tools', login_url='/auth_error/')
+@permission_required('automation.add_Tools', login_url='/auth_error/')
 def tools_edit(request,uuid):
     data = Tools.objects.get(pk=uuid)
     tf = ToolsForm(instance=data)
@@ -61,7 +61,7 @@ def tools_edit(request,uuid):
 
     return render(request,'automation/tools_edit.html',locals())
 
-@permission_required('automation.Can_delete_Tools', login_url='/auth_error/')
+@permission_required('automation.delete_Tools', login_url='/auth_error/')
 def tools_delete(request,uuid):
     data = get_object_or_404(Tools,uuid=uuid)
     if data:
@@ -137,15 +137,19 @@ def conf_add_svn(request):
         svn_url = data.address + tool_tail
 
         tool_uuid_two = request.POST.get('tool_two', '')
-        data_two = Tools.objects.get(pk=tool_uuid_two)
-        svn_url_two = data_two.address + tool_tail_two
+        svn_url_two = None
+        if tool_uuid_two:
+            data_two = Tools.objects.get(pk=tool_uuid_two)
+            svn_url_two = data_two.address + tool_tail_two
         if svn_url_two:
             if not path_two:
                 cf_errors.append(u"没有给出副库checkout的目录")
 
         tool_uuid_three = request.POST.get('tool_three', '')
-        data_three = Tools.objects.get(pk=tool_uuid_three)
-        svn_url_three = data_three.address + tool_tail_three
+        svn_url_three = None
+        if tool_uuid_three:
+            data_three = Tools.objects.get(pk=tool_uuid_three)
+            svn_url_three = data_three.address + tool_tail_three
         if svn_url_three:
             if not path_three:
                 cf_errors.append(u"没有给出叁库checkout的目录")
@@ -193,12 +197,12 @@ def conf_add_svn(request):
     return render(request,'automation/conf_add_svn.html',locals())
 
 
-@permission_required('automation.Can_add_Confile', login_url='/auth_error/')
+@permission_required('automation.add_Confile', login_url='/auth_error/')
 def conf_list(request):
     data = Confile.objects.all()
     return render(request,'automation/conf_list.html',locals())
 
-@permission_required('automation.Can_delete_Confile', login_url='/auth_error/')
+@permission_required('automation.delete_Confile', login_url='/auth_error/')
 def conf_delete(request,uuid):
     data = get_object_or_404(Confile,uuid=uuid)
     if data:
@@ -206,7 +210,7 @@ def conf_delete(request,uuid):
         return HttpResponse("SUCCESS!")
     return render(request,'automation/deploy_business.html',locals())
 
-@permission_required('automation.Can_change_Confile', login_url='/auth_error/')
+@permission_required('automation.change_Confile', login_url='/auth_error/')
 def conf_edit(request,uuid):
     data = Confile.objects.get(pk=uuid)
     cf = ConfileFrom(instance=data)
@@ -218,14 +222,14 @@ def conf_edit(request,uuid):
 
     return render(request,'automation/conf_edit.html',locals())
 
-@permission_required('automation.Can_add_Confile', login_url='/auth_error/')
+@permission_required('automation.add_Confile', login_url='/auth_error/')
 def conf_detail(request,uuid):
     data = Confile.objects.get(pk=uuid)
     if data:
         cf = ConfileFrom(instance=data)
     return render(request,'automation/conf_detail.html',locals())
 
-@permission_required('automation.Can_add_Confile', login_url='/auth_error/')
+@permission_required('automation.add_Confile', login_url='/auth_error/')
 def conf_copy(request,uuid):
     data = Confile.objects.get(pk=uuid)
     data.save()
@@ -238,7 +242,7 @@ def conf_copy(request,uuid):
     return HttpResponse("copy model success!")
 
 
-@permission_required('automation.Can_add_Confile', login_url='/auth_error/')
+@permission_required('automation.add_Confile', login_url='/auth_error/')
 def conf_check(request,uuid):
     data = Confile.objects.get(pk=uuid)
     git_addr = data.tool.address
@@ -258,12 +262,12 @@ def conf_check(request,uuid):
 
 
 
-@permission_required('automation.Can_add_deploy', login_url='/auth_error/')
+@permission_required('automation.add_deploy', login_url='/auth_error/')
 def deploy_business(request):
     data = Confile.objects.all()
     return render(request,'automation/deploy_business.html',locals())
 
-@permission_required('automation.Can_add_deploy', login_url='/auth_error/')
+@permission_required('automation.add_deploy', login_url='/auth_error/')
 def deploy_add(request,uuid):
     data = Confile.objects.get(pk=uuid)
     sit_id = data.business.nic_name
@@ -316,7 +320,7 @@ def deploy_add(request,uuid):
 
 
 
-@permission_required('automation.Can_add_deploy', login_url='/auth_error/')
+@permission_required('automation.add_deploy', login_url='/auth_error/')
 def deploy_branch_select(request):
     """这个函数定义如何获取仓库的commit_id，返回json数据给前端ajax"""
     branch = request.GET.get('branch','master')
@@ -331,7 +335,7 @@ def deploy_branch_select(request):
 
     return JsonResponse(commitid,safe=False)
 
-@permission_required('automation.Can_add_deploy', login_url='/auth_error/')
+@permission_required('automation.add_deploy', login_url='/auth_error/')
 def deploy_list(request):
     data = deploy.objects.all()
     user = request.user
@@ -359,7 +363,7 @@ def create_inventory(uuid,groupname):
     hostsFile.close()
     return hostsFile.name
 
-@permission_required('automation.Can_delete_deploy', login_url='/auth_error/')
+@permission_required('automation.delete_deploy', login_url='/auth_error/')
 def poll_state(request):
     """ A view to report the progress to the user """
     if 'task_id' in request.GET and request.GET['task_id']:
@@ -570,7 +574,7 @@ def deploy_online_svn(request,uuid):
         ##step2 删除临时目录，因为下面cpoy代码的时候，目录不能存在，不然在这里应该要创建临时目录的
         path = '/tmp/' + data.sit_id + commit_id
         if os.path.isdir(path):
-            shutil.rmtree(path)      ##如果目录存在就删除
+            shutil.rmtree(str(path))      ##如果目录存在就删除
 
         ##step3 代码拷贝到临时目录前需要执行的动作
         pre_deploy = conf_data.pre_deploy
@@ -580,9 +584,10 @@ def deploy_online_svn(request,uuid):
         ##step4 将代码拷贝到临时目录
         ignores = conf_data.exclude
         L = [a for a in ignores.split('/r/n') if a]
+        print L
         src = repo_path
         dst = path
-        shutil.copytree(src,dst,ignore=shutil.ignore_patterns(*L))
+        shutil.copytree(str(src),str(dst),ignore=shutil.ignore_patterns(*L))
         ##step5 代码拷贝到临时目录后需要执行的一些动作
         post_deploy = conf_data.post_deploy
         Lpost = [a for a in post_deploy.split('\r\n') if a]
@@ -606,6 +611,7 @@ def deploy_online_svn(request,uuid):
             msg = u"远程主机过期版本号为：%s" % expire_commit
         else:
             expire_commit = '123456789'   ## 如果有过期版本就删除，如果没有，为了防止误删，给过期的版本赋值为123456789
+        print expire_commit
         ##step7-8-9 使用ansible将本地主机上的代码传送至远程服务器，并执行pre和post动作
         groupname = "deploy_group"
         inventory = create_inventory(conf_data.uuid,groupname)         #发布远程服务器必须要在资产列表里面有，不然会报错

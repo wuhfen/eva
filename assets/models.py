@@ -191,7 +191,7 @@ class Server(models.Model):
     ssh_user = models.CharField(u'ssh用户',max_length=32,default='root')
     ssh_host = models.GenericIPAddressField(u'SSH地址',help_text=u'一般填写外网IP',default='127.0.0.1')
     ssh_port = models.IntegerField(u'SSH端口', default='22')
-    ssh_password = models.CharField(verbose_name=u"SSH密钥",max_length=100)
+    ssh_password = models.CharField(verbose_name=u"SSH密码",max_length=100)
     ipmitool = models.GenericIPAddressField(u'远控IP', blank=True,null=True)
     # #如果是虚拟机 那么他的宿主机是这个
     parent = models.ForeignKey('self',related_name='parent_server',blank=True,null=True,verbose_name=u"虚拟机父主机")
@@ -206,13 +206,13 @@ class Server(models.Model):
     )
     system_status = models.IntegerField(verbose_name=u"系统状态",default=1, choices=SERVER_STATUS,blank=True,null=True)
     SYSTEM_OS = [(i, i) for i in (u"Linux", u"Windows","unix")]
-    os_type  = models.CharField(u"系统类型", max_length=32, choices=SYSTEM_OS, blank=True,null=True)
+    os_type  = models.CharField(u"系统类型", max_length=32, default="Linux", blank=True,null=True)
     SYSTEM_VERSION = [(i, i) for i in (u"CentOS",u"Ubuntu",u"Windows Server")]
-    os_version =models.CharField(u'系统版本',max_length=64, choices=SYSTEM_VERSION,blank=True,null=True)
+    os_version =models.CharField(u'系统版本',max_length=64, default="CentOS",blank=True,null=True)
     SYSTEM_RELEASE = [(i, i) for i in ("5","6","7","12.04","14.04","16.04","2003","2008","2012","2016")]
-    os_release  = models.CharField(u'系统版本号',max_length=64,choices=SYSTEM_RELEASE, blank=True,null=True)
+    os_release  = models.CharField(u'系统版本号',max_length=64,default='7', blank=True,null=True)
     SYSTEM_KERNEL = [(i, i) for i in ("2.6.32","3.2.82","3.4.112","3.10.103","3.12.64","3.16.37","3.18.43","4.1.34","4.4.25","4.7.8","4.8.2")]
-    os_kernel = models.CharField(u'系统内核',max_length=128,choices=SYSTEM_KERNEL,null=True, blank=True )
+    os_kernel = models.CharField(u'系统内核',max_length=128,default='3.2.82',null=True, blank=True )
     Raid_level = models.CharField(u'冗余级别',max_length=8,null=True, blank=True )
     Disk_total = models.CharField(u'硬盘总容量(GB)',max_length=8,null=True, blank=True )
     RAM_total = models.CharField(u'内存总容量(GB)',max_length=8,null=True, blank=True )
