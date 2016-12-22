@@ -1,0 +1,31 @@
+---
+- hosts: "{{three_var}}"
+
+  vars:
+    host_group: "{{three_var}}"
+    https_port: 443
+    http_port: 80
+    remote_ip: "{{two_var}}"
+    comm: "{{four_var}}"
+  remote_user: root
+  become: yes
+  gather_facts: True
+
+  tasks:
+  - name: HTTP_ | Get Iptables Rules
+    shell: iptables -L -n| grep "{{remote_ip}}.*80,443.*{{comm}}"
+    register: iptablesrules_insertip
+    ignore_errors: True
+
+  - name: Delete "{{ remote_ip }}" 80,443 rules ON OLD
+    shell: iptables -D FORWARD `iptables -nvL  --lin|awk '/{{ remote_ip }}.*80,443.*{{comm}}/{print $1}'`
+    when: iptablesrules_insertip|success and "{{host_group}}" == "only_old"
+    register: iptablesrule
+    ignore_errors: True
+
+  - name: Delete "{{ remote_ip }}" 80,443 rules ON NEW
+    shell: iptables -D INPUT `iptables -nvL  --lin|awk '/{{ remote_ip }}.*80,443.*{{comm}}/{print $1}'|awk 'NR==1'`
+    when: iptablesrules_insertip|success and "{{host_group}}" == "only_new"
+    register: iptablesrule
+    ignore_errors: True
+

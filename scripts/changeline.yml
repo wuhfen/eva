@@ -1,0 +1,10 @@
+---
+- hosts: "changeline"
+
+  remote_user: "root"
+  become: yes
+  gather_facts: True
+
+  roles:
+    - { role: change_line, when: ansible_os_family == "RedHat"}
+

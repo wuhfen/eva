@@ -1,0 +1,42 @@
+- name: rsync code
+  become_user: root
+  # remote_user: root
+  gather_facts: true
+  become: yes
+  become_method: 'sudo'
+  hosts: "{{ group }}"
+  vars:
+    group: "{{ three_var }}"
+    webroot_user: "{{ four_var }}"
+    webroot: "{{ five_var }}"
+    release_dir: "{{ six_var }}"
+    commit_id: "{{ seven_var }}"
+    pre_release: "{{ eight_var }}" 
+    post_release: "{{ nine_var }}"
+
+
+  tasks:
+    - name: change /etc/sudoers defaults requiretty add !
+      lineinfile: dest=/etc/sudoers regexp="^Defaults    requiretty" line="Defaults    !requiretty"
+      ignore_errors: True
+
+    - name: Make Sure User "{{ webroot_user }}" exist
+      user: name="{{ webroot_user }}" shell=/sbin/nologin state=present
+      ignore_errors: True
+
+    - name: Execution pre-release command
+      shell: "{{ pre_release }}"
+      ignore_errors: True
+
+    - name: delete link status
+      file: path="{{ webroot }}" state=absent
+
+    - name: rlink "{{ release_dir }}/{{ commit_id }}" to "{{ webroot }}"
+      file: src="{{ release_dir }}/{{ commit_id }}" dest="{{ webroot }}" owner="{{ webroot_user }}" group="{{ webroot_user }}" state=link
+
+    - name: Execution post-release command
+      shell: "{{ post_release }}"
+      ignore_errors: True
+
+    - name: change back /etc/sudoers defaults requiretty
+      lineinfile: dest=/etc/sudoers regexp="^Defaults    !requiretty" line="Defaults    requiretty"

@@ -1,0 +1,40 @@
+---
+- hosts: "{{three_var}}"
+  vars:
+    host_group: "{{three_var}}"
+    https_port: 443
+    http_port: 80
+    remote_ip: "{{two_var}}"
+    comm: "{{four_var}}" 
+  remote_user: root
+  become: yes
+  gather_facts: True
+  tasks:
+  - name: HTTP_ | Get Iptables Rules
+    shell: iptables -L -n | grep "{{ remote_ip }}.*80,443.*{{ comm }}"
+    register: iptablesrules_insertip
+    ignore_errors: True
+
+  - name: Insert "{{remote_ip}}" port "{{http_port}}" "{{https_port}}" ON OLD
+    shell: iptables -t filter -I FORWARD 4 -s "{{remote_ip}}" -p tcp -m state --state NEW,ESTABLISHED -m tcp -m multiport --dports "{{http_port}}","{{https_port}}" -j ACCEPT -m comment --comment "{{comm}}"
+    when: iptablesrules_insertip|failed and "{{host_group}}" == "only_old"
+    register: iptablesrule_old
+    ignore_errors: True
+    tags:
+      - only_old
+
+  - name: Insert "{{remote_ip}}" port "{{http_port}}" "{{https_port}}" ON NEW
+    shell: iptables -t filter -I INPUT 3 -s "{{remote_ip}}" -p tcp -m state --state NEW,ESTABLISHED -m tcp -m multiport --dports "{{http_port}}","{{https_port}}" -j ACCEPT -m comment --comment "{{comm}}"
+    when: iptablesrules_insertip|failed and "{{host_group}}" == "only_new"
+    register: iptablesrule_new
+    ignore_errors: True
+    tags:
+      - only_new
+
+  - name: Save Iptables Rules old
+    shell: iptables-save > /etc/sysconfig/iptables
+    when: iptablesrule_old.changed
+
+  - name: Save Iptables Rules new
+    shell: iptables-save > /etc/sysconfig/iptables
+    when: iptablesrule_new.changed

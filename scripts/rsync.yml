@@ -1,0 +1,69 @@
+- name: rsync code
+  become_user: root
+  # remote_user: root
+  gather_facts: true
+  become: yes
+  become_method: 'sudo'
+  hosts: "{{ group }}"
+  vars:
+    tmp_dir: "{{ three_var }}"
+    webroot_user: "{{ four_var }}"
+    
+    webroot: "{{ five_var }}"
+    release_dir: "{{ six_var }}"
+    commit_id: "{{ seven_var }}"
+    expire_commit: "{{ eight_var }}" 
+    pre_release: "{{ nine_var }}"
+    post_release: "{{ ten_var }}"
+    group: "{{ eleven_var }}"
+  tasks:
+    - name: change /etc/sudoers defaults requiretty add !
+      lineinfile: dest=/etc/sudoers regexp="^Defaults    requiretty" line="Defaults    !requiretty"
+      ignore_errors: True
+
+    - name: echo {{ commit_id }}
+      shell: echo "{{ commit_id }}"
+      register: result
+  
+    - name: delete expire commit_id dir "{{ expire_commit }}"
+      file: path="{{ release_dir }}/{{ expire_commit }}" state=absent
+      ignore_errors: True
+      when: result.stdout != "{{ expire_commit }}"
+
+    - name: delete expire commit_id dir "{{ expire_commit }}"
+      file: path="{{ release_dir }}/{{ expire_commit }}" state=absent
+      ignore_errors: True
+
+    - name: Make Sure User "{{ webroot_user }}" exist
+      user: name="{{ webroot_user }}" shell=/sbin/nologin state=present
+      ignore_errors: True
+
+    - name: Make Sure "{{ release_dir }}" exist
+      file: path="{{ release_dir }}" state=directory mode=0755
+      ignore_errors: True
+
+    - name: Rsync "{{ commit_id }}" To server "{{ ansible_ssh_host }}" dir "{{ release_dir }}"
+      sudo: no
+      synchronize: src="{{ tmp_dir }}/{{ commit_id }}" dest="{{ release_dir }}"
+
+    - name: change {{ release_dir }} owner and group
+      file: path="{{ release_dir }}" recurse=yes state=directory owner="{{ webroot_user }}" group="{{ webroot_user }}"
+      ignore_errors: True
+
+    - name: Execution pre-release command
+      shell: "{{ pre_release }}"
+      ignore_errors: True
+
+    - name: delete link status
+      file: path="{{ webroot }}" state=absent
+
+    - name: rlink "{{ release_dir }}/{{ commit_id }}" to "{{ webroot }}"
+      file: src="{{ release_dir }}/{{ commit_id }}" dest="{{ webroot }}" owner="{{ webroot_user }}" group="{{ webroot_user }}" state=link
+
+    - name: Execution post-release command
+      shell: "{{ post_release }}"
+      ignore_errors: True
+
+
+    - name: change back /etc/sudoers defaults requiretty
+      lineinfile: dest=/etc/sudoers regexp="^Defaults    !requiretty" line="Defaults    requiretty"
