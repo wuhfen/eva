@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from assets.forms import RAMForm,AssetForm,NICForm
 from assets.models import Asset, NIC
+from django.contrib.auth.decorators import login_required
 import time
 
 # Create your views here.
