@@ -83,3 +83,15 @@ def gen_resource(ob):
         info = {'hostname': asset.ssh_host, 'ip': asset.ssh_host, 'port': int(asset.ssh_port), 'username': asset.ssh_user,'password': asset.ssh_password }
         res.append(info)
     return res
+
+def check_file(ifile,regx):
+    f = open(ifile)
+    lines = f.readlines()
+    f.close()
+    res = False
+    for i in lines:
+        if i.find(regx) == -1:
+            res = False
+        else:
+            res = True
+    return res

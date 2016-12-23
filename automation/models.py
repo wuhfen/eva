@@ -49,6 +49,7 @@ class Confile(models.Model):
     localhost_dir = models.CharField(_(u'检出目录1'), max_length=128, blank=True)
     localhost_dir_two = models.CharField(_(u'检出目录2'), max_length=128, blank=True)
     localhost_dir_three = models.CharField(_(u'检出目录3'), max_length=128, blank=True)
+    specific = models.CharField(_(u'指定文件'),max_length=128,blank=True)
     exclude = models.TextField(_(u'排除文件'),blank=True)
     webroot_user = models.CharField(_(u'web用户'), max_length=32,default='www')
     webroot = models.CharField(_(u'web目录'), max_length=128)

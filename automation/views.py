@@ -10,6 +10,8 @@ from automation.forms import ToolsForm, ConfileFrom, DeployForm
 # Create your views here.
 from api.git_api import Repo
 from api.svn_api import Svnrepo
+from api.common_api import check_file
+
 import os.path
 import shutil
 import subprocess
@@ -78,16 +80,25 @@ def conf_add(request):
     name = request.POST.get('name', '')
     path = request.POST.get('localhost_dir', '')
     tool = request.POST.get('tool', '')
+    if tool:
+        tool = Tools.objects.get(uuid=tool)
+        url = tool.address
+    ifile = path + '.git/config'
 
 
     if Confile.objects.filter(name=name):
         cf_errors.append(u"所填标题已存在")
-    if Confile.objects.filter(localhost_dir=path):
-        cf_errors.append(u"所填仓库路径已存在")
+    # if Confile.objects.filter(localhost_dir=path):
+    #     cf_errors.append(u"所填仓库路径已存在")
 
 
     if request.method == 'POST':
         cf = ConfileFrom(request.POST)
+        if os.path.isfile(ifile):
+            if check_file(ifile,url):
+                pass
+            else:
+                cf_errors.append(u"所填仓库路径已存在,并且里面已经有git文件")
         if cf.is_valid():
             if not cf_errors:
                 cf_data = cf.save()            ##保存信息后先判断repo的clone路径存不存在，不存在则创建
@@ -95,14 +106,10 @@ def conf_add(request):
                     pass
                 else:
                     os.makedirs(path)
-                tool = cf_data.tool           ##创建clone的目录后将远程仓库clone下来
-                url = tool.address
                 repo = Repo(path)
                 repo.git_clone(url,path)
+                return HttpResponseRedirect('/deploy/conf_list/')
 
-            return HttpResponseRedirect('/success/')
-
-    # return HttpResponse("success")
     return render(request,'automation/conf_add.html',locals())
 
 
@@ -384,6 +391,7 @@ def deploy_online(request,uuid):
     branch = data.branches
     commit_id = data.release
     repo_path = conf_data.localhost_dir      ##这里需要做一个有没有repo clone的判断
+    specific_path = conf_data.specific       ## 指定文件需要判断是否存在
     repo = Repo(repo_path)
     change_branch = repo.git_checkout("master")   ##切换到分支上面
     pull = repo.git_pull(source="all")          ##更新所有的分支
@@ -394,9 +402,10 @@ def deploy_online(request,uuid):
         else:
             change_version = repo.git_checkout(commit_id)
         ##step2 删除临时目录，因为下面cpoy代码的时候，目录不能存在，不然在这里应该要创建临时目录的
-        path = '/tmp/' + commit_id
+        path = '/tmp' + repo_path
         if os.path.isdir(path):
             shutil.rmtree(path)      ##如果目录存在就删除
+
 
         ##step3 代码拷贝到临时目录前需要执行的动作
         pre_deploy = conf_data.pre_deploy
@@ -405,10 +414,20 @@ def deploy_online(request,uuid):
             res = subprocess.Popen(i,shell=True)
         ##step4 将代码拷贝到临时目录
         ignores = conf_data.exclude
-        L = [a for a in ignores.split('/r/n') if a]
+        L = [a for a in ignores.split('\r\n') if a]
         src = repo_path
         dst = path
-        shutil.copytree(src,dst,ignore=shutil.ignore_patterns(*L))
+
+        if specific_path:
+            src = src + specific_path
+            if os.path.isfile(src):
+                os.makedirs(dst)
+                shutil.copy(src,dst)
+            else:
+                shutil.copytree(src,dst,ignore=shutil.ignore_patterns(*L))
+        else:
+            shutil.copytree(src,dst,ignore=shutil.ignore_patterns(*L))
+
         ##step5 代码拷贝到临时目录后需要执行的一些动作
         post_deploy = conf_data.post_deploy
         Lpost = [a for a in post_deploy.split('\r\n') if a]
@@ -435,7 +454,7 @@ def deploy_online(request,uuid):
         groupname = "deploy_group"
         inventory = create_inventory(conf_data.uuid,groupname)         #发布远程服务器必须要在资产列表里面有，不然会报错
         play_book = '/etc/ansible/rsync.yml'
-        tmp_dir = '/tmp'
+        tmp_dir = path
         webroot_user = conf_data.webroot_user
         webroot = conf_data.webroot
         release_dir = conf_data.relaese_dir
@@ -616,7 +635,7 @@ def deploy_online_svn(request,uuid):
         groupname = "deploy_group"
         inventory = create_inventory(conf_data.uuid,groupname)         #发布远程服务器必须要在资产列表里面有，不然会报错
         play_book = '/etc/ansible/rsync.yml'
-        tmp_dir = '/tmp'
+        tmp_dir = path
         webroot_user = conf_data.webroot_user
         webroot = conf_data.webroot
         release_dir = conf_data.relaese_dir

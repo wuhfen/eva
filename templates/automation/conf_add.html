@@ -65,12 +65,18 @@
                                     <div class="help-block"></div>
                                 </div>
                                 <div class="form-group ">
+                                    <label class="text-right bolder" for="id_specific">指定文件或目录</label>
+                                    <input id="id_specific" class="form-control" name="specific" type="text" data-toggle="tooltip" title="指定要上线的文件或目录，如果为目录，则排除文件是该目录下的文件">
+                                    <div class="help-block"></div>
+                                </div>
+                                <div class="form-group ">
                                     <label class="text-right bolder" for="id_exclude">排除文件</label>
                                     <textarea id="id_exclude" class="form-control" name="exclude" rows="10" placeholder=".git 
 .svn
 README.md" data-toggle="tooltip" title="剔除不上线的文件、目录，每行一个"></textarea>
                                     <div class="help-block"></div>
                                 </div>
+
 
                             </div>
                         </div>
