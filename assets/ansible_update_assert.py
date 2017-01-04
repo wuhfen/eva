@@ -71,22 +71,17 @@ def get_ansible_asset_info(asset_ip, setup_info):
     all_interfaces = setup_info.get("ansible_interfaces")
     other_face_list = [i for i in all_interfaces if i != 'lo']
 
+    print other_face_list
     for i in other_face_list:
         interface = "ansible_" + i
-        print i
-        try:
-            setup_info.get(interface).get("ipv4")
-        except AttributeError:
-            continue
+        print interface
         print setup_info.get(interface)
-        # interface_ip = "127.0.0.1"
-        # interface_netmask = "255.255.255.0"
-        # interface_mac = "bc:76:4e:1c:0c:49"
-        interface_ip = setup_info.get(interface).get("ipv4").get("address")
-        interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
-        interface_mac = setup_info.get(interface).get("macaddress")
-        ip_info = [i,interface_mac,interface_ip,interface_netmask]
-        nic_need[i] = ip_info
+        if setup_info.get(interface).has_key("ipv4"):
+            interface_ip = setup_info.get(interface).get("ipv4").get("address")
+            interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
+            interface_mac = setup_info.get(interface).get("macaddress")
+            ip_info = [i,interface_mac,interface_ip,interface_netmask]
+            nic_need[i] = ip_info
 
     nic = nic_need
     # ip = setup_info.get("ansible_default_ipv4").get("address")
