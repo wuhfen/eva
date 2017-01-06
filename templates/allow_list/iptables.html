@@ -4,11 +4,19 @@
 {% block assistant-header %} 后台管理|Management {% endblock %}
 {% load bootstrap %}
 
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
 {% block content %}
 
 <div class="box">
 	<div class="box-header with-border">
-		<h4 class="text-primary">添加vpn线路</h4>
+		<h4 class="text-primary">添加vpn线路|ADD VPN IP</h4>
 		<div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
               <i class="fa fa-minus"></i></button>
@@ -26,15 +34,14 @@
 	<form role="form" action="" method="post">{% csrf_token %}
 		<dir class="form-group col-lg-12">
 			<p><label>请输入ip地址:</label></p>
-			<p>{{ ff.ipaddr }}
+			<p>{{ ff.ipaddr|bootstrap_horizontal }}
 			{{ ff.ipaddr.errors }}</p>
-
-			<p><label>请输入站点名称:</label></p>
-			<p>{{ ff.comment }}
-			{{ ff.comment.errors }}</p>
+			<p><label>请选择站点名称:</label></p>
+			<p>{{ ff.customer|bootstrap_horizontal }}
+			{{ ff.customer.errors }}</p>
 			<p><label>请选择后端平台:</label></p>
-			<p>{{ ff.remark }}
-			{{ ff.remark.errors }}</p>
+			<p>{{ ff.background|bootstrap_horizontal }}
+			{{ ff.background.errors }}</p>
 		</dir>
 		<div>
 			<p>Your Task is <span id="user-count"></span>!</p>
@@ -55,9 +62,8 @@
 	</div>
 </div>
 
-<div class="box">
-	<div class="box-header with-border">
-		<h4 class="text-primary">规则清单</h4>
+<div class="box box-info">
+	<div class="box-header with-border"><h4 class="text-primary">规则清单</h4>
 		<div class="box-tools pull-right">
             <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
               <i class="fa fa-minus"></i></button>
@@ -66,28 +72,46 @@
         </div>
 	</div>
 	<div class="box-body">
-
-		<div class="table-responsive">
 			<p>目前共有 {{ view_rules|length }} 条规则</p>
-			<table class="table table-hover table-striped">
+			<table id="example1" class="table table-bordered table-striped">
+                <thead>
 				<tr>
+                    <th class="text-center"><input type="checkbox" id="select_all"></th>
 					<th>IP地址</th>
 					<th>站点备注</th>
 					<th>新站老站</th>
 					<th>添加时间</th>
 					<th>添加用户</th>
 				</tr>
-			{% for v in view_rules %}
+                </thead>
+                <tbody>
+            {% for v in view_rules %}
+
 				<tr>
+
+                    <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
+
 					<td>{{ v.i_source_ip }}</td>
 					<td>{{ v.i_comment }}</td>
 					<td>{{ v.i_tag }}</td>
 					<td>{{ v.i_date_time }}</td>
 					<td>{{ v.i_user }}</td>
+
 				</tr>
-			{% endfor %}
+            {% endfor %}
+
+            </tbody>
+                <tfoot>
+                <tr>
+                  <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
+                    <th>IP地址</th>
+                    <th>站点备注</th>
+                    <th>新站老站</th>
+                    <th>添加时间</th>
+                    <th>添加用户</th>
+                </tr>
+                </tfoot>
 			</table>
-		</div>
 
 	</div>
 </div>
@@ -145,6 +169,35 @@ function displayDate()
       },500);
 
 };
+
+
+
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+
 
 </script>
 

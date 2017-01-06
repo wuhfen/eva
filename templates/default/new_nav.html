@@ -104,25 +104,15 @@
         </li>
         <li class="treeview">
           <a href="#">
-            <i class="fa fa-gamepad"></i> <span>自动化管理</span>
+            <i class="fa fa-gamepad"></i> <span>自动化管理|AUTO MANAGE</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名管理</a></li>
-            <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 后台线路切换</a></li>
-            <li id="allow_admin">
-              <a href="#"><i class="fa fa-circle-o"></i> 后台白名单
-                <span class="pull-right-container">
-                  <i class="fa fa-angle-left pull-right"></i>
-                </span>
-              </a>
-              <ul class="treeview-menu">
-                <li id="iptables_delete"><a href="{% url 'delete-ip' %}"><i class="fa fa-circle-o"></i> 查看白名单</a></li>
-                <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 添加白名单</a></li>
-              </ul>
-          </li>
+            <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名管理|DOMAIN MANAGE</a></li>
+            <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 后台线路切换|LINE CHANGE</a></li>
+            <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台白名单|BACKGROUND LIST</a></li>
           <li>
               <a href="#"><i class="fa fa-circle-o"></i> API白名单
                 <span class="pull-right-container">

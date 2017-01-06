@@ -55,8 +55,8 @@ def iptables(request):
         ff = IptablesForm(request.POST)
         if ff.is_valid():
             ip = str(ff.cleaned_data.get('ipaddr'))
-            comment = ff.cleaned_data.get('comment')
-            remark = ff.cleaned_data.get('remark')
+            comment = ff.cleaned_data.get('customer')
+            remark = ff.cleaned_data.get('background')
             if remark == u"only_new":
                 host_group = u"新平台"
                 chain = "INPUT"
@@ -191,8 +191,8 @@ def linechange(request):
                 oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=4,line=changeip,comment=u"线路四")
             task = "/etc/ansible/changeline.yml"
             groupname = "changeline"
-            origin_wwwroot = "/data/docker-nginx/conf/nginx/conf/vhost"
-            # origin_wwwroot = "/tmp"
+            # origin_wwwroot = "/data/docker-nginx/conf/nginx/conf/vhost"
+            origin_wwwroot = "/tmp"
 
             ansiblex(task,groupname,choiceagent,changeip,origin_wwwroot)
 
