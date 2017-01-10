@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'Allow_list',
     'business',
     'automation',
+    'audit',
+
 
 
 

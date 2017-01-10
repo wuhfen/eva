@@ -1,0 +1,218 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% load projects_tag %}
+
+{% block title %} 运维日志审计{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<script src="/static/js/js.cookie.js"></script>
+
+
+ {% endblock %}
+
+
+{% block assistant-header %} <h3>运维线上问题操作记录|record ops operation</h3>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">日志审计</a></li>
+        <li><a href="#">运维</a></li>
+    </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+    <div class="box box-info">
+        <div class="box-header with-border">
+            <div class="col-md-12 col-lg-12">
+                <div class="col-md-3 col-lg-3 ">
+                    <label class="text-right bolder" for="id_start_time">开始时间 START TIME<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                    <input type="text" id="id_start_time" name="start_time" class="form-control" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
+                    <div class="help-block"></div>
+                </div>
+                <div class="col-md-3 col-lg-3 ">
+                    <label class="text-right bolder" for="id_end_time">结束时间 END TIME<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                    <input type="text" id="id_end_time" name="end_time" class="form-control" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
+                    <div class="help-block"></div>
+                </div>
+                <div class="col-md-4 col-lg-4 ">
+                    <label class="text-right bolder" for="id_command">内容 COMMAND<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                    <textarea id="id_command" class="form-control" name="command" data-toggle="tooltip" title="线上问题处理的内容记录" style="overflow: hidden; height: 30px;" onfocus="window.activeobj=this;this.clock=setInterval(function(){activeobj.style.height=activeobj.scrollHeight+'px';},200);" onblur="clearInterval(this.clock);" data-original-title="" title=""></textarea>
+                    <div class="help-block"></div>
+                </div>
+                <div class="col-md-1 col-lg-1 ">
+                    <button class="btn-app bg-olive" onclick="polle()">提交</button>
+                    <div class="help-block"></div>
+                </div>
+            </div>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                  <th class="text-center"><input type="checkbox" id="select_all"></th>
+                  <th>开始时间</th>
+                  <th>结束时间</th>
+                  <th>记录内容</th>
+                  <th>用户</th>
+                  <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in log_obj %}
+                <tr>
+                  <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
+                  <td>{{ i.start_time }} </td>
+                  <td>{{ i.end_time }} </td>
+                  <td>{{ i.command }} </td>
+                  <td>{{ i.user }} </td>
+                  <td>
+                      <a href="{% url 'record_command_edit' i.uuid %}" class="btn btn-info record_edit">修改</a> 
+
+                  </td>
+
+                </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                <tr>
+                  <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
+                  <th>开始时间</th>
+                  <th>结束时间</th>
+                  <th>记录内容</th>
+                  <th>用户</th>
+                  <th>操作</th>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            Footer
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+function myFunction() {
+    alert("sas")
+}
+</script>
+
+
+<script language="javascript">
+var csrftoken = Cookies.get('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+function polle(){
+    if (document.getElementById('id_start_time').value=='')
+        {
+            alert('TIME cannot be empty!');
+            document.getElementById('id_start_time').focus();
+            return;
+        };
+    if (document.getElementById('id_end_time').value=='')
+        {
+            alert('TIME cannot be empty!');
+            document.getElementById('id_end_time').focus();
+            return;
+        };
+    if (document.getElementById('id_command').value=='')
+        {
+            alert('COMMAND cannot be empty!');
+            document.getElementById('id_command').focus();
+            return;
+        };
+    var start_time = document.getElementById("id_start_time").value;
+    var end_time = document.getElementById("id_end_time").value;
+    var command = document.getElementById("id_command").value;
+    var myKeyValue = {start: start_time, end: end_time, commd: command}
+    var saveData = $.ajax({
+        url: "{% url 'record_command' %}",
+        type: 'POST',
+        data: myKeyValue,
+        success: function(resultData) { window.location.reload() }
+    });
+    // saveData.error(function() { alert("Something went wrong"); });
+}
+
+</script>
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+
+$(".record_edit").on("click", function(event){
+     var url= $(this).attr("href");
+     var height = $(window).height();
+     // layer.msg('Hello layer');
+        layer.open({
+            type: 2,
+            title: '修改信息',
+            maxmin: true,
+            shade: 0.5,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['800px' , (height - 50) + 'px'],
+            end : function () {
+              location.reload();
+          },
+            content: url
+        });
+     event.preventDefault();
+});
+
+
+</script>
+
+
+
+
+{% endblock %}
