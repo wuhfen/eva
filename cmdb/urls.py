@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'allow/', include("Allow_list.urls")),
     url(r'business/', include("business.urls")),
     url(r'deploy/', include("automation.urls")),
+    url(r'audit/', include("audit.urls")),
 
 
 
