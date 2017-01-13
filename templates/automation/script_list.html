@@ -40,6 +40,8 @@
                         <th>发布名称</th>
                         <th>执行脚本语句</th>
                         <th>执行机器</th>
+                        <th>自定义参数</th>
+                        <th>状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -49,7 +51,8 @@
                             <td>{{ v.name }}</td>
                             <td>{{ v.command }}</td>
                             <td>{{ v.server_ip }}</td>
-
+                            <td>{{ v.customargs }}</td>
+                            <td>{{ v.custom_state }}</td>
                             <td>
                                 <a href="{% url 'script_edit' v.uuid %}" class="btn btn-xs btn-primary script-edit"><i class="fa fa-pencil" aria-hidden="true"></i>修改</a>
                                 <a href="{% url 'script_delete' v.uuid %}" class="btn btn-xs btn-danger script-delete"><i class="fa fa-trash-o" aria-hidden="true"></i>删除</a>

@@ -21,7 +21,6 @@
 
 
 <div class="row">
-
     <div class="box box-info">
         <div class="box-header with-border"><h4>脚本配置参数</h4>
             <div class="box-tools pull-right">
@@ -32,7 +31,7 @@
             </div>
         </div>
 
-            <div class="box-body">
+        <div class="box-body">
             <dir class="col-md-4 col-lg-4">
                 <form role="form" action="" method="post" id="post_form">{% csrf_token %}
                     <div class="form-group ">
@@ -45,7 +44,9 @@
                         </select>
                         <div class="help-block"></div>
                     </div>
-                    <p>发布命令的格式例如：/bin/bash /data/shell/oldfabu.sh</p>
+                    <div class="form-group " id="id_args">
+
+                    </div>
                     <div class="form-group ">
                         <label class="text-right bolder" for="id_parameter">脚本参数<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
                         <input type="text" id="id_parameter" name="parameter" class="form-control" data-toggle="tooltip" title="多个参数使用空格隔开">
@@ -55,9 +56,6 @@
                     <div class="form-group">
                         <button class="btn btn-success btn-lg" type="submit"> 执行脚本 </button>
                     </div>
-
-
-
                 </form>
             </dir>
             <dir class="col-md-8 col-lg-8">
@@ -68,10 +66,7 @@
                 <p class="text-success">返回结果：{{ i.result }}</p>
                 {% endfor %}
             </dir>
-
-
-
-            </div>
+        </div>
 
         <div class="box-footer">
             <a href="{% url 'script_add' %}" class="btn btn-black btn-primary">添加发布脚本</a>
@@ -80,5 +75,40 @@
     </div>
 </div>
 
+<script type="text/javascript">
+     $(function () {
+         $("#id_command").change(function () {
+             var tid = $("#id_command option:selected").val();
+             $.ajax({
+                 url: "/deploy/script_select/?uuid="+tid,
+                 type: "Get",
+                 contentType: "application/json",
+                 dataType: "json",
+                 success: function (data) {
+                     var ddl = $("#id_args");
+                     $("#id_args label").remove();
+                     $("#id_args select").remove();
+                     $("#id_args option").remove();
+                     //转成Json对象
+                     for ( var i = 0; i < data.length; i++) { 
+                        var select_id = '"id_'+data[i].select_name+'"';
+                        var option_list = data[i]["option_val"];
+                        ddl.append('<label class="text-right bolder" for="id_'+data[i].select_name+'">'+data[i].select_lab+'<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>');
+                        ddl.append('<select class="form-control n-invalid" id='+select_id+' name="'+data[i].select_name+'"><option value="">--请选择--</option></select>');
+                        console.log(select_id);
+                        var lld = $('#id_'+data[i].select_name)
+                        console.log(lld)
+                        for (var x = 0; x < option_list.length; x++) {
+                            lld.append('<option value="'+option_list[x]+'">'+ option_list[x]+ '</option>');
+                        };
+                    };
+                 },
+                 error: function () {
+                     alert("Url Error");
+                 }
+             });
+         });
+     });
 
+</script>
 {% endblock %}

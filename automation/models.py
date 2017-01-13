@@ -111,6 +111,10 @@ class scriptrepo(models.Model):
     name = models.CharField(_(u'发布名称'),max_length=64)
     command = models.CharField(_(u'命令'),max_length=128)
     server_ip = models.GenericIPAddressField(_(u'脚本服务器'),max_length=128)
+    customargs = models.TextField(_(u'自定义参数'),null=True)
+    custom_state = models.BooleanField(default=False)
+
+
 
 
 class scriptlog(models.Model):
