@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'business',
     'automation',
     'audit',
+    'import_export',
+    
 
 
 

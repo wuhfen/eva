@@ -191,8 +191,8 @@ def linechange(request):
                 oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=4,line=changeip,comment=u"线路四")
             task = "/etc/ansible/changeline.yml"
             groupname = "changeline"
-            # origin_wwwroot = "/data/docker-nginx/conf/nginx/conf/vhost"
-            origin_wwwroot = "/tmp"
+            origin_wwwroot = "/data/docker-nginx/conf/nginx/conf/vhost"
+            # origin_wwwroot = "/tmp"
 
             ansiblex(task,groupname,choiceagent,changeip,origin_wwwroot)
 

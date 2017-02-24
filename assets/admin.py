@@ -3,6 +3,11 @@
 
 from django.contrib import admin
 from assets import  models
+from assets.models import Server
+from import_export import resources
+from import_export import fields
+from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportActionModelAdmin
 # Register your models here.
 class ServerInline(admin.TabularInline):
     model = models.Server
@@ -15,11 +20,31 @@ class ServerAdmin(admin.ModelAdmin):
                     'os_version','os_release','server_sn','Services_Code')
     # raw_id_fields = ('idc',)
 
-##<class 'assets.admin.ServerAdmin'>: (admin.E109) The value of 'list_display[15]' must not be a ManyToManyField.
-
 # 服务器
-admin.site.register(models.Server,ServerAdmin)
+# admin.site.register(models.Server,ServerAdmin)
 
+##数据导出admin
+class ServerResource(resources.ModelResource):
+    name = fields.Field(column_name='主机名', attribute='name') 
+    ssh_host = fields.Field(column_name='IP地址', attribute='ssh_host')
+    ssh_user = fields.Field(column_name='用户名', attribute='ssh_user')
+    ssh_port = fields.Field(column_name='端口',attribute='ssh_port')
+    ssh_password = fields.Field(column_name='密码',attribute='ssh_password')
+    purpose = fields.Field(column_name='用途',attribute='asset__purpose')
+    class Meta:
+        model = Server
+        #定义导出excel有那些列
+        fields = ('name', 'ssh_host','ssh_user','ssh_port','ssh_password','purpose')
+        #定义导出excel类的顺序
+        export_order = ('name', 'ssh_host','ssh_user','ssh_port','ssh_password','purpose')
+
+class importServerAdmin(ImportExportModelAdmin):
+    resource_class = ServerResource
+
+class exportServerAdmin(ImportExportActionModelAdmin):
+    resource_class = ServerResource
+
+admin.site.register(Server, importServerAdmin)
 
 
 class CPUInline(admin.TabularInline):
