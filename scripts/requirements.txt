@@ -23,4 +23,7 @@ uWSGI==2.0.14
 vine==1.1.3
 MySQL-python
 IPy
+django-redis
+redis
+redisco
 

@@ -15,7 +15,7 @@ class PlatformAdmin(admin.ModelAdmin):
     list_display =('name','status','description')
 
 class DomainNameAdmin(admin.ModelAdmin):
-    list_display =('name','business','status','status_code','address','supplier')
+    list_display =('name','business','supplier')
 
 
 admin.site.register(models.Business,BusinessAdmin)

@@ -5,7 +5,8 @@
 <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
 <script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
-
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 {% endblock %}
 
 
@@ -41,10 +42,10 @@
                     <th>用途</th>
                     <th>所属业务</th>
                     <th>域名状态</th>
-                    <th>当前状态</th>
-                    <th>状态码</th>
-                    <th>A记录</th>
-                    <th>供应商</th>
+<!--                     <th>是否监控</th> -->
+                    <th>告警</th>
+                    <th>解析到</th>
+                    <th>管理者</th>
 
                     <th>操作</th>
                 </tr>
@@ -53,12 +54,13 @@
                 {% for v in domain_data %}
                     <tr>
                         <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
-                        <td>{{ v.name }}</td>
-                        <td>{% if v.use == '0' %}前端域名{% elif v.use == '1' %}接口域名{% else %}后台域名{% endif %}</td>
+                        <td id='id_name'>{{ v.name }}</td>
+                        <td>{% if v.use == '0' %}前端域名{% elif v.use == '1' %}ag后台域名{% elif v.use == '2' %}后台域名
+                        {% elif v.use == '3' %}彩票域名{% elif v.use == '4' %}导航网域名{% elif v.use == '5' %}其他域名{% endif %}</td>
                         <td><a href="{% url 'business_detail' v.business.uuid %}" class="btn btn-xs btn-primary">{{ v.business.name }}</a></td>
-                        <td>{% if v.state == '0' %}启用{% elif v.state == '1' %}未启用{% elif v.state == '2' %}被墙{% else %}弃用{% endif %}</td>
-                        <td>{% if v.status == True %}可用{% else %}不可用{% endif %}</td>
-                        <td>{{ v.status_code }}</td>
+                        <td>{% if v.state == '0' %}备用{% elif v.state == '1' %}在用{% elif v.state == '2' %}弃用{% endif %}</td>
+                        <!-- <td>{% if v.monitor_status == True %}已监控{% else %}未监控{% endif %}</td> -->
+                        <td id='id_status' name="{{ v.uuid }}"></td>
                         <td>{{ v.address }}</td>
                         <td>{{ v.supplier }}</td>
 
@@ -67,6 +69,7 @@
                             <a href="{% url 'domain_edit' v.uuid %}" class="btn btn-xs btn-primary">修改</a>
                             <a href="{% url 'domain_delete' v.uuid %}" class="btn btn-xs btn-danger domain-delete">删除</a>
                             <a href="{% url 'domain_rsync' v.uuid %}" class="btn btn-xs btn-success">同步</a>
+                            <a id = '{{ v.uuid }}' href="/business/domain/change_monitor_status/?uuid={{ v.uuid }}" class="btn btn-xs monitor" {% if v.monitor_status == True %} style="background-color:#34495E;color:white">已监控 {% else %} style="background-color:#34495E;color:white" > 未监控 {% endif %} </a> 
                         </td>
                     </tr>
                 {% endfor %}
@@ -78,10 +81,86 @@
             <a href="{% url 'domain_add' %}" class="btn btn-xs btn-info project-delete">添加域名</a>
             <a href="{% url 'domain_add_batch' %}" class="btn btn-xs btn-success project-delete">批量添加域名</a>
             <a href="#" class="btn btn-xs btn-danger project-delete">批量删除域名</a>
+            <a href="{% url 'restart_all_monitor' %}"  type="button" class="btn btn-xs btn-warning domain-monitor-restart">重启域名监控</a>
         </div>
     </div>
 </div>
 
+<script type="text/javascript">
+$('.domain-monitor-restart').on("click",function(remonitor){
+    var urls= $(this).attr("href");
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            contentType: "application/json",
+            success: function(data) { 
+                if (data.retu == "True") {
+                    alert ("所有在监控的域名已重新监控！")
+                }
+                },
+        });
+        remonitor.preventDefault();
+    });
+</script>
+
+<script type="text/javascript">
+flush_status();
+var int=self.setInterval("flush_status()",60000); //60s执行一次刷新
+    function flush_status() {
+        $('#example1 tr td#id_status').each(function(){
+            var uuid = $(this).attr('name');
+            var that = $(this)
+            // alert (text);
+            $.ajax({
+                url: '/business/domain/get_status/?uuid='+uuid,
+                dataType: 'json',
+                type: 'GET',
+                contentType: "application/json",
+                // data: { uuid: uuid },
+                success: function(data) {
+                    if (data.status == "red") {
+                        // alert ($(this).text());
+                        that.html("<i class='fa fa-circle' style='color:red' aria-hidden='true'>警告"+data.info+"</i>");
+                } else {
+                    // alert ('flase');
+                    that.html("<i class='fa fa-circle' style='color:green' aria-hidden='true'>正常</i>");
+                }
+                },
+            });
+        });
+    };
+</script>
+
+
+<script type="text/javascript">
+$('.monitor').on("click",function(defd){
+    var urls= $(this).attr("href");
+        uuidx = $(this).attr("id");
+        // alert(uuidx);
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            contentType: "application/json",
+            data: { uuid: uuidx },
+            success: function(data) {
+                if (data.res == 'yes') {
+                    var name = "未监控";
+                    document.getElementById(uuidx).textContent = name
+                } else { 
+                    // alert ("NO")
+                    var name = "已监控";
+                    document.getElementById(uuidx).textContent = name
+                    // document.getElementById(uuidx).style.background-color = "#34495E";
+                    // document.getElementById(uuidx).text = "已监控";
+                }
+            },
+        });
+    defd.preventDefault();
+    });
+
+</script>
 
 <script>
   $(function () {

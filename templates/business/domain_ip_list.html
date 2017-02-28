@@ -1,0 +1,143 @@
+{% extends "default/base.html" %}
+{% block title %}业务{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> IP池管理 <small>IP POOL</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/business/domain_ip_list/">IP地址池</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>IP地址池</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th class="text-center"><input type="checkbox" id="select_all"></th>
+                    <th>IP分组</th>
+                    <th>IP列表</th>
+                    <th>备注</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in ippool_data %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.attribute }}</td>
+                        <td>{{ v.description }}</td>
+                        <td>
+                            <a href="{% url 'domain_ip_edit' v.uuid %}" class="btn btn-xs btn-primary domainip-edit">修改</a>
+                            <a href="{% url 'domain_ip_delete' v.uuid %}" class="btn btn-xs btn-danger domainip-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            <a href="{% url 'domain_ip_add' %}" class="btn btn-xs btn-info">添加IP</a>
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+
+
+
+    </script>
+
+<script type="text/javascript">
+
+    $(".domainip-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改服务器信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+    $(".domainip-delete").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定删除吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+
+
+</script>
+{% endblock %}

@@ -55,7 +55,7 @@
                     <th class="text-info">负责人</th>
                     <td>{{ business_data.functionary.username }}</td>
                 </tr>
-                <tr>
+<!--                 <tr>
                     <th class="text-info">专员</th>
                     <td>{{ business_data.ds_contact.username }}</td>
                 </tr>
@@ -70,30 +70,104 @@
                 <tr>
                     <th class="text-info">客户联系方式</th>
                     <td>{{ business_data.other_contact_method }}</td>
-                </tr>
+                </tr> -->
                 <tr>
                     <th class="text-info">业务状态</th>
                     <td>
                         {% if business_data.status == '0' %}正常运转{% elif business_data.status == '1' %}维护升级{% elif business_data.status == '2' %}迁移过渡{% else %}停止运转{% endif %}
                     </td>
                 </tr>
-                <tr>
+<!--                 <tr>
                     <th class="text-info">状态变更时间</th>
                     <td>
                         {{ business_data.status_update_date }}
                     </td>
+                </tr> -->
+                <tr>
+                    <th class="text-info">前端域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '0' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">ag域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '1' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">后台域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '2' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">彩票域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '3' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">导航网域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '4' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">其他域名</th>
+                    <td>
+                        {% for s in business_data.domainname_set.all %}
+                            {% if s.use == '5' %}
+                            <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">前端源站ip</th>
+                    <td>{{ front_ip }}</td>
+                    <td class="text-info">检测</td>
                 </tr>
                 <tr>
                     <th class="text-info">前端源站web文件</th>
                     <td>{{ business_data.front_station_web_file }}</td>
+                    <td class="text-info"><a href="{% url 'business_conf_show' %}" class="btn btn-primary look-ff">查看Look</a></td>
+
                 </tr>
                 <tr>
                     <th class="text-info">前端源站web文件路径</th>
                     <td>{{ business_data.front_station_web_dir }}</td>
                 </tr>
                 <tr>
+                    <th class="text-info">前端代理ip</th>
+                    <td>{{ front_proxy_ip }}</td>
+                    <td class="text-info">检测</td>
+
+                </tr>
+                <tr>
                     <th class="text-info">前端代理web文件</th>
                     <td>{{ business_data.front_proxy_web_file }}</td>
+                    <td class="text-info"><a href="{% url 'business_conf_show' %}" class="btn btn-primary look-fp">查看Look</a></td>
                 </tr>
                 <tr>
                     <th class="text-info">前端代理web文件路径</th>
@@ -124,7 +198,7 @@
                     <td>{{ business_data.third_proxy_web_dir }}</td>
                 </tr>
                 <tr>
-                    <th class="text-info">业务介绍</th>
+                    <th class="text-info">备注</th>
                     <td>
                         {{ business_data.description }}
                     </td>
@@ -157,4 +231,62 @@
 </div>
 
 </div>
+
+<script type="text/javascript">
+$('.look-ff').on("click",function(fstation){
+    var urls= $(this).attr("href");
+    var ip = "{{ front_ip }}";
+        // ip = ip.split(" ");
+        // alert (typeof(ip));
+
+    var path = "{{ business_data.front_station_web_dir }}";
+    var file = "{{ business_data.front_station_web_file }}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data:{ip: ip,path: path,file: file},
+            contentType: "application/json",
+            success: function(data) { 
+                layer.open({
+                      type: 2,
+                      title: data.ip,
+                      shadeClose: true,
+                      skin: 'layui-layer-rim',
+                      area: ['700px', '90%'],
+                      content: "{% url 'deploy_nginx_tmp_file' %}",
+                    });
+                },
+        });
+        fstation.preventDefault();
+    });
+
+$('.look-fp').on("click",function(fpstation){
+    var urls= $(this).attr("href");
+    var ip = "{{ front_proxy_ip }}";
+    var path = "{{ business_data.front_proxy_web_dir }}";
+    var file = "{{ business_data.front_proxy_web_file }}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data:{ip: ip,path: path,file: file},
+            contentType: "application/json",
+            success: function(data) { 
+                layer.open({
+                      type: 2,
+                      title: data.ip,
+                      shadeClose: true,
+                      skin: 'layui-layer-rim',
+                      area: ['700px', '90%'],
+                      content: "{% url 'deploy_nginx_tmp_file' %}",
+                    });
+                },
+        });
+        fpstation.preventDefault();
+    });
+
+
+</script>
+
 {% endblock %}

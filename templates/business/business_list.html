@@ -44,8 +44,14 @@
                     <th>业务状态</th>
                     <th>状态变更时间</th>
                     <th>前端域名</th>
-                    <th>接口域名</th>
+                    <th>ag域名</th>
                     <th>后台域名</th>
+                    <th>彩票域名</th>
+                    <th>导航网域名</th>
+                    <th>其他域名</th>
+
+
+
                     <th>后台白名单</th>
 
                     <th>操作</th>
@@ -83,12 +89,33 @@
                                 {% endif %}
                             {% endfor %}
                         </td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '3' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '4' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for s in v.domainname_set.all %}
+                                {% if s.use == '5' %}
+                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
                         <td>{{ v.backend_allow_list }}</td>
 
                         <td>
                             <a href="{% url 'business_detail' v.uuid %}" class="btn btn-xs btn-info">详情</a>
                             <a href="{% url 'business_edit' v.uuid %}" class="btn btn-xs btn-primary business-edit">修改</a>
-                            <a href="{% url 'domain_rsync' v.uuid %}" class="btn btn-xs btn-warning">域名同步</a>
+                            <!-- <a href="{% url 'domain_rsync' v.uuid %}" class="btn btn-xs btn-warning">域名同步</a> -->
                             <a href="{% url 'business_delete' v.uuid %}" class="btn btn-xs btn-danger business-delete">删除</a>
                         </td>
                     </tr>

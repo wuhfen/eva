@@ -2,13 +2,15 @@
 # coding:utf-8
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth.decorators import login_required, permission_required
 # from forms import BusinessForm, BugsForm
-from models import Business,Bugs,Platform,DomainName
-from forms import BusinessForm, PlatfForm, DomainNameForm
+from models import Business,Bugs,Platform,DomainName,Domain_ip_pool,DomainInfo
+from forms import BusinessForm, PlatfForm, DomainNameForm,IPpoolForm
 from api.ansible_api import ansiblex_domain
+from api.ssh_api import ssh_cmd
 
 from Allow_list.models import Iptables
 from assets.models import Server
@@ -16,6 +18,9 @@ import time
 import json
 from tempfile import NamedTemporaryFile
 import os
+
+from .tasks import monitor_code
+
 
 ##业务增删查改
 @permission_required('business.Can_add_business', login_url='/auth_error/')
@@ -62,7 +67,57 @@ def business_edit(request,uuid):
 @permission_required('business.Can_add_domainname', login_url='/auth_error/')
 def business_detail(request,uuid):
     business_data = get_object_or_404(Business, uuid=uuid)
+    front_ip = business_data.front_station
+    front_proxy_ip = business_data.front_proxy
+    try:
+        front_ip = front_ip.replace('\r\n'," ")
+        front_proxy_ip = front_proxy_ip.replace('\r\n'," ")
+    except AttributeError:
+        pass
+
     return render(request,'business/business_detail.html',locals())
+
+##查看项目的各种配置文件
+def business_conf_show(request):
+    #1.获取ip，路径，文件
+    ips = request.GET.get('ip')
+    print ips.split(" ")
+    path = request.GET.get('path')
+    file = request.GET.get('file')
+    tmp_file = "/tmp/tmp_nginx.conf"
+
+    if str(path[-1]) is not "/":
+        path =path+"/"+file
+        path = "cat %s"% path
+    else:
+        path =path+file
+        path = "cat %s"% path
+    # print path
+    f = open(tmp_file,"wb")
+    for ip in ips.split(" "):
+        ip_title = "##########%s %s##########\r\n"% (ip,path)
+        f.write(ip_title)
+        res = ssh_cmd(ip,str(path))
+        for i in res:
+            f.write(i)
+    f.close()
+    # print type(res)
+    data = {'ip':ips}
+    # return HttpResponse(res)
+    return JsonResponse(data,safe=False)
+
+from django.http import StreamingHttpResponse
+
+def deploy_nginx_tmp_file(request):
+    content = open('/tmp/tmp_nginx.conf', 'r').read()
+    response = StreamingHttpResponse(content)
+    response['Content-Type'] = 'text/plain; charset=utf8'
+    return response
+
+
+
+
+
 
 ##业务平台增删查改
 @permission_required('business.Can_add_business', login_url='/auth_error/')
@@ -132,10 +187,111 @@ def platform_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/platform_edit.html',locals())
 
+
+
+
+##IP池add delete search change
+@permission_required('business.add_business', login_url='/auth_error/')
+def domain_ip_list(request):
+    ippool_data =  Domain_ip_pool.objects.all()
+    return render(request,'business/domain_ip_list.html',locals())
+
+@permission_required('business.add_business', login_url='/auth_error/')
+def domain_ip_add(request):
+    df = IPpoolForm()
+    if request.method == 'POST':
+        df = IPpoolForm(request.POST)
+        if df.is_valid():
+            df_data = df.save()
+            return HttpResponseRedirect('/business/domain_ip_list/')
+    return render(request,'business/domain_ip_add.html',locals())
+
+@permission_required('business.add_business', login_url='/auth_error/')
+def domain_ip_delete(request,uuid):
+    domainname = get_object_or_404(Domain_ip_pool, uuid=uuid)
+    domainname.delete()
+    return render(request,'business/domain_ip_list.html',locals())
+
+@permission_required('business.add_business', login_url='/auth_error/')
+def domain_ip_edit(request,uuid):
+    ippool_data = get_object_or_404(Domain_ip_pool, uuid=uuid)
+    df = IPpoolForm(instance=ippool_data)
+    if request.method == 'POST':
+        df = IPpoolForm(request.POST,instance=ippool_data)
+        if df.is_valid():
+            df_data = df.save()
+            return HttpResponseRedirect('/business/domain_ip_list/')
+    return render(request,'business/domain_ip_edit.html',locals())
+
+
+##改变域名监控状态
+
+def change_domain_monitor_status(request):
+    uuid = request.GET.get('uuid')
+    # return HttpResponse(uuid)
+    # status = request.GET.get('method')
+    obj = DomainName.objects.get(pk=uuid)
+    if obj.monitor_status:
+        data = {'res':"yes"}
+        domainname = DomainName.objects.filter(pk=uuid).update(monitor_status=False)
+    else:
+        data = {'res':"no"}
+        domainname = DomainName.objects.filter(pk=uuid).update(monitor_status=True)
+        job = monitor_code.delay(60,uuid)
+    return JsonResponse(data,safe=False)
+
+def get_domain_status(request):
+    uuid = request.GET.get('uuid')
+    obj = DomainName.objects.get(pk=uuid)
+    name = obj.name
+    try:
+        res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
+        if res_obj.alert == True:
+            status = "red"
+        else:
+
+            status = "green"
+        info = res_obj.info
+        print info,"red-green"
+        data = {'status':status,'info':info}
+    except AttributeError:
+        data = {'status':'green','info':"NO INFOMATION"}
+    return JsonResponse(data,safe=False)
+
+def get_domain_code(request):
+    uuid = request.GET.get('uuid')
+    name = request.GET.get('name')
+    axais = []
+    yxais = []
+    data = {'name':name,'axais':axais,'yxais':yxais}
+    res_obj = DomainInfo.objects.filter(name=name)
+    if res_obj:
+        for i in res_obj:
+            axais.append(i.created_at)
+            yxais.append(i.res_code)
+        data['xaxis'] = axais
+        data['yaxis'] = yxais
+    # print data
+    return JsonResponse(data,safe=False)
+
+
+def restart_all_monitor(request):
+    ##由于重启celery后所有的在监控任务都失效，所以写一个一键让其任务重新进入celery的按钮
+    data_list = DomainName.objects.all()
+    maxnum = 60
+    for i in data_list:
+        if i.monitor_status == True:
+            job = monitor_code.delay(maxnum,i.uuid)
+    data = {'retu':"True"}
+    return JsonResponse(data,safe=False)
+
+
 ##域名增删查改
 @permission_required('business.Can_add_business', login_url='/auth_error/')
 def domain_list(request):
     domain_data = DomainName.objects.all()
+
+
     return render(request,'business/domain_list.html',locals())
 
 @permission_required('business.Can_add_business', login_url='/auth_error/')
@@ -145,7 +301,10 @@ def domain_add(request):
         df = DomainNameForm(request.POST)
         if df.is_valid():
             df_data = df.save()
-            return HttpResponseRedirect('/allow/welcome/')
+            if df_data.monitor_status == True:
+                uuid = df_data.uuid
+                job = monitor_code.delay(60,uuid)
+            return HttpResponseRedirect('/business/domain_list/')
     return render(request,'business/domain_add.html',locals())
 
 @permission_required('business.Can_add_business', login_url='/auth_error/')
@@ -168,6 +327,24 @@ def domain_delete(request,uuid):
 @permission_required('business.Can_add_domainname', login_url='/auth_error/')
 def domain_detail(request,uuid):
     domain_data = get_object_or_404(DomainName, uuid=uuid)
+    name = domain_data.name
+    attribute = domain_data.address.attribute
+    L = attribute.split('\r\n')
+    print L
+    res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
+    if res_obj:
+        alert = res_obj.alert
+        res_code = res_obj.res_code
+        address = res_obj.address
+        info = res_obj.info
+        print address
+        if set(address) < set(L):
+            info = info+"-解析IP与绑定IP一致"
+            print info
+        else:
+            info = "解析IP与绑定IP不一致，域名可能被劫持"
+            alert = True
+
     return render(request,'business/domain_detail.html',locals())
 
 
@@ -269,6 +446,9 @@ def domain_rsync_to_server(request):
         print domainname_list
         os.remove(inventory)
     return HttpResponse("SUCCESS")
+
+def domain_monitor(request,uuid):
+    return 0
 
 
 

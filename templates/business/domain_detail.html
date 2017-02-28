@@ -4,8 +4,11 @@
 
 {% block title %} 域名详情|platform detail{% endblock %}
 
+{% block head %}
+    <script src="/static/js/echarts.js"></script>
+{% endblock %}
 
-    {% block assistant-header %} <h3> 域名详情|platform detail</h3>
+{% block assistant-header %} <h3> 域名详情|platform detail</h3>
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
         <li><a href="{% url 'domain_list' %}">域名管理</a></li>
@@ -37,7 +40,8 @@
                 </tr>
                 <tr>
                     <th class="text-info">用途</th>
-                    <td>{% if domain_data.use == '0' %}前端域名{% elif domain_data.use == '1' %}接口域名{% else %}后台域名{% endif %}</td>
+                    <td>{% if domain_data.use == '0' %}前端域名{% elif domain_data.use == '1' %}ag后台域名{% elif domain_data.use == '2' %}后台域名
+                        {% elif domain_data.use == '3' %}彩票域名{% elif domain_data.use == '4' %}导航网域名{% elif domain_data.use == '5' %}其他域名{% endif %}</td>
                 </tr>
                 <tr>
                     <th class="text-info">所属业务</th>
@@ -48,29 +52,47 @@
                 <tr>
                     <th class="text-info">域名状态</th>
                     <td>
-                        {% if domain_data.state == '0' %}启用{% elif domain_data.state == '1' %}未启用{% elif domain_data.state == '2' %}被墙{% else %}弃用{% endif %}
+                        {% if domain_data.state == '0' %}备用{% elif domain_data.state == '1' %}在用{% elif domain_data.state == '2' %}弃用{% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th class="text-info">当前状态</th>
+                    <th class="text-info">是否监控</th>
                     <td>
-                        {{ domain_data.status }}
+                        {% if domain_data.monitor_status == False %}未监控{% else %}已监控{% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th class="text-info">状态码</th>
+                    <th class="text-info">是否告警</th>
                     <td>
-                        {{ domain_data.status_code }}
+                        {% if  alert == False %}<i class='fa fa-circle' style='color:green' aria-hidden='true'>正常</i>{% else %}<i class='fa fa-circle' style='color:red' aria-hidden='true'>告警</i>{% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th class="text-info">A记录</th>
+                    <th class="text-info">当前状态码</th>
                     <td>
-                        {{ domain_data.address }}
+                        {{ res_code }}
                     </td>
                 </tr>
                 <tr>
-                    <th class="text-info">供应商</th>
+                    <th class="text-info">当前解析IP</th>
+                    <td>
+                        {{ address }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">实际绑定IP</th>
+                    <td>
+                        {{ L }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">状态分析</th>
+                    <td>
+                        {{ info }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-info">域名管理</th>
                     <td>
                         {{ domain_data.supplier }}
                     </td>
@@ -105,6 +127,138 @@
 
 
 </div>
+<div id=id_echarts class="col-lg-9" style="height: 300px;"></div>
+
 
 </div>
+
+<script type="text/javascript">
+        var chart = echarts.init(document.getElementById('id_echarts'), 'vintage');
+        var option = {
+                title: {
+                    text: '域名监控'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    showContent: true
+                },
+                legend: {
+                    // data:[]
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    show: true,
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    splitLine: {
+                        show: false
+                    },
+                    // data: [1484141700832,1484141700932,1484141701032,1484141701132,1484141701232,1484141701332,1484141701432,1484141701532,1484141701632,1484141701732]
+                    data: []
+
+                },
+                yAxis: {
+                    type: 'value',
+                    min: '0',
+                    max: '600'
+                },
+                dataZoom: [{
+                    type: 'inside',
+                    xAxisIndex: [0],
+                    start: 80,
+                    end: 100
+                }, {
+                    type: 'slider',
+                    show:true,
+                    realtime:true,
+                    xAxisIndex: [0],
+                    handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                    handleSize: '30%',
+                    handleStyle: {
+                        color: '#80cbc4'
+                    },
+                    fillerColor:'#d8faf4',
+                    borderColor:"#b1b1b1",
+                    start: 80,
+                    end: 100
+                }],
+                series: [
+                    {
+                        type:'line',
+                        symbolSize: 8,
+                        itemStyle: {
+                            emphasis: {
+                                color: '#80cbc4',
+                                borderColor: '#fff',
+                                borderWidth: 4,
+                                borderType: 'solid',
+                                shadowBlur: 5,
+                                shadowColor: '#9c9a9b',
+                            }
+                        },
+                        lineStyle: {
+                            normal: {
+                                width: 1,
+                            }
+                        },
+                    },
+                ]
+        };
+
+        function getData() {
+            var urls = '/business/domain/get_code/';
+            var uuid = "{{ domain_data.uuid }}";
+            var name = "{{ domain_data.name }}";
+
+            $.ajax({
+                url: urls,
+                dataType: 'json',
+                type: 'GET',
+                contentType: "application/json",
+                data: { 
+                    uuid: uuid,
+                    name: name
+                 },
+                success: function(data) {
+                    var xaxis = data.xaxis;
+                    var yaxis = data.yaxis;
+                    var domainname = data.name;
+                    chart.setOption({
+                        legend: {
+                            data:[domainname]
+                        },
+                        xAxis: {
+                            data: xaxis
+                            },
+                        series: [{
+                            name:domainname,
+                            data: yaxis
+                        }]
+                    });
+                },
+            });
+        };
+    setInterval(function () {
+        getData();
+    },60000);
+
+if (option && typeof option === "object") {
+    chart.setOption(option, true);
+    getData()
+
+};
+</script>
+
 {% endblock %}
+
+
