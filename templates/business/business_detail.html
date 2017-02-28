@@ -174,24 +174,45 @@
                     <td>{{ business_data.front_proxy_web_dir }}</td>
                 </tr>
                 <tr>
+                    <th class="text-info">后台ip</th>
+                    <td>{{ backend_ip }}</td>
+                    <td class="text-info">检测</td>
+
+                </tr>
+                <tr>
                     <th class="text-info">后台源站web文件</th>
                     <td>{{ business_data.backend_station_web_file }}</td>
+                    <td class="text-info"><a href="{% url 'business_conf_show' %}" class="btn btn-primary look-bc">查看Look</a></td>
                 </tr>
                 <tr>
                     <th class="text-info">后台源站web文件路径</th>
                     <td>{{ business_data.backend_station_web_dir }}</td>
                 </tr>
                 <tr>
+                    <th class="text-info">后台代理ip</th>
+                    <td>{{ backend_proxy_ip }}</td>
+                    <td class="text-info">检测</td>
+
+                </tr>
+                <tr>
                     <th class="text-info">后台代理web文件</th>
                     <td>{{ business_data.backend_proxy_web_file }}</td>
+                    <td class="text-info"><a href="{% url 'business_conf_show' %}" class="btn btn-primary look-bcp">查看Look</a></td>
                 </tr>
                 <tr>
                     <th class="text-info">后台代理web文件路径</th>
                     <td>{{ business_data.backend_proxy_web_dir }}</td>
                 </tr>
                 <tr>
+                    <th class="text-info">第三方反代ip</th>
+                    <td>{{ ag_ip }}</td>
+                    <td class="text-info">检测</td>
+
+                </tr>
+                <tr>
                     <th class="text-info">第三方反代web文件</th>
                     <td>{{ business_data.third_proxy_web_file }}</td>
+                    <td class="text-info"><a href="{% url 'business_conf_show' %}" class="btn btn-primary look-ag">查看Look</a></td>
                 </tr>
                 <tr>
                     <th class="text-info">第三方反代web文件路径</th>
@@ -286,6 +307,80 @@ $('.look-fp').on("click",function(fpstation){
         fpstation.preventDefault();
     });
 
+$('.look-bc').on("click",function(fpstation){
+    var urls= $(this).attr("href");
+    var ip = "{{ backend_ip }}";
+    var path = "{{ business_data.backend_station_web_dir }}";
+    var file = "{{ business_data.backend_station_web_file }}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data:{ip: ip,path: path,file: file},
+            contentType: "application/json",
+            success: function(data) { 
+                layer.open({
+                      type: 2,
+                      title: data.ip,
+                      shadeClose: true,
+                      skin: 'layui-layer-rim',
+                      area: ['700px', '90%'],
+                      content: "{% url 'deploy_nginx_tmp_file' %}",
+                    });
+                },
+        });
+        fpstation.preventDefault();
+    });
+
+$('.look-bcp').on("click",function(fpstation){
+    var urls= $(this).attr("href");
+    var ip = "{{ backend_proxy_ip }}";
+    var path = "{{ business_data.backend_proxy_web_dir }}";
+    var file = "{{ business_data.backend_proxy_web_file }}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data:{ip: ip,path: path,file: file},
+            contentType: "application/json",
+            success: function(data) { 
+                layer.open({
+                      type: 2,
+                      title: data.ip,
+                      shadeClose: true,
+                      skin: 'layui-layer-rim',
+                      area: ['700px', '90%'],
+                      content: "{% url 'deploy_nginx_tmp_file' %}",
+                    });
+                },
+        });
+        fpstation.preventDefault();
+    });
+
+$('.look-bcp').on("click",function(fpstation){
+    var urls= $(this).attr("href");
+    var ip = "{{ ag_ip }}";
+    var path = "{{ business_data.third_proxy_web_dir }}";
+    var file = "{{ business_data.third_proxy_web_file }}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data:{ip: ip,path: path,file: file},
+            contentType: "application/json",
+            success: function(data) { 
+                layer.open({
+                      type: 2,
+                      title: data.ip,
+                      shadeClose: true,
+                      skin: 'layui-layer-rim',
+                      area: ['700px', '90%'],
+                      content: "{% url 'deploy_nginx_tmp_file' %}",
+                    });
+                },
+        });
+        fpstation.preventDefault();
+    });
 
 </script>
 

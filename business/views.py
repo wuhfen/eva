@@ -69,9 +69,15 @@ def business_detail(request,uuid):
     business_data = get_object_or_404(Business, uuid=uuid)
     front_ip = business_data.front_station
     front_proxy_ip = business_data.front_proxy
+    backend_ip = business_data.backend_station
+    backend_proxy_ip = business_data.backend_proxy
+    ag_ip = business_data.third_party_node
     try:
         front_ip = front_ip.replace('\r\n'," ")
         front_proxy_ip = front_proxy_ip.replace('\r\n'," ")
+        backend_ip = backend_ip.replace('\r\n'," ")
+        backend_proxy_ip = backend_proxy_ip.replace('\r\n'," ")
+        ag_ip = ag_ip.replace('\r\n'," ")
     except AttributeError:
         pass
 
