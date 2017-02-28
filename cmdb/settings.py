@@ -188,3 +188,16 @@ CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE= 'Asia/Shanghai'
 
 ANSIBLE_ROLES_DIR='/root/myproject/cmdb/ansible_workdir/'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+REDIS_TIMEOUT=7*24*60*60
+CUBES_REDIS_TIMEOUT=60*60
+NEVER_REDIS_TIMEOUT=365*24*60*60
