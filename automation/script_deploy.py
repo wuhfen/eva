@@ -144,6 +144,7 @@ def deploy_script(request):
         string = ""
         for i in res:
             string = string+i
+
         # res = [i.decode('utf-8') for i in res]
         logdata = scriptlog(user=user,command=command,result=string,sort_time=sort_time)
         logdata.save()
@@ -182,3 +183,6 @@ def script_memo(request):
     print data
     return JsonResponse(data,safe=False)
 
+def script_log_list(request):
+    data = scriptlog.objects.all()
+    return render(request,'automation/script_log_list.html',locals())

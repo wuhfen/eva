@@ -59,7 +59,7 @@
                 </form>
             </dir>
             <dir class="col-md-8 col-lg-8">
-                <h4><strong>操作日志</strong></h4>
+            <h4><strong><a href="{% url 'script_log_list' %}" class="btn btn-primary">操作日志</a></strong></h4>
                 {% for i in log_data %}
                 <p class="text-primary">用户：{{ i.user }} 时间：{{ i.create_time }}</p>
                 <p class="text-warning">执行脚本：{{ i.command }}</p>
