@@ -107,6 +107,22 @@
                      alert("Url Error");
                  }
              });
+             $.ajax({
+                 url: "/deploy/script_memo/?uuid="+tid,
+                 type: "Get",
+                 contentType: "application/json",
+                 dataType: "json",
+                 success: function (res) {
+                     var xxl = $("#id_args");
+                     $("#id_args p").remove();
+                     $("#id_args blockquote").remove();
+
+                     xxl.append('<blockquote><p class="text-info">'+res.res+'</p></blockquote>');
+                 },
+                 error: function () {
+                     alert("Url Error");
+                 }
+             });
          });
      });
 

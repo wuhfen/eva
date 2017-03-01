@@ -33,7 +33,9 @@ class DeployForm(ModelForm):
 class ScriptForm(ModelForm):
     name = forms.CharField(label=u'发布名称',widget=forms.TextInput(attrs={'placeholder': u'新站发布'}))
     command = forms.CharField(label=u'脚本执行路径',widget=forms.TextInput(attrs={'placeholder': '/bin/bash  /data/shell/newfabu.sh'}))
-    server_ip = forms.CharField(label=u'脚本所在服务器',widget=forms.TextInput(attrs={'placeholder': '需要CMDB里有此IP并且ansible可与其通信'}))
+    server_ip = forms.CharField(label=u'脚本所在IP',widget=forms.TextInput(attrs={'placeholder': '需要CMDB里有此IP并且ansible可与其通信'}))
+    memo = forms.CharField(label=u'描述简介',widget=forms.Textarea(attrs={'rows':5,'cols':30}))
+
     class Meta:
         model = models.scriptrepo
-        fields = ['name','command','server_ip','custom_state']
+        fields = ['name','command','server_ip','custom_state','memo']

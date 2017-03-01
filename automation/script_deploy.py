@@ -24,6 +24,7 @@ def add_script(request):
         fabuname = request.POST.get('name')
         command = request.POST.get('command')
         server_ip = request.POST.get('server_ip')
+        memo = request.POST.get('memo')
         ff = request.POST.get('custom_state')
         if ff:
             dd = request.POST.lists()
@@ -40,11 +41,11 @@ def add_script(request):
                     else:
                         msg = u"信息没有填写完整！"
             if not msg:
-                data = scriptrepo(name=fabuname,command=command,server_ip=server_ip,customargs=L,custom_state=True)
+                data = scriptrepo(name=fabuname,command=command,server_ip=server_ip,memo=memo,customargs=L,custom_state=True)
                 data.save()
             return HttpResponseRedirect('/deploy/script_list')
         else:
-            data = scriptrepo(name=fabuname,command=command,server_ip=server_ip,custom_state=False)
+            data = scriptrepo(name=fabuname,command=command,server_ip=server_ip,memo=memo,custom_state=False)
             data.save()
             return HttpResponseRedirect('/deploy/script_list')
     return render(request,'automation/script_add.html',locals())
@@ -158,6 +159,15 @@ def script_select(request):
                 }
                 L.append(json_data)
 
-        print L
+        # print L
     return JsonResponse(L,safe=False)
+
+def script_memo(request):
+    uuid = request.GET.get('uuid',0)
+    print uuid
+    obj = scriptrepo.objects.get(pk=uuid)
+    print obj.memo
+    data = {'res': obj.memo}
+    print data
+    return JsonResponse(data,safe=False)
 

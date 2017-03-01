@@ -112,7 +112,9 @@ class scriptrepo(models.Model):
     command = models.CharField(_(u'命令'),max_length=128)
     server_ip = models.GenericIPAddressField(_(u'脚本服务器'),max_length=128)
     customargs = models.TextField(_(u'自定义参数'),null=True)
-    custom_state = models.BooleanField(default=False)
+    custom_state = models.BooleanField(_(u'启用自定义参数'),default=False)
+    memo = models.TextField(_(u'介绍备注'),null=True)
+
 
 
 
@@ -122,7 +124,7 @@ class scriptlog(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     user =  models.ForeignKey(Users,verbose_name=u'用户')
     command = models.CharField(_(u'命令'),max_length=128)
-    result = models.CharField(_(u'命令输出'),max_length=128)
+    result = models.TextField(_(u'命令输出'),max_length=128)
     create_time = models.DateTimeField(auto_now_add=True)
     sort_time = models.IntegerField(default=0)
 

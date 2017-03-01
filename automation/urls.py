@@ -47,6 +47,8 @@ urlpatterns = [
     url(r'^script_edit/(?P<uuid>[^/]+)/$', sviews.edit_script, name="script_edit"),
     url(r'^script_delete/(?P<uuid>[^/]+)/$', sviews.delete_script, name='script_delete'),
     url(r'^script_select/', sviews.script_select, name='script_select'),
+    url(r'^script_memo/', sviews.script_memo, name='script_memo'),
+
 
 
 
