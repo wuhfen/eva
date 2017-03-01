@@ -101,12 +101,16 @@ def deploy_script(request):
     log = scriptlog.objects.all()
     L = [i.sort_time for i in log]
     if L:
-        now_log_time = max(L)
-        L.remove(now_log_time)
-        two_log_time = max(L)
-        log_one = scriptlog.objects.get(sort_time=now_log_time)
-        log_two = scriptlog.objects.get(sort_time=two_log_time)
-        log_data = [log_one,log_two]
+        try:
+            now_log_time = max(L)
+            L.remove(now_log_time)
+            two_log_time = max(L)
+        except:
+            log_data = []
+        else:
+            log_one = scriptlog.objects.get(sort_time=now_log_time)
+            log_two = scriptlog.objects.get(sort_time=two_log_time)
+            log_data = [log_one,log_two]
 
     if request.method == 'POST':
         ll = request.POST.lists()
