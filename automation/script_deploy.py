@@ -105,12 +105,15 @@ def deploy_script(request):
             now_log_time = max(L)
             L.remove(now_log_time)
             two_log_time = max(L)
+            L.remove(two_log_time)
+            three_log_time = max(L)
         except:
             log_data = []
         else:
             log_one = scriptlog.objects.get(sort_time=now_log_time)
             log_two = scriptlog.objects.get(sort_time=two_log_time)
-            log_data = [log_one,log_two]
+            log_three = scriptlog.objects.get(sort_time=three_log_time)
+            log_data = [log_one,log_two,log_three]
 
     if request.method == 'POST':
         ll = request.POST.lists()
@@ -138,7 +141,15 @@ def deploy_script(request):
         # playbook = "/etc/ansible/script_deploy.yml"
         # res = ansiblex_deploy(inventory,playbook,groupname,command)
         res = ssh_cmd(host,command)
-        logdata = scriptlog(user=user,command=command,result=res,sort_time=sort_time)
+        string = ""
+        for i in res:
+            if "\n" in i:
+                a = i.replace("\n","\r\n")
+                # a = i + "<br>"
+            string = string+a
+
+        # res = [i.decode('utf-8') for i in res]
+        logdata = scriptlog(user=user,command=command,result=string,sort_time=sort_time)
         logdata.save()
         return HttpResponseRedirect('/success/')
 

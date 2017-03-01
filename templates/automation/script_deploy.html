@@ -63,7 +63,9 @@
                 {% for i in log_data %}
                 <p class="text-primary">用户：{{ i.user }} 时间：{{ i.create_time }}</p>
                 <p class="text-warning">执行脚本：{{ i.command }}</p>
-                <p class="text-success">返回结果：{{ i.result }}</p>
+                <p class="text-success test-ppp">返回结果：{{ i.result }}</p>
+
+                <!-- <p class="text-success">返回结果：{% for x in i.result %}<i>{{ x }}</i>{% endfor %}</p> -->
                 {% endfor %}
             </dir>
         </div>
@@ -74,6 +76,14 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(".test-ppp").click(function() {
+        var yy = $(this).text();
+        alert( yy );
+})
+</script>
+
 
 <script type="text/javascript">
      $(function () {
