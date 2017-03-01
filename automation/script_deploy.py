@@ -143,11 +143,7 @@ def deploy_script(request):
         res = ssh_cmd(host,command)
         string = ""
         for i in res:
-            if "\n" in i:
-                a = i.replace("\n","\r\n")
-                # a = i + "<br>"
-            string = string+a
-
+            string = string+i
         # res = [i.decode('utf-8') for i in res]
         logdata = scriptlog(user=user,command=command,result=string,sort_time=sort_time)
         logdata.save()
