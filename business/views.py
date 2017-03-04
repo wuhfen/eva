@@ -23,19 +23,19 @@ from .tasks import monitor_code
 
 
 ##业务增删查改
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def business_list(request):
     business_data = Business.objects.all()
     return render(request,'business/business_list.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def business_delete(request,uuid):
     business_data = Business.objects.get(pk=uuid)
     business_data.delete()
     return render(request,'business/business_list.html',locals())
 
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def business_add(request):
     bf = BusinessForm()
     if request.method == 'POST':
@@ -45,7 +45,7 @@ def business_add(request):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/business_add.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def business_edit(request,uuid):
     business = get_object_or_404(Business, uuid=uuid)
     status = business.status
@@ -64,7 +64,7 @@ def business_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/business_edit.html',locals())
 
-@permission_required('business.Can_add_domainname', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def business_detail(request,uuid):
     business_data = get_object_or_404(Business, uuid=uuid)
     front_ip = business_data.front_station
@@ -126,12 +126,12 @@ def deploy_nginx_tmp_file(request):
 
 
 ##业务平台增删查改
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def platform_list(request):
     platform_data = Platform.objects.all()
     return render(request,'business/platform_list.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def platform_add(request):
     pf = PlatfForm()
     if request.method == 'POST':
@@ -142,14 +142,14 @@ def platform_add(request):
     return render(request,'business/platform_add.html',locals())
 
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def platform_detail(request,uuid):
     platform = get_object_or_404(Platform, uuid=uuid)
     # platform = Platform.objects.get(pk=uuid)
     allow_list = platform.iptables_set.all()
     return render(request,'business/platform_detail.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def platform_edit(request,uuid):
     platform = get_object_or_404(Platform, uuid=uuid)
     pf = PlatfForm(instance=platform)
@@ -197,12 +197,12 @@ def platform_edit(request,uuid):
 
 
 ##IP池add delete search change
-@permission_required('business.add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_ip_list(request):
     ippool_data =  Domain_ip_pool.objects.all()
     return render(request,'business/domain_ip_list.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_ip_add(request):
     df = IPpoolForm()
     if request.method == 'POST':
@@ -212,13 +212,13 @@ def domain_ip_add(request):
             return HttpResponseRedirect('/business/domain_ip_list/')
     return render(request,'business/domain_ip_add.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_ip_delete(request,uuid):
     domainname = get_object_or_404(Domain_ip_pool, uuid=uuid)
     domainname.delete()
     return render(request,'business/domain_ip_list.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_ip_edit(request,uuid):
     ippool_data = get_object_or_404(Domain_ip_pool, uuid=uuid)
     df = IPpoolForm(instance=ippool_data)
@@ -293,14 +293,14 @@ def restart_all_monitor(request):
 
 
 ##域名增删查改
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_list(request):
     domain_data = DomainName.objects.all()
 
 
     return render(request,'business/domain_list.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_add(request):
     df = DomainNameForm()
     if request.method == 'POST':
@@ -313,7 +313,7 @@ def domain_add(request):
             return HttpResponseRedirect('/business/domain_list/')
     return render(request,'business/domain_add.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_edit(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     df = DomainNameForm(instance=domainname)
@@ -324,13 +324,13 @@ def domain_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/domain_edit.html',locals())
 
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_delete(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     domainname.delete()
     return render(request,'business/domain_list.html',locals())
 
-@permission_required('business.Can_add_domainname', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_detail(request,uuid):
     domain_data = get_object_or_404(DomainName, uuid=uuid)
     name = domain_data.name
@@ -354,7 +354,7 @@ def domain_detail(request,uuid):
     return render(request,'business/domain_detail.html',locals())
 
 
-@permission_required('business.Can_add_domainname', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_add_batch(request):
     """批量添加域名"""
     if request.method == 'POST':
@@ -388,7 +388,7 @@ def domain_add_batch(request):
 
 
 ##将域名同步至服务器
-@permission_required('business.Can_add_domainname', login_url='/auth_error/')
+@permission_required('business.add_domainname', login_url='/auth_error/')
 def business_domain_rsync(request,uuid):
     business = get_object_or_404(Business,uuid=uuid)
     return render(request,'business/domain_rsync_to_server.html',locals())
@@ -462,7 +462,7 @@ def domain_monitor(request,uuid):
 
 
 ##故障增删查改
-@permission_required('business.Can_add_business', login_url='/auth_error/')
+@permission_required('business.add_business', login_url='/auth_error/')
 def bugs_list(request):
     bugs_data = Bugs.objects.all()
     return render(request,'business/bugs_list.html',locals())
