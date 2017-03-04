@@ -9,7 +9,8 @@
 <script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
 <script src="/static/js/js.cookie.js"></script>
-
+<link rel="stylesheet" href="/static/layer-v2.4/laydate/need/laydate.css">
+<script src="/static/layer-v2.4/laydate/laydate.js" charset="utf-8"></script>
 
  {% endblock %}
 
@@ -30,12 +31,12 @@
             <div class="col-md-12 col-lg-12">
                 <div class="col-md-3 col-lg-3 ">
                     <label class="text-right bolder" for="id_start_time">开始时间 START TIME<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                    <input type="text" id="id_start_time" name="start_time" class="form-control" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
+                    <input type="text" id="id_start_time" name="start_time" class="form-control laydate-icon" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
                     <div class="help-block"></div>
                 </div>
                 <div class="col-md-3 col-lg-3 ">
                     <label class="text-right bolder" for="id_end_time">结束时间 END TIME<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                    <input type="text" id="id_end_time" name="end_time" class="form-control" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
+                    <input type="text" id="id_end_time" name="end_time" class="form-control laydate-icon" data-toggle="tooltip" title="年/月/日/时/分：2017/01/01 12:05">
                     <div class="help-block"></div>
                 </div>
                 <div class="col-md-4 col-lg-4 ">
@@ -212,7 +213,34 @@ $(".record_edit").on("click", function(event){
 
 </script>
 
-
+<script>
+var start = {
+  elem: '#id_start_time',
+  format: 'YYYY/MM/DD hh:mm:ss',
+  min: '2017-01-01 12:00:00', //设定最小日期为当前日期
+  max: laydate.now(), //最大日期
+  istime: true,
+  istoday: false,
+  choose: function(datas){
+     end.min = datas; //开始日选好后，重置结束日的最小日期
+     end.start = datas //将结束日的初始值设定为开始日
+  }
+};
+var end = {
+  elem: '#id_end_time',
+  format: 'YYYY/MM/DD hh:mm:ss',
+  min: '2017-01-01 23:59:59',
+  max: '2027-06-16 23:59:59',
+  istime: true,
+  istoday: false,
+  choose: function(datas){
+    start.max = datas; //结束日选好后，重置开始日的最大日期
+  }
+};
+laydate(start);
+laydate(end);
+laydate.skin('danlan');
+</script>
 
 
 {% endblock %}
