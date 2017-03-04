@@ -336,17 +336,18 @@ def domain_detail(request,uuid):
     name = domain_data.name
     attribute = domain_data.address.attribute
     L = attribute.split('\r\n')
-    print L
+    # print L
     res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
     if res_obj:
         alert = res_obj.alert
         res_code = res_obj.res_code
         address = res_obj.address
         info = res_obj.info
-        print address
+        no_ip = res_obj.no_ip
+        # print address
         if set(address) < set(L):
             info = info+"-解析IP与绑定IP一致"
-            print info
+            # print info
         else:
             info = "解析IP与绑定IP不一致，域名可能被劫持"
             alert = True

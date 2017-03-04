@@ -19,6 +19,7 @@ class DomainInfo(re_models.Model):
     alert = re_models.BooleanField(default=False)
     new_msg = re_models.BooleanField(default=True)
     address = re_models.ListField(str)
+    no_ip = re_models.ListField(str)
     info = re_models.Attribute()
 
 

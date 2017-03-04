@@ -82,8 +82,12 @@ def get_code(url,lxx):
                 else:
                     print "not 5 4 3 2"
         else:
-            info = "解析IP与绑定IP不一致，域名可能被劫持"
-            clean_redis_obj(domain_name,info,address=jud,alert=True)
+            info = "解析IP与绑定IP不一致，域名可能被劫持"   
+            no_ip = []
+            for i in jud:
+                if i not in attribute:
+                    no_ip.appned(i)
+            clean_redis_obj(domain_name,info,address=jud,no_ip=no_ip,alert=True)
     else:
         info = "域名无法解析"
         print info
