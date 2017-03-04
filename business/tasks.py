@@ -27,7 +27,7 @@ def dns_resolver_ip(url):
         # print iplist
         return iplist
 
-def clean_redis_obj(url,info,address='',res_code=0,alert=False):
+def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
     Bb = DomainInfo.objects.filter(name=url,new_msg=True).first()
     try:
         Bb.update_attributes(new_msg=False)
@@ -39,7 +39,11 @@ def clean_redis_obj(url,info,address='',res_code=0,alert=False):
         address = [ str(x) for x in address]
     else:
         address = []
-    Aa = DomainInfo(name=url,info=info,address=address,res_code=res_code,alert=alert)
+    if no_ip:
+        no_ip = [ str(y) for y in no_ip]
+    else:
+        no_ip = []
+    Aa = DomainInfo(name=url,info=info,address=address,no_ip=no_ip,res_code=res_code,alert=alert)
     if Aa.is_valid():
         print "Data is storing redis-db-1 now"
         print Aa.save()
