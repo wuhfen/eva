@@ -1,0 +1,72 @@
+{% extends "default/base.html" %}
+{% block title %}文档列表{% endblock %}
+
+{% load custom_markdown %}
+
+
+
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/highlight/styles/default.css">
+<script src="/static/admin-test/plugins/highlight/highlight.pack.js"></script>
+<link rel="stylesheet" href="/static/admin-test/plugins/highlight/styles/monokai.css">
+<script>hljs.initHighlightingOnLoad();</script>
+
+ {% endblock %}
+{% block assistant-header %}
+    <h1> 运维知识库 <small>DOC OPS</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'list_article' %}">文档列表</a></li>
+        <li><a href="{% url 'show_article' obj.id %}">文档</a></li>
+        <!-- <li><a href="{% url 'script_log_list' %}">更新日志</a></li> -->
+
+      </ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="box box-info">
+
+  <div class="box-body">
+    <div class="col-lg-2">
+    </div>
+    <div class="col-lg-8"  style="background-color:#FAF9F4">
+      <!-- 标题区域 -->
+      <h1 class="text-center"><a href="{% url 'edit_article' obj.id %}"><strong>{{ obj.title }}</strong></a></h1>
+
+      <!-- 作者区域 -->
+      <div class="author">
+        <div class="text-center">
+          <span>作者</span>
+          <strong class="text-info">{{ obj.author }}</strong>
+            <!-- 如果文章更新时间大于发布时间，那么使用 tooltip 显示更新时间 -->
+            <br>
+              <small class="text-muted" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="最后编辑于 {{ obj.change_date }}">{{ obj.date }}</small>
+        </div>
+      </div>
+
+      <!-- 文章内容 -->
+      <p class="text-left">{{ obj.body|custom_markdown }}</p>
+
+    <!-- 文章底部作者信息 -->
+      <div class="text-center">
+        <a class="notebook" href="#">
+          <i class="iconfont ic-search-notebook"></i> <span>RESTful Server</span>
+        </a>
+        <div class="copyright" data-toggle="tooltip" data-html="true" data-original-title="转载请联系作者获得授权，并标注“DS作者”。">
+          © 著作权归作者所有
+        </div>
+        <div class="modal-wrap" data-report-note="">
+          <a id="report-modal">DSOPSWIKI</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2">
+    </div>
+  </div>
+
+
+</div>
+
+{% endblock %}

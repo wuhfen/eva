@@ -1,0 +1,194 @@
+{% extends "default/base.html" %}
+{% block title %}编写文档{% endblock %}
+{% load bootstrap %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+    <script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+    <script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{{ af.media }}
+{% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 运维知识库 <small>DOC OPS</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'list_article' %}">文档列表</a></li>
+        <li><a href="{% url 'write_article' %}">编写文档</a></li>
+
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+    <div class="col-lg-12">
+    <div class="box box-info">
+        <div class="box-header with-border"><h4><a href="#" class="btn btn-black btn-primary">添加文档</a></h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="box-body">
+
+        <!--内容-->
+            <div class="col-lg-12">
+            <div  class="col-lg-1"></div>
+            <div  class="col-lg-10">
+
+                        <form role="form" action="" method="post" accept-charset="utf-8" id="article_add" class="form-horizontal">{% csrf_token %}
+                            <input class=" form-control input-lg" id="id_title" maxlength="60" placeholder="标题" name="title" type="text">
+                            <select class="form-control" id="id_category" name="category">
+                                <option value="" selected="selected">---------选择类型---------</option>
+                                {% for i in cateobj %}
+                                <option value="{{ i.id }}">{{ i.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <!-- <div id="epiceditor" style="margin: 2px;"></div> -->
+                            {{ af.body }}
+                            <div class="col-sm-offset-10 col-sm-2">
+                                <button  class="btn btn-primary btn-block">Submit</button>
+                            </div>
+                        </form>
+
+            </div>
+            <div  class="col-lg-1"></div>
+            </div>
+
+        </div>
+        <!--box底部-->
+        <div class="box-footer">
+            
+        </div>
+    </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$.extend({
+    textareaAutosize_dc:function(){
+        var autoSizeFn=function(){}
+        autoSizeFn.prototype={
+            autosize:function(){
+                var fontsize = $(this).css("font-size").replace("px","");//文字大小
+                var fontrowcount = ($(this).width()/fontsize);//每行文字个数
+                var textArray = $(this).val().split("\n");               
+                var currentEnterCount=textArray.length;//获取行数
+                $(textArray).each(function(){
+                    //检查每行文字量是否超过行容量 如果超过 贼需要加行, 超几行加几行
+                   if(this.length>fontrowcount){
+                       currentEnterCount+=this.length/fontrowcount;
+                   }
+                });
+                var lineHeight=Number($(this).css("line-height").replace("px",""));
+                $(this).height( lineHeight*(currentEnterCount+1));
+            },addEvent:function(){
+                //注册事件监听
+                var self=this;
+                 $("textarea").on("keyup",function(e){
+                        self.autosize.call(this);
+                 });
+            },initAllHeight:function(){
+                //初始化所有高度
+                var self=this;
+                 $("textarea").each(function(){
+                     self.autosize.call(this);
+                 });
+            }
+            ,init:function(){
+                this.addEvent();
+                this.initAllHeight();
+            }
+        }
+       new autoSizeFn().init();
+    }
+}).fn.extend({
+    textareaAutosize_dc:function(){
+       var domSelf = this;
+       var autoSizeFn=function(domSelf){
+           this.domSelf=domSelf;
+       }
+        autoSizeFn.prototype={
+            autosize:function(){
+                var fontsize = $(this).css("font-size").replace("px","");//文字大小
+                var fontrowcount = ($(this).width()/fontsize);//每行文字个数
+                var textArray = $(this).val().split("\n");               
+                var currentEnterCount=textArray.length;//获取行数
+                $(textArray).each(function(){
+                    //检查每行文字量是否超过行容量 如果超过 贼需要加行, 超几行加几行
+                   if(this.length>fontrowcount){
+                       currentEnterCount+=this.length/fontrowcount;
+                   }
+                });
+                var lineHeight=Number($(this).css("line-height").replace("px",""));
+                $(this).height( lineHeight*(currentEnterCount+1));
+            },addEvent:function(){
+                //注册事件监听
+                var self=this;
+                 $(this.domSelf).on("keyup",function(e){
+                        self.autosize.call(this);
+                 });
+            },initHeight:function(){
+                var self=this;
+                //初始化所有高度
+                $(this.domSelf).each(function(){
+                     self.autosize.call(this);
+                 });
+            }
+            ,init:function(){
+                this.addEvent();
+                this.initHeight();
+            }
+        }
+       new autoSizeFn(domSelf).init();
+    }
+});
+//调用自动高度
+//$.textareaAutosize_dc();//应用到所有textarea中
+$('#id_body').textareaAutosize_dc();//应用到指定的textarea中
+</script>
+
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#article_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right",
+            showOk: "",
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+            },
+        fields: {
+             "title":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "文档需要标题！"}
+            },
+             "category":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "需要分类！"}
+            },
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+
+</script>
+
+
+
+{% endblock %}

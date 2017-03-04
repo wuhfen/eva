@@ -28,8 +28,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*@tw#**f5&q*y2!$ry5=mr^k_o*-)$zjp@hy%q_ws%f%-(%v0d'
 auth_key = '*@tw#**f5&q*y2!$ry5=mr^k_o*-)$zjp@hy%q_ws%f%-(%v0d'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# DEBUG = False
+# DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = ["127.0.0.1"]
 ALLOWED_HOSTS = ['*']
@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'automation',
     'audit',
     'import_export',
-    
+    'opswiki',
+    'pagedown',
 
 
 
@@ -165,7 +166,8 @@ STATICFILES_DIRS = [
     ('bootstrap', os.path.join(STATIC_ROOT, 'bootstrap').replace('\\', '/')),
     ('layer-v2.4', os.path.join(STATIC_ROOT, 'layer-v2.4').replace('\\', '/')),
     ('valodate', os.path.join(STATIC_ROOT, 'valodate').replace('\\', '/')),
-
+    ('pagedown', os.path.join(STATIC_ROOT, 'pagedown').replace('\\', '/')),
+    ('pagedown-extra', os.path.join(STATIC_ROOT, 'pagedown-extra').replace('\\', '/')),
     ]
 
 # EMAIL
@@ -173,7 +175,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com' 
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'whf2chen@gmail.com'
-EMAIL_HOST_PASSWORD = 'whf7chen' 
+EMAIL_HOST_PASSWORD = 'xxxx' 
 EMAIL_SUBJECT_PREFIX = u'[自动化运维系统]' 
 DEFAULT_FROM_EMAIL = 'devops <devops@123.com>'
 EMAIL_USE_TLS = True
