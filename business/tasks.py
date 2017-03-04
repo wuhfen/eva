@@ -86,7 +86,7 @@ def get_code(url,lxx):
             no_ip = []
             for i in jud:
                 if i not in attribute:
-                    no_ip.appned(i)
+                    no_ip.append(i)
             clean_redis_obj(domain_name,info,address=jud,no_ip=no_ip,alert=True)
     else:
         info = "域名无法解析"
