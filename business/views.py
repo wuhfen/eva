@@ -243,7 +243,7 @@ def change_domain_monitor_status(request):
     else:
         data = {'res':"no"}
         domainname = DomainName.objects.filter(pk=uuid).update(monitor_status=True)
-        job = monitor_code.delay(60,uuid)
+        # job = monitor_code.delay(60,uuid)
     return JsonResponse(data,safe=False)
 
 def get_domain_status(request):
@@ -285,9 +285,10 @@ def restart_all_monitor(request):
     ##由于重启celery后所有的在监控任务都失效，所以写一个一键让其任务重新进入celery的按钮
     data_list = DomainName.objects.all()
     maxnum = 60
-    for i in data_list:
-        if i.monitor_status == True:
-            job = monitor_code.delay(maxnum,i.uuid)
+    # for i in data_list:
+    #     if i.monitor_status == True:
+            # job = monitor_code.delay(maxnum,i.uuid)
+            
     data = {'retu':"True"}
     return JsonResponse(data,safe=False)
 
@@ -307,9 +308,9 @@ def domain_add(request):
         df = DomainNameForm(request.POST)
         if df.is_valid():
             df_data = df.save()
-            if df_data.monitor_status == True:
-                uuid = df_data.uuid
-                job = monitor_code.delay(60,uuid)
+            # if df_data.monitor_status == True:
+            #     uuid = df_data.uuid
+            #     job = monitor_code.delay(60,uuid)
             return HttpResponseRedirect('/business/domain_list/')
     return render(request,'business/domain_add.html',locals())
 
@@ -345,12 +346,12 @@ def domain_detail(request,uuid):
         info = res_obj.info
         no_ip = res_obj.no_ip
         # print address
-        if set(address) < set(L):
-            info = info+"-解析IP与绑定IP一致"
-            # print info
-        else:
-            info = "解析IP与绑定IP不一致，域名可能被劫持"
-            alert = True
+        # if set(address) < set(L):
+        #     info = info+"-解析IP与绑定IP一致"
+        #     # print info
+        # else:
+        #     info = "解析IP与绑定IP不一致，域名可能被劫持"
+        #     alert = True
 
     return render(request,'business/domain_detail.html',locals())
 

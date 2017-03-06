@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'import_export',
     'opswiki',
     'pagedown',
+    'django_celery_beat',
 
 
 

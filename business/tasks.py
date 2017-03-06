@@ -9,6 +9,7 @@ import dns.resolver
 from time import sleep
 from business.models import DomainName,DomainInfo
 import socket
+import time
 
 
 
@@ -34,7 +35,7 @@ def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
         Bb.save()
     except AttributeError:
         print 'NoneType object has no attribute update_attributes'
-    print info+"OKOKOKOK"
+    # print info+"OKOKOKOK"
     if address:
         address = [ str(x) for x in address]
     else:
@@ -45,10 +46,10 @@ def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
         no_ip = []
     Aa = DomainInfo(name=url,info=info,address=address,no_ip=no_ip,res_code=res_code,alert=alert)
     if Aa.is_valid():
-        print "Data is storing redis-db-1 now"
-        print Aa.save()
+        # print "Data is storing redis-db-1 now"
+        Aa.save()
     else:
-        print Aa.save()
+        print "%s redis存储数据失败"% url
 
 
 
@@ -59,28 +60,28 @@ def get_code(url,lxx):
     jud = dns_resolver_ip(domain_name)
     # print type(jud)
     if jud:
-        if set(jud) < set(attribute):
+        if set(jud) <= set(attribute):
             try:
                 conn = httplib.HTTPConnection(domain_name,timeout=10)
                 conn.request("HEAD", "/",'',{'User-Agent' :'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'})
             except socket.error:
-                print "limited Authority"
+                print "%s 域名可解析但是网站没有应答"% domain_name
                 info = "域名可解析但是网站没有应答"
                 clean_redis_obj(domain_name,info,address=jud,alert=True)
             else:
                 r1 = conn.getresponse()
-                print r1.status, r1.reason
+                # print r1.status, r1.reason
                 aa = str(r1.status)[0]
                 if aa == '2' or aa == '3':
                     info = "OK"
-                    print "info is OK"
+                    # print "info is OK"
                     clean_redis_obj(domain_name,info,address=jud,res_code=r1.status,alert=False)
                 elif aa == '4':
-                    print aa,"info is 客户端错误"
+                    # print aa,"info is 客户端错误"
                     info = "客户端错误，%s,%s"% (r1.status,r1.reason)
                     clean_redis_obj(domain_name,info,address=jud,res_code=r1.status,alert=True)
                 elif aa == '5':
-                    print aa,"info is 服务器错误"
+                    # print aa,"info is 服务器错误"
                     info = "服务器错误，%s,%s"% (r1.status, r1.reason)
                     clean_redis_obj(domain_name,info,address=jud,res_code=r1.status,alert=True)
                 else:
@@ -93,7 +94,7 @@ def get_code(url,lxx):
                     no_ip.append(i)
             clean_redis_obj(domain_name,info,address=jud,no_ip=no_ip,alert=True)
     else:
-        info = "域名无法解析"
+        info = "%s 域名无法解析" % domain_name
         print info
         clean_redis_obj(domain_name,info,alert=True)
 
@@ -101,20 +102,26 @@ def get_code(url,lxx):
 
 
 @shared_task()
-def monitor_code(num,uuid):
-    judge = 1
-    while judge:
-        obj = DomainName.objects.get(pk=uuid)
+def monitor_code():
+    data = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    objs = DomainName.objects.all()
+    for obj in objs:
         attribute = obj.address.attribute
         L = attribute.split('\r\n')
         judge = obj.monitor_status
         url = obj.name
         if judge:
-            # print "hello True",judge
-            # dns_resolver_ip(url)
             print url
             get_code(url,L)
         else:
-            print "END False %s %s"% (judge,url)
-        sleep(num)
-    return "END........."
+            print "domain %s monitor_status %s"% (url,judge)
+    return "END.....task"
+
+@shared_task()
+def test_code():
+    data = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    print data
+    print "hello"
+    return "datadddddd"
+
+
