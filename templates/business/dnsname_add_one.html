@@ -1,0 +1,174 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加域名|Add Domain {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>添加域名</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'dnsname_list' %}">域名列表</a></li>
+        <li><a href="{% url 'dnsname_add_one' %}">添加域名</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 col-lg-10">
+            <div class="box box-info">
+                <div class="box-body">
+                    <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_platform_name">选择域名解析平台<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <select class="form-control n-invalid" id="id_platform_name" name="platform_name" aria-required="true" data-toggle="tooltip" title="选择域名解析平台">
+                                <option value="">--请选择--</option>
+                                <option value='PODCN'>poddns中国</option>
+                                <option value='PODCOM'>poddns国际</option>
+                                <option value='CLOUDXNS'>cloudxns快网</option>
+                            </select>
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group " id="id_args">
+
+                        </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_domain">输入域名<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <input type="text" id="id_domain" name="domain" class="form-control" data-toggle="tooltip" title="多条域名使用空格隔开">
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_command">备注</label>
+                            <input type="text" id="id_command" name="command" class="form-control" data-toggle="tooltip">
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" onclick="myFunction()" class="btn btn-success btn-lg"> 提交 </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    </div>
+
+    <div class="col-md-10 col-lg-10">
+            <div class="box box-info">
+                <div class="box-header with-border">返回信息
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                            <i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                            <i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <h1 class="text-danger" id="error_msg"></h1>
+                    <h3 class="text-info" id="ok_msg"></h3>
+
+                </div>
+            </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+function myFunction() {
+        var urls= "{% url 'dnsname_add_one' %}";
+        var platform = $('#id_platform_name').val();
+        var user_id = $('#id_user').val();
+        var domain_name = $('#id_domain').val();
+        var remark = $('#id_command').val();
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: {
+                'user_id': user_id,
+                'domain_name': domain_name,
+                'remark': remark,
+                'platform': platform,
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.retu == "True") {
+                    $("#ok_msg").html(data.res)
+                } else {
+                     // document.getElementById("error_msg").innerHTML = "Hello World";
+                    $("#error_msg").html(data.msg)
+
+                }
+                },
+        });
+}
+</script>
+
+<script type="text/javascript">
+     $(function () {
+         $("#id_platform_name").change(function () {
+             var platform_name = $("#id_platform_name option:selected").val();
+             var ddl = $("#id_args");
+             $("#id_args label").remove();
+             $("#id_args select").remove();
+             $("#id_args option").remove();
+            ddl.append('<label class="text-right bolder" for="id_user">选择域名所属账号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>');
+            ddl.append('<select class="form-control n-invalid" id="id_user" name="user"><option value="">--请选择--</option></select>');
+            var lld = $('#id_user');
+            {% for i in data %}
+            var new_p = "{{ i.platform_name }}";
+            if ( platform_name == new_p ) { 
+                lld.append('<option value=' + "{{ i.id }}" + '>' + "{{ i.name }}" + "--" + "{{ i.user }}" + '</option>');
+            }
+            {% endfor %}
+                 });
+             });
+</script>
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#post_form').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "platform_name": {
+                rule: "required",
+                tip: "域名解析平台",
+                ok: "",
+                msg: {required: "必须填写!"},
+            },
+            "user": {
+                rule: "required",
+                tip: "账号",
+                ok: "",
+                msg: {required: "必须填写!"},
+            },
+             "domain":{
+                rule: "required",
+                tip: "域名",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+</script>
+
+{% endblock content %}

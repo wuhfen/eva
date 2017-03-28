@@ -211,6 +211,7 @@ def virtual_add(request):
                     if nic_name and nic_macaddress:
                         NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
                         ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
+            obj = get_object_or_404(Server, ssh_host=server_data.ssh_host)
             return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")

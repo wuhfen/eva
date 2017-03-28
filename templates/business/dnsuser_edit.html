@@ -1,0 +1,91 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row">
+    <div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+        <div class="box box-info">
+            <div class="box-body">
+                <form class="form-horizontal" action="" id="dnsuser_edit"  method="post" name="horizontal" role="form" autocomplete="off">
+                    {% csrf_token %}
+                <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
+                    {{ bf|bootstrap_horizontal }}
+                </table>
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-5">
+                            <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                            <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#dnsuser_edit').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_right_effect",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "user": {
+                rule: "required",
+                tip: "账号",
+                ok: "",
+                msg: {required: "必须填写!"},
+                data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
+            },
+             "passwd":{
+                rule: "required",
+                tip: "密码",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "keyone":{
+                rule: "required",
+                tip: "token_id或者api_key",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "keytwo":{
+                rule: "required",
+                tip: "token或者security_key",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "platform_name":{
+                rule: "required",
+                tip: "解析平台",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+
+</script>
+
+{% endblock content %}

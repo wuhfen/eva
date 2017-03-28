@@ -8,19 +8,19 @@ from import_export import resources
 from import_export import fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.admin import ImportExportActionModelAdmin
+
 # Register your models here.
+# 服务器
 class ServerInline(admin.TabularInline):
-    model = models.Server
+    model = Server
     exclude = ('memo',)
     readonly_fields = ['create_date']
 
 class ServerAdmin(admin.ModelAdmin):
-    model = models.Server
+    model = Server
     list_display = ('name','ipmitool','idc','cabinet','server_cabinet_id','asset','model','os_kernel','Raid_level','system_status','os_type',
                     'os_version','os_release','server_sn','Services_Code')
     # raw_id_fields = ('idc',)
-
-# 服务器
 # admin.site.register(models.Server,ServerAdmin)
 
 ##数据导出admin
@@ -138,4 +138,7 @@ admin.site.register(models.Cabinet)
 admin.site.register(models.Tags)
 
 #权限
-admin.site.register(models.sqlpasswd)
+class SqlAdmin(admin.ModelAdmin):
+    list_display = ('server','title','listen','port','user','password','memo')
+admin.site.register(models.sqlpasswd,SqlAdmin)
+

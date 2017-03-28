@@ -34,3 +34,18 @@ class IPpoolForm(ModelForm):
     class Meta:
         model = models.Domain_ip_pool
         fields = '__all__'
+
+class DnsApiForm(ModelForm):
+    class Meta:
+        model = models.dnsmanage_apikey
+        fields = '__all__'
+
+class DnsNameForm(ModelForm):
+    class Meta:
+        model = models.dnsmanage_name
+        fields = '__all__'
+
+class DnsRecordForm(ModelForm):
+    class Meta:
+        model = models.dnsmanage_record
+        fields = '__all__'

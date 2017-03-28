@@ -1,0 +1,293 @@
+{% extends "default/base.html" %}
+{% block title %}域名列表{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 域名管理 <small>domainname</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'dnsname_list' %}">域名列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+        <div class="row">
+          <!-- Custom Tabs (Pulled to the right) -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">全部域名</a></li>
+              <li><a href="#tab_2" data-toggle="tab">DNSPOD中国</a></li>
+              <li><a href="#tab_3" data-toggle="tab">DNSPOD国际</a></li>
+              <li><a href="#tab_4" data-toggle="tab">Cloudxns快网</a></li>
+
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Dropdown <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'dnsname_add_one' %}">添加域名</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">修改所选域名</a></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">删除所选域名</a></li>
+
+                  <li role="presentation" class="divider"></li>
+                  <li role="presentation"><a role="menuitem" tabindex="-1" href="{% url 'dnsname_record_list' %}">记录列表</a></li>
+                </ul>
+              </li>
+              <li class="pull-right header"><i class="fa fa-th"></i> 显示全部</li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_1">
+                  <div class="box box-info">
+                      <!-- <form id="asset_form"> -->
+                          <div class="box-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                              <thead>
+                              <tr>
+                                  <th>域名</th>
+                                  <th>状态</th>
+                                  <th>记录数</th>
+                                  <th>ttl</th>
+                                  <th>账号</th>
+                                  <th>平台</th>
+                                  <th>网址</th>
+                                  <th>备注</th>
+                                  <th>操作</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                  {% for s in data %}
+                                <tr>
+                                  <td><a href="{% url 'dnsname_detail' s.id %}" class="btn btn-xs btn-success">{{ s.name }}</a></td>
+                                  <td>{% if s.status == 'enable' %}<b class="text-success">再用</b>{% elif s.status == 'ok' %}<b class="text-success">再用</b>{% elif s.status == 'spam' %}被封禁{% elif s.status == 'lock' %}锁定
+                                  {% elif s.status == 'userlock' %}锁定{% elif s.status == 'pause' %}<b class="text-danger">暂停</b>{% else %}未知{% endif %}
+                                  </td>
+                                  <td>{{ s.records }}</td>
+                                  <td>{{ s.ttl }}</td>
+                                  <td>{{ s.user.user }}</td>
+                                  <td>{% if s.user.platform_name == 'PODCN' %}dnspod中国{% elif s.user.platform_name == 'PODCOM' %}dnspod国际{% else %}cloudxns快网{% endif %}</td>
+                                  <td>{{ s.user.platform_addr }}</td>
+                                  <td>{{ s.remark }}</td>
+                                  <td>
+                                    {% if s.status == 'enable' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#34495E;color:white">禁用</a>
+                                    {% elif s.status == 'pause' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#7F44E7;color:white"> 启用</a>
+                                    {% else %}{% endif %}
+                                    <a href="{% url 'dnsname_delete' s.id %}" class="btn btn-xs btn-danger dnsname_delete">删除</a>
+
+                                  </td>
+                                </tr>
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                      <!-- </form> -->
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_2">
+                  <div class="box box-info">
+                      <form id="asset_form">
+                          <div class="box-body">
+                            <table id="example2" class="table table-bordered table-striped">
+                              <thead>
+                              <tr>
+                                  <th>域名</th>
+                                  <th>状态</th>
+                                  <th>记录数</th>
+                                  <th>ttl</th>
+                                  <th>账号</th>
+                                  <th>平台</th>
+                                  <th>网址</th>
+                                  <th>备注</th>
+                                  <th>操作</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                  {% for s in data %}
+                                    {% if s.user.platform_name == 'PODCN' %}
+                                      <tr>
+                                        <td><a href="{% url 'dnsname_detail' s.id %}" class="btn btn-xs btn-success">{{ s.name }}</a></td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<b class="text-success">再用</b>{% elif s.status == 'ok' %}<b class="text-success">再用</b>{% elif s.status == 'spam' %}被封禁{% elif s.status == 'lock' %}锁定
+                                          {% elif s.status == 'userlock' %}锁定{% elif s.status == 'pause' %}<b class="text-danger">暂停</b>{% else %}未知{% endif %}
+                                        </td>
+                                        <td>{{ s.records }}</td>
+                                        <td>{{ s.ttl }}</td>
+                                        <td>{{ s.user.user }}</td>
+                                        <td>{% if s.user.platform_name == 'PODCN' %}dnspod中国{% elif s.user.platform_name == 'PODCOM' %}dnspod国际{% else %}cloudxns快网{% endif %}</td>
+                                        <td>{{ s.user.platform_addr }}</td>
+                                        <td>{{ s.remark }}</td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#34495E;color:white">禁用</a>
+                                    {% elif s.status == 'pause' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#7F44E7;color:white"> 启用</a>
+                                    {% else %}{% endif %}
+                                    <a href="{% url 'dnsname_delete' s.id %}" class="btn btn-xs btn-danger dnsname_delete">删除</a>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_3">
+                  <div class="box box-info">
+                      <form id="asset_form">
+                          <div class="box-body">
+                            <table id="example3" class="table table-bordered table-striped">
+                              <thead>
+                              <tr>
+                                  <th>域名</th>
+                                  <th>状态</th>
+                                  <th>记录数</th>
+                                  <th>ttl</th>
+                                  <th>账号</th>
+                                  <th>平台</th>
+                                  <th>网址</th>
+                                  <th>备注</th>
+                                  <th>操作</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                  {% for s in data %}
+                                    {% if s.user.platform_name == 'PODCOM' %}
+                                      <tr>
+                                        <td><a href="{% url 'dnsname_detail' s.id %}" class="btn btn-xs btn-success">{{ s.name }}</a></td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<b class="text-success">再用</b>{% elif s.status == 'ok' %}<b class="text-success">再用</b>{% elif s.status == 'spam' %}被封禁{% elif s.status == 'lock' %}锁定
+                                          {% elif s.status == 'userlock' %}锁定{% elif s.status == 'pause' %}<b class="text-danger">暂停</b>{% else %}未知{% endif %}
+                                        </td>
+                                        <td>{{ s.records }}</td>
+                                        <td>{{ s.ttl }}</td>
+                                        <td>{{ s.user.user }}</td>
+                                        <td>{% if s.user.platform_name == 'PODCN' %}dnspod中国{% elif s.user.platform_name == 'PODCOM' %}dnspod国际{% else %}cloudxns快网{% endif %}</td>
+                                        <td>{{ s.user.platform_addr }}</td>
+                                        <td>{{ s.remark }}</td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#34495E;color:white">禁用</a>
+                                    {% elif s.status == 'pause' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#7F44E7;color:white"> 启用</a>
+                                    {% else %}{% endif %}
+                                    <a href="{% url 'dnsname_delete' s.id %}" class="btn btn-xs btn-danger dnsname_delete">删除</a>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_4">
+                  <div class="box box-info">
+                      <form id="asset_form">
+                          <div class="box-body">
+                            <table id="example4" class="table table-bordered table-striped">
+                              <thead>
+                              <tr>
+                                  <th>域名</th>
+                                  <th>状态</th>
+                                  <th>记录数</th>
+                                  <th>ttl</th>
+                                  <th>账号</th>
+                                  <th>平台</th>
+                                  <th>网址</th>
+                                  <th>备注</th>
+                                  <th>操作</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                  {% for s in data %}
+                                    {% if s.user.platform_name == 'CLOUDXNS' %}
+                                      <tr>
+                                        <td><a href="{% url 'dnsname_detail' s.id %}" class="btn btn-xs btn-success">{{ s.name }}</a></td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<b class="text-success">再用</b>{% elif s.status == 'ok' %}<b class="text-success">再用</b>{% elif s.status == 'spam' %}被封禁{% elif s.status == 'lock' %}锁定
+                                          {% elif s.status == 'userlock' %}锁定{% elif s.status == 'pause' %}<b class="text-danger">暂停</b>{% else %}未知{% endif %}
+                                        </td>
+                                        <td>{{ s.records }}</td>
+                                        <td>{{ s.ttl }}</td>
+                                        <td>{{ s.user.user }}</td>
+                                        <td>{% if s.user.platform_name == 'PODCN' %}dnspod中国{% elif s.user.platform_name == 'PODCOM' %}dnspod国际{% else %}cloudxns快网{% endif %}</td>
+                                        <td>{{ s.user.platform_addr }}</td>
+                                        <td>{{ s.remark }}</td>
+                                        <td>
+                                          {% if s.status == 'enable' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#34495E;color:white">禁用</a>
+                                    {% elif s.status == 'pause' %}<a id = '{{ s.id }}' href="{% url 'dnsname_status_change' %}" class="btn btn-xs monitor" style="background-color:#7F44E7;color:white"> 启用</a>
+                                    {% else %}{% endif %}
+                                    <a href="{% url 'dnsname_delete' s.id %}" class="btn btn-xs btn-danger dnsname_delete">删除</a>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+        </div>
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $("#example2").DataTable();
+    $("#example3").DataTable();
+    $("#example4").DataTable();
+
+  });
+
+</script>
+<script type="text/javascript">
+$('.monitor').on("click",function(defd){
+    var urls= $(this).attr("href");
+        uuidx = $(this).attr("id");
+        // alert(uuidx);
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            contentType: "application/json",
+            data: { uuid: uuidx },
+            success: function(data) {
+                if (data.res == 'OK') {
+                    document.getElementById(uuidx).textContent = data.status
+                } else { 
+                    alert (data.msg)
+                }
+            },
+        });
+    defd.preventDefault();
+    });
+
+</script>
+<script type="text/javascript">
+  $('.dnsname_delete').on("click",function(event){
+  var urls = $(this).attr("href");
+  $.ajax({
+      url:urls,
+      dataType: 'json',
+      type: 'GET',
+      contentType: "application/json",
+      success: function(data) {
+          if (data.res == 'OK') {
+              alert (data.info)
+          } else { 
+              alert (data.info)
+          }
+      },
+  });
+  event.preventDefault();
+});
+</script>
+{% endblock %}

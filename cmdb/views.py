@@ -4,6 +4,7 @@ from assets.forms import RAMForm,AssetForm,NICForm
 from assets.models import Asset, NIC
 from django.contrib.auth.decorators import login_required
 import time
+from assets.system_opt.init_system import init_sys
 
 # Create your views here.
 @login_required()
@@ -17,10 +18,7 @@ def success(request):
     return render(request,'default/success.html',locals())
 
 def test(request):
-    if request.method == 'POST':
-        rr = request.POST.get('checkbox1','')
-        return HttpResponse(rr)
-    return render(request,'default/test233.html',locals())
-
-def navtest(request):
+    init = init_sys('18')
+    print "hello"
+    data = "Hello World"
     return render(request,'default/test233.html',locals())

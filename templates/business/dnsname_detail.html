@@ -1,0 +1,406 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 域名详情 {% endblock %}
+
+{% block head %} 
+
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+<style>
+.addpop {
+    position: absolute;
+    left: 330px;
+    bottom: 65px;
+    width: 200px;
+    background: #fff;
+    border: 3px #c4c4c4 solid;
+    padding: 5px;
+    display: none;
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block assistant-header %} 
+<div class="managetop">
+    <div class="wrap">
+        <div class="breadcrumb">
+            <p>
+            <a><b style="font-size: 40px ;color:black">{{ obj.name }}</b></a>
+            <a href="{% url 'dnsname_get_records' obj.id %}" class="btn btn-app" data-toggle="tooltip" title="同步最新解析记录到cmdb">
+                <i class="fa fa-chain-broken" ></i>拉取
+            </a>
+            {% if obj.user.platform_name != "CLOUDXNS" %}
+            <a href="javascript:;" class="btn btn-app" id="domain_status" data-toggle="tooltip" title="当前状态:{{ obj.status }}">
+                <i class="fa fa-unlock-alt" ></i>状态
+            </a>
+            {% endif %}
+            <a id="add-records" href="{% url 'dnsname_add_records' obj.id %}" class="btn btn-app" data-toggle="tooltip" title="批量添加记录">
+                <i class="fa fa-indent" ></i>批量
+            </a>
+            <a id="onekey-transfer" class="btn btn-app" data-toggle="tooltip" title="转移域名到其他账户,NS记录不会被迁移">
+                <i class="fa fa-reply-all" ></i>转移
+            </a>
+            <a href="javascript:;" class="btn btn-app" id="domain_remark" data-toggle="tooltip" title="{{ obj.remark }}">
+                <i class="fa fa-sticky-note-o" ></i>备注
+            </a>
+            </p>
+            <p>所属平台：{{ obj.user.platform_name }}|所属账户：{{ obj.user }}|子域名数：{{ obj.records }}| 状态：<span id="hahab">{{ obj.status }}</span>| 备注：<span id="hahaa">{{ obj.remark }}</span></p>
+            {% if msgerror %}<h4 class="text-danger">{{ msgerror }}</h4>{% endif %}
+        </div>
+    </div>
+</div>
+<div class="bread wide">
+    <div class="wrap">
+        <p class="text-muted"><span class="glyphicon glyphicon-th-large"></span> <a href="{% url 'dnsname_list' %}">我的域名</a> <i class="fa fa-angle-right" aria-hidden="true"></i> <span>{{ obj.name }}</span></p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="box">
+        <div class="box-header">
+              <a href="{% url 'dnsname_add_one_record' obj.id %}" id="add-one-record" class="btn btn-info pull-right">添加子域名</a>
+          
+        </div>
+      <div class="box-body">
+        <table id="my-records" class="table table-bordered table-striped">
+          <thead>
+          <tr>
+              <th>子域名</th>
+              <th>解析类型</th>
+              <th>TTL</th>
+              <th>记录值/备用值</th>
+              <th>域名组</th>
+              <th>状态</th>
+              <th>备注</th>
+              <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+              {% for s in data %}
+                  <tr>
+                    <td>{{ s.subdomain }}</td>
+                    <td>{{ s.record_type }}</td>
+                    <td>{{ s.ttl }}</td>
+                    <td>{% if s.record_type == "A" %}{{ s.value }}{% if s.standby %}
+                    <a href="javascript:;" class="btn switcher" id="switcher_{{ s.uuid }}" data-toggle="tooltip" title="切换备为主"> <i class="fa fa-exchange" aria-hidden="true"></i> </a>
+                    {{ s.standby }}{% else %}
+                    <a href="javascript:;" id="addbackip-{{ s.record_id }}" class="btn tooltips"><span data-toggle="tooltip" title="添加备IP"> <i class="fa fa-plus-circle" aria-hidden="true"></i></span></a>
+                    <div class="addpopee" hidden="hidden" id="show-{{ s.record_id }}" style="position: absolute;">
+                        <center><input class="form-control text-center" type="text" id="input-{{ s.record_id }}"></center>
+                        <p class="text-center">
+                            <a href="javascript:;" id="submit-{{ s.record_id }}" name="{{ s.uuid }}" class="btn btn-info backip-submit">提交</a>
+                            <a href="javascript:;" id="cancel-{{ s.record_id }}" class="btn btn-primary backip-cancel">取消</a>
+                        </p>
+                    </div>
+                    {% endif %}{% else %}{{ s.value }}{% endif %}</td>
+                    <td>{{ s.group }}</td>
+                    <td>{% if s.status == True %}<span class="text-success">已解析</span>{% else %}<span class="text-danger">已暂停</span>{% endif %}</td>
+                    <td>{{ s.remark }}</td>
+                    <td>
+                        <a href="{% url 'dnsname_record_modify' s.uuid %}" class="btn btn-xs btn-info change-record">修改</a>
+                        <a href="{% url 'dnsname_record_delete' s.uuid %}" class="btn btn-xs btn-danger delete-record">删除</a>
+                        {% if s.status == True %}
+                        <a href="javascript:;" id="status_{{ s.uuid }}" class="btn btn-warning btn-xs status-record">禁用</a>
+                        {% else %}
+                        <a href="javascript:;" id="status_{{ s.uuid }}" class="btn btn-success btn-xs status-record">启用</a>
+                        {% endif %}
+                    </td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+        </table>
+      </div>
+  </div>
+
+<script>
+  $(function () {
+    $("#my-records").DataTable();
+  });
+
+    $("#add-records").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1000px' , height - 95 +'px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $("#onekey-transfer").on("click", function(event){
+         var url= "{% url 'dnsname_transfer' obj.id %}";
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['550px' , 250 +'px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $("#add-one-record").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1100px' , '95px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $(".change-record").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1100px' , '95px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $(".delete-record").on("click", function(event){
+        var urls = $(this).attr("href");
+        layer.confirm('确定要删除子域名吗？',{
+          btn: ['删除','不删'] //按钮
+        }, function(){
+            $.ajax({
+                url:urls,
+                dataType: 'json',
+                type: 'GET',
+                success: function(data) { 
+                    if (data.retu == "OK") {
+                        layer.msg('已删除', {icon: 1});
+                        parent.location.reload();
+                    } else {
+                        layer.msg(data.info)
+                    }
+                    },
+            });
+        }, function(){
+          layer.msg('没有删', {icon: 2});
+        });
+
+         event.preventDefault();
+    });
+
+    $("#domain_remark").on("click",function(event){
+        var urls = "{% url 'dnsname_domain_remark' %}"
+        var id = "{{ obj.id }}"
+        // $("#hahaa").text('ll')
+        // alert (remark)
+        layer.prompt({title: '域名备注', formType: 2}, function(remark, index){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'remark': remark,
+              'id': id
+            },
+            success: function(data) { 
+                if (data.retu == "OK") {
+                    $("#hahaa").text(remark);
+                    layer.msg('域名备注已更新', {icon: 1});
+                    // $("#hahaa").text(remark);
+                    // parent.location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+
+          layer.close(index);
+          // layer.msg(remark);
+        });
+    });
+
+    $("#domain_status").on("click",function(event){
+        var urls = "{% url 'dnsname_status_change' %}"
+        var id = "{{ obj.id }}"
+
+        layer.confirm('确定改变域名状态？', {
+          btn: ['Yes','No'] //按钮
+        }, function(){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': id
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    $("#hahab").text(data.info);
+                    layer.msg('域名状态已改变', {icon: 1});
+                    // $("#hahaa").text(remark);
+                    // parent.location.reload();
+                } else {
+                    layer.msg(data.msg)
+                }
+                },
+        });
+
+        }, function(){
+          layer.msg('没有改变');
+        });
+    });
+
+
+
+    $(".tooltips").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "show-"+uuid.split("-")[1];
+        // alert (myid);
+        // var X = $(this).offset().top;
+        hh = $(this).position().top;
+        // alert (hh)
+         $("#"+myid).css("top",hh+"px");
+        $("#"+myid).show();
+    });
+
+    $(".backip-cancel").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "show-"+uuid.split("-")[1];
+        $("#"+myid).hide();
+    });
+
+    $(".backip-submit").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "input-"+uuid.split("-")[1];
+        var hideid = "show-"+uuid.split("-")[1];
+        var value = $("#"+myid).val();
+        // alert (value)
+        $("#"+hideid).hide();
+        var urls = "{% url 'dnsname_record_standby' %}";
+        var id = $(this).attr('name');
+        var objid = "{{ obj.id }}";
+
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': id,
+              'objid': objid,
+              'standby': value,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg(data.info, {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+
+    });
+
+    $(".switcher").on("click",function(event){
+        
+        var urls = "{% url 'dnsname_record_switcher' %}"
+        var id = $(this).attr('id')
+        var uuid = id.split("_",2)[1]
+        var objid = "{{ obj.id }}"
+
+        layer.confirm('确定要切换IP吗？', {
+          btn: ['Yes','No'] //按钮
+        }, function(){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': uuid,
+              'objid': objid,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg('子域名IP已切换', {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+        }, function(){
+
+          layer.msg("什么都没做");
+        });
+            });
+
+    $(".status-record").on("click",function(event){
+        
+        var urls = "{% url 'dnsname_record_status' %}"
+        var id = $(this).attr('id')
+        var uuid = id.split("_",2)[1]
+
+        layer.confirm('确定要改变域名状态吗？', {
+          btn: ['Yes','No'] //按钮
+        }, function(){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': uuid,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg('状态已改变', {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+        }, function(){
+
+          layer.msg("什么都没做");
+        });
+            });
+
+</script>
+{% endblock %}

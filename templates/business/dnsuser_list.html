@@ -1,0 +1,155 @@
+{% extends "default/base.html" %}
+{% block title %}域名账号{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 账号管理 <small>user</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'dnsuser_list' %}">域名账号</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><h4>账号列表</h4>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fa fa-minus"></i></button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fa fa-times"></i></button>
+            </div>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th class="text-center"><input type="checkbox" id="select_all"></th>
+                    <th>名称</th>
+                    <th>账号</th>
+                    <th>密码</th>
+                    <th>主密钥</th>
+                    <th>副秘钥</th>
+                    <th>DNS服务商</th>
+                    <th>DNS地址</th>
+                    <th>状态</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.user }}</td>
+                        <td>{{ v.passwd }}</td>
+                        <td>{{ v.keyone }}</td>
+                        <td>{{ v.keytwo }}</td>
+                        <td>{{ v.platform_name }}</td>
+                        <td>{{ v.platform_addr }}</td>
+                        <td>{% if v.status == True %}<i class="text-success">正常</i>{% else %}<i class="text-red">失效</i>{% endif %}</td>
+                        <td>{{ v.remark }}</td>
+                        <td>
+                            <a href="{% url 'dnsuser_edit' v.id %}" class="btn btn-xs btn-primary dnsuser-edit">修改</a>
+                            <a href="{% url 'dnsuser_delete' v.id %}" class="btn btn-xs btn-danger dnsuser-delete">删除</a>
+                            {% if v.status == True %}<a href="{% url 'dnsuser_get_domainname' v.id %}" class="btn btn-success btn-xs">拉取域名</a>{% else %}<button type="button" class="btn btn-success btn-xs" disabled="disabled">拉取域名</button>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            <a href="{% url 'dnsuser_add' %}" class="btn btn-xs btn-info">添加账户</a>
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+
+
+  $('#select_all').click(function(event) {
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;
+        });
+    }
+    else {
+      $(':checkbox').each(function() {
+            this.checked = false;
+        });
+    }
+  });
+
+
+
+    </script>
+
+<script type="text/javascript">
+
+    $(".dnsuser-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改DNS账号信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+    $(".dnsuser-delete").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定删除吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+
+
+</script>
+{% endblock %}

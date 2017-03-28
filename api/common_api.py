@@ -3,7 +3,7 @@ import urllib
 import urllib2
 import json
 import ssl
-
+import re
 
 from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
@@ -95,3 +95,7 @@ def check_file(ifile,regx):
         else:
             res = True
     return res
+
+def isValidIp(ip):
+    if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True  
+    return False

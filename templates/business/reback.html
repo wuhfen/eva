@@ -14,6 +14,7 @@
 
 
     </style>
+
 <div class="box">
     <div class="box-body">
         <div class="jumbotron" >
@@ -22,16 +23,14 @@
             </h2>
             <p>
             <div class="alert alert-success alert-dismissable">
-                <h2>执行成功,<span id="jumpTo">10</span>秒后返回详情页面！</h2>
+                <h2>执行成功,<span id="jumpTo">5</span>秒后返回上页！</h2>
             </div>
             </p>
             <p>
                 <a type="btn" href="/index/">返回首页</a>
             </p>
             <p>
-                <a class="btn btn-default" href="#" role="button" onclick="self.location=document.referrer;">返回上页</a>
-                <a class="btn btn-success" href="{% url 'server_list' %}" role="button" >返回资产列表</a>
-
+                <a class="btn btn-default" href="#" role="button" onclick="self.location=document.referrer;">立即返回</a>
                 
             </p>
         </div>
@@ -49,7 +48,6 @@
             location.href = surl;
         }
     }     
-    countDown(10, "{% url 'virtual_detail' obj.uuid %}");
+    countDown(5, "{% url 'dnsname_detail' obj.id %}");
 </script>
-
 {% endblock  %}

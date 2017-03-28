@@ -1,0 +1,62 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} ADD Record{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+
+{% block content %}
+    <div class="row col-lg-12">
+        <div class="box">
+            <div class="box-body">
+            <div class="col-lg-12">
+                <form class="form-horizontal" method="post" action="" name="horizontal" role="form" autocomplete="off">
+                <legend><h2>域名：{{ obj.name }}</h2></legend>
+                    {% csrf_token %}
+                    <div class="col-lg-6">
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_records">批量添加记录</label>
+                            <p>严格按照格式填写,每行一条，如：<br>www A 127.0.0.1<br>blog CNAME www.myblog.com</p>
+                            <textarea id="id_records" class="form-control" name="records" rows="10" placeholder="子域名   类型   记录值" data-toggle="tooltip" title="每行一条"></textarea>
+                            <div class="help-block"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                    
+                    <table class="table table-striped">
+                        <tr><th>子域名</th><th>类型</th><th>记录值</th></tr>
+                        {% for i in records_list %}
+                        <tr><td>{{ i.subdomain }}</td><td>{{ i.type }}</td><td>{{ i.value }}</td></tr>
+                        {% endfor %}
+                    </table>
+                    {% for i in error_msgs %}
+                        <p class="text-danger">{{ i }}<p>
+                    {% endfor %}
+                    {% for i in success_msgs %}
+                        <p class="text-success">{{ i.info }}<p>
+                    {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-5">
+                            <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
+                            <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.btn-success').on('click',function(event){
+            // parent.location.reload()
+        })
+    </script>
+{% endblock  %}

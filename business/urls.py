@@ -4,6 +4,7 @@
 from django.conf.urls import patterns, include, url
 from business import views
 from business import platfapi
+from business.dnsmanage import views as dnsviews
 
 urlpatterns = [
 ##业务
@@ -62,6 +63,41 @@ urlpatterns = [
 ##白名单
 ##API
     url(r'^platform_api/$', platfapi.get_platform_data),
+
+##域名管理
+    url(r'^domain/manage/user/list/$', dnsviews.dnsuser_list, name="dnsuser_list"),
+    url(r'^domain/manage/user/add/$',dnsviews.dnsuser_add,name="dnsuser_add"),
+    url(r'^domain/manage/user/delete/(?P<id>[^/]+)/$',dnsviews.dnsuser_delete,name="dnsuser_delete"),
+    url(r'^domain/manage/user/edit/(?P<id>[^/]+)/$',dnsviews.dnsuser_edit,name="dnsuser_edit"),
+    url(r'^domain/manage/user/domain/pull/(?P<id>[^/]+)/$',dnsviews.dnsuser_get_domainname,name="dnsuser_get_domainname"),
+
+
+    url(r'^domain/manage/domain/list/1$', dnsviews.dnsname_list, name="dnsname_list"),
+    url(r'^domain/manage/domain/add/$', dnsviews.dnsname_add_one, name="dnsname_add_one"),
+    url(r'^domain/manage/domain/remark/$', dnsviews.dnsname_domain_remark, name="dnsname_domain_remark"), #更新域名备注
+
+    url(r'^domain/manage/domain/status/$', dnsviews.dnsname_status_change, name="dnsname_status_change"),
+
+    url(r'^domain/manage/domain/delete/(?P<id>[^/]+)/$', dnsviews.dnsname_delete, name="dnsname_delete"),
+    url(r'^domain/manage/domain/detail/(?P<id>[^/]+)/$', dnsviews.dnsname_detail, name="dnsname_detail"),
+    url(r'^domain/manage/domain/records/(?P<id>[^/]+)/$', dnsviews.dnsname_get_records, name="dnsname_get_records"),
+
+##记录管理
+    url(r'^domain/manage/records/add/(?P<id>[^/]+)/$',dnsviews.dnsname_add_records,name="dnsname_add_records"),
+    url(r'^domain/manage/record/add/(?P<id>[^/]+)/$',dnsviews.dnsname_add_one_record,name="dnsname_add_one_record"),
+    url(r'^domain/manage/record/modify/(?P<uuid>[^/]+)/$',dnsviews.dnsname_record_modify,name="dnsname_record_modify"),
+    url(r'^domain/manage/record/delete/(?P<uuid>[^/]+)/$',dnsviews.dnsname_record_delete,name="dnsname_record_delete"),
+    url(r'^domain/manage/record/standby/$', dnsviews.dnsname_record_standby, name="dnsname_record_standby"),
+    url(r'^domain/manage/record/switcher/$', dnsviews.dnsname_record_switcher, name="dnsname_record_switcher"),
+    url(r'^domain/manage/record/list/$', dnsviews.dnsname_record_list, name="dnsname_record_list"),
+    url(r'^domain/manage/record/status/$', dnsviews.dnsname_record_status, name="dnsname_record_status"), #改变记录状态
+
+
+##一键转移域名
+    url(r'^domain/manage/domain/transfer/(?P<uuid>[^/]+)/$', dnsviews.dnsname_transfer, name="dnsname_transfer"),
+
+
+
 
 
 ]

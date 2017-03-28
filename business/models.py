@@ -177,6 +177,64 @@ class Domain_ip_pool(models.Model):
         return self.name
 
 
+class dnsmanage_apikey(models.Model):
+    name = models.CharField(verbose_name=u"名称",max_length=32)
+    PLATFORM = (
+    ('PODCN', u"dnspod中国"),
+    ('PODCOM', u"dnspod国际"),
+    ('CLOUDXNS', u"CloudXNS快网"),
+    )
+    platform_name = models.CharField(verbose_name=u"DNS服务商",max_length=32,choices=PLATFORM)
+    platform_addr = models.CharField(verbose_name=u"DNS解析网址",max_length=32)
+    user = models.CharField(verbose_name=u"账号",max_length=32)
+    passwd = models.CharField(verbose_name=u"密码",max_length=32)
+    keyone = models.CharField(verbose_name=u"主秘钥",max_length=64)
+    keytwo = models.CharField(verbose_name=u"副秘钥",max_length=64)
+    status = models.BooleanField(default=True, verbose_name=u"状态")
+    remark = models.TextField(blank=True, null=True, verbose_name=u'备注')
+    class Meta:
+        verbose_name = u'账户表'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.user
+
+class dnsmanage_name(models.Model):
+    name = models.CharField(verbose_name=u"域名",max_length=64)
+    name_id = models.IntegerField(verbose_name=u"域名ID")
+    status = models.CharField(verbose_name=u"状态",max_length=12)
+    records = models.IntegerField(blank=True, null=True, verbose_name=u'记录数')
+    ttl = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey(dnsmanage_apikey,verbose_name=u'账号',on_delete=models.CASCADE)
+    remark = models.TextField(blank=True, null=True, verbose_name=u'备注')
+    class Meta:
+        verbose_name = u'域名表'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+class dnsmanage_record(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    record_id = models.IntegerField(verbose_name=u"记录ID")
+    host_id = models.IntegerField(blank=True, null=True,verbose_name=u"主机ID")
+    subdomain = models.CharField(verbose_name=u"子域名",max_length=32)
+    domain = models.ForeignKey(dnsmanage_name,related_name="SUBRECORD",verbose_name=u"域名",on_delete=models.CASCADE)
+    RECORD_TYPE_CHOICES = [(i, i) for i in ("A","CNAME","MX","NS")]
+    record_type = models.CharField(verbose_name=u"解析类型",max_length=64,choices=RECORD_TYPE_CHOICES)
+    value = models.CharField(verbose_name=u"解析到",max_length=64)
+    standby = models.CharField(blank=True, null=True,verbose_name=u"备用值",max_length=64)
+    ttl = models.IntegerField(blank=True, null=True)
+    group = models.ForeignKey(Business,related_name="BUSGROUP",blank=True, null=True,on_delete=models.SET_NULL)
+    status = models.BooleanField(default=True, verbose_name=u"状态")
+    remark = models.TextField(blank=True, null=True, verbose_name=u'备注')
+
+    class Meta:
+        verbose_name = u'记录表'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return "%s,%s"% (self.subdomain,self.domain)
+
+
+
 class Bugs(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     BUG_TYPE_CHOICES = (

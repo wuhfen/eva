@@ -1,0 +1,109 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} ADD Record{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="row col-lg-12">
+        <div class="box">
+            <div class="box-body">
+                <div class="col-lg-12">
+                    <table class="table table-striped">
+                        <tbody>
+                        <tr>
+                            <th style="width:110px">子域名</th>
+                            <th style="width:80px">解析类型</th>
+                            <th style="width:230px">解析值</th>
+                            <th style="width:150px">所属组</th>
+
+                            <th style="width:230px">备注</th>
+
+                            <th style="width:60px">TTL</th>
+                            <th>操作</th>
+                        </tr>
+                        </tbody>
+                        <tbody>
+                            <form role="form" method="post" action="" role="form">{% csrf_token %}
+                                <td><div class="form-group"><input class="form-control input-sm" type="text" id="subdomain" placeholder="@" style="width:110px"></div></td>
+                                <td>
+                                    <div class="form-group">
+                                        <select id="id_record_type" name="record_type" class="form-control" style="width:80px">
+                                            <option value="A">A</option>
+                                            <option value="CNAME">CNAME</option>
+                                            <option value="MX">MX</option>
+                                            <option value="NS">NS</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><div class="form-group"><input class="form-control input-sm" type="text" id="record-value" style="width:230px"></div></td>
+                                <td>
+                                    <div class="form-group">
+                                        <select id="id_group" name="group" class="form-control" style="width:150px">
+                                            {% for i in business %}
+                                            <option value="{{ i.uuid }}">{{ i.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                                <td><div class="form-group"><input class="form-control input-sm" type="text" id="record-remark" style="width:230px"></div></td>
+
+                                <td><div class="form-group"><input class="form-control input-sm" type="text" id="record-ttl" value="600" style="width:60px"></div></td>
+
+                                <td><a id="submit" href="{% url 'dnsname_add_one_record' obj.id %}" class="btn btn-xs" style="background-color:#0090f4">保存</a></td>
+                            </form>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#submit').click(function(event){
+            var index = parent.layer.getFrameIndex(window.name);
+            var urls = $(this).attr('href');
+            var subdomain = $('#subdomain').val();
+            var type = $('#id_record_type').val();
+            var value = $('#record-value').val();
+            var ttl = $('#record-ttl').val();
+            var remark = $('#record-remark').val();
+            var group = $('#id_group').val();
+
+
+            $.ajax({
+                url:urls,
+                dataType: 'json',
+                type: 'POST',
+                data: {
+                    'subdomain': subdomain,
+                    'type': type,
+                    'value': value,
+                    'ttl': ttl,
+                    'remark': remark,
+                    'group': group,
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function(data) { 
+                    if (data.retu == "OK") {
+                        console.log(data.info)
+                        parent.layer.msg(data.info,{icon: 1});
+                        parent.location.reload();
+                        parent.layer.close(index);
+
+                    } else {
+                        alert (data.info);
+                    }
+                    },
+            });
+            event.preventDefault();
+        });
+    </script>
+{% endblock  %}

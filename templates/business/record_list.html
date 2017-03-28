@@ -1,0 +1,249 @@
+{% extends "default/base.html" %}
+{% block title %}记录列表{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 子域名管理 <small>domainname</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{% url 'dnsname_record_list' %}">子域名列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+        <div class="row">
+
+                  <div class="box box-info">
+                      <!-- <form id="asset_form"> -->
+                          <div class="box-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                              <thead>
+                              <tr>
+                                  <th>子域名</th>
+                                  <th>域名</th>
+                                  <th>类型</th>
+                                  <th>解析值/备用值</th>
+                                  <th>ttl</th>
+                                  <th>状态</th>
+                                  <th>账户--平台</th>
+                                  <th>所属组</th>
+                                  <th>备注</th>
+                                  <th>操作</th>
+                              </tr>
+                              </thead>
+                              <tbody>
+                                  {% for s in record_objs %}
+                                <tr>
+                                  <td>{{ s.subdomain }}</td>
+                                  <td>
+                                    <a href="{% url 'dnsname_detail' s.domain.id %}" class="btn btn-success btn-xs">{{ s.domain.name }}</a>
+                                  </td>
+                                  <td>{{ s.record_type }}</td>
+                                  <td>
+                                    {% if s.record_type == "A" %}{{ s.value }}{% if s.standby %}
+                                        <a href="javascript:;" class="btn switcher" id="switcher_{{ s.uuid }}" data-toggle="tooltip" title="切换备为主"> <i class="fa fa-exchange" aria-hidden="true"></i> </a>
+                                        {{ s.standby }}{% else %}
+                                        <a href="javascript:;" id="addbackip-{{ s.record_id }}" class="btn tooltips"><span data-toggle="tooltip" title="添加备IP"> <i class="fa fa-plus-circle" aria-hidden="true"></i></span></a>
+                                        <div class="addpopee" hidden="hidden" id="show-{{ s.record_id }}" style="position: absolute;">
+                                            <center><input class="form-control text-center" type="text" id="input-{{ s.record_id }}"></center>
+                                            <p class="text-center">
+                                                <a href="javascript:;" id="submit-{{ s.record_id }}" name="{{ s.uuid }}" class="btn btn-info backip-submit">提交</a>
+                                                <a href="javascript:;" id="cancel-{{ s.record_id }}" class="btn btn-primary backip-cancel">取消</a>
+                                            </p>
+                                        </div>
+                                    {% endif %}{% else %}{{ s.value }}{% endif %}
+                                  </td>
+                                  <td>{{ s.ttl }}</td>
+                                  <td>{% if s.status == True %}<span class="text-success">已解析</span>{% else %}<span class="text-danger">已暂停</span>{% endif %}</td>
+                                  <td>{{ s.domain.user }}--{{ s.domain.user.platform_name }}</td>
+                                  <td>{{ s.group }}</td>
+                                  <td>{{ s.remark }}</td>
+                                  <td>
+                                    {% if s.status == True %}
+                                      <a href="javascript:;" id="status_{{ s.uuid }}" class="btn btn-xs status-record" style="background-color:#34495E;color:white">禁用</a>
+                                    {% else %}
+                                      <a href="javascript:;" id="status_{{ s.uuid }}" class="btn btn-xs status-record" style="background-color:#7F44E7;color:white"> 启用</a>
+                                    {% endif %}
+                                      <a href="{% url 'dnsname_record_delete' s.uuid %}" class="btn btn-xs btn-danger delete-record">删除</a>
+                                      <a href="{% url 'dnsname_record_modify' s.uuid %}" class="btn btn-xs btn-info change-record">修改</a>
+                                  </td>
+                                </tr>
+                                  {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                      <!-- </form> -->
+                  </div>
+              </div>
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+
+  });
+
+
+    $(".status-record").on("click",function(event){
+        
+        var urls = "{% url 'dnsname_record_status' %}"
+        var id = $(this).attr('id')
+        var uuid = id.split("_",2)[1]
+
+        layer.confirm('确定要改变域名状态吗？', {
+          btn: ['Yes','No'] //按钮
+        }, function(){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': uuid,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg('状态已改变', {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+        }, function(){
+
+          layer.msg("什么都没做");
+        });
+            });
+
+    $(".delete-record").on("click", function(event){
+        var urls = $(this).attr("href");
+        layer.confirm('确定要删除子域名吗？',{
+          btn: ['删除','不删'] //按钮
+        }, function(){
+            $.ajax({
+                url:urls,
+                dataType: 'json',
+                type: 'GET',
+                success: function(data) { 
+                    if (data.retu == "OK") {
+                        layer.msg('已删除', {icon: 1});
+                        parent.location.reload();
+                    } else {
+                        layer.msg(data.info)
+                    }
+                    },
+            });
+        }, function(){
+          layer.msg('没有删', {icon: 2});
+        });
+
+         event.preventDefault();
+    });
+
+    $(".change-record").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1100px' , '95px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $(".tooltips").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "show-"+uuid.split("-")[1];
+        // alert (myid);
+        // var X = $(this).offset().top;
+        hh = $(this).position().top;
+        // alert (hh)
+         $("#"+myid).css("top",hh+"px");
+        $("#"+myid).show();
+    });
+
+    $(".backip-cancel").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "show-"+uuid.split("-")[1];
+        $("#"+myid).hide();
+    });
+
+    $(".backip-submit").on("click",function(event){
+        var uuid = $(this).attr('id');
+        var myid = "input-"+uuid.split("-")[1];
+        var hideid = "show-"+uuid.split("-")[1];
+        var value = $("#"+myid).val();
+        // alert (value)
+        $("#"+hideid).hide();
+        var urls = "{% url 'dnsname_record_standby' %}";
+        var id = $(this).attr('name');
+
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': id,
+              'standby': value,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg(data.info, {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+
+    });
+
+    $(".switcher").on("click",function(event){
+        
+        var urls = "{% url 'dnsname_record_switcher' %}"
+        var id = $(this).attr('id')
+        var uuid = id.split("_",2)[1]
+
+        layer.confirm('确定要切换IP吗？', {
+          btn: ['Yes','No'] //按钮
+        }, function(){
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {
+              'uuid': uuid,
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    layer.msg('子域名IP已切换', {icon: 1});
+                    location.reload();
+                } else {
+                    layer.msg(data.info)
+                }
+                },
+        });
+        }, function(){
+
+          layer.msg("什么都没做");
+        });
+            });
+
+
+</script>
+{% endblock %}

@@ -192,7 +192,6 @@ class MyTask(MyRunner):
         """
         module_args = 'user="%s" key="%s" state=present' % (user, key)
         results = self.run("authorized_key", module_args)
-
         return results
 
     def set_selinux(self,state):
@@ -200,10 +199,11 @@ class MyTask(MyRunner):
             module_args = 'state="%s"' % state
         else:
             module_args = 'policy=targeted state="%s"' % state
-        
         results = self.run("selinux", module_args)
-
         return results
+
+
+
 
 class MyPlaybook(object):
     def __init__(self, resource, *args, **kwargs):
@@ -262,7 +262,6 @@ class MyPlayTask(MyPlaybook):
     def install_zabbix_agent(self, version,server,listenport,listenip,serveractive):
         result = self.run_playbook(['/etc/ansible/install_zabbix_agent.yml'], version=version,server=server,listenip=listenip,listenport=listenport,serveractive=serveractive)
         return result
-
 
 
 class CallbackModule(CallbackBase):

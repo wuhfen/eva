@@ -115,7 +115,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名管理|DOMAIN MANAGE</a></li>
+            <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名监控|DOMAIN MONITOR</a></li>
             <li><a href="{% url 'domain_ip_list' %}"><i class="fa fa-circle-o"></i> IP管理|IP MANAGE</a></li>
             <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 后台线路切换|LINE CHANGE</a></li>
             <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台白名单|BACKGROUND LIST</a></li>
@@ -133,6 +133,19 @@
         </ul>
         </li>
         {% if perms.accounts.add_customuser %}
+        <li class="treeview">
+            <a href="#"><i class="fa fa-globe" aria-hidden="true"></i> <span>域名管理</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span></a>
+            <ul class="treeview-menu">
+              <li><a href="{% url 'dnsuser_list' %}"><i class="fa fa-circle-o"></i> 域名账户</a></li>
+              <li><a href="{% url 'dnsname_add_one' %}"><i class="fa fa-circle-o"></i> 添加域名</a></li>
+              <li><a href="{% url 'dnsname_list' %}"><i class="fa fa-circle-o"></i> 域名列表</a></li>
+              <li><a href="{% url 'dnsname_record_list' %}"><i class="fa fa-circle-o"></i> 子域名列表</a></li>
+
+            </ul>
+        </li>
         <li class="treeview">
             <a href="#"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span>版本发布</span>
             <span class="pull-right-container">
@@ -166,16 +179,18 @@
             <ul class="treeview-menu">
             <li><a href="{% url 'auth_index' %}"><i class="fa fa-circle-o"></i> 权限分配</a></li>
             <li><a href="{% url 'auth_group_add' %}"><i class="fa fa-circle-o"></i> 创建权限组</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i> 发布权限</a></li>
             </ul>
         </li>
         <li><a href="{% url 'record_ops_command' %}"><i class="fa fa-files-o"></i><span>线上操作</span></a></li>
+        {% endif %}
+        {% if perms.accounts.add_Article %}
         <li>
           <a href="{% url 'list_article' %}">
             <i class="fa fa-dashboard"></i> <span>运维wiki</span>
           </a>
         </li>
         {% endif %}
+        
         <li class="header">LABELS</li>
         <li><a href="/accounts/login/"><i class="fa fa-bell"></i> <span>登录</span></a></li>
         <li><a href="/accounts/logout/"><i class="fa fa-bell-o"></i> <span>退出</span></a></li>
