@@ -127,7 +127,6 @@ class MyRunner(object):
         module_args: ansible module args
         """
         self.results_raw = {'success':{}, 'failed':{}, 'unreachable':{}}
-
         # initialize needed objects
         variable_manager = VariableManager()
         loader = DataLoader()
@@ -152,6 +151,13 @@ class MyRunner(object):
                 gather_facts='no',
                 tasks=[dict(action=dict(module=module_name, args=module_args))]   #ansible要执行的命令
         )
+        if module_name == 'ping':
+            play_source = dict(
+                name="Ansible Play",
+                hosts=self.host_list,             #主机ip地址,[]
+                gather_facts='no',
+                tasks=[dict(action=dict(module=module_name))]   #ansible要执行的命令
+            )
         play = Play().load(play_source, variable_manager=variable_manager, loader=loader)
 
         # actually run it
@@ -202,7 +208,8 @@ class MyTask(MyRunner):
         results = self.run("selinux", module_args)
         return results
 
-
+    def check_vm(self):
+        return self.run("ping","status")
 
 
 class MyPlaybook(object):
@@ -263,6 +270,8 @@ class MyPlayTask(MyPlaybook):
         result = self.run_playbook(['/etc/ansible/install_zabbix_agent.yml'], version=version,server=server,listenip=listenip,listenport=listenport,serveractive=serveractive)
         return result
 
+    def initialization_system(self):
+        return self.run_playbook(['/etc/ansible/init_sys.yml'])   #系统初始化任务
 
 class CallbackModule(CallbackBase):
     CALLBACK_VERSION = 2.0

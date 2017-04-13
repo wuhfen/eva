@@ -10,6 +10,8 @@ class IptablesAdmin(admin.ModelAdmin):
 class oldsite_lineAdmin(admin.ModelAdmin):
 	list_display = ('host_ip','agent','line','number','status','comment','user','date_time')
 
-		
-admin.site.register(oldsite_line,oldsite_lineAdmin)
-admin.site.register(Iptables,IptablesAdmin)
+
+
+
+
+

@@ -79,9 +79,12 @@ def get_asset_info(asset):
 
 def gen_resource(ob):
     res = []
-    for asset in ob:
-        info = {'hostname': asset.ssh_host, 'ip': asset.ssh_host, 'port': int(asset.ssh_port), 'username': asset.ssh_user,'password': asset.ssh_password }
-        res.append(info)
+    if type(ob) == type([]):
+        for asset in ob:
+            info = {'hostname': asset.ssh_host, 'ip': asset.ssh_host, 'port': int(asset.ssh_port), 'username': asset.ssh_user,'password': asset.ssh_password }
+            res.append(info)
+    else:
+        res.append({'hostname': ob.ssh_host, 'ip': ob.ssh_host, 'port': int(ob.ssh_port), 'username': ob.ssh_user,'password': ob.ssh_password })
     return res
 
 def check_file(ifile,regx):

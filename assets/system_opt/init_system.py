@@ -4,6 +4,8 @@
 import time
 import json
 import os
+from api.ssh_api import ssh_cmd
+
 
 class init_sys(object):
     """docstring for init_sys"""
@@ -12,8 +14,16 @@ class init_sys(object):
         self.arg = arg
         print self.arg
 
-    def set_selinux(self,state):
-        print state
+    def set_selinux(self):
+        print "state set selinux"
+        files = ['/etc/sysconfig/selinux','/etc/selinux/config']
+        for file in files:
+            f = open(file,'rw')
+            lines = f.readlines()
+            print lines
+            f.close()
+        print "end set selinux"
+
 
     def rysn_pubkey(self,key):
         print key

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding:utf-8
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 
@@ -11,6 +11,7 @@ from forms import ServerForm, AssetForm, CPUForm, RAMForm, DiskForm, NICForm, Ra
 # Create your views here.
 from ansible_update_assert import asset_ansible_update
 import re
+import time, hmac, hashlib, json
 
 def isValidIp(ip):  
     if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True  
@@ -22,6 +23,49 @@ def isValidMac(mac):
 
 ##还没有对网卡输入的IP与mac进行验证，上面定义两个函数，有时间在进行处理，最好使用前端js进行验证，不用后端处理
 
+
+def get_auth_obj(request):
+    user = request.user.username
+    gateone_server = 'https://10.10.0.6:13780'
+    secret ="YjczY2JkNWY3NjE4NDAyOTkyMmRiZjc0MDAzYmVjOTk4M"
+    api_key = "MGVjNGExMThlZDllNGQyZWEwMzFhNjZiOWY4NjdmZjYyN"
+    authobj = {  
+        'api_key': api_key,  
+        'upn': user,  
+        'timestamp': str(int(time.time() * 1000)),  
+        'signature_method': 'HMAC-SHA1',  
+        'api_version': '1.0'  
+    }
+    my_hash = hmac.new(secret, digestmod=hashlib.sha1) 
+    my_hash.update(authobj['api_key'] + authobj['upn'] + authobj['timestamp'])
+    authobj['signature'] = my_hash.hexdigest()
+    auth_info_and_server = {"url": gateone_server, "auth": authobj}
+    valid_json_auth_info = json.dumps(auth_info_and_server)
+    return HttpResponse(valid_json_auth_info)
+
+@permission_required('assets.add_Asset', login_url='/auth_error/')
+def access_server(request,uuid):
+
+    server = get_object_or_404(Server,pk=uuid)
+    host_ip = server.ssh_host
+    host_user = server.ssh_user
+    host_port = server.ssh_port
+    host_password = server.ssh_password
+    host_id = uuid
+    # secret = "YjczY2JkNWY3NjE4NDAyOTkyMmRiZjc0MDAzYmVjOTk4M"
+    # authobj = {
+    # 'api_key': 'MGVjNGExMThlZDllNGQyZWEwMzFhNjZiOWY4NjdmZjYyN',
+    # 'upn': 'wuhf',
+    # 'timestamp': '1323391717238',
+    # # 'signature': "f6c6c82281f8d56797599aeee01a5e3efab05a63",
+    # 'signature_method': 'HMAC-SHA1',
+    # 'api_version': '1.0'
+    # }
+    # hash = hmac.new(secret, digestmod=hashlib.sha1)
+    # hash.update(authobj['api_key'] + authobj['upn'] + authobj['timestamp'])
+    # authobj['signature'] = hash.hexdigest()
+    # valid_json_auth_object = json.dumps(authobj)
+    return render(request,'assets/access_server.html', locals())
 
 
 ## 服务器信息
@@ -473,7 +517,7 @@ def raid_delete(request,uuid):
 
     return HttpResponse('Delete Success!')
 
-@permission_required('assets.delete_Asset', login_url='/auth_error/')
+@permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
 def look_server_passwd(request,uuid):
     data = Server.objects.get(pk=uuid)
     nic_data = NIC.objects.filter(asset=data.asset)
@@ -494,6 +538,28 @@ def add_sql_passwd(request,uuid):
             return HttpResponse('ADD Success!')
 
     return render(request,'assets/passwd_add.html', locals()) 
+
+@permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
+def modify_sql_passwd(request,uuid):
+    server = Server.objects.get(pk=uuid)
+    sql_data = sqlpasswd.objects.filter(server=server)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        if data['name'] == "host":
+            Server.objects.filter(pk=uuid).update(ssh_password=data['server_pass'],ssh_user=data['server_user'],ssh_port=data['server_port'])
+            return JsonResponse({'status':"OK",'info':"主机权限已更改！"})
+        if data['name'] == "sqlpass":
+            sqlpasswd.objects.filter(pk=data['sqlpass_id']).update(title=data['title'],listen=data['listen'],port=data['port'],user=data['user'],dbname=data['dbname'],memo=data['memo'],password=data['password'])
+            return JsonResponse({'status':"OK",'info':"数据库权限已更改！"})
+        if data['name'] == "delete":
+            sqlpasswd.objects.get(pk=data['sqlpass_id']).delete()
+            return JsonResponse({'status':"OK",'info':"数据库权限已删除！"})
+        return JsonResponse({'status':"ERROR",'info':"wrong!"})
+
+    return render(request,'assets/passwd_modify.html', locals())
+
+
+
 
 @permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
 def pull_server_information(request,uuid):
@@ -522,5 +588,19 @@ def pull_server_information(request,uuid):
         else:
             return HttpResponseRedirect('/assets/server_detail/' + '%s' % uuid)
 
+from .tasks import init_sys
+from celery.result import AsyncResult
+
+
+@permission_required('assets.add_Asset', login_url='/auth_error/')
+def initialization_system(request,uuid):
+    """系统初始化"""
+    server_id = uuid
+    if request.method =='POST':
+        data = Server.objects.get(pk=uuid)
+        obj = init_sys.delay(uuid)
+        task_id = obj.id
+        print task_id
+    return render(request,'assets/progress_bar.html',locals())
 
 

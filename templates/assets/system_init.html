@@ -44,6 +44,12 @@
                                     安装zabbix客户端
                                 </label>
                             </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="check_box_list" value="install_base_pkg">
+                                    安装基础工具
+                                </label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="text-right bolder" for="id_servers"><small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small>目标服务器</label>
@@ -64,7 +70,7 @@
                             <div class="form-group">
                                 <label class="text-right bolder" for="id_public_key">公钥配置<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
                                 <div class="input-group margin">
-                                    <select class="form-control n-invalid" id="id_public_key" name="public_key" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <select class="form-control n-invalid" id="id_public_key" name="public_key" aria-required="true" data-toggle="tooltip" title="选择公钥文件">
                                     <option value="">--请选择--</option>
                                     {% for i in pubkey_data %}
                                         <option value={{ i.uuid }}>{{ i.name }}</option>
@@ -80,7 +86,7 @@
                                 <label class="text-right bolder" for="id_selinux_state">selinux状态<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
                                 
                                 <div class="margin">
-                                    <select class="form-control n-invalid" id="id_selinux_state" name="selinux_state" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <select class="form-control n-invalid" id="id_selinux_state" name="selinux_state" aria-required="true" data-toggle="tooltip" title="选择selinux状态">
                                     <option value="">--请选择--</option>
                                         <option value='enforcing'>enforcing</option>
                                         <option value='permissive'>permissive</option>
@@ -93,7 +99,7 @@
                                 <label class="text-right bolder" for="id_zabbix_agent">zabbix客户端<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
                                 
                                 <div class="input-group margin">
-                                    <select class="form-control n-invalid" id="id_zabbix_agent" name="zabbix_agent" aria-required="true" data-toggle="tooltip" title="选择发布脚本名称">
+                                    <select class="form-control n-invalid" id="id_zabbix_agent" name="zabbix_agent" aria-required="true" data-toggle="tooltip" title="选择zabbix配置">
                                     <option value="">--请选择--</option>
                                     {% for i in zabbix_data %}
                                         <option value={{ i.uuid }}>{{ i.name }}</option>
@@ -101,6 +107,22 @@
                                     </select>
                                         <span class="input-group-btn">
                                           <a href="{% url 'zabbix_agent_list' %}" class="btn btn-info btn-flat"><span class="fa fa-plus"></span></a>
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="text-right bolder" for="id_base_pkg">基础工具组件<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                
+                                <div class="input-group margin">
+                                    <select class="form-control n-invalid" id="id_base_pkg" name="base_pkg" aria-required="true" data-toggle="tooltip" title="选择基础工具包">
+                                    <option value="">--请选择--</option>
+                                    {% for i in basepkg_data %}
+                                        <option value={{ i.id }}>{{ i.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                        <span class="input-group-btn">
+                                          <a href="{% url 'basepkg_list' %}" class="btn btn-info btn-flat"><span class="fa fa-plus"></span></a>
                                         </span>
                                 </div>
                             </div>

@@ -1,0 +1,22 @@
+{% extends "default/base.html" %}
+{% block title %}域名解析查询{% endblock %}
+
+{% block assistant-header %} 线上域名解析查询平台 {% endblock %}
+{% load bootstrap %}
+
+{% block head %}
+<!-- <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script> -->
+
+{% endblock %}
+
+
+{% block content %}
+    <h3>总共有{{ total_domain }}条域名，禁用域名：{{ spam_total }}条</h3>
+    <p>可用域名：{{ available_domain_list }}</p>
+    <p>禁用域名：{{ not_available_domain_list }}</p>
+
+
+
+{% endblock %}

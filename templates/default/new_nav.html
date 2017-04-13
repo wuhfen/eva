@@ -107,6 +107,8 @@
             </ul>
         </li> -->
         {% endif %}
+        {% if perms.Allow_list.add_iptables %}
+
         <li class="treeview">
           <a href="#">
             <i class="fa fa-gamepad"></i> <span>自动化管理|AUTO MANAGE</span>
@@ -132,7 +134,9 @@
           </li>
         </ul>
         </li>
-        {% if perms.accounts.add_customuser %}
+        {% endif %}
+        {% if perms.business.add_dnsmanage_apikey %}
+
         <li class="treeview">
             <a href="#"><i class="fa fa-globe" aria-hidden="true"></i> <span>域名管理</span>
             <span class="pull-right-container">
@@ -146,6 +150,10 @@
 
             </ul>
         </li>
+        {% endif %}
+        
+        {% if perms.accounts.add_customuser %}
+
         <li class="treeview">
             <a href="#"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span>版本发布</span>
             <span class="pull-right-container">

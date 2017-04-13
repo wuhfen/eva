@@ -322,7 +322,7 @@ class Disk(models.Model):
 # 网卡信息
 class NIC(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    asset = models.ForeignKey('Asset')
+    asset = models.ForeignKey('Asset',related_name='wangka')
     name = models.CharField(u'网卡名', max_length=64, blank=True,null=True)
     sn = models.CharField(u'SN号', max_length=128, blank=True,null=True)
     model =  models.CharField(u'网卡型号', max_length=128, blank=True,null=True)
@@ -400,3 +400,7 @@ class zabbixagent(models.Model):
     listenport = models.CharField(u'ListenPort',max_length=32)
     listenip = models.CharField(u'ListenIP',max_length=32)
     serveractive = models.GenericIPAddressField(u'ServerActive',blank=True,null=True)
+
+class basepkg(models.Model):
+    name = models.CharField(verbose_name='名称',max_length=32)
+    toollist = models.TextField(u'工具列表', blank=True)

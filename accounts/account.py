@@ -24,7 +24,7 @@ from validators import Checkpasswd
 def user_login(request):
     if request.method == 'GET':  
         form = LoginForm()  
-        return render(request,'accounts/login.html',locals())
+        return render(request,'accounts/login_new.html',locals())
     else:
         form = LoginForm(request.POST)
         login_errors = []
@@ -43,9 +43,9 @@ def user_login(request):
                 return HttpResponseRedirect('/index/')
             else:
                 login_errors.append("用户或密码错误，请联系管理员！")
-                return render(request,'accounts/login.html',locals())
+                return render(request,'accounts/login_new.html',locals())
         else:
-            return render(request,'accounts/login.html',locals())
+            return render(request,'accounts/login_new.html',locals())
 
 
 def user_logout(request):

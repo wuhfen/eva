@@ -85,6 +85,7 @@ urlpatterns = [
 #"""服务器权限操作"""
    url(r'^look_server_passwd/(?P<uuid>[^/]+)/$', views.look_server_passwd,name="look_server_passwd"),
    url(r'^add_sql_passwd/(?P<uuid>[^/]+)/$', views.add_sql_passwd,name="add_sql_passwd"),
+   url(r'^modify_sql_passwd/(?P<uuid>[^/]+)/$', views.modify_sql_passwd,name="modify_sql_passwd"),
    url(r'^pull_server_information/(?P<uuid>[^/]+)/$', views.pull_server_information, name="pull_server_information"),
 
 #"""系统初始化"""
@@ -97,4 +98,27 @@ urlpatterns = [
    url(r'^system/zabbix_agent/list/$', sviews.zabbix_agent_list,name="zabbix_agent_list"),
    url(r'^system/zabbix_agent/add/$', sviews.zabbix_agent_add,name="zabbix_agent_add"),
    url(r'^system/zabbix_agent/delete/(?P<uuid>[^/]+)/$', sviews.zabbix_agent_delete,name="zabbix_agent_delete"),
+
+#""基础软件包""""
+   url(r'^system/basepkg/list/$', sviews.basepkg_list,name="basepkg_list"),
+   url(r'^system/basepkg/add/$', sviews.basepkg_add,name="basepkg_add"),
+   url(r'^system/basepkg/delete/(?P<id>[^/]+)/$', sviews.basepkg_delete,name="basepkg_delete"),
+
+
+
+#"""链接服务器web ssh"""
+   url(r'^server/access/(?P<uuid>[^/]+)/$', views.access_server,name="access_server"),
+   url(r'^get_auth_obj/$', views.get_auth_obj,name="get_auth_obj"),
+
+#"""一键初始化"""
+    url(r'^initialization/(?P<uuid>[^/]+)/$', views.initialization_system,name="initialization_system"),
+
+#"""批量操作"""
+   url(r'^server/batch/sync/$', sviews.batch_pull_infomation,name="batch_pull_infomation"),
+   url(r'^server/batch/ping/$', sviews.batch_ping,name="batch_ping"),
+   url(r'^server/batch/addvm/$', sviews.batch_add_vm,name="batch_add_vm"),
+
+
+
+
 ]

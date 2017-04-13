@@ -1,0 +1,56 @@
+{% extends 'default/base.html' %}
+
+{% block title %} {{ host_ip }} {% endblock %}
+
+{% block assistant-header %} 服务器{{ host_ip }} {% endblock %}
+
+{% block content %}
+<script src="https://47.89.28.88:10443/static/gateone.js"></script>
+<p>{{ valid_json_auth_object }}</p>
+<div class="box">
+    <div class="box-body">
+        <div id="gateone_container" style="position: relative; width: 110em; height: 60em;">
+            <div id="gateone"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    var aa='{{ host_id }}';
+    var bb='{{ host_user }}';
+    var cc='{{ host_password }}';
+    var dd='{{ host_ip }}';
+    var ee='{{ host_port }}';
+    var ssh_url = 'ssh://'+bb+':'+cc+'@' + dd + ':' + ee;
+    var request = $.ajax({
+        url:"{% url 'get_auth_obj' %}",
+        type:"GET",
+        dataType:"json",
+        });
+
+    request.done(function(auth_info){
+        GateOne.init({
+            auth: auth_info.auth,
+            url: auth_info.url,
+            showToolbar: false,
+            // theme:'black',
+            // goDiv:'#gateone',
+            // disableTermTransitions:'true',
+            autoConnectURL:ssh_url,
+        });
+    });
+    GateOne.Base.superSandbox("GateOne.SomePlugin", ["GateOne", "GateOne.Net",  "GateOne.Terminal.Input", "GateOne.Terminal"], function(window, undefined) {  
+            var location =  dd;
+            GateOne.prefs.autoConnectURL=ssh_url;
+            GateOne.prefs.fontSize="100%";
+            GateOne.prefs.scrollback = 10000;  // scrollback buffer up to 10,000 lines  
+            GateOne.Terminal.loadFont("Source Code Pro", "150%");  
+            GateOne.locations; // Holds the state of all current known/open locations  
+            GateOne.Net.setLocation(location);
+        });
+});
+
+</script>
+
+{% endblock  %}

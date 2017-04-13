@@ -9,6 +9,7 @@
 <script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
 
+
  {% endblock %}
 
 
@@ -25,13 +26,24 @@
 <div class="row">
 
     <div class="box box-info">
-        <div class="box-header with-border"><h4>服务器信息列表</h4>
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
+        <div class="box-header with-border">
+            <a href="{% url 'virtual_add' %}" class="btn btn-info">添加虚拟机</a>
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">批量
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="#">初始化(暂时不可用)</a></li>
+                <li><a href="javascript:;" id="batch_ping">探测Ping</a></li>
+                <li><a href="javascript:;" id="batch_pull">更新信息</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url 'batch_add_vm' %}">添加虚拟机</a></li>
+                <li><a href="#">导入(暂时不可用)</a></li>
+                <li><a href="#">导出(暂时不可用)</a></li>
+
+              </ul>
             </div>
+
         </div>
         <form id="asset_form">
             <div class="box-body">
@@ -40,6 +52,7 @@
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all"></th>
                   <th>地址</th>
+                  <th>其他IP</th>
                   <th>用途</th>
 
                   <!-- <th>ansible节点名</th> -->
@@ -50,11 +63,11 @@
                   <th>服务</th>
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
-                  <th>曾用ip</th>
 
                   <!-- <th>资产类型</th> -->
                   <!-- <th>品牌型号</th> -->
                   <!-- <th>保修期</th> -->
+                  <th>权限</th>
                   <th>操作</th>
                 </tr>
                 </thead>
@@ -62,7 +75,11 @@
                 {% for i in servers %}
                 <tr>
                   <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
-                  <td>{{ i.ssh_host }}</td>
+                  <td>
+                  {% if i.asset.mark == True %}
+                  <a target="_blank" href="{% url 'access_server' i.uuid %}" class="btn btn-success btn-xs" data-toggle="tooltip" title="open-web-ssh">{{ i.ssh_host }}</a> {% else %}<a href="#" class="btn btn-danger btn-xs" data-toggle="tooltip" title="can't connect">{{ i.ssh_host }}</a> {% endif %}
+                  </td>
+                  <td>{% for s in  i.asset.wangka.all %}{% if s.ipaddress != i.ssh_host %}{{ s.name }}:{{ s.ipaddress }} <br>{% endif %}{% endfor %}{% if i.old_ip %}曾用IP：{{ i.old_ip }}{% endif %}</td>
                   <td>{{ i.asset.purpose }}</td>
 
                   <!-- <td>{{ i.ansible_name }}</td> -->
@@ -89,7 +106,6 @@
                             <p class="text-warning">闲置</p>
                         {% endif %}
                   </td>
-                  <td>{{ i.old_ip }}</td>
 <!--                     {% if i.asset.asset_type == 'serverhost' %}
                         <td>物理机</td>
                         <td>{{ i.model }}</td>
@@ -99,17 +115,22 @@
                     {% endif %} -->
                   <!-- <td>{{ i.asset.expire_date }}</td> -->
                   <td>
+                      <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-default btn-xs addpasswd" data-toggle="tooltip" title="添加权限"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                      <a href="{% url 'modify_sql_passwd' i.uuid %}" class="btn btn-default btn-xs changepasswd" data-toggle="tooltip" title="修改权限密码"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                      <a href="{% url 'look_server_passwd' i.uuid %}" class="btn btn-default btn-xs lookpasswd" data-toggle="tooltip" title="查看权限"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                  </td>
+                  <td>
                       {% if i.asset.asset_type == 'serverhost' %}
-                          <a href="{% url 'server_detail' i.uuid %}" class="btn btn-info btn-xs">详情</a>
-                          <a href="{% url 'server_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a> 
+                          <a href="{% url 'server_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
+                          <!-- <a href="{% url 'server_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a>  -->
 
                       {% else %}
-                          <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs">详情</a> 
-                          <a href="{% url 'virtual_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a> 
+                          <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
+                          <!-- <a href="{% url 'virtual_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a>  -->
                       {% endif %}
-                      <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-success btn-xs">更新信息</a>
-                      <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-danger btn-xs addpasswd">添加权限</a>
-                      <a href="{% url 'look_server_passwd' i.uuid %}" class="btn btn-danger btn-xs lookpasswd">查看权限</a>
+                      <a href="{% url 'initialization_system' i.uuid %}" id="init_{{ i.uuid }}" class="btn btn-primary btn-xs initialization" style="color: black"><i class="fa fa-linux" aria-hidden="true"></i>初始化</a>
+                      <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-warning btn-xs" style="color: black"><span class="glyphicon glyphicon-flash"></span>更新</a>
+
 
                   </td>
                 </tr>
@@ -130,11 +151,11 @@
 
                   <!-- <th>机房</th> -->
                   <th>资产状态</th>
-                  <th>曾用IP</th>
 
                   <!-- <th>资产类型</th> -->
                   <!-- <th>品牌型号</th> -->
                   <!-- <th>保修期</th> -->
+                  <th>权限</th>
                   <th>操作</th>
                 </tr>
                 </tfoot>
@@ -142,7 +163,7 @@
             </div>
         </form>
         <div class="box-footer">
-            <a href="{% url 'server_add' %}" class="btn btn-xs btn-primary">添加服务器</a><a href="{% url 'virtual_add' %}" class="btn btn-xs btn-info">添加虚拟机</a>
+            
         </div>
     </div>
 </div>
@@ -151,16 +172,60 @@
 <script>
   $(function () {
     $("#example1").DataTable();
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false
-    });
   });
 
+$('#batch_ping').on("click",function(evevnt){
+  var checkboxValues = "";
+  $('input:checkbox[name=selected]').map(function() 
+  {
+    if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
+  });
+  var myJsonString = JSON.stringify(checkboxValues);
+  $.ajax({
+    url: "{% url 'batch_ping' %}",
+    type: "GET",
+    data: {
+      'cbvs': checkboxValues,
+      'name': "ping",
+    },
+    success: function(data){
+      if (data.status == "OK") {
+        var gg = data.info;
+
+        layer.alert(gg, {
+            skin: 'layui-layer-lan'
+            ,closeBtn: 0
+            ,anim: 4 //动画类型
+          });
+
+      } else { layer.msg(data.info,{time: 7000}) }
+    }
+  });
+});
+
+
+
+
+$('#batch_pull').on("click",function(evevnt){
+  var checkboxValues = "";
+  $('input:checkbox[name=selected]').map(function() 
+  {
+    if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
+  });
+  var myJsonString = JSON.stringify(checkboxValues);
+  $.ajax({
+    url: "{% url 'batch_pull_infomation' %}",
+    type: "GET",
+    data: {
+      'cbvs': checkboxValues,
+      'name': "okk",
+    },
+    success: function(data){
+      layer.msg(data.info)
+
+    }
+  });
+});
 
   $('#select_all').click(function(event) {
     if(this.checked) {
@@ -176,36 +241,69 @@
     }
   });
 
-    $(".lookpasswd").on("click", function(event){
-         var url= $(this).attr("href");
-         var height = $(window).height();
-         // layer.msg('Hello layer');
-            layer.open({
-                type: 2,
-                title: '查看权限',
-                maxmin: true,
-                shade: 0.5,
-                shadeClose: true, //点击遮罩关闭层
-                area : ['800px' , (height - 50) + 'px'],
-                content: url
-            });
-         event.preventDefault();
-    });
-    $(".addpasswd").on("click", function(event){
-         var url= $(this).attr("href");
-         var height = $(window).height();
-         // layer.msg('Hello layer');
-            layer.open({
-                type: 2,
-                title: '添加权限',
-                maxmin: true,
-                shade: 0.5,
-                shadeClose: true, //点击遮罩关闭层
-                area : ['800px' , (height - 50) + 'px'],
-                content: url
-            });
-         event.preventDefault();
-    });
+  $(".lookpasswd").on("click", function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '查看权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['800px' , (height - 50) + 'px'],
+              content: url
+          });
+       event.preventDefault();
+  });
+  $(".addpasswd").on("click", function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '添加权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['800px' , (height - 50) + 'px'],
+              content: url
+          });
+       event.preventDefault();
+  });
+  $(".changepasswd").on("click", function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '修改权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['1000px' , 500 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+  });
+
+  $(".initialization").on("click", function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: false,
+              maxmin: false,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['1200px' , 230 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+  });
+
+
 </script>
 
 {% endblock %}

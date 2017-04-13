@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import urllib2
+from urllib2 import URLError
 import sys
 import logging
 #from pyzabbix import ZabbixAPI
@@ -109,16 +110,15 @@ class zabbixtools(object):
             if unlist: print '\t',"\033[1;32;40m%s\033[0m" % u"未监控主机：%s" % json.dumps(unlist, encoding="UTF-8", ensure_ascii=False)
 
     def host_create(self,hostip,hostname,hostport,hostgroup):
-        hostid = self.host_get(hostip)
-
+        #hostid = self.host_get(hostip)
         groupid = self.group_get(hostgroup)
+        templateid = self.template_get("Template OS Linux")
         data = json.dumps({
             "jsonrpc": "2.0",
             "method": "host.create",
             "params": {
                 "host": hostip,
                 "name": hostname,
-
                 "interfaces": [
                     {
                         "type": 1,
@@ -129,23 +129,21 @@ class zabbixtools(object):
                         "port": hostport
                     }
                 ],
-                "groups": [
-                    {
-                        "groupid": groupid
-                    }
-                ],
+                "groups": [{"groupid": groupid }],
+                "templates": [{"templateid": templateid }],
                 "inventory_mode": 0,
             },
             "auth": self.authID,
             "id": 1
             })
-        if hostid == 0:
-            res = self.get_data(data)['result']
-        else:
-            print '\t',"\033[1;31;40m%s\033[0m" % "This host aleady exists in zabbix!"
-            res = 0
-
-        print res
+        #print hostid
+        res = self.get_data(data)
+        # if hostip not in judge['host'] and hostname not in judge['name']:
+        #    res = self.get_data(data)['result']
+        #    print '\t',"\033[1;32;40m%s\033[0m" % "IP：%s 添加成功"% hostip
+        # else:
+        #     print '\t',"\033[1;31;40m%s\033[0m" % "IP: %s or NAME: %s aleady exists in zabbix!"% (hostip,hostname)
+        #     res = 0
         return res
 
     def host_delete(self,hostip):
@@ -670,7 +668,7 @@ class zabbixtools(object):
                 "search": {
                     "key_": keys
                 },
-                "sortfield": "name"
+                "sortfield": "name",
                 "filter": {"host": [hostip]}
                 },
             "auth": self.authID,

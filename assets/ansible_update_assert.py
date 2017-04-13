@@ -70,18 +70,17 @@ def get_ansible_asset_info(asset_ip, setup_info):
     nic_need = {}
     all_interfaces = setup_info.get("ansible_interfaces")
     other_face_list = [i for i in all_interfaces if i != 'lo']
-
     print other_face_list
     for i in other_face_list:
         interface = "ansible_" + i
         print interface
-        print setup_info.get(interface)
-        if setup_info.get(interface).has_key("ipv4"):
-            interface_ip = setup_info.get(interface).get("ipv4").get("address")
-            interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
-            interface_mac = setup_info.get(interface).get("macaddress")
-            ip_info = [i,interface_mac,interface_ip,interface_netmask]
-            nic_need[i] = ip_info
+        if setup_info.get(interface):
+            if setup_info.get(interface).has_key("ipv4"):
+                interface_ip = setup_info.get(interface).get("ipv4").get("address")
+                interface_netmask = setup_info.get(interface).get("ipv4").get("netmask")
+                interface_mac = setup_info.get(interface).get("macaddress")
+                ip_info = [i,interface_mac,interface_ip,interface_netmask]
+                nic_need[i] = ip_info
 
     nic = nic_need
     # ip = setup_info.get("ansible_default_ipv4").get("address")
@@ -163,16 +162,18 @@ def asset_ansible_update(obj_list,asset_type):
                 print nic_list
                 # print cpu_dic
                 cpu_data = asset.asset.cpu
-                nic_obj_all = asset.asset.nic_set.all()
-                if not nic_obj_all:
-                    for i in nic_list:
-                        aa = NIC(asset=asset.asset,name=i['name'],macaddress=i['macaddress'],ipaddress=i['ipaddress'],netmask=i['netmask'],memo=u"内网")
-                        aa.save()
-                else:
+                try:
+                    nic_obj_all = asset.asset.nic_set.all()
                     for i in nic_obj_all:
                         for j in nic_list:
                             if j['name'] == i.name:
                                 ansible_record_nic(i,j)
+                except:
+                    dddfff = [x.macaddress for x in asset.asset.wangka.all()]
+                    for i in nic_list:
+                        if i['macaddress'] not in dddfff:
+                            aa = NIC(asset=asset.asset,name=i['name'],macaddress=i['macaddress'],ipaddress=i['ipaddress'],netmask=i['netmask'],memo=u"内网")
+                            aa.save()
 
                 ansible_record_cpu(cpu_data,cpu_dic)
                 ansible_record(asset, asset_dic)

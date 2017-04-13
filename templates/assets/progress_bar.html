@@ -1,0 +1,93 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} ADD Record{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+
+{% endblock %}
+
+
+
+
+{% block content %}
+  <div class="row col-lg-12">
+        <div><h2><p  class="text-center">
+            系统初始化进度（耗时至少100秒）</p></h2>
+            <p class="text-center">1.关闭selinux 2.更改ssh端口为22992 3.设置iptables 4.禁用ipv6 5.优化系统文件限制 6.安装启动zabbox挂基础模板 7.安装基础软件包 8.上传cmdb公钥</p>
+        </div>
+        <div class="col-md-12">
+          <div class="progress active">
+            <div class="progress-bar progress-bar-success progress-bar-striped bar" id="id_bar" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+              <span class="sr-only">20% Complete</span>
+            </div>
+          </div>
+        </div>
+        <form role="form" action="" method="post">{% csrf_token %}
+            <dir class="form-group col-lg-12">
+            <p class="text-center">
+                <button type="submit" name="okk" class="btn btn-info btn-block" id="initialization-start">
+                    <span class="glyphicon glyphicon-ok"></span> 开始
+                </button>
+            </p>
+            </dir>
+        </form>
+  </div>
+<script type="text/javascript">
+document.getElementById("initialization-start").onclick=displayDate();
+
+function displayDate(){
+    var task_id = "{{ task_id }}";
+    console.log(task_id);
+    var willstop = 0;
+    var width = 0;
+    var poll = function(){
+        $.ajax({
+            url: "{% url 'poll_state' %}",
+            type: 'GET',
+            data: {
+                task_id: task_id
+            },
+            success: function(result) {
+              if (result == "SUCCESS") {
+                jQuery('.bar').css({'width': 100 + '%'});
+                jQuery('.bar').html(100 + '%');
+                willstop = 1;
+                layer.msg("初始化已完成！",{icon: 1,time: 10000});
+              } else if (result == "PROGRESS") {
+                if (parseInt(width) < 90 ) {
+                  width ++;
+                  jQuery('.bar').css({'width': width + '%'});
+                  jQuery('.bar').html(width + '%');
+                } else {
+                  width = 90;
+                  jQuery('.bar').css({'width': width + '%'});
+                  jQuery('.bar').html(width + '%');
+                };
+              } else {
+                willstop = 1;
+                console.log("task_id");
+
+              };
+            }
+        });
+    };
+
+    var refreshIntervalId = setInterval(function() {
+        poll();
+        if(willstop == 1){
+        clearInterval(refreshIntervalId);
+        }
+    },2000);
+
+
+
+    };
+
+
+
+</script>
+{% endblock  %}

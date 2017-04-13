@@ -1,0 +1,168 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 修改权限密码 {% endblock %}
+
+{% block head %} 
+<script src="/static/js/js.cookie.js"></script>
+{% endblock %}
+{% block content %}
+
+
+<div class="row col-lg-12">
+    <div class="box box-info">
+        <div class="box-header with-border">
+
+            <div class="form-group">
+              <label class="" for="id_ssh_host">主机: {{ server.ssh_host }}</label>
+              <label class="" for="id_ssh_user">用户：</label>
+              <input type="text" id="id_ssh_user" name="ssh_user" value="{{ server.ssh_user }}">
+              <label class="" for="id_ssh_port">端口：</label>
+              <input type="text" id="id_ssh_port" name="ssh_port" value="{{ server.ssh_port }}">
+              <label class="" for="id_ssh_pass">密码：</label>
+              <input type="text" id="id_ssh_pass" name="ssh_pass" value="{{ server.ssh_password }}">
+              <a href="javascript:;" class="btn btn-success" id="id_host">修改</a>
+            </div>
+        </div>
+        <div class="box-body">
+            <form class="form-horizontal" method="post" action="" role="form">{% csrf_token %}
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>地址</th>
+                    <th>端口</th>
+                    <th>用户</th>
+                    <th>库名</th>
+                    <th>密码</th>
+                    <th>备注</th>
+
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in sql_data %}
+                  <tr>
+                    <td><input class="form-control" type="text" id="title_{{ i.uuid }}" name="title" value="{{ i.title }}"></td>
+                    <td><input class="form-control" type="text" id="listen_{{ i.uuid }}" name="listen" value="{{ i.listen }}"></td>
+                    <td><input class="form-control" type="text" id="port_{{ i.uuid }}" name="port" value="{{ i.port }}"></td>
+                    <td><input class="form-control" type="text" id="user_{{ i.uuid }}" name="user" value="{{ i.user }}"></td>
+                    <td><input class="form-control" type="text" id="dbname_{{ i.uuid }}" name="dbname" value="{{ i.dbname }}"></td>
+                    <td><input class="form-control" type="text" id="password_{{ i.uuid }}" name="password" value="{{ i.password }}"></td>
+                    <td><input class="form-control" type="text" id="memo_{{ i.uuid }}" name="memo" value="{{ i.memo }}"></td>
+
+                    <td>
+                      <a href="javascript:;" class="btn btn-xs btn-success sqlpass-submit" id="submit_{{ i.uuid }}">提交</a>
+                      <a href="javascript:;" class="btn btn-xs btn-danger sqlpass-delete" id="delete_{{ i.uuid }}">删除</a>
+
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+              </table>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+$('.sqlpass-submit').on("click",function(event){
+    var urls = "{% url 'modify_sql_passwd' server.uuid %}";
+    var uuid = $(this).attr('id');
+    var title_id = "#title_"+uuid.split("_")[1];
+    var listen_id = "#listen_"+uuid.split("_")[1];
+    var port_id = "#port_"+uuid.split("_")[1];
+    var user_id = "#user_"+uuid.split("_")[1];
+    var dbname_id = "#dbname_"+uuid.split("_")[1];
+    var password_id = "#password_"+uuid.split("_")[1];
+    var memo_id = "#memo_"+uuid.split("_")[1];
+    $.ajax({
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken')
+        },
+        url: urls,
+        type: "POST",
+        data: JSON.stringify({
+          'title': $(title_id).val(),
+          'listen': $(listen_id).val(),
+          'port': $(port_id).val(),
+          'user': $(user_id).val(),
+          'dbname': $(dbname_id).val(),
+          'password': $(password_id).val(),
+          'memo': $(memo_id).val(),
+          'sqlpass_id': uuid.split("_")[1],
+          'name': "sqlpass",
+        }),
+        success: function(msg){
+          if (msg.status == 'OK') {
+            location.reload()
+            layer.msg(msg.info,{time: 6000,icon: 1})
+          }
+        }
+      });
+      event.preventDefault();
+  });
+
+$('.sqlpass-delete').on("click",function(event){
+    var urls = "{% url 'modify_sql_passwd' server.uuid %}";
+    var uuid = $(this).attr('id');
+    $.ajax({
+        headers: {
+            'Content-Type':'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken')
+        },
+        url: urls,
+        type: "POST",
+        data: JSON.stringify({
+          'sqlpass_id': uuid.split("_")[1],
+          'name': "delete",
+        }),
+        success: function(msg){
+          if (msg.status == 'OK') {
+            location.reload()
+            layer.msg(msg.info,{time: 6000,icon: 1})
+          }
+        }
+      });
+      event.preventDefault();
+  });
+
+
+$('#id_host').on("click",function(event){
+  var urls = "{% url 'modify_sql_passwd' server.uuid %}";
+  var server_user = $('#id_ssh_user').val();
+  var server_port = $('#id_ssh_port').val();
+  var server_pass = $('#id_ssh_pass').val();
+
+  $.ajax({
+    headers: {
+        'Content-Type':'application/json',
+        'X-CSRFToken': Cookies.get('csrftoken')
+    },
+    url: urls,
+    type: "POST",
+    data: JSON.stringify({
+      'server_user': server_user,
+      'server_port': server_port,
+      'server_pass': server_pass,
+      'name': "host",
+    }),
+    success: function(msg){
+      if (msg.status == 'OK') {
+        location.reload()
+        layer.msg(msg.info,{time: 6000,icon: 1})
+      }
+    }
+  });
+  event.preventDefault();
+});
+
+
+
+ </script>
+
+{% endblock content %}
