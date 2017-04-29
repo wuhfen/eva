@@ -3,7 +3,10 @@
 
 from django.conf.urls import patterns, include, url
 from automation import views
+from automation.version import applys as aviews
+
 from automation import script_deploy as sviews
+
 
 urlpatterns = [
 #"""产品线增删查改"""
@@ -25,7 +28,13 @@ urlpatterns = [
 
 
 
-
+#开发人员申请发布更新
+    url(r'^version/update/$', aviews.version_update, name="version_update"),
+    url(r'^version/update/pulldata/(?P<choice>[^/]+)/$', aviews.pull_data, name="pull_data"),
+    url(r'^version/update/savedata/$', aviews.save_data, name="save_data"),
+    url(r'^version/update/showbar/(?P<uuid>[^/]+)/$', aviews.update_online_release, name="update_online_release"),
+    url(r'^version/update/abolish/(?P<uuid>[^/]+)/$', aviews.abolish_release, name="abolish_release"),
+    url(r'^version/update/showlog/(?P<uuid>[^/]+)/$', aviews.update_online_catlog, name="update_online_catlog"),
 
 
 

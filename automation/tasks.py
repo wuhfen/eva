@@ -7,6 +7,10 @@ from celery import shared_task,current_task
 from api.ansible_api import ansiblex_deploy
 import os
 from api.svn_api import Svnrepo
+from api.ssh_api import ssh_cmd
+import time
+from time import sleep
+from automation.models import scriptdeploy,scriptlog
 
 @shared_task()
 def deploy_use_ansible(inventory,play_book,tmp_dir,webroot_user,webroot,release_dir,commit_id,expire_commit,pre_release,post_release,groupname):
@@ -47,3 +51,16 @@ def svn_update_task(user,password,path,reversion,*args):
     res = repo.svn_update(reversion,*args)
     return res
 
+@shared_task()
+def script_update_task(uuid,host,command):
+    current_task.update_state(state="PROGRESS")
+    res = ssh_cmd(host,command)
+    string = ""
+    for i in res:
+        string = string+i
+    data = scriptdeploy.objects.get(pk=uuid)
+    now = int(time.time())
+    logdata = scriptlog(user=data.executive_user,name=data.name,memo=data.memo,command=command,result=string,sort_time=now,scriptdeploy=data)
+    logdata.save()
+    scriptdeploy.objects.filter(pk=uuid).update(status="已更新")
+    return "123"

@@ -106,7 +106,7 @@ class deploy(models.Model):
 
 
 class scriptrepo(models.Model):
-    #脚本参数
+    """运维发布更新"""
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(_(u'发布名称'),max_length=64)
     command = models.CharField(_(u'命令'),max_length=128)
@@ -120,15 +120,33 @@ class scriptrepo(models.Model):
 
 
 class scriptlog(models.Model):
-    #脚本参数
+    """脚本发布更新日志记录"""
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     user =  models.ForeignKey(Users,verbose_name=u'用户')
+    name = models.CharField(_(u'名称'),max_length=128,blank=True)
+    memo = models.TextField(_(u'发布原因'),blank=True)
     command = models.CharField(_(u'命令'),max_length=128)
     result = models.TextField(_(u'命令输出'),max_length=128)
     create_time = models.DateTimeField(auto_now_add=True)
     sort_time = models.IntegerField(default=0)
+    scriptdeploy = models.ForeignKey('scriptdeploy',verbose_name=u'用户',blank=True,null=True)
 
 
+class scriptdeploy(models.Model):
+    """开发自行发布更新"""
+    STATUS_CHECK = [(i, i) for i in (u'已更新',u'未更新',u'已发布',u'未发布',u'已回滚')]
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(_(u'发布名称'),max_length=64,blank=True)
+    sit_id = models.CharField(_(u'发布代号'),max_length=12,blank=True)
+    release = models.CharField(_(u'参数1'),max_length=32)
+    release_two = models.CharField(_(u'参数2'),max_length=32,blank=True)
+    release_three = models.CharField(_(u'参数3'),max_length=32,blank=True)
+    memo = models.TextField(_(u'发布原因'))
+    ctime = models.DateTimeField(verbose_name=u'申请时间',blank=True, auto_now=True)
+    execution_time = models.IntegerField(_(u'发布时间'),default=0)
+    executive_user = models.ForeignKey(Users,verbose_name=u'用户')
+    check_conf = models.BooleanField(default=True)
+    status = models.CharField(_(u'状态'),max_length=32,choices=STATUS_CHECK,default=u'未更新',blank=True)
 
 
 
