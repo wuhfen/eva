@@ -1,0 +1,108 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 提交更新信息{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="row col-lg-12">
+        <div class="box">
+            <div class="box-body">
+                <div class="col-lg-12">
+
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_site">选择site<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios1" value="{{ release }}_{{ enver }}" checked>{{ release }}
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios2" value="{{ release }}m_{{ enver }}">{{ release }}m
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios3" value="{{ release }}f_{{ enver }}">{{ release }}f
+                            </label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios4" value="{{ release }}fm_{{ enver }}">{{ release }}fm
+                            </label>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                            <option value="w">仅web更新</option>
+                            <option value="pp">仅public更新</option>
+                            <option value="a">完整更新</option>
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group " id="id_args">
+                        <label class="text-right bolder" for="id_release_two">web版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <input class="form-control" type="text" id="id_release_two" name="release_two" placeholder="请输入web版本号">
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_memp">发布原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group">
+                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                    </div>
+                </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+     $(function () {
+         $("#id_command").change(function () {
+             var tid = $("#id_command option:selected").val();
+             var ddl = $("#id_args");
+             if (tid == "a") {
+                $("#id_args label").remove();
+                $("#id_args input").remove();
+                ddl.append('<label class="text-right bolder" for="id_release_two">public版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_release_two" name="release_two" placeholder="请输入public版本号">')
+                ddl.append('<label class="text-right bolder" for="id_release_three">web版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_release_three" name="release_three" placeholder="请输入web版本号">')
+             } else { 
+                $("#id_args label").remove();
+                $("#id_args input").remove();
+                ddl.append('<label class="text-right bolder" for="id_release_two">版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_release_two" name="release_two" placeholder="请输入版本号">')
+             }
+        });
+    });
+
+    $('#id_submit').on("click",function(){
+        var method = $("#post_form input[type='radio']:checked").val();
+        var memo = $('#id_memo').val();
+        var release = $('#id_command').val();
+        var release_two =  $('#id_release_two').val();
+        if (release == 'a') { var release_three = $('#id_release_three').val(); } else { var release_three = 'none' };
+        var index = parent.layer.getFrameIndex(window.name);
+        var urls= "{% url 'save_data' %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: { method: method, memo: memo, release: release, release_two: release_two, release_three: release_three },
+            contentType: "application/json",
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.location.reload();
+                }
+                },
+        });
+    });
+</script>
+{% endblock  %}

@@ -436,7 +436,7 @@ def dnsname_get_records(request,id):
         api_key = user_obj.keyone
         secret_key = user_obj.keytwo
         dns = Api(api_key=api_key, secret_key=secret_key)
-        result = json.loads(dns.record_list(obj.name_id))
+        result = json.loads(dns.record_list(str(obj.name_id),row_num=1000))
         print result
         if result['code'] == 1:
             # print result['data']
@@ -618,6 +618,9 @@ def dnsname_record_modify(request,uuid):
         recordttl = request.POST.get('ttl')
         remark = request.POST.get('remark')
         group = request.POST.get('group')
+        if not group:
+            result = {'retu':"fail",'info':"组不能为空！"}
+            return JsonResponse(result)
         group = Business.objects.get(pk=group)
         status = data.status
         if subdomain == data.subdomain and recordtype == data.record_type and recordvalue == data.value and recordttl == data.ttl:

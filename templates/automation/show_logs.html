@@ -1,0 +1,28 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} deploy code {% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+            <dir class="col-md-12 col-lg-12">
+
+                {% for i in data %}
+                <p class="text-primary">用户：{{ i.user }} 时间：{{ i.create_time }}</p>
+                <p class="text-warning">名称：{{ i.name }}</p>
+                <p class="text-warning">原因：{{ i.memo }}</p>
+                <pre class="text-success test-ppp">返回结果：{{ i.result }}</pre>
+                {% endfor %}
+            </dir>
+
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} Add deploy config-file {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>新站更新</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'version_update' %}">新站更新</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row col-lg-12">
+
+          <!-- Custom Tabs (Pulled to the right) -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">灰度更新</a></li>
+              <li><a href="#tab_2" data-toggle="tab">线上更新</a></li>
+              <li><a href="#tab_3" data-toggle="tab">灰度发布</a></li>
+              <li><a href="#tab_4" data-toggle="tab">线上发布</a></li>
+              <li><a href="#tab_5" data-toggle="tab">我的任务</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_1">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <p><h3><a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端public更新" id="pam_hd"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a></h3></p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><h3><a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端public更新" id="pa_hd"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a></h3></p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                            <div class="col-md-3">
+                            {% for i in rules0 %}<p><h3><a href="javascript:;" class="label label-primary pull-data" id="{{ i.nic_name }}_hd">{{ i.name }} 
+                            <span class="badge bg-purple">{{ i.nic_name }}</span>
+<!--                             <span class="badge bg-purple">{{ i.nic_name }}f</span>
+                            <span class="badge bg-purple">{{ i.nic_name }}m</span>
+                            <span class="badge bg-purple">{{ i.nic_name }}fm</span> -->
+                            </a></h3></p>{% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules1 %}<p><h3><a href="javascript:;" class="label label-info pull-data" id="{{ i.nic_name }}_hd">{{ i.name }} 
+                                <span class="badge bg-purple">{{ i.nic_name }}</span>
+<!--                                 <span class="badge bg-purple">{{ i.nic_name }}f</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}m</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}fm</span> -->
+                                </a></h3></p>{% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules2 %}<p><h3><a href="javascript:;" class="label label-success pull-data" id="{{ i.nic_name }}_hd">{{ i.name }} 
+                                <span class="badge bg-purple">{{ i.nic_name }}</span>
+<!--                                 <span class="badge bg-purple">{{ i.nic_name }}f</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}m</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}fm</span> -->
+                                </a></h3></p>{% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules3 %}<p><h3><a href="javascript:;" class="label label-warning pull-data" id="{{ i.nic_name }}_hd">{{ i.name }} 
+                                <span class="badge bg-purple">{{ i.nic_name }}</span>
+<!--                                 <span class="badge bg-purple">{{ i.nic_name }}f</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}m</span>
+                                <span class="badge bg-purple">{{ i.nic_name }}fm</span> -->
+                                </a></h3></p>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+              </div>
+              <div class="tab-pane" id="tab_2">
+                  <div class="box box-info">
+
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_3">
+                  <div class="box box-info">
+
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_4">
+                  <div class="box box-info">
+
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_5">
+                  <div class="box box-info">
+                    <form id="asset_form">
+                        <div class="box-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>版本号1</th>
+                                    <th>版本号2</th>
+                                    <th>时间</th>
+                                    <th>原因</th>
+                                    <th>审核/状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for v in taskdata %}
+                                    <tr>
+                                        <td>{{ v.name }}</td>
+                                        <td>{{ v.release_two }}</td>
+                                        <td>{{ v.release_three }}</td>
+                                        <td>{{ v.ctime }}</td>
+                                        <td>{{ v.memo }}</td>
+                                        <td>{% if v.check_conf %}已通过{% else %}未通过{% endif %} / {{ v.status }}</td>
+
+                                        <td>
+                                            {% if v.check_conf %}
+                                            {% if v.status == "未更新" %}
+                                            <a href="{% url 'update_online_release' v.uuid %}" class="btn btn-xs btn-info initialization">更新</a>
+                                            
+                                            <a href="javascript:;" class="btn btn-warning btn-xs abolish" id="abolish_{{ v.uuid }}">作废</a>
+                                            {% else %}
+                                            <a href="{% url 'update_online_catlog' v.uuid %}" class="btn btn-default btn-xs catlog">日志</a>
+                                            {% endif %}{% endif %}
+
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                  </div>
+              </div>
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+
+</div>
+
+
+
+
+<script type="text/javascript">
+      $(function () {
+        $("#example1").DataTable();
+      });
+
+    $(".pull-data").on("click", function(event){
+         var choice = $(this).attr('id')
+
+         var url= "pulldata/"+choice;
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '500px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+  $(".initialization").on("click", function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: false,
+              maxmin: false,
+              shade: 0.5,
+              shadeClose: false, //点击遮罩关闭层
+              scrollbar: false,
+              area : ['500px' , 20 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+  });
+
+  $(".abolish").on("click", function(event){
+       var urls= "abolish/"+$(this).attr("id")
+       // layer.msg('Hello layer');
+        $.ajax({
+        url:urls,
+        dataType: 'json',
+        type: 'GET',
+        data: {},
+        contentType: "application/json",
+        success: function(data) { 
+            if (data.res == "OK") {
+                layer.msg("任务已废止！",{icon: 1,time: 4000},function(){
+                    parent.location.reload();
+                });
+            }
+            },
+        });
+       event.preventDefault();
+  });
+
+  $(".catlog").on("click", function(event){
+       var urls= $(this).attr("href");
+          layer.open({
+              type: 2,
+              title: false,
+              maxmin: false,
+              shade: 0.5,
+              shadeClose: false, //点击遮罩关闭层
+              scrollbar: false,
+              area : ['600px' , 500 + 'px'],
+              content: urls
+          });
+       event.preventDefault();
+  });
+
+</script>
+{% endblock %}

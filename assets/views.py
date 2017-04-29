@@ -26,9 +26,9 @@ def isValidMac(mac):
 
 def get_auth_obj(request):
     user = request.user.username
-    gateone_server = 'https://10.10.0.6:13780'
+    gateone_server = 'https://47.89.28.88:10443'
     secret ="YjczY2JkNWY3NjE4NDAyOTkyMmRiZjc0MDAzYmVjOTk4M"
-    api_key = "MGVjNGExMThlZDllNGQyZWEwMzFhNjZiOWY4NjdmZjYyN"
+    api_key = "ODkyZGNlY2Y1NTZmNGRjYTljZWFjZmUzZDAwZTAyMGI5N"
     authobj = {  
         'api_key': api_key,  
         'upn': user,  
@@ -43,33 +43,21 @@ def get_auth_obj(request):
     valid_json_auth_info = json.dumps(auth_info_and_server)
     return HttpResponse(valid_json_auth_info)
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def access_server(request,uuid):
-
+    """web方式登录remote主机"""
     server = get_object_or_404(Server,pk=uuid)
     host_ip = server.ssh_host
     host_user = server.ssh_user
     host_port = server.ssh_port
     host_password = server.ssh_password
     host_id = uuid
-    # secret = "YjczY2JkNWY3NjE4NDAyOTkyMmRiZjc0MDAzYmVjOTk4M"
-    # authobj = {
-    # 'api_key': 'MGVjNGExMThlZDllNGQyZWEwMzFhNjZiOWY4NjdmZjYyN',
-    # 'upn': 'wuhf',
-    # 'timestamp': '1323391717238',
-    # # 'signature': "f6c6c82281f8d56797599aeee01a5e3efab05a63",
-    # 'signature_method': 'HMAC-SHA1',
-    # 'api_version': '1.0'
-    # }
-    # hash = hmac.new(secret, digestmod=hashlib.sha1)
-    # hash.update(authobj['api_key'] + authobj['upn'] + authobj['timestamp'])
-    # authobj['signature'] = hash.hexdigest()
-    # valid_json_auth_object = json.dumps(authobj)
+
     return render(request,'assets/access_server.html', locals())
 
 
 ## 服务器信息
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def server_add(request):
     sf = ServerForm()
     af = AssetForm()
@@ -196,7 +184,7 @@ def server_add(request):
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.can_add_asset', login_url='/auth_error/')
 def server_list(request):
     # assets = Asset.objects.all()
     # assets = Asset.objects.get(asset_number="DT-test-02932")
@@ -205,7 +193,7 @@ def server_list(request):
     # return HttpResponse(servers.asset.nic)
     return render(request,'assets/server_list.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def virtual_add(request):
     sf = ServerForm()
     af = AssetForm()
@@ -262,7 +250,7 @@ def virtual_add(request):
     return render(request,'assets/virtual_add.html', locals())
 
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def server_detail(request,uuid):
     """ 物理主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
@@ -277,7 +265,7 @@ def server_detail(request,uuid):
 
     return render(request,'assets/server_detail.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def virtual_detail(request,uuid):
     """ 虚拟主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
@@ -289,7 +277,7 @@ def virtual_detail(request,uuid):
     return render(request,'assets/virtual_detail.html', locals())
 
 ###编辑物理主机信息###
-@permission_required('assets.change_Asset', login_url='/auth_error/')
+@permission_required('assets.change_asset', login_url='/auth_error/')
 def server_edit(request,uuid):
     # server = get_object_or_404(Server, uuid=uuid)
     server = Server.objects.get(pk=uuid)
@@ -330,7 +318,7 @@ def server_edit(request,uuid):
     return render(request,'assets/server_edit.html', locals())
 
 ###编辑虚拟主机信息###
-@permission_required('assets.change_Asset', login_url='/auth_error/')
+@permission_required('assets.change_asset', login_url='/auth_error/')
 def virtual_edit(request,uuid):
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
@@ -367,7 +355,7 @@ def virtual_edit(request,uuid):
     return render(request,'assets/virtual_edit.html', locals())
 
 ##网卡操作
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def nic_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     nf = NICForm()
@@ -383,7 +371,7 @@ def nic_add(request,uuid):
 
     return render(request,'assets/nic_add.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def nic_edit(request,uuid):
     nic_data = NIC.objects.get(pk=uuid)
     nf = NICForm(instance=nic_data)
@@ -404,7 +392,7 @@ def nic_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##内存条操作
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def ram_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     rf = RAMForm()
@@ -421,7 +409,7 @@ def ram_add(request,uuid):
 
     return render(request,'assets/ram_add.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def ram_edit(request,uuid):
     ram_data = RAM.objects.get(pk=uuid)
     rf = RAMForm(instance=ram_data)
@@ -434,7 +422,7 @@ def ram_edit(request,uuid):
 
     return render(request,'assets/ram_edit.html', locals())
 
-@permission_required('assets.delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_asset', login_url='/auth_error/')
 def ram_delete(request,uuid):
     ram_data = RAM.objects.get(pk=uuid)
     ram_data.delete()
@@ -442,7 +430,7 @@ def ram_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##硬盘信息
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def disk_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     diskf = DiskForm()
@@ -459,7 +447,7 @@ def disk_add(request,uuid):
 
     return render(request,'assets/disk_add.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def disk_edit(request,uuid):
     disk_data = Disk.objects.get(pk=uuid)
     diskf = DiskForm(instance=disk_data)
@@ -472,7 +460,7 @@ def disk_edit(request,uuid):
 
     return render(request,'assets/disk_edit.html', locals())
 
-@permission_required('assets.delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_asset', login_url='/auth_error/')
 def disk_delete(request,uuid):
     disk_data = Disk.objects.get(pk=uuid)
     disk_data.delete()
@@ -480,7 +468,7 @@ def disk_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##raid卡
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def raid_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     raidf = RaidForm()
@@ -497,7 +485,7 @@ def raid_add(request,uuid):
 
     return render(request,'assets/raid_add.html', locals())
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def raid_edit(request,uuid):
     raid_data = RaidAdaptor.objects.get(pk=uuid)
     raidf = RaidForm(instance=raid_data)
@@ -510,7 +498,7 @@ def raid_edit(request,uuid):
 
     return render(request,'assets/raid_edit.html', locals())
 
-@permission_required('assets.delete_Asset', login_url='/auth_error/')
+@permission_required('assets.delete_asset', login_url='/auth_error/')
 def raid_delete(request,uuid):
     raid_data = RaidAdaptor.objects.get(pk=uuid)
     raid_data.delete()
@@ -592,7 +580,7 @@ from .tasks import init_sys
 from celery.result import AsyncResult
 
 
-@permission_required('assets.add_Asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def initialization_system(request,uuid):
     """系统初始化"""
     server_id = uuid

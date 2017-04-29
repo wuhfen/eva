@@ -9,7 +9,7 @@
 <p>{{ valid_json_auth_object }}</p>
 <div class="box">
     <div class="box-body">
-        <div id="gateone_container" style="position: relative; width: 110em; height: 60em;">
+        <div id="gateone_container" style="position: relative; width: 100em; height: 60em;">
             <div id="gateone"></div>
         </div>
     </div>
@@ -22,7 +22,9 @@ $(document).ready(function(){
     var cc='{{ host_password }}';
     var dd='{{ host_ip }}';
     var ee='{{ host_port }}';
-    var ssh_url = 'ssh://'+bb+':'+cc+'@' + dd + ':' + ee;
+    // var ssh_url = 'ssh://'+bb+':'+cc+'@' + dd + ':' + ee;
+    var ssh_url = 'ssh://'+bb+'@' + dd + ':' + ee;
+
     var request = $.ajax({
         url:"{% url 'get_auth_obj' %}",
         type:"GET",
@@ -34,9 +36,9 @@ $(document).ready(function(){
             auth: auth_info.auth,
             url: auth_info.url,
             showToolbar: false,
-            // theme:'black',
-            // goDiv:'#gateone',
-            // disableTermTransitions:'true',
+            theme:'black',
+            goDiv:'#gateone',
+            disableTermTransitions:'true',
             autoConnectURL:ssh_url,
         });
     });
@@ -44,8 +46,8 @@ $(document).ready(function(){
             var location =  dd;
             GateOne.prefs.autoConnectURL=ssh_url;
             GateOne.prefs.fontSize="100%";
-            GateOne.prefs.scrollback = 10000;  // scrollback buffer up to 10,000 lines  
-            GateOne.Terminal.loadFont("Source Code Pro", "150%");  
+            GateOne.prefs.scrollback = 1000;  // scrollback buffer up to 10,000 lines  
+            GateOne.Terminal.loadFont("Source Code Pro", "100%");  
             GateOne.locations; // Holds the state of all current known/open locations  
             GateOne.Net.setLocation(location);
         });

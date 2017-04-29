@@ -9,7 +9,7 @@ from assets.models import Line,Project, Service
 from accounts.models import CustomUser, department_Mode
 
 ##产品线信息
-@permission_required('assets.Can_add_Line', login_url='/auth_error/')
+@permission_required('assets.add_Line', login_url='/auth_error/')
 def line_add(request):
 	lf = LineForm()
 	if request.method == 'POST':
@@ -20,18 +20,18 @@ def line_add(request):
 			return HttpResponseRedirect('/allow/welcome/')
 	return render(request,'assets/line_add.html',locals())
 
-@permission_required('assets.Can_delete_Line', login_url='/auth_error/')
+@permission_required('assets.delete_Line', login_url='/auth_error/')
 def line_delete(request, uuid):
     line_data = Line.objects.get(pk=uuid)
     line_data.delete()
     return HttpResponseRedirect("/assets/line_list/")
 
-@permission_required('assets.Can_add_Line', login_url='/auth_error/')
+@permission_required('assets.add_Line', login_url='/auth_error/')
 def line_list(request):
 	data = Line.objects.all()
 	return render(request,'assets/line_list.html',locals())
 
-@permission_required('assets.Can_add_Line', login_url='/auth_error/')
+@permission_required('assets.add_Line', login_url='/auth_error/')
 def line_edit(request,uuid):
     project_data = Line.objects.get(pk=uuid)
     if request.method == 'POST':
@@ -46,7 +46,7 @@ def line_edit(request,uuid):
 
 
 ##项目信息
-@permission_required('assets.Can_add_project', login_url='/auth_error/')
+@permission_required('assets.add_project', login_url='/auth_error/')
 def project_add(request):
     pf = ProjectForm()
     if request.method == 'POST':
@@ -56,12 +56,12 @@ def project_add(request):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/project_add.html',locals())
 
-@permission_required('assets.Can_add_project', login_url='/auth_error/')
+@permission_required('assets.add_project', login_url='/auth_error/')
 def project_list(request):
     data = Project.objects.all()
     return render(request,'assets/project_list.html',locals())
 
-@permission_required('assets.Can_add_project', login_url='/auth_error/')
+@permission_required('assets.add_project', login_url='/auth_error/')
 def project_edit(request,uuid):
     project_data = Project.objects.get(pk=uuid)
     if request.method == 'POST':
@@ -73,14 +73,14 @@ def project_edit(request,uuid):
         pf = ProjectForm(instance=project_data)
     return render(request,'assets/project_edit.html', locals())
 
-@permission_required('assets.Can_delete_project', login_url='/auth_error/')
+@permission_required('assets.delete_project', login_url='/auth_error/')
 def project_delete(request, uuid):
     project_data = Project.objects.get(pk=uuid)
     project_data.delete()
     return HttpResponseRedirect("/assets/project_list/")
 
 ##系统服务信息
-@permission_required('assets.Can_add_Service', login_url='/auth_error/')
+@permission_required('assets.add_Service', login_url='/auth_error/')
 def service_add(request):
     lf = ServiceForm()
     if request.method == 'POST':
@@ -91,18 +91,18 @@ def service_add(request):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/service_add.html',locals())
 
-@permission_required('assets.Can_delete_Service', login_url='/auth_error/')
+@permission_required('assets.delete_Service', login_url='/auth_error/')
 def service_delete(request, uuid):
     service_data = Service.objects.get(pk=uuid)
     service_data.delete()
     return HttpResponseRedirect("/assets/service_list/")
 
-@permission_required('assets.Can_add_Service', login_url='/auth_error/')
+@permission_required('assets.add_Service', login_url='/auth_error/')
 def service_list(request):
     data = Service.objects.all()
     return render(request,'assets/service_list.html',locals())
 
-@permission_required('assets.Can_add_service', login_url='/auth_error/')
+@permission_required('assets.add_service', login_url='/auth_error/')
 def service_edit(request,uuid):
     service_data = Service.objects.get(pk=uuid)
     if request.method == 'POST':
