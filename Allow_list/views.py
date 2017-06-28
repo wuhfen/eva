@@ -14,7 +14,8 @@ import urllib2,urllib
 
 from .tasks import do_ansible
 from celery.result import AsyncResult
-
+from business.models import Business
+from business.tasks import dns_resolver_ip
 
 def error(request):
     return render(request,'allow_list/error.html')
@@ -116,56 +117,52 @@ def iptables_delete(request):
 
 
 
-
+def changes(a,b):
+   for i in xrange(0,len(a),b):
+       yield  a[i:i+b]
 
 @permission_required('Allow_list.change_oldsite_line', login_url='/allow/error/')
 def linechange(request):
-    line_errors = []
+    data = Business.objects.filter(nic_name__contains="10").order_by('nic_name')
+    user = request.user
 
-    flb_data = oldsite_line.objects.get(agent_name='flb').number
-    chengxin_data = oldsite_line.objects.get(agent_name='chengxin').number
-    yifa_data = oldsite_line.objects.get(agent_name='yifa').number
-    bogou_data = oldsite_line.objects.get(agent_name='bogou').number
-    shouxin_data = oldsite_line.objects.get(agent_name='shouxin').number
-    amwnsr_data = oldsite_line.objects.get(agent_name='amwnsr').number
-    meigaomei_data = oldsite_line.objects.get(agent_name='meigaomei').number
-    kuke_data = oldsite_line.objects.get(agent_name='kuke').number
-    dafa_data = oldsite_line.objects.get(agent_name='dafa').number
-    yongli_data = oldsite_line.objects.get(agent_name='yongli').number
-
-    if "change" in request.POST:
-        if "choiceline" not in request.POST:
-            line_errors.append("你没有选择需要切换的线路！")
-        elif "choiceagent" not in request.POST:
-            line_errors.append("你没有选择客户！")
-        else:
-            choiceagent = request.POST['choiceagent']
-            choiceline = request.POST['choiceline']
-            now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-            if choiceline == u"line_one":
-                changeip = '47.90.37.137'
-                oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=1,line=changeip,comment=u"线路一")
-            elif choiceline == u"line_two":
-                changeip = '119.28.13.102'
-                oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=2,line=changeip,comment=u"线路二")
-            elif choiceline == u"line_three":
-                changeip = '119.9.108.157'
-                oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=3,line=changeip,comment=u"线路三")
-            elif choiceline == u"line_four":
-                changeip = '47.90.67.26'
-                oldsite_line.objects.filter(agent_name__contains=choiceagent).update(date_time=now,status=True,number=4,line=changeip,comment=u"线路四")
-            task = "/etc/ansible/changeline.yml"
-            groupname = "changeline"
-            origin_wwwroot = "/data/docker-nginx/conf/nginx/conf/vhost"
-            # origin_wwwroot = "/tmp"
-
-            ansiblex(task,groupname,choiceagent,changeip,origin_wwwroot)
+    rules = []
+    for i in changes(data,5):
+        rules.append(i)
+    try:
+        rules0 = rules[0]
+    except:
+        rules0 = []
+    try:
+        rules1 = rules[1]
+    except:
+        rules1 = []
+    try:
+        rules2 = rules[2]
+    except:
+        rules2 = []
+    try:
+        rules3 = rules[3]
+    except:
+        rules3 = []
 
 
-            return HttpResponseRedirect('/allow/welcome/')
-
-
-    search_lines = oldsite_line.objects.all()
     return render(request,"allow_list/linechange.html",locals())
 
 
+
+def pull_data(request,choice):
+    """用户提交版本发布信息"""
+
+    data = Business.objects.get(pk=choice)
+    if data.reserve_a:
+        iplist = dns_resolver_ip(data.reserve_a)
+        if not iplist:
+            iplist = ['Nothing']
+        Business.objects.filter(pk=choice).update(front_station=iplist)
+    if request.method == 'POST':
+        domainname = request.POST.get('monitor_url')
+        if domainname:
+            data = Business.objects.filter(pk=choice).update(reserve_a=domainname)
+            return HttpResponseRedirect('/allow/linechange/')
+    return render(request,'allow_list/pull_data.html',locals())

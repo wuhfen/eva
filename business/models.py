@@ -100,7 +100,7 @@ class Business(models.Model):
     third_proxy_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"三方反代web路径")
     third_proxy_web_file = models.CharField(max_length=64,blank=True, verbose_name=u"三方反代web文件")
     ##其他预留字段
-    reserve_a = models.CharField(max_length=8,blank=True)
+    reserve_a = models.CharField(max_length=40,blank=True)
     reserve_b = models.CharField(max_length=8,blank=True)
     reserve_c = models.CharField(max_length=8,blank=True)
     reserve_d = models.CharField(max_length=8,blank=True)
