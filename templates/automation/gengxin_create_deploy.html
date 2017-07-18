@@ -1,0 +1,119 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 网站详情{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            {% if data.isurgent == False %}
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">{{ data.name }}</strong></h4><hr>
+            {% else %}
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">{{ data.name }}-紧急更新</strong></h4><hr>
+            {% endif %}
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_site">选择site<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios1" value="{{ data.business.nic_name }}" checked>{{ data.business.nic_name }}
+                            </label>
+                            {% if data.phone_site %}
+                            <label class="checkbox-inline">
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios2" value="{{ data.business.nic_name }}m">{{ data.business.nic_name }}m
+                            </label>
+                            {% else %}{% endif %}
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group "><p>{{ last_version }}</p></div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                            <option value="w">仅web更新</option>
+                            <option value="pp">仅public更新</option>
+                            <option value="a">完整更新</option>
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group " id="id_args">
+                        <label class="text-right bolder" for="id_web_release">web版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <input class="form-control" type="text" id="id_web_release" name="web_release" placeholder="请输入web版本号">
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group">
+                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                    </div>
+                </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+     $(function () {
+         $("#id_command").change(function () {
+             var tid = $("#id_command option:selected").val();
+             var ddl = $("#id_args");
+             if (tid == "a") {
+                $("#id_args label").remove();
+                $("#id_args input").remove();
+                ddl.append('<label class="text-right bolder" for="id_web_release">web版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_web_release" name="web_release" placeholder="请输入web版本号">')
+                ddl.append('<label class="text-right bolder" for="id_public_release">public版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_public_release" name="public_release" placeholder="请输入public版本号">')
+             } else if (tid == "w") { 
+                $("#id_args label").remove();
+                $("#id_args input").remove();
+                ddl.append('<label class="text-right bolder" for="id_web_release">web版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_web_release" name="web_release" placeholder="请输入Web版本号">')
+             } else {
+                $("#id_args label").remove();
+                $("#id_args input").remove();
+                ddl.append('<label class="text-right bolder" for="id_public_release">public版本号<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>')
+                ddl.append('<input class="form-control" type="text" id="id_public_release" name="public_release" placeholder="请输入Public版本号">')
+             }
+        });
+    });
+
+    $('#id_submit').on("click",function(){
+        var siteid = $("#post_form input:checked").val();
+        var memo = $('#id_memo').val();
+        var method = $('#id_command').val();
+        if (method == 'a') { var public_release = $('#id_public_release').val();var web_release =  $('#id_web_release').val(); } else if (method == 'w') {var web_release =  $('#id_web_release').val();var public_release ='0'} else { var public_release = $('#id_public_release').val();var web_release = '0' };
+
+        var urls= "{% url 'gengxin_create_deploy' data.uuid %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: { 
+                'siteid': siteid, 
+                'memo': memo, 
+                'method': method, 
+                'web_release': web_release, 
+                'public_release': public_release ,
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                parent.layer.closeAll();
+                },
+        });
+    });
+</script>
+
+
+{% endblock  %}

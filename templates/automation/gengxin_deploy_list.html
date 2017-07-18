@@ -1,0 +1,247 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} Add deploy config-file {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>现金网更新</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#"> 现金网更新 </a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+          <!-- Custom Tabs (Pulled to the right) -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">灰度环境更新</a></li>
+              <li><a href="#tab_2" data-toggle="tab">测试环境更新</a></li>
+              <li><a href="#tab_3" data-toggle="tab">线上环境更新</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_1">
+
+                    <div class="row">
+                    {% if rules4 %}
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <p><h3>
+                                {% if public == False %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端Public更新" id="pub_huidu_phone_normal"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a>
+                                {% else %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端Public更新" id="pub_huidu_phone_urgent"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a>
+                                {% endif %}
+                                </h3></p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><h3>
+                                {% if public == False %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端Public更新" id="pub_huidu_pc_normal"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a>
+                                {% else %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端Public更新" id="pub_huidu_pc_urgent"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a>
+                                {% endif %}
+                                </h3></p>
+                            </div>
+                        </div>
+                    {% else %}{% endif %}
+
+                        <div class="col-lg-12">
+                            <div class="col-md-3">
+                                {% for i in rules4 %}
+                                    <p><h3>
+                                    {% if i %}
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    {% endif %}
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules5 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules6 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules7 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+              </div>
+              <div class="tab-pane" id="tab_2">
+                  <div class="box box-info">
+                    <div class="row">
+                    {% if rules0 %}
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <p><h3>
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端Public更新" id="pub_test_phone_normal"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a>
+                                </h3></p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><h3>
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端Public更新" id="pub_test_pc_normal"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a>
+                                </h3></p>
+                            </div>
+                        </div>
+                    {% else %}{% endif %}
+                        <div class="col-lg-12">
+                            <div class="col-md-3">
+                                {% for i in rules0 %}
+                                    <p><h3>
+                                    {% if i %}
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    {% endif %}
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules1 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules2 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules3 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+              <div class="tab-pane" id="tab_3">
+                  <div class="box box-info">
+                    <div class="row">
+                    {% if rules8 %}
+                        <div class="col-md-12">
+                            <div class="col-md-3">
+                                <p><h3>
+                                {% if public == False %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端Public更新" id="pub_online_phone_normal"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a>
+                                {% else %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有手机端Public更新" id="pub_online_phone_urgent"><i class="fa fa-mobile-phone" aria-hidden="true" style="font-size: 20px"></i>  <span>public</span></a>
+                                {% endif %}
+                                </h3></p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><h3>
+                                {% if public == False %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端Public更新" id="pub_online_pc_normal"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a>
+                                {% else %}
+                                <a href="javascript:;" class="label label-danger pull-data" data-toggle="tooltip" title="所有电脑端Public更新" id="pub_online_pc_urgent"><i class="fa fa-tv" aria-hidden="true" style="font-size: 20px"></i>  public</a>
+                                {% endif %}
+                                </h3></p>
+                            </div>
+                        </div>
+                    {% else %}{% endif %}
+                        <div class="col-lg-12">
+                            <div class="col-md-3">
+                                {% for i in rules8 %}
+                                    <p><h3>
+                                    {% if i %}
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    {% endif %}
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules9 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules11 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-3">
+                                {% for i in rules12 %}
+                                    <p><h3>
+                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                    {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
+                                    </h3></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+              </div>
+
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(".pull-data").on("click", function(event){ //一般更新
+         var choice = $(this).attr('id')
+         var url= "/deploy/genxin/create/"+choice;
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '700px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+
+</script>
+
+{% endblock %}

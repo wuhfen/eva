@@ -39,3 +39,11 @@ class ScriptForm(ModelForm):
     class Meta:
         model = models.scriptrepo
         fields = ['name','command','server_ip','custom_state','memo']
+
+
+class gengxin_codeForm(ModelForm):
+    period_time = forms.CharField(label=u'更新时间段',widget=forms.TextInput(attrs={'value': u'10:00-20:00'}))
+    class Meta:
+        model = models.gengxin_code
+        fields = ['name','classify','business','remoteip','phone_site','remotedir','exclude','last_command','rsync_command','ischeck','period_time',
+        'deploy_time','urgent_user','audit_user','front_domain','agent_domain','backend_domain']

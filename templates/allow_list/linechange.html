@@ -18,29 +18,32 @@
 <div class="row">
 
     <div class="col-lg-12">
-        <div class="col-md-3">
-        {% for i in rules0 %}
-        <p><h3>
-        <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">{{ i.name }} <span class="badge bg-purple">{{ i.nic_name }}</span></a>
-        </h3></p>{{ i.front_station }}
-        {% endfor %}
+        <div class="col-md-4">
+            {% for i in rules0 %}
+            <p><h3>
+            <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">{{ i.name }} <span class="badge bg-purple">{{ i.nic_name }}</span></a>
+            <a href="javascript:;" class="label label-warning push-data" id="web_{{ i.uuid }}">web</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ag_{{ i.uuid }}">ag</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ds168_{{ i.uuid }}">ds168</a>
+            </h3></p>{{ i.front_station }}
+            {% endfor %}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             {% for i in rules1 %}
             <p><h3>
             <a href="javascript:;" class="label label-info pull-data" id="{{ i.uuid }}">{{ i.name }} <span class="badge bg-purple">{{ i.nic_name }}</span></a>
+            <a href="javascript:;" class="label label-warning push-data" id="web_{{ i.uuid }}">web</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ag_{{ i.uuid }}">ag</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ds168_{{ i.uuid }}">ds168</a>
             </h3></p>{{ i.front_station }}
             {% endfor %}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             {% for i in rules2 %}<p><h3>
             <a href="javascript:;" class="label label-success pull-data" id="{{ i.uuid }}">{{ i.name }} <span class="badge bg-purple">{{ i.nic_name }}</span></a>
-            </h3></p>{{ i.front_station }}
-            {% endfor %}
-        </div>
-        <div class="col-md-3">
-            {% for i in rules3 %}<p><h3>
-            <a href="javascript:;" class="label label-warning pull-data" id="{{ i.uuid }}">{{ i.name }} <span class="badge bg-purple">{{ i.nic_name }}</span></a>
+            <a href="javascript:;" class="label label-warning push-data" id="web_{{ i.uuid }}">web</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ag_{{ i.uuid }}">ag</a>
+            <a href="javascript:;" class="label label-warning push-data" id="ds168_{{ i.uuid }}">ds168</a>
             </h3></p>{{ i.front_station }}
             {% endfor %}
         </div>
@@ -65,6 +68,24 @@
             });
          event.preventDefault();
     });
+
+    $(".push-data").on("click", function(event){
+         var choice = $(this).attr('id');
+         var url= "pushdata/"+choice;
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['320px' , '600px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
 
 </script>
 {% endblock %}

@@ -32,8 +32,7 @@
             type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
             dataType:'text',
             success: function(msg){
-                var idcedit = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
-                              parent.layer.close(idcedit); //执行关闭
+                parent.layer.closeAll();
             }
           });
         });

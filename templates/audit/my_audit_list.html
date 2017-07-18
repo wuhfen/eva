@@ -1,0 +1,103 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% load genxin_tags %}
+{% block title %} Add deploy config-file {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>新站更新</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'version_update' %}"> 新站更新 </a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+  <div class="box box-info">
+    <form id="asset_form">
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>发起人</th>
+                    <th>发起时间</th>
+                    <th>内容</th>
+                    <th>是否审核</th>
+                    <th>是否通过</th>
+                    <th>审核时间</th>
+                    <th>备注</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    {% if v.isaudit %}<tr class="success">{% else %}
+                    <tr class="warning">{% endif %}
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.initiator }}</td>
+                        <td>{{ v.create_date }}</td>
+                        <td>{{ v.memo|show_genxin_memo }}</td>
+                        <td>{% if v.isaudit == False %}未审核{% else %}已审核{% endif %}</td>
+                        <td>{% if v.ispass == False %}未通过{% else %}已通过{% endif %}</td>
+                        <td>{{ v.audit_time }}</td>
+                        <td>{{ v.postil }}</td>
+
+                        <td>
+                        <a href="{% url 'my_audit_delete' v.id %}" class="btn btn-xs btn-danger tools-delete">删除</a>
+                        {% if v.isaudit == False %}
+                        <a href="javascript:;" class="btn btn-xs btn-info push-data" id="{{ v.id }}">审核</a>
+                        {% else %}<a href="javascript:;" class="btn btn-xs btn-info push-data" id="{{ v.id }}">审核</a>{% endif %}
+                        
+                        </td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+  </div>
+<script type="text/javascript">
+$(".tools-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+
+    $(".push-data").on("click", function(event){ //一般更新
+         var choice = $(this).attr('id')
+         var url= "/audit/my_audit_modify/"+choice;
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '500px'],
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+</script>
+{% endblock %}

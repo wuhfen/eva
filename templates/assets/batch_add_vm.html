@@ -2,7 +2,7 @@
 {% load bootstrap %}
 {% load projects_tag %}
 
-{% block title %} 资产列表|Asset List{% endblock %}
+{% block title %} 资产添加|Asset Add{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
@@ -13,165 +13,42 @@
  {% endblock %}
 
 
-    {% block assistant-header %} <h3>资产列表|Asset List</h3>
+    {% block assistant-header %} <h3> 批量添加虚拟机</h3>
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
         <li><a href="{% url 'server_list' %}">资产列表</a></li>
-        <li><a href="#">资产详情</a></li>
+        <li><a href="#">批量加机</a></li>
     </ol>
 {% endblock %}
 
 
 {% block content %}
-<div class="row">
+<div class="row col-lg-12">
     <div class="box box-info">
         <div class="box-header with-border">
-            <a href="{% url 'virtual_add' %}" class="btn btn-info">添加虚拟机</a>
-
+            <h4>格式：ip,ip,ip(可添加多个)  port  user  password  用途(可不填)</h4>
         </div>
-
-        
-
-
-        <div class="box-footer">
-            
-        </div>
+        <form class="form-horizontal" action="" id="id_batch_add_virtual"  method="post" name="horizontal" role="form" autocomplete="off">
+        {% csrf_token %}
+            <div class="box-body">
+                <div class="form-group">
+                    <div class="col-md-12">
+                      <label for="id_comment">填写需要录入的主机信息，每行一个:</label>
+                      <textarea class="form-control" rows="20" id="id_comment" name="comment" placeholder="172.16.13.1 22 root 1qaz@WSX123swd 测试机器
+172.16.13.2,192.168.1.1,10.10.0.1 22 root 1qaz@WSX123swd 测试机器2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button class="btn btn-info" type="reset"> 重置 </button>
+                    <button class="btn btn-success pull-right" type="submit"> 提交 </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+<div class="row"></div>
 
-
-<script>
-
-// $('#batch_ping').on("click",function(evevnt){
-//   var checkboxValues = "";
-//   $('input:checkbox[name=selected]').map(function() 
-//   {
-//     if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
-//   });
-//   var myJsonString = JSON.stringify(checkboxValues);
-//   $.ajax({
-//     url: "{% url 'batch_ping' %}",
-//     type: "GET",
-//     data: {
-//       'cbvs': checkboxValues,
-//       'name': "ping",
-//     },
-//     success: function(data){
-//       if (data.status == "OK") {
-//         var gg = data.info;
-
-//         layer.alert(gg, {
-//             skin: 'layui-layer-lan'
-//             ,closeBtn: 0
-//             ,anim: 4 //动画类型
-//           });
-
-//       } else { layer.msg(data.info,{time: 7000}) }
-//     }
-//   });
-// });
-
-
-
-
-// $('#batch_pull').on("click",function(evevnt){
-//   var checkboxValues = "";
-//   $('input:checkbox[name=selected]').map(function() 
-//   {
-//     if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
-//   });
-//   var myJsonString = JSON.stringify(checkboxValues);
-//   $.ajax({
-//     url: "{% url 'batch_pull_infomation' %}",
-//     type: "GET",
-//     data: {
-//       'cbvs': checkboxValues,
-//       'name': "okk",
-//     },
-//     success: function(data){
-//       layer.msg(data.info)
-
-//     }
-//   });
-// });
-
-//   $('#select_all').click(function(event) {
-//     if(this.checked) {
-//         // Iterate each checkbox
-//         $(':checkbox').each(function() {
-//             this.checked = true;
-//         });
-//     }
-//     else {
-//       $(':checkbox').each(function() {
-//             this.checked = false;
-//         });
-//     }
-//   });
-
-//   $(".lookpasswd").on("click", function(event){
-//        var url= $(this).attr("href");
-//        var height = $(window).height();
-//        // layer.msg('Hello layer');
-//           layer.open({
-//               type: 2,
-//               title: '查看权限',
-//               maxmin: true,
-//               shade: 0.5,
-//               shadeClose: true, //点击遮罩关闭层
-//               area : ['800px' , (height - 50) + 'px'],
-//               content: url
-//           });
-//        event.preventDefault();
-//   });
-//   $(".addpasswd").on("click", function(event){
-//        var url= $(this).attr("href");
-//        var height = $(window).height();
-//        // layer.msg('Hello layer');
-//           layer.open({
-//               type: 2,
-//               title: '添加权限',
-//               maxmin: true,
-//               shade: 0.5,
-//               shadeClose: true, //点击遮罩关闭层
-//               area : ['800px' , (height - 50) + 'px'],
-//               content: url
-//           });
-//        event.preventDefault();
-//   });
-//   $(".changepasswd").on("click", function(event){
-//        var url= $(this).attr("href");
-//        var height = $(window).height();
-//        // layer.msg('Hello layer');
-//           layer.open({
-//               type: 2,
-//               title: '修改权限',
-//               maxmin: true,
-//               shade: 0.5,
-//               shadeClose: true, //点击遮罩关闭层
-//               area : ['1000px' , 500 + 'px'],
-//               content: url
-//           });
-//        event.preventDefault();
-//   });
-
-//   $(".initialization").on("click", function(event){
-//        var url= $(this).attr("href");
-//        var height = $(window).height();
-//        // layer.msg('Hello layer');
-//           layer.open({
-//               type: 2,
-//               title: false,
-//               maxmin: false,
-//               shade: 0.5,
-//               shadeClose: true, //点击遮罩关闭层
-//               area : ['1200px' , 200 + 'px'],
-//               content: url
-//           });
-//        event.preventDefault();
-//   });
-
-
-</script>
 
 {% endblock %}

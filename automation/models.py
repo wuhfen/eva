@@ -8,7 +8,6 @@ from assets.models import Server as hosts
 from accounts.models import CustomUser as Users
 from business.models import Business 
 # Create your models here.
-
 import uuid
 
 
@@ -148,9 +147,69 @@ class scriptdeploy(models.Model):
     check_conf = models.BooleanField(default=True)
     status = models.CharField(_(u'状态'),max_length=32,choices=STATUS_CHECK,default=u'未更新',blank=True)
 
+class AUser(models.Model):
+    """审核人员"""
+    AUDIT_CLASSIFY  = (
+    ("website_normal",u"现金网正常审核"),
+    ("website_urgent",u"现金网紧急审核"),
+    )
+    name = models.CharField(_(u'名称'),max_length=25,choices=AUDIT_CLASSIFY)
+    user = models.ManyToManyField(Users)
+    def __unicode__(self):
+        return self.name
+
+class gengxin_code(models.Model):
+    CLASSIFY_CHOICE = (
+        ('online', u'生产'),
+        ('huidu', u'灰度'),
+        ('test', u'测试'),
+    )
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(_(u'名称'),max_length=45,blank=True)
+    classify =  models.CharField(_(u'类型'),max_length=64,choices=CLASSIFY_CHOICE,default="类别")
+    business = models.ForeignKey(Business,verbose_name=u'关联业务',null=True,blank=True)
+    remoteip = models.TextField(_(u'服务器ip'),null=True,blank=True)
+    phone_site = models.BooleanField(_(u'手机端是否发布'),default=False)
+
+    remotedir = models.CharField(_(u'线上目录'),null=True,blank=True,max_length=45)
+    exclude = models.TextField(_(u'排除文件'),null=True,blank=True)
+    rsync_command = models.TextField(_(u'推送前命令'),null=True,blank=True)
+    last_command = models.TextField(_(u'生效前命令'),null=True,blank=True)
+
+    isurgent = models.BooleanField(_(u'紧急更新'),default=False)
+    ischeck = models.BooleanField(_(u'是否审核'),default=False)
+    period_time = models.CharField(_(u'更新时段'),null=True,blank=True,max_length=45)
+    deploy_time = models.IntegerField(_(u'更新频率'),default=0)
+    urgent_user = models.ForeignKey(AUser,verbose_name=u'紧急审核人', blank=True,null=True,on_delete=models.SET_NULL, related_name='urg')
+    audit_user = models.ForeignKey(AUser,verbose_name=u'正常审核人', blank=True,null=True,on_delete=models.SET_NULL, related_name='aud')
+    front_domain = models.TextField(_(u'前端域名'),null=True,blank=True)
+    agent_domain = models.TextField(_(u'代理后台域名'),null=True,blank=True)
+    backend_domain = models.TextField(_(u'后台域名'),null=True,blank=True)
+
+    class Meta:
+        verbose_name = u'gengxin_code'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
 
 
 
 
-
+class gengxin_deploy(models.Model):
+    #"""申请发布表单，用户只需要填写名称，分支与版本"""
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    name = models.CharField(_(u'名称'),max_length=64)
+    code_conf = models.ForeignKey(gengxin_code,verbose_name=u'配置信息',null=True,blank=True,related_name='deploy')
+    executive_user = models.ForeignKey(Users,verbose_name=u'用户')
+    status = models.CharField(_(u'进行状态'),max_length=32,blank=True)
+    audit_status = models.TextField(_(u'审核状态'),null=True,blank=True)
+    siteid = models.CharField(max_length=10,null=True,blank=True)
+    method = models.CharField(max_length=10,null=True,blank=True)
+    web_reversion = models.CharField(max_length=40,null=True,blank=True)
+    pub_reversion = models.CharField(max_length=40,null=True,blank=True)
+    con_reversion = models.CharField(max_length=40,null=True,blank=True)
+    memo = models.TextField(_(u'发布原因'),null=True,blank=True)
+    execution_time = models.CharField(_(u'完成时间'),null=True,blank=True,max_length=64)
+    ctime = models.DateTimeField(auto_now_add=True)
+    exist = models.BooleanField(_(u'是否结束'),default=False)
 

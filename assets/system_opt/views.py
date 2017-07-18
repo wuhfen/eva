@@ -15,6 +15,8 @@ from api.ansible_api import MyRunner,MyTask,MyPlayTask
 import re
 import traceback
 import json
+from assets.tasks import batch_add_virtual
+
 
 @permission_required('assets.add_Asset', login_url='/auth_error/')
 def system_init(request):
@@ -167,6 +169,14 @@ def batch_ping(request):
         return JsonResponse({'status':"OK",'info': json.dumps(info)})
     return JsonResponse({'status':"OKd",'info':"可用"})
 
+
+
 @permission_required('assets.add_Asset',login_url='/auth_error/')
 def batch_add_vm(request):
+    if request.method == 'POST':
+        content = request.POST.get('comment','')
+        con_list = content.split('\r\n')
+        if content:
+            job = batch_add_virtual.delay(con_list)
+            return render(request,'assets/batch_add_virtual_success.html', locals())
     return render(request,'assets/batch_add_vm.html',locals())

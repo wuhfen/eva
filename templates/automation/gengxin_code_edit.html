@@ -1,0 +1,204 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} Edit Tools {% endblock %}
+
+{% block head %} 
+  <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+
+  <script src="/static/admin-test/plugins/jQuery/jquery-2.2.3.min.js"></script>
+  <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+  
+  <link rel="stylesheet" href="/static/admin-test/font-awesome/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+  <script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+  <script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+
+  
+{% endblock %}
+
+
+{% block content %}
+<div class="wrapper wrapper-content animated fadeInRight col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form class="form-horizontal" id="tools_add" method="post" action="" role="form">{% csrf_token %}
+              <div class="box-header with-border">
+                  <div class="form-group">
+                      <div class="col-md-12">
+                          <button class="btn btn-info btn-xs" type="reset"> 重置 </button>
+                          <a href="javascript:;" class="btn btn-success btn-xs pull-right" id="id_edit" type="submit"> 提交 </a>
+                      </div>
+                  </div>
+              </div>
+              <div class="box-body">
+              <div>
+                  <div class="col-md-11">
+                      <h4 class="text-center">基本配置</h4><hr>
+                      {{ tf.name|bootstrap_horizontal }}
+                      <div hidden="hidden">{{ tf.classify|bootstrap_horizontal }}{{ tf.business|bootstrap_horizontal }}</div>
+                      <div class="form-group">
+                          <label class="control-label col-sm-2 col-lg-2 " for="id_classify_view">类型</label>
+                          <div class=" col-sm-10 col-lg-10 ">
+                              <select class=" form-control" disabled="disabled" id="id_classify_view" name="classify_view">
+                                {% if data.classify == 'test' %}
+                                  <option value="test" selected="selected">测试</option>
+                                {% elif data.classify == 'online' %}
+                                  <option value="online" selected="selected">生产</option>
+                                {% else %}
+                                  <option value="huidu" selected="selected">灰度</option>
+                                {% endif %}
+                                
+                              </select>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label class="control-label col-sm-2 col-lg-2 "  for="id_business_view">关联业务</label>
+                          <div class=" col-sm-10 col-lg-10 ">
+                              <select class=" form-control" disabled="disabled" id="id_business_view" name="business_view">
+                                <option value="{{ data.business.name }}" selected="selected">{{ data.business.name }}</option>
+                              </select>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <h4 class="text-center">审核配置</h4><hr>
+                      <div class="col-sm-6">{{ tf.phone_site|bootstrap_horizontal }}</div>
+                      <div class="col-sm-6">{{ tf.ischeck|bootstrap_horizontal }}</div>
+                      <div class="col-sm-6">{{ tf.period_time|bootstrap_horizontal }}</div>
+                      <div class="col-sm-6">{{ tf.deploy_time|bootstrap_horizontal }}</div>
+                      <div class="col-sm-6">{{ tf.urgent_user|bootstrap_horizontal }}</div>
+                      <div class="col-sm-6">{{ tf.audit_user|bootstrap_horizontal }}</div>
+                  </div>
+                  <div class="col-md-12">
+                      <h4 class="text-center">线上配置</h4><hr>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.exclude|bootstrap_horizontal }}
+                      </div>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.remotedir|bootstrap_horizontal }}
+                          {{ tf.remoteip|bootstrap_horizontal }}
+                      </div>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.rsync_command|bootstrap_horizontal }}
+                          {{ tf.last_command|bootstrap_horizontal }}
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <h4 class="text-center">域名配置</h4><hr>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.front_domain|bootstrap_horizontal }}
+                      </div>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.agent_domain|bootstrap_horizontal }}
+                      </div>
+                      <div class="col-md-4 col-lg-4">
+                          {{ tf.backend_domain|bootstrap_horizontal }}
+                      </div>
+                  </div>
+              </div>
+              </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('#id_edit').click(function(){
+          jQuery.ajax({
+            url: "{% url 'gengxin_code_edit' uuid %}",                  // 提交的页面
+            data: $('.form-horizontal').serialize(), // 从表单中获取数据
+            type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+            dataType:'text',
+            success: function(data){
+              parent.layer.closeAll();
+            }
+          });
+        });
+      return false;
+    });
+</script>
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#tools_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_top",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+             "name":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "business":{
+                rule: "required;",
+                tip: "",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "urgent_user":{
+                rule: "required;",
+                tip: "选择紧急审核urgent",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "audit_user":{
+                rule: "required;",
+                tip: "选择审核人normal",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "remoteip":{
+                rule: "required;",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "remotedir":{
+                rule: "required;",
+                tip: "/data/wwwroot/1001",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "front_domain":{
+                rule: "required;",
+                tip: "www.xxx.com",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "agent_domain":{
+                rule: "required;",
+                tip: "ag.xxx.com",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+             "backend_domain":{
+                rule: "required;",
+                tip: "ds168.xxx.com",
+                ok:"",
+                msg:{required: "必须填写!"}
+            }
+        },
+        valid: function(form) {
+            form.submit();
+        }
+    });
+    });
+</script>
+
+
+
+{% endblock content %}

@@ -32,7 +32,8 @@
 		<table class="table table-bordered">
 			<thead>
 				<tr>
-					<th>部门</th>
+                    <th>部门</th>
+					<th>介绍</th>
 					<th style="text-align:center">人员</th>
 					<th>操作</th>
 				</tr>
@@ -40,7 +41,8 @@
 			<tbody>
 				{% for k,v in content.items %}
 				<tr>
-					<td width="200">{{ k }}</td>
+                    <td width="200">{{ k }}</td>
+					<td width="400">{{ v.department_memo }}</td>
 					<td>
 						{% for t in v.user_list %}
 							{{ t }}
@@ -67,7 +69,10 @@
                 maxmin: true,
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层
-                area : ['800px' , (height - 50) + 'px'],
+                area : ['600px' , '600px'],
+                end : function () {
+                  location.reload();
+              },
                 content: url
             });
          event.preventDefault();

@@ -149,7 +149,7 @@ def department_list(request):
 
         for t in dep_all:
             user_list.append(t.get("first_name"))
-        content[i.department_name] = {"user_list": user_list, "department_id": i.id}
+        content[i.department_name] = {"user_list": user_list, "department_id": i.id,"department_memo":i.description}
 
     return render(request,'accounts/department_list.html', locals())
 

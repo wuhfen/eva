@@ -1,0 +1,87 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% load gengxin_loads %}
+{% block title %} My deploy task {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4><a href="{% url 'gengxin_deploy_list' %}" class="btn btn-success">发起现金网更新</a></h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#"> 我的更新任务 </a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+  <div class="box box-info">
+    <form id="asset_form">
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>创建时间</th>
+                    <th>任务状态</th>
+                    <th>审核状态</th>
+                    <th>siteid</th>
+                    <th>web版本号</th>
+                    <th>pub版本号</th>
+                    <th>原因</th>
+                    <th>完成时间</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    {% if v.exist %}
+                    <tr class="success">
+                    {% else %}
+                    <tr class="warning">
+                    {% endif %}
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.ctime }}</td>
+                        <td>{{ v.status }}</td>
+                        <td>{{ v.audit_status|show_audit_memo }}</td>
+                        <td>{{ v.siteid }}</td>
+                        <td>{{ v.web_reversion }}</td>
+                        <td>{{ v.pub_reversion }}</td>
+                        <td>{{ v.memo }}</td>
+                        <td>{{ v.execution_time }}</td>
+
+                        <td><a href="{% url 'gengxin_my_deploy_task_delete' v.uuid %}" class="btn btn-xs btn-danger tools-delete">删除</a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+  </div>
+
+<script type="text/javascript">
+$(".tools-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+</script>
+
+{% endblock %}

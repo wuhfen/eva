@@ -1,0 +1,88 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} Plus Audit Users {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>审核人</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'audit_user_list' %}"> 审核人列表 </a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+  <div class="box box-info">
+        <div class="box-header"><a href="{% url 'audit_user_add' %}" class="pull-right btn btn-info"><i class="fa fa-plus"></i>添加</a></div>
+        <div class="box-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>审核人</th>
+
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    <tr>
+                        <td>{% if v.name == 'website_normal' %}现金网正常审核{% else %}现金网紧急审核{% endif %}</td>
+                        <td>|{% for  i in  v.user.all %} {{ i }} |{% endfor %}</td>
+                        <td>
+                            <a href="{% url 'audit_user_modify' v.id %}" class="btn btn-xs btn-primary tools-edit">修改</a>
+                            <a href="{% url 'audit_user_delete' v.id %}" class="btn btn-xs btn-danger tools-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+  </div>
+
+<script type="text/javascript">
+$(".tools-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+
+$(".tools-edit").on("click", function(event){
+     var url= $(this).attr("href");
+     var height = $(window).height();
+     // layer.msg('Hello layer');
+        layer.open({
+            type: 2,
+            title: '修改审核人信息',
+            maxmin: true,
+            shade: 0.5,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['900px' , (height - 50) + 'px'],
+            end : function () {
+              location.reload();
+          },
+            content: url
+        });
+     event.preventDefault();
+});
+
+</script>
+{% endblock %}

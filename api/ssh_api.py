@@ -5,6 +5,7 @@ import paramiko
 from assets.models import Server
 
 def ssh_cmd(host,commands):
+    print "host="+host
     host_obj = Server.objects.get(ssh_host=host)
 
     ssh = paramiko.SSHClient()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding:utf-8
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 

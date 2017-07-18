@@ -184,7 +184,7 @@ def server_add(request):
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
 
-@permission_required('assets.can_add_asset', login_url='/auth_error/')
+@permission_required('assets.add_asset', login_url='/auth_error/')
 def server_list(request):
     # assets = Asset.objects.all()
     # assets = Asset.objects.get(asset_number="DT-test-02932")

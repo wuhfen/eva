@@ -211,6 +211,14 @@ class MyTask(MyRunner):
     def check_vm(self):
         return self.run("ping","status")
 
+    def genxin_rsync(self,src,dest,opts):
+        if src[-1] is not "/":
+            srcs = src+"/"
+        else:
+            srcs = src
+        module_args = 'src="%s" dest="%s" delete=yes checksum=yes rsync_opts="%s"' % (srcs,dest,opts)
+        results = self.run("synchronize", module_args)
+        return results
 
 class MyPlaybook(object):
     def __init__(self, resource, *args, **kwargs):
@@ -272,6 +280,11 @@ class MyPlayTask(MyPlaybook):
 
     def initialization_system(self):
         return self.run_playbook(['/etc/ansible/init_sys.yml'])   #系统初始化任务
+
+    def rsync_nginx_conf(self,localfile,remotedir,remotefile,siteid,domains):
+        result = self.run_playbook(['/etc/ansible/domainname_rsync.yml'], local=localfile,path=remotedir,file=remotefile,siteid=siteid,server_names=domains)
+        return result
+
 
 class CallbackModule(CallbackBase):
     CALLBACK_VERSION = 2.0

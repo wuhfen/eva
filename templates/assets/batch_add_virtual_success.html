@@ -1,0 +1,56 @@
+{% extends 'default/base.html' %}
+
+{% block title %} SUCCESS {% endblock %}
+
+{% block assistant-header %} 提示页面 {% endblock %}
+
+{% block content %}
+
+    <style>
+    .voilet{float:right;}
+    .jumbotron{margin-top:10px;height:500px;}
+    .wrapper{background:#ffffff;width:100%;}
+
+
+
+    </style>
+
+<div class="box">
+    <div class="box-body">
+        <div class="jumbotron" >
+            <h2>
+                欢迎使用自动化运维管理系统
+            </h2>
+            <p>
+            <div class="alert alert-success alert-dismissable">
+                <h2>执行成功,<span id="jumpTo">10</span>秒后返回详情页面！</h2>
+            </div>
+            </p>
+            <p>
+                <a type="btn" href="/index/">返回首页</a>
+            </p>
+            <p>
+                <a class="btn btn-default" href="#" role="button" onclick="self.location=document.referrer;">返回上页</a>
+                <a class="btn btn-success" href="{% url 'server_list' %}" role="button" >返回资产列表</a>
+
+                
+            </p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function countDown(secs, surl) {
+        var jumpTo = document.getElementById('jumpTo');
+        jumpTo.innerHTML = secs;
+        if (--secs > 0) {
+            setTimeout("countDown(" + secs + ",'" + surl + "')", 1000);
+        }
+        else {
+            location.href = surl;
+        }
+    }     
+    countDown(10, "{% url 'batch_add_vm' %}");
+</script>
+
+{% endblock  %}

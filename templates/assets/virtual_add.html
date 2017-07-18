@@ -26,12 +26,12 @@
 {% csrf_token %}
 <div class="col-md-6 col-lg-5">
     <div class="box box-info">
-        <div class="box-header with-border">添加虚拟机信息
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
+        <div class="box-header with-border">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button class="btn btn-info" type="reset"> 重置 </button>
+                    <button class="btn btn-success pull-right" type="submit"> 提交 </button>
+                </div>
             </div>
         </div>
         <div class="box-body">
@@ -40,13 +40,9 @@
             {% endfor %}
             <div class="form-group">
             <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>服务器名</th> -->
                     <td>{{ sf.name|bootstrap_horizontal }}</td>
-                </tr>
-                <tr>
-                    <!-- <th>服务器名</th> -->
-                    <td>{{ sf.ansible_name|bootstrap_horizontal }}</td>
                 </tr>
                  <tr hidden="hidden">
                     <td>{{ af.asset_type|bootstrap_horizontal }}</td>
@@ -56,7 +52,7 @@
                     <td>{{ sf.ssh_host|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
-                    <!-- <th>ssh host</th> -->
+                    <!-- <th>ssh user</th> -->
                     <td>{{ sf.ssh_user|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
@@ -67,11 +63,11 @@
                     <!-- <th>ssh password</th> -->
                     <td>{{ sf.ssh_password|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>资产编号</th> -->
                     <td>{{ sf.old_ip|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>资产编号</th> -->
                     <td>{{ af.asset_number|bootstrap_horizontal }}</td>
                 </tr>
@@ -79,47 +75,47 @@
                     <!-- <th>用途</th> -->
                     <td>{{ af.purpose|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>使用情况</th> -->
                     <td>{{ af.status|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>冗余级别</th> -->
                     <td>{{ sf.Raid_level|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>硬盘总容量(GB)</th> -->
                     <td>{{ sf.Disk_total|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>内存总容量(GB)</th> -->
                     <td>{{ sf.RAM_total|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>虚拟主机父主机</th> -->
                     <td>{{ sf.parent |bootstrap_horizontal}}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>设备供应商</th> -->
                     <td>{{ af.manufactory|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                    <!--  <th>购买日期</th> -->
                     <td>{{ af.trade_date|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>保修期</th> -->
                     <td>{{ af.expire_date|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>价格</th> -->
                     <td>{{ af.price|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>保修期</th> -->
                     <td>{{ af.price_total|bootstrap_horizontal }}</td>
                 </tr>
-                <tr>
+                <tr hidden="hidden">
                     <!-- <th>资产管理员</th> -->
                     <td>{{ af.manager|bootstrap_horizontal }}</td>
                 </tr>
@@ -168,7 +164,7 @@
     </div>
 
 <!--下面是系统信息-->
-    <div class="box box-info">
+    <div class="box box-info" hidden="hidden">
         <div class="box-header with-border"> 添加系统信息 
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -210,7 +206,7 @@
     </div>
 
 <!--下面是cpu信息-->
-    <div class="box box-info">
+    <div class="box box-info" hidden="hidden">
         <div class="box-header with-border"> 添加CPU信息 
             <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -242,7 +238,7 @@
 
 
 <!--所属项目-->
-    <div class="row">
+    <div class="row" hidden="hidden">
         <div class="col-lg-6 col-md-6">
             <div class="box box-info">
                 <div class="box-header with-border"> 服务器所属项目 
@@ -321,12 +317,7 @@
 <!--     <div class="box box-info">
 
     </div> -->
-    <div class="form-group">
-        <div class="col-sm-4 col-sm-offset-5">
-            <button class="btn btn-info btn-lg" type="reset"> 重置 </button>
-            <button class="btn btn-success btn-lg" type="submit"> 提交 </button>
-        </div>
-    </div>
+
 </div>
 
 </form>
@@ -349,13 +340,6 @@
                 check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
             },
         fields: {
-            // "name": {
-            //     rule: "required;check_node",
-            //     tip: "格式：字母+数字+下划线",
-            //     ok: "",
-            //     msg: {required: "必须填写!"},
-            //     data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
-            // },
              "nic_name0":{
                 rule: "required;check_node",
                 tip: "",
@@ -374,42 +358,18 @@
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-            //  "nic_name1":{
-            //     rule: "required;check_node",
-            //     tip: "",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
-            //  "nic_macaddress1":{
-            //     rule: "required;check_mac",
-            //     tip: "",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
-            // "nic_ipaddress1":{
-            //     rule: "required;check_ip",
-            //     tip: "输入ip地址",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
+            "purpose":{
+                rule: "required;",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
             "ssh_host":{
                 rule: "required;check_ip",
                 tip: "输入ip地址",
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-            "manager":{
-                rule: "required;",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-            // "asset_number":{
-            //     rule: "required;",
-            //     tip: "",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
              "system_status":{
                 rule: "required;",
                 tip: "",

@@ -4,7 +4,8 @@ import urllib2
 import json
 import ssl
 import re
-
+import os
+import shutil
 from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from assets.models import Server
@@ -102,3 +103,27 @@ def check_file(ifile,regx):
 def isValidIp(ip):
     if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True  
     return False
+
+def genxin_code_dir(path):
+    u'''创建目录，或清空目录'''
+    if os.path.exists(path):
+        try:
+            shutil.rmtree(path)
+        except OSError:
+            os.remove(path)
+        os.makedirs(path)
+    else:
+        os.makedirs(path)
+
+
+def add100(x):
+    gg = "exclude=" + x
+    return gg
+
+def genxin_exclude_file(files):
+    if files:
+        a = files.split('\r\n')
+        b = ",".join(map(add100,a))
+    else:
+        b = ""
+    return b

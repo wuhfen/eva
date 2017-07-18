@@ -6,6 +6,7 @@ from automation import views
 from automation.version import applys as aviews
 
 from automation import script_deploy as sviews
+from automation import gengxin as gviews
 
 
 urlpatterns = [
@@ -60,7 +61,16 @@ urlpatterns = [
     url(r'^script/log', sviews.script_log_list, name='script_log_list'),
 
 
+#"""gengxin增删查改"""
+    url(r'^gengxin_code_list/$', gviews.gengxin_code_list, name="gengxin_code_list"),
+    url(r'^gengxin_code_add/$', gviews.gengxin_code_add, name="gengxin_code_add"),
+    url(r'^gengxin_code_edit/(?P<uuid>[^/]+)/$', gviews.gengxin_code_edit, name="gengxin_code_edit"),
+    url(r'^gengxin_code_delete/(?P<uuid>[^/]+)/$', gviews.gengxin_code_delete, name='gengxin_code_delete'),
 
+    url(r'^gengxin/list/$', gviews.gengxin_deploy_list, name="gengxin_deploy_list"),
+    url(r'^genxin/create/(?P<uuid>[^/]+)/$', gviews.gengxin_create_deploy, name='gengxin_create_deploy'),
+    url(r'^mytask/', gviews.genxin_my_deploy_task, name='genxin_my_deploy_task'),
+    url(r'^mytask_delete/(?P<uuid>[^/]+)/$', gviews.gengxin_my_deploy_task_delete, name='gengxin_my_deploy_task_delete'),
 
 
 

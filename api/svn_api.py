@@ -115,3 +115,11 @@ class Svnrepo(object):
                 m = re.match(r'^r(\d+) \| (\w+).*',x)
                 xargs += [m.group(1) + "_" +  m.group(2)]
         return xargs
+
+    def svn_last_reversion(self,url):
+        res = self.svn_command("log","-q","--limit 1","--no-auth-cache",url)
+        a = res.split('\n')[1]
+        if re.match(r'(\w+)(\d+)', a):
+            m = re.match(r'^r(\d+) \| (\w+).*', a)
+            print(a)
+        return m.group(1)

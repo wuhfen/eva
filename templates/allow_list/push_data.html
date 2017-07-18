@@ -1,0 +1,58 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 修改域名 {% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+        {% if data %}
+
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">{{ data.name }}</strong></h4><hr>
+            <form role="form" class="form-horizontal" action="" method="post" id="post_form">{% csrf_token %}
+                <div class="form-group">
+                    <div class="col-sm-10 col-lg-10 ">
+                        <label class="text-right bolder" for="id_monitor_url">修改{% if select == "web" %}网站前端{% elif select == "ag" %}ag代理后台{% else %}总后台ds168{% endif %}域名<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <textarea class=" form-control" cols="40" id="id_domain" name="domain" rows="20">{{ domainname }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group col-sm-10 col-lg-10">
+                    <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                </div>
+            </form>
+        {% else %}
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">无此项目</strong></h4><hr>
+        {% endif %}
+        </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$('#id_submit').on("click",function(){
+
+    var urls= "{% url 'allow_push_data' choice %}";
+    jQuery.ajax({
+        url: urls,                  // 提交的页面
+        data: $('.form-horizontal').serialize(), // 从表单中获取数据
+        type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+        dataType:'text',
+        success: function(data){
+            parent.layer.closeAll();
+        }
+    });
+});
+</script>
+
+
+{% endblock  %}

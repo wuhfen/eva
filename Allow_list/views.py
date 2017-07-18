@@ -16,7 +16,8 @@ from .tasks import do_ansible
 from celery.result import AsyncResult
 from business.models import Business
 from business.tasks import dns_resolver_ip
-
+from automation.models import gengxin_code
+from automation.tasks import fabu_nginxconf_task
 def error(request):
     return render(request,'allow_list/error.html')
 
@@ -127,7 +128,7 @@ def linechange(request):
     user = request.user
 
     rules = []
-    for i in changes(data,5):
+    for i in changes(data,7):
         rules.append(i)
     try:
         rules0 = rules[0]
@@ -141,10 +142,6 @@ def linechange(request):
         rules2 = rules[2]
     except:
         rules2 = []
-    try:
-        rules3 = rules[3]
-    except:
-        rules3 = []
 
 
     return render(request,"allow_list/linechange.html",locals())
@@ -166,3 +163,39 @@ def pull_data(request,choice):
             data = Business.objects.filter(pk=choice).update(reserve_a=domainname)
             return HttpResponseRedirect('/allow/linechange/')
     return render(request,'allow_list/pull_data.html',locals())
+
+def push_data(request,choice):
+    """修改域名"""
+    select = choice.split('_')[0]
+    uuid = choice.split('_')[1]
+    business = Business.objects.get(pk=uuid)
+    try:
+        data = gengxin_code.objects.filter(classify="online").get(business=business)
+        if select == "web":
+            print "修改web域名"
+            domainname = data.front_domain
+        elif select == "ag":
+            print "修改代理后台域名"
+            domainname = data.agent_domain
+        else:
+            print "修改ds168后台域名"
+            domainname = data.backend_domain
+    except:
+        data = None
+
+    if request.method == 'POST':
+        domain = request.POST.get('domain')
+        print domain
+        if "web_" in choice:
+            data.front_domain = domain
+            classify = "front"
+        elif "ag_" in choice:
+            data.agent_domain = domain
+            classify = "agent"
+        else:
+            classify = "backend"
+            data.backend_domain = domain 
+        data.save()
+        print data.phone_site
+        configurate = fabu_nginxconf_task.delay(data.uuid,choice=classify)
+    return render(request,'allow_list/push_data.html',locals())

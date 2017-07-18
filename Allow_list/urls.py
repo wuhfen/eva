@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^linechange/$',views.linechange,name='linechange'),
     url(r'^poll_state$', views.poll_state,name='poll_state'),
     url(r'^linechange/pulldata/(?P<choice>[^/]+)/$', views.pull_data, name="allow_pull_data"),
+    url(r'^linechange/pushdata/(?P<choice>[^/]+)/$', views.push_data, name="allow_push_data"),
     #"""域名解析"""
 
     

@@ -15,7 +15,7 @@ import random, time
 import uuid
 
 
-auth_gid = [(1001, u"运维部"), (1002, u"架构"), (1003, u"研发dev"), (1004, u"测试")]
+auth_gid = [(1001, u"运维"), (1002, u"工程"), (1003, u"研发dev"), (1004, u"测试"),(1005, u"php前端"),(1006, u"技术支持")]
 
 def common_uuid():
     """
