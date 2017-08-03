@@ -1,0 +1,52 @@
+{% extends "default/base.html" %}
+{% block title %}Change backend{% endblock %}
+{% block head %}
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+{% endblock %}
+
+{% block assistant-header %} 现金网后台管理  Money WEB backend manager {% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+    <div class="box-header"><h1>现金网ds168后台反代节点切换</h1></div>
+    <form class="form-horizontal" action="" id="change_backend"  method="post" name="horizontal" role="form">{% csrf_token %}
+    <div class="box-body">
+        <p>备用后台节点：{{ data.host_ip }}</p>
+        <p>状态：{% if data.status %}生效中{% else %}停用{% endif %}</p>
+        <label for="id_status" class="text-right bolder blue">
+            是否启用:                             
+            {% if data.status %}
+            <input id="id_status" name="status" class="form-control" type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" checked>
+            {% else %}
+            <input id="id_status" name="status" class="form-control" type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" >
+            {% endif %}
+        </label><br>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(".blue").on("click", function(event){ 
+        var urls = "{% url 'change_backend' data.id %}"
+        $.ajax({
+        url:urls,
+        dataType: 'json',
+        type: 'GET',
+        data: {},
+        contentType: "application/json",
+        success: function(data) { 
+            if (data.res == "OK") {
+                layer.msg(data.info,{icon: 1,time: 4000},function(){
+                    parent.location.reload();
+                });
+            }
+            },
+        });
+
+    });
+</script>
+
+{% endblock %}

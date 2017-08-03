@@ -119,16 +119,19 @@ def gengxin_update_task(uuid,env):
         if method == "pa":
             for i in conf_list:
                 my_siteid = i.business.nic_name
+                print("public开始更新: %s 版本号：%s"% (my_siteid,pub_reversion))
                 Mywd = website_deploy(env,my_siteid)
                 Mywd.pub_export(pub_reversion)
                 Mywd.merge_web(i.uuid)
                 Mywd.ansible_rsync_web(i.remoteip,i.rsync_command,i.last_command,i.exclude)
         else:
+            conf_list = gengxin_code.objects.filter(classify=env).filter(phone_site=True)
             for i in conf_list:
                 if "f" in i.business.nic_name:
                     my_siteid = i.business.nic_name.replace('f','mf')
                 else:
                     my_siteid = i.business.nic_name + 'm'
+                print("public开始更新: %s 版本号：%s"% (my_siteid,pub_reversion))
                 Mywd = website_deploy(env,my_siteid)
                 Mywd.pub_export(pub_reversion)
                 Mywd.merge_web(i.uuid)

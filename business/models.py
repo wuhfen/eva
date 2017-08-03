@@ -111,6 +111,7 @@ class Business(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(blank=True, auto_now=True)
     class Meta:
+        ordering = ["nic_name"]
         verbose_name = u'业务Business'
         verbose_name_plural = verbose_name
     def __unicode__(self):

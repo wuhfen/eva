@@ -52,10 +52,10 @@
                         <td>{{ v.postil }}</td>
 
                         <td>
-                        <a href="{% url 'my_audit_delete' v.id %}" class="btn btn-xs btn-danger tools-delete">删除</a>
+                        <!-- <a href="{% url 'my_audit_delete' v.id %}" class="btn btn-xs btn-danger tools-delete">删除</a> -->
                         {% if v.isaudit == False %}
                         <a href="javascript:;" class="btn btn-xs btn-info push-data" id="{{ v.id }}">审核</a>
-                        {% else %}<a href="javascript:;" class="btn btn-xs btn-info push-data" id="{{ v.id }}">审核</a>{% endif %}
+                        {% else %}{% endif %}
                         
                         </td>
 
@@ -95,6 +95,9 @@ $(".tools-delete").on("click",function(de){
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层
                 area : ['600px' , '500px'],
+                end : function () {
+                  location.reload();
+              },
                 content: [url,'no']
             });
          event.preventDefault();

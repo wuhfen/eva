@@ -63,6 +63,7 @@ class Repo(object):
         """Run a git command in path and return the result. Throws on error."""
         if not path:
             path = '.'
+        print(args)
         proc = Popen(["git"] + list(args), stdout=PIPE, stderr=PIPE, cwd=path)
 
         out, err = [x.decode("utf-8") for x in  proc.communicate()]
@@ -191,6 +192,11 @@ class Repo(object):
         res = self.git_command(*cmds)
         log_list = [tag[0:8:] + "-Message:" + '_'.join(tag.split()[1:10]) for tag in res.split("\n") if tag]
         return log_list
+
+    def show_commit(self):
+        cmds = ["log","-10","--pretty=format:%h"]
+        res = self.git_command(*cmds)
+        return res.strip().split('\n')
 
     def git_show_tag(self,path,release=None):
         """show information about release"""

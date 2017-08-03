@@ -14,192 +14,137 @@
 
 {% block content %}
 
-<div class="box">
-	<div class="box-header with-border">
-		<h4 class="text-primary">添加vpn线路|ADD VPN IP</h4>
-		<div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-        </div>
-	</div>
-	<div class="box-body">
-	{% if ff.errors %}
-    	<p style="color:red;"> 请修改下面出现的错误 </p>
-	{% endif %}
-	{% for e in fo_errors %}
-	    <p style="color:red;">{{ e }} <br /></p>
-	{% endfor %}
-	<form role="form" action="" method="post">{% csrf_token %}
-		<dir class="form-group col-lg-12">
-			<p><label>请输入ip地址:</label></p>
-			<p>{{ ff.ipaddr|bootstrap_horizontal }}
-			{{ ff.ipaddr.errors }}</p>
-			<p><label>请选择站点名称:</label></p>
-			<p>{{ ff.customer|bootstrap_horizontal }}
-			{{ ff.customer.errors }}</p>
-			<p><label>请选择后端平台:</label></p>
-			<p>{{ ff.background|bootstrap_horizontal }}
-			{{ ff.background.errors }}</p>
-		</dir>
-		<div>
-			<p>Your Task is <span id="user-count"></span>!</p>
-			<div class="progress active">
-				<div class="progress-bar progress-bar-success progress-bar-striped bar" id="id_bar" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 0%"><span class="sr-only">20% Complete</span></div>
-			</div>
-		</div>
-		<dir class="form-group col-lg-12">
-			<button type="reset" name="reset" class="btn btn-info">
-				<span class="glyphicon glyphicon-ok"></span> 重置
-			</button>
-			<button type="submit" name="okk" class="btn btn-info" id="testid">
-				<span class="glyphicon glyphicon-ok"></span> 添加
-			</button>
-	    </dir>
-    </form>
-
-	</div>
-</div>
-
+<div class="col-lg-12">
+<div class="col-md-3">
 <div class="box box-info">
-	<div class="box-header with-border"><h4 class="text-primary">规则清单</h4>
-		<div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-        </div>
-	</div>
-	<div class="box-body">
-			<p>目前共有 {{ view_rules|length }} 条规则</p>
-			<table id="example1" class="table table-bordered table-striped">
-                <thead>
-				<tr>
-                    <th class="text-center"><input type="checkbox" id="select_all"></th>
-					<th>IP地址</th>
-					<th>站点备注</th>
-					<th>新站老站</th>
-					<th>添加时间</th>
-					<th>添加用户</th>
-				</tr>
-                </thead>
-                <tbody>
-            {% for v in view_rules %}
+  <div class="box-header with-border">
+    <h4 class="text-primary">添加vpn线路|ADD VPN IP</h4>
+  </div>
+  <div class="box-body">
+  {% for e in fo_errors %}
+      <p style="color:red;">{{ e }} <br /></p>
+  {% endfor %}
+  <form role="form" action="" method="post">{% csrf_token %}
+    <dir class="form-group col-lg-12">
+      <p><label>请输入vpn_ip:</label></p>
+        <input class=" form-control" id="id_ipaddr" maxlength="15" name="ipaddr" type="text" placeholder="0.0.0.0">
+      <p><label>请选择站点名称:</label></p>
+        <select class=" form-control" id="id_customer" name="customer">
+          {% for i in choice_data %}
+            <option value="{{ i.name }}">{{ i.name }}</option>
+          {% endfor %}
+        </select>
+    </dir>
 
-				<tr>
-
-                    <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
-
-					<td>{{ v.i_source_ip }}</td>
-					<td>{{ v.i_comment }}</td>
-					<td>{{ v.i_tag }}</td>
-					<td>{{ v.i_date_time }}</td>
-					<td>{{ v.i_user }}</td>
-
-				</tr>
-            {% endfor %}
-
-            </tbody>
-                <tfoot>
-                <tr>
-                  <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
-                    <th>IP地址</th>
-                    <th>站点备注</th>
-                    <th>新站老站</th>
-                    <th>添加时间</th>
-                    <th>添加用户</th>
-                </tr>
-                </tfoot>
-			</table>
-
-	</div>
+    <dir class="form-group col-lg-12">
+      <button type="submit" name="okk" class="btn btn-info" id="testid">
+        <span class="glyphicon glyphicon-ok"></span> 添加
+      </button>
+      </dir>
+    </form>
+  </div>
+</div>
+</div>
+<div class="col-md-9">
+<div class="box box-info">
+  <div class="box-header with-border"><h4 class="text-primary">vpn记录</h4>
+  </div>
+  <div class="box-body">
+      <p>目前共有 {{ view_rules|length }} 条规则</p>
+      <table id="example1" class="table table-bordered table-striped">
+        <thead>
+        <tr>
+          <th>IP地址</th>
+          <th>站点备注</th>
+          <th>添加时间</th>
+          <th>添加用户</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for v in view_rules %}
+        <tr>
+          <td>{{ v.i_source_ip }}</td>
+          <td id="demo_{{ v.id }}" class="demo" onmouseover="mouseOver('{{ v.id }}')" onmouseout="mouseOut()">{{ v.i_comment }}</td>
+          <td>{{ v.i_date_time }}</td>
+          <td>{{ v.i_user }}</td>
+          <td>
+              <a href="javascript:;" class="btn btn-danger btn-xs delete-ip" name="delete" id={{ v.id }}>
+                <span class="glyphicon glyphicon-remove"></span> 删除
+              </a>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        <tr>
+            <th>IP地址</th>
+            <th>站点备注</th>
+            <th>添加时间</th>
+            <th>添加用户</th>
+            <th>操作</th>
+        </tr>
+        </tfoot>
+      </table>
+  </div>
 </div>
 
-
+</div>
+</div>
+<div class="row"></div>
 <script type="text/javascript">
-document.getElementById("testid").onclick=displayDate();
-
-
-
-function displayDate()
-{
-      var task_id = "{{ task_id }}";
-      console.log(task_id);
-      var willstop = 0;
-      var width = 0;
-      var poll = function(){
-        $.ajax({
-          url: "{% url 'poll_state' %}",
-          type: 'GET',
-          data: {
-            task_id: task_id,
-          },
-          success: function(result) {
-            if (result == "SUCCESS") {
-              document.getElementById("user-count").textContent="SUCCESS";
-              jQuery('.bar').css({'width': 100 + '%'});
-              jQuery('.bar').html(100 + '%');
-              willstop = 1;
-            } else if (result == "PROGRESS") {
-              document.getElementById("user-count").textContent="PROCRESSING";
-              if (parseInt(width) < 90 ) {
-                width ++;
-                jQuery('.bar').css({'width': width + '%'});
-                jQuery('.bar').html(width + '%');
-              } else {
-                width = 90;
-                jQuery('.bar').css({'width': width + '%'});
-                jQuery('.bar').html(width + '%');
-              };
-            } else {
-              document.getElementById("user-count").textContent="NODEFINE";
-              willstop = 1;
-
-            };
-          }
-        });
-      };
-
-      var refreshIntervalId = setInterval(function() {
-        poll();
-        if(willstop == 1){
-          clearInterval(refreshIntervalId);
-        }
-      },500);
-
-};
-
-
-
   $(function () {
     $("#example1").DataTable();
-    $('#example2').DataTable({
-      "paging": true,
-      "lengthChange": false,
-      "searching": false,
-      "ordering": true,
-      "info": true,
-      "autoWidth": false
-    });
   });
 
-  $('#select_all').click(function(event) {
-    if(this.checked) {
-        // Iterate each checkbox
-        $(':checkbox').each(function() {
-            this.checked = true;
-        });
-    }
-    else {
-      $(':checkbox').each(function() {
-            this.checked = false;
-        });
-    }
-  });
-
-
+$(".delete-ip").on("click", function(event){
+      var choice = $(this).attr('id')
+      var url= "/allow/iptables_delete/"+choice+"/";
+      layer.alert("确定删除吗？",{
+          skin: 'layui-layer-molv',
+          closeBtn: 2,
+          shift: 4,
+      },function(index){
+          layer.close(index);
+          $.get(url).done(function(data) {
+              window.location.reload();
+          });
+      });
+      event.preventDefault();
+});
 </script>
 
+<script>
+function mouseOver(id) {
+    var comment = $("#demo_"+id).text();
+    var id = "demo_"+id;
+    var url = "/allow/iptables/search/"+comment+"/";
+
+    $.get(url).done(function(data) {
+      var list = data.res;
+      layer.tips(list,'#'+id,{tips: [4, '#78BA32'],time: 0});
+    });
+}
+function mouseOut() {
+  layer.closeAll();
+}
+
+
+// $(document).ready(function(){
+//   $(".demo").mouseover(function(){
+//     var comment = $(this).text();
+//     var id = $(this).attr('id');
+//     var url = "/allow/iptables/search/"+comment+"/";
+//     $.get(url).done(function(data) {
+//       var list = data.res;
+//       layer.tips(list,'#'+id,{tips: [4, '#78BA32'],time: 0});
+//     });
+//   });
+//   $(".demo").mouseout(function(){
+//     // $('.layui-layer-content').remove();
+//     layer.closeAll();
+//   });
+// });
+</script>
 
 {% endblock %}

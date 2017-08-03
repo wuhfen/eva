@@ -62,14 +62,12 @@ class CustomUserAdmin(UserAdmin):
     )
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
-    list_display = ('email', 'first_name', 'last_name',
-                    'mobile',
+    list_display = ('username','email',
                     'uuid',
                     'session_key',
                     'user_key',
                     'is_staff')
     search_fields = ('email', 'first_name', 'last_name', 'mobile')
-    ordering = ('email',)
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(department_Mode)

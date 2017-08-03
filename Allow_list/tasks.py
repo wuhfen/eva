@@ -3,9 +3,9 @@
 
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task,current_task
-from api.ansible_api import ansiblex
-
-
+from api.ansible_api import ansiblex,MyRunner
+from api.common_api import gen_resource
+from assets.models import Server
 
 ## 引入ansibleAPI，编写调用API的函数
 @shared_task()
@@ -14,15 +14,12 @@ def do_ansible(task,ip,remark,comment):
     ansiblex(vars1=task,vars2=ip,vars3=remark,vars4=comment)
     return "12345"
 
-
-# @shared_task()
-# def do_ansible(task,ip,remark,comment):
-#     task=task
-#     ip=ip
-#     remark=remark
-#     comment=comment
-
-#     current_task.update_state(state="PROGRESS")
-#     ansiblex(task,ip,remark,comment)
-
-#     return ip
+# 后台切换的异步任务，在247上操作nginx.conf文件
+@shared_task()
+def change_backend_task(host_ip,include_name):
+    resource = gen_resource(Server.objects.get(ssh_host=host_ip))
+    module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="include vhost/" line="        include vhost/%s.conf"'% include_name
+    print(module_args)
+    mytask = MyRunner(resource)
+    res = mytask.run('lineinfile',module_args)
+    return res

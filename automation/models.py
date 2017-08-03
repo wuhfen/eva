@@ -160,19 +160,19 @@ class AUser(models.Model):
 
 class gengxin_code(models.Model):
     CLASSIFY_CHOICE = (
-        ('online', u'生产'),
         ('huidu', u'灰度'),
+        ('online', u'生产'),
         ('test', u'测试'),
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    name = models.CharField(_(u'名称'),max_length=45,blank=True)
+    name = models.CharField(_(u'名称'),max_length=45,blank=True,default="1001")
     classify =  models.CharField(_(u'类型'),max_length=64,choices=CLASSIFY_CHOICE,default="类别")
     business = models.ForeignKey(Business,verbose_name=u'关联业务',null=True,blank=True)
-    remoteip = models.TextField(_(u'服务器ip'),null=True,blank=True)
+    remoteip = models.TextField(_(u'服务器ip'),null=True,blank=True,default='119.9.81.134')
     phone_site = models.BooleanField(_(u'手机端是否发布'),default=False)
 
-    remotedir = models.CharField(_(u'线上目录'),null=True,blank=True,max_length=45)
-    exclude = models.TextField(_(u'排除文件'),null=True,blank=True)
+    remotedir = models.CharField(_(u'线上目录'),null=True,blank=True,max_length=45,default='/data/wwwroot/1001')
+    exclude = models.TextField(_(u'排除文件'),null=True,blank=True,default='Logs/')
     rsync_command = models.TextField(_(u'推送前命令'),null=True,blank=True)
     last_command = models.TextField(_(u'生效前命令'),null=True,blank=True)
 
@@ -182,11 +182,12 @@ class gengxin_code(models.Model):
     deploy_time = models.IntegerField(_(u'更新频率'),default=0)
     urgent_user = models.ForeignKey(AUser,verbose_name=u'紧急审核人', blank=True,null=True,on_delete=models.SET_NULL, related_name='urg')
     audit_user = models.ForeignKey(AUser,verbose_name=u'正常审核人', blank=True,null=True,on_delete=models.SET_NULL, related_name='aud')
-    front_domain = models.TextField(_(u'前端域名'),null=True,blank=True)
-    agent_domain = models.TextField(_(u'代理后台域名'),null=True,blank=True)
-    backend_domain = models.TextField(_(u'后台域名'),null=True,blank=True)
+    front_domain = models.TextField(_(u'前端域名'),null=True,blank=True,default='1001.s1119.com')
+    agent_domain = models.TextField(_(u'代理后台域名'),null=True,blank=True,default='ag1001.s1119.com')
+    backend_domain = models.TextField(_(u'后台域名'),null=True,blank=True,default='ds168.xxx.com\r\nds168.yyy.com')
 
     class Meta:
+        ordering = ['name']
         verbose_name = u'gengxin_code'
         verbose_name_plural = verbose_name
     def __unicode__(self):
@@ -212,4 +213,5 @@ class gengxin_deploy(models.Model):
     execution_time = models.CharField(_(u'完成时间'),null=True,blank=True,max_length=64)
     ctime = models.DateTimeField(auto_now_add=True)
     exist = models.BooleanField(_(u'是否结束'),default=False)
-
+    class Meta:
+        ordering = ['-ctime']

@@ -42,14 +42,14 @@
             <i class="fa fa-dashboard"></i> <span>仪表盘</span>
           </a>
         </li>
-        {% if perms.audit.add_task_audit %}
+        {% if perms.automation.delete_deploy %}
         <li>
           <a href="{% url 'my_audit_list' %}">
             <i class="fa fa-wheelchair-alt"></i> <span>任务审核</span>
           </a>
         </li>
         {% endif %}
-        {% if perms.automation.add_gengxin_deploy %}
+        {% if perms.automation.add_deploy %}
         <li>
           <a href="{% url 'genxin_my_deploy_task' %}">
             <i class="fa fa-tasks"></i> <span>我的任务</span>
@@ -127,7 +127,8 @@
 <!--             <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名监控|DOMAIN MONITOR</a></li>
             <li><a href="{% url 'domain_ip_list' %}"><i class="fa fa-circle-o"></i> IP管理|IP MANAGE</a></li> -->
             <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 源站信息|Source Info</a></li>
-            <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台白名单|BACKGROUND LIST</a></li>
+            <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 后台线路切换</a></li>
+            <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台VPN白名单|VPN manage</a></li>
 <!--           <li>
               <a href="#"><i class="fa fa-circle-o"></i> API白名单
                 <span class="pull-right-container">

@@ -49,7 +49,7 @@ def register(request):
                 """ % (new_user.first_name, url)
                 #
 
-                send_mail(mail_title, mail_msg, u'运维自动化<devops@ds.com>', [new_user.email], fail_silently=False)
+                #send_mail(mail_title, mail_msg, u'运维自动化<devops@ds.com>', [new_user.email], fail_silently=False)
 
             return HttpResponseRedirect("/accounts/user_list/")
         else:

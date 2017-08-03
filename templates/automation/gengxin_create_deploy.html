@@ -29,7 +29,7 @@
                             </label>
                             {% if data.phone_site %}
                             <label class="checkbox-inline">
-                                <input type="radio" name="optionsRadiosinline" id="optionsRadios2" value="{{ data.business.nic_name }}m">{{ data.business.nic_name }}m
+                                <input type="radio" name="optionsRadiosinline" id="optionsRadios2" value="{{ phone_id }}">{{ phone_id }}
                             </label>
                             {% else %}{% endif %}
                         <div class="help-block"></div>
@@ -109,7 +109,9 @@
                 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function(data) { 
-                parent.layer.closeAll();
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
                 },
         });
     });

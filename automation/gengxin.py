@@ -27,7 +27,12 @@ def gengxin_code_add(request):
     if request.method == 'POST':
         tf = gengxin_codeForm(request.POST)
         mergedir = request.POST.get('mergedir')
-        if gengxin_code.objects.filter(name=request.POST.get('name')):
+        classify = request.POST.get('classify')
+        if gengxin_code.objects.filter(classify=classify).filter(name=request.POST.get('name')):
+            errors = "已有此名称，不能重复！"
+            return render(request, 'automation/gengxin_code_add.html', locals())
+        if gengxin_code.objects.filter(classify=classify).filter(business=request.POST.get('business')):
+            errors = "已有发布关联到此业务，不能重复！"
             return render(request, 'automation/gengxin_code_add.html', locals())
         if tf.is_valid():
             tf_data = tf.save()
@@ -123,7 +128,7 @@ def gengxin_deploy_list(request):
             i.urgent = False
         i.save()
 
-    test_data = gengxin_code.objects.filter(classify="test")
+    test_data = gengxin_code.objects.filter(classify="test").order_by('name')
     test_rules = []
     for i in changes(test_data,2):
         test_rules.append(i)
@@ -143,7 +148,7 @@ def gengxin_deploy_list(request):
         rules3 = test_rules[3]
     except:
         rules3 = []
-    huidu_data = gengxin_code.objects.filter(classify="huidu")
+    huidu_data = gengxin_code.objects.filter(classify="huidu").order_by('name')
     huidu_rules = []
     for i in changes(huidu_data,2):
         huidu_rules.append(i)
@@ -163,7 +168,7 @@ def gengxin_deploy_list(request):
         rules7 = huidu_rules[3]
     except:
         rules7 = []
-    online_data = gengxin_code.objects.filter(classify="online")
+    online_data = gengxin_code.objects.filter(classify="online").order_by('name')
     online_rules = []
     for i in changes(online_data,2):
         online_rules.append(i)
@@ -251,6 +256,10 @@ def gengxin_create_deploy(request,uuid):
         return render(request,'automation/gengxin_create_public.html',locals())
     else:
         data = gengxin_code.objects.get(pk=uuid)
+        if "f" in data.business.nic_name:
+            phone_id = data.business.nic_name.replace('f','mf')
+        else:
+            phone_id = data.business.nic_name + "m"
         env = data.classify
         version = website_deploy(env,data.business.nic_name)
         last_version = version.last_release("web",isphone=data.phone_site)
@@ -343,6 +352,7 @@ def gengxin_create_deploy(request,uuid):
             siteid=siteid,method=method,pub_reversion=pub_release,web_reversion=web_release)
                 deploy_data.save()
                 meimei = gengxin_update_task.delay(deploy_data.uuid,env)
+            return JsonResponse({"res":"OK"},safe=False)
         return render(request,'automation/gengxin_create_deploy.html',locals())
 
 @login_required

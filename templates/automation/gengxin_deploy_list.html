@@ -70,7 +70,7 @@
                             <div class="col-md-3">
                                 {% for i in rules5 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-info pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -78,7 +78,7 @@
                             <div class="col-md-3">
                                 {% for i in rules6 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-success pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -86,7 +86,7 @@
                             <div class="col-md-3">
                                 {% for i in rules7 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-warning pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -126,7 +126,7 @@
                             <div class="col-md-3">
                                 {% for i in rules1 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-info pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -134,7 +134,7 @@
                             <div class="col-md-3">
                                 {% for i in rules2 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-success pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -142,7 +142,7 @@
                             <div class="col-md-3">
                                 {% for i in rules3 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-warning pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -190,7 +190,7 @@
                             <div class="col-md-3">
                                 {% for i in rules9 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-info pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -198,7 +198,7 @@
                             <div class="col-md-3">
                                 {% for i in rules11 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-success pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -206,7 +206,7 @@
                             <div class="col-md-3">
                                 {% for i in rules12 %}
                                     <p><h3>
-                                      <a href="javascript:;" class="label label-primary pull-data" id="{{ i.uuid }}">
+                                      <a href="javascript:;" class="label label-warning pull-data" id="{{ i.uuid }}">
                                     {{ i.name }} <span class="badge bg-purple">{{ i.business.nic_name }}</span></a>
                                     </h3></p>
                                 {% endfor %}
@@ -235,7 +235,10 @@
                 maxmin: false,
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层
-                area : ['600px' , '700px'],
+                area : ['800px' , '700px'],
+                end : function () {
+                  location.reload();
+              },
                 content: [url,'no']
             });
          event.preventDefault();
