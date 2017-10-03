@@ -3,7 +3,7 @@
 
 from django.conf.urls import patterns, include, url
 from business import views
-from business import platfapi
+# from business import platfapi
 from business.dnsmanage import views as dnsviews
 
 urlpatterns = [
@@ -18,14 +18,15 @@ urlpatterns = [
     url(r'^business/conf/create',views.deploy_nginx_tmp_file,name="deploy_nginx_tmp_file"),
 
 
+
 ##BUG
     url(r'^bugs_list/$', views.bugs_list, name="bugs_list"),
 
 ##平台
-    url(r'^platform_list/$', views.platform_list, name="platform_list"),
-    url(r'^platform_detail/(?P<uuid>[^/]+)/$', views.platform_detail, name="platform_detail"),
-    url(r'^platform_edit/(?P<uuid>[^/]+)/$', views.platform_edit, name="platform_edit"),
-    url(r'^platform_add/$', views.platform_add, name="platform_add"),
+    # url(r'^platform_list/$', views.platform_list, name="platform_list"),
+    # url(r'^platform_detail/(?P<uuid>[^/]+)/$', views.platform_detail, name="platform_detail"),
+    # url(r'^platform_edit/(?P<uuid>[^/]+)/$', views.platform_edit, name="platform_edit"),
+    # url(r'^platform_add/$', views.platform_add, name="platform_add"),
     # url(r'^platform_delete/$', views.platform_delete, name="platform_delete"),
 
 
@@ -38,17 +39,18 @@ urlpatterns = [
 
 
 ##域名
-    url(r'^domain_list/$', views.domain_list, name="domain_list"),
-    url(r'^domain_add/$', views.domain_add, name="domain_add"),
+    url(r'^domain_list/(?P<siteid>[^/]+)/$', views.domain_list_select, name="domain_list_select"),
+    url(r'^domain/add_select/(?P<siteid>[^/]+)/$', views.domain_add_select, name="domain_add_select"),
     url(r'^domain_edit/(?P<uuid>[^/]+)/$', views.domain_edit, name="domain_edit"),
     url(r'^domain_delete/(?P<uuid>[^/]+)/$', views.domain_delete, name="domain_delete"),
     url(r'^domain_detail/(?P<uuid>[^/]+)/$', views.domain_detail, name="domain_detail"),
     url(r'^domain_add_batch/$', views.domain_add_batch, name="domain_add_batch"),
+    url(r'^all/list/$', views.domain_manage_business_list, name="domain_manage_business_list"),
 
 
 ##更新域名至服务器
-    url(r'^domain_rsync/(?P<uuid>[^/]+)/$', views.business_domain_rsync, name="domain_rsync"),
-    url(r'^domain_rsync_to_server/$', views.domain_rsync_to_server, name="domain_rsync_to_server"),
+    # url(r'^domain_rsync/(?P<uuid>[^/]+)/$', views.business_domain_rsync, name="domain_rsync"),
+    # url(r'^domain_rsync_to_server/$', views.domain_rsync_to_server, name="domain_rsync_to_server"),
 
 
 
@@ -62,7 +64,7 @@ urlpatterns = [
 
 ##白名单
 ##API
-    url(r'^platform_api/$', platfapi.get_platform_data),
+    # url(r'^platform_api/$', platfapi.get_platform_data),
 
 ##域名管理
     url(r'^domain/manage/user/list/$', dnsviews.dnsuser_list, name="dnsuser_list"),

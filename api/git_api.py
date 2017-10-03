@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python
+# coding:utf-8
 from __future__ import print_function, unicode_literals, with_statement
 from subprocess import Popen, STDOUT, PIPE
 try:
@@ -8,7 +9,7 @@ except: #python 3
 import re
 import os.path
 try:
-    import json #for reading logs
+    import json 
 except:
     import simplejson as json
 
@@ -102,7 +103,7 @@ class Repo(object):
         if branch:
             cmd.append('-b')
         cmd.append(str(reference))
-        self.git_command(*cmd)
+        return self.git_command(*cmd)
 
     def git_change_branch(self, branch):
         """Checkout and create branch """
@@ -189,11 +190,12 @@ class Repo(object):
         if kwargs:
             for key in kwargs:
                 cmds += [key, kwargs[key]]
-        res = self.git_command(*cmds)
-        log_list = [tag[0:8:] + "-Message:" + '_'.join(tag.split()[1:10]) for tag in res.split("\n") if tag]
-        return log_list
+
+        return self.git_command(*cmds)
+
 
     def show_commit(self):
+        """H是满hash，h是7位hash"""
         cmds = ["log","-10","--pretty=format:%h"]
         res = self.git_command(*cmds)
         return res.strip().split('\n')
@@ -239,14 +241,10 @@ class Repo(object):
                 if arg is not None]
         self.git_command("push", *args)
 
-    def git_pull(self, source=None, rebase=False):
+    def git_pull(self):
         """Pull changes to this repo."""
-        args = []
-        if rebase:
-            args.append('--rebase')
-        if source:
-            args.append('--all')
-        self.git_command("pull", *args)
+        res = self.git_command("pull","origin","master")
+        return res
 
     def git_fetch(self, source=None):
         """Fetch changes to this repo."""
@@ -259,8 +257,8 @@ class Repo(object):
     def git_clone(cls, url, path, *args):
         """Clone repository at given `url` to `path`,
         then return repo object to `path`."""
-        Repo.command(None, "clone", url, path, *args)
-        return Repo(path)
+        return Repo.command(None, "clone", url, path, *args)
+
 
     rev_log_tpl = '--pretty=format:{"node":"%h","author":"%an", "parents":"%p","date":"%ci","desc":"%s"}'
 

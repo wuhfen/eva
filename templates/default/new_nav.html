@@ -56,6 +56,24 @@
           </a>
         </li>
         <li><a href="{% url 'gengxin_deploy_list' %}"><i class="fa fa-cc-mastercard"></i> 现金网更新</a></li>
+        <li class="treeview">
+          <a href="#">
+            <i class="fa fa-laptop "></i> <span>git发布更新</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu ">
+            <li><a href="{% url 'conf_list' %}"><i class="fa fa-circle-o"></i> 现金网</a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i> 蛮牛</a></li>
+            <li><a href="{% url 'my_request_task_list' %}"><i class="fa fa-circle-o"></i> 我的申请<span class="pull-right-container">
+              <small class="label pull-right bg-red">{{ myrequesttasks }}</small>
+            </span></a></li>
+            <li><a href="{% url 'others_request_task_list' %}"><i class="fa fa-circle-o"></i> 待处理任务<span class="pull-right-container">
+              <small class="label pull-right bg-red">{{ myaudittasks }}</small>
+            </span></a></li>
+          </ul>
+        </li>
         {% endif %}
         {% if perms.accounts.add_customuser %}
         <li class="treeview">

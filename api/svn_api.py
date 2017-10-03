@@ -123,3 +123,8 @@ class Svnrepo(object):
             m = re.match(r'^r(\d+) \| (\w+).*', a)
             print(a)
         return m.group(1)
+
+    def svn_status(self):
+        res = self.svn_command("status","-u")
+        a = res.split('\n')[-2]
+        

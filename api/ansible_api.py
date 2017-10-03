@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import datetime
-import json
+import json as json2
 import urllib2
 from collections import namedtuple
 from ansible.parsing.dataloader import DataLoader
@@ -337,7 +337,7 @@ class CallbackModule(CallbackBase):
             'stats': summary
         }
 
-        self._display.display(json.dumps(output, indent=4, sort_keys=True))
+        self._display.display(json2.dumps(output, indent=4, sort_keys=True))
         self.results[0] = output
 
 

@@ -118,6 +118,8 @@ urlpatterns = [
    url(r'^server/batch/ping/$', sviews.batch_ping,name="batch_ping"),
    url(r'^server/batch/addvm/$', sviews.batch_add_vm,name="batch_add_vm"),
 
+#"""api"""
+   url(r'^api/modify/password/$', views.modify_password,name="modify_password"),
 
 
 

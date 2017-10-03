@@ -1,0 +1,98 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加仓库|Add repo {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>现金网发布更新配置</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'gengxin_code_list' %}">列表</a></li>
+        <li><a href="{% url 'gengxin_code_add' %}">添加配置</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="box box-info">
+    <form class="form-horizontal" action="" id="tools_add"  method="post" name="horizontal" role="form" autocomplete="off">{% csrf_token %}
+
+        <div class="box-header with-border">
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button class="btn btn-info btn-xs" type="reset"> 重置 </button>
+                    <a href="javascript:;" class="btn btn-info btn-xs" id='demo'> 提交 </a>
+                    <button class="btn btn-success btn-xs pull-right" type="submit"> 提交 </button>
+                </div>
+            </div>
+        </div>
+    <div class="box-body">
+        <div>
+            <div class="col-md-11">
+                <h4 class="text-center">基本配置</h4><hr>
+                <h4 class="text-danger text-center">{{ errors }}</h4>
+                <div class="form-group">
+                    <label class="control-label col-sm-2 col-lg-2 " for="id_classify">选择类型</label>
+                    <div class=" col-sm-10 col-lg-10 ">
+                        <select class=" form-control" id="id_classify" name="classify">
+                            <option value="huidu">灰度</option>
+                            <option value="online">生产</option>
+                            <!-- <option value="test">测试</option> -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2 col-lg-2 " for="id_business">选择发布项目</label>
+                    <div class=" col-sm-10 col-lg-10 ">
+                        <select class=" form-control" id="id_business" name="business">
+                        {% for i in data %}<option value="{{ i.uuid }}">{{ i.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <h4 class="text-center">审核配置</h4><hr>
+
+            </div>
+            <div class="col-md-12">
+                <h4 class="text-center">线上配置</h4><hr>
+
+            </div>
+            <div class="col-md-12">
+                <h4 class="text-center">域名配置</h4><hr>
+
+            </div>
+        </div>
+
+    </div>
+    </form>
+    </div>
+
+
+
+
+<script type="text/javascript">
+$("#demo").on('click',function() {
+    var env = $('#id_classify').val();
+    var uuid = $('#id_business').val();
+    url = "/deploy/git/return_deploy_info/"+env+"_"+uuid+"/"
+    layer.open({
+      type: 2,
+      shadeClose: true,
+      shade: 0.8,
+      area: ['1000px', '90%'],
+      content: url
+    });
+})
+
+</script>
+
+{% endblock content %}

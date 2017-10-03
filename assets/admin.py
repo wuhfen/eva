@@ -18,10 +18,9 @@ class ServerInline(admin.TabularInline):
 
 class ServerAdmin(admin.ModelAdmin):
     model = Server
-    list_display = ('name','ipmitool','idc','cabinet','server_cabinet_id','asset','model','os_kernel','Raid_level','system_status','os_type',
-                    'os_version','os_release','server_sn','Services_Code')
+    list_display = ('ssh_host','ssh_port')
     # raw_id_fields = ('idc',)
-# admin.site.register(models.Server,ServerAdmin)
+admin.site.register(models.Server,ServerAdmin)
 
 ##数据导出admin
 class ServerResource(resources.ModelResource):
@@ -44,7 +43,7 @@ class importServerAdmin(ImportExportModelAdmin):
 class exportServerAdmin(ImportExportActionModelAdmin):
     resource_class = ServerResource
 
-admin.site.register(Server, importServerAdmin)
+# admin.site.register(Server, importServerAdmin)
 
 
 class CPUInline(admin.TabularInline):

@@ -17,7 +17,7 @@ urlpatterns = [
     url(r'^linechange/pushdata/(?P<choice>[^/]+)/$', views.push_data, name="allow_push_data"),
     #"""域名解析"""
 
-    url(r'^backend/status$',views.backend_status,name='backend_status'),
+    url(r'^backend/status/',views.backend_status,name='backend_status'),
     url(r'^backend/change/(?P<id>[^/]+)/$',views.change_backend,name='change_backend'),
     url(r'^domain/list/$',views.kefu_domain_list,name='kefu_domain_list'),
 

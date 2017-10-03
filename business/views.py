@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404
 
 from django.contrib.auth.decorators import login_required, permission_required
 # from forms import BusinessForm, BugsForm
-from models import Business,Bugs,Platform,DomainName,Domain_ip_pool,DomainInfo
-from forms import BusinessForm, PlatfForm, DomainNameForm,IPpoolForm
+from models import Business,Bugs,DomainName,Domain_ip_pool,DomainInfo
+from forms import BusinessForm, DomainNameForm,IPpoolForm
 from api.ansible_api import ansiblex_domain
 from api.ssh_api import ssh_cmd
 
@@ -126,72 +126,72 @@ def deploy_nginx_tmp_file(request):
 
 
 ##业务平台增删查改
-@permission_required('business.add_business', login_url='/auth_error/')
-def platform_list(request):
-    platform_data = Platform.objects.all()
-    return render(request,'business/platform_list.html',locals())
+# @permission_required('business.add_business', login_url='/auth_error/')
+# def platform_list(request):
+#     platform_data = Platform.objects.all()
+#     return render(request,'business/platform_list.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
-def platform_add(request):
-    pf = PlatfForm()
-    if request.method == 'POST':
-        pf = PlatfForm(request.POST)
-        if pf.is_valid():
-            pf_data = pf.save()
-            return HttpResponseRedirect('/allow/welcome/')
-    return render(request,'business/platform_add.html',locals())
-
-
-@permission_required('business.add_business', login_url='/auth_error/')
-def platform_detail(request,uuid):
-    platform = get_object_or_404(Platform, uuid=uuid)
-    # platform = Platform.objects.get(pk=uuid)
-    allow_list = platform.iptables_set.all()
-    return render(request,'business/platform_detail.html',locals())
-
-@permission_required('business.add_business', login_url='/auth_error/')
-def platform_edit(request,uuid):
-    platform = get_object_or_404(Platform, uuid=uuid)
-    pf = PlatfForm(instance=platform)
-
-    server_all = Server.objects.all()
-    front_station_host = platform.front_station.all()
-    front_proxy_host = platform.front_proxy.all()
-    front_image_host = platform.front_image_site.all()
-    front_download_host = platform.front_download_site.all()
-    front_active_host = platform.front_active_site.all()
-    front_active_cache_host = platform.front_active_cache.all()
-
-    backend_station_host = platform.backend_station.all()
-    backend_proxy_host = platform.backend_proxy.all()
-    backend_image_host = platform.backend_image_site.all()
-    backend_active_host = platform.backend_active_site.all()
-
-    third_party_host = platform.third_party_node.all()
+# @permission_required('business.add_business', login_url='/auth_error/')
+# def platform_add(request):
+#     pf = PlatfForm()
+#     if request.method == 'POST':
+#         pf = PlatfForm(request.POST)
+#         if pf.is_valid():
+#             pf_data = pf.save()
+#             return HttpResponseRedirect('/allow/welcome/')
+#     return render(request,'business/platform_add.html',locals())
 
 
-    front_station_all = [p for p in server_all if p not in front_station_host]
-    front_proxy_all  = [p for p in server_all if p not in front_proxy_host]
-    front_image_all  = [p for p in server_all if p not in front_image_host]
-    front_download_all  = [p for p in server_all if p not in front_download_host]
-    front_active_all  = [p for p in server_all if p not in front_active_host]
-    front_active_cache_all  = [p for p in server_all if p not in front_active_cache_host]
+# @permission_required('business.add_business', login_url='/auth_error/')
+# def platform_detail(request,uuid):
+#     platform = get_object_or_404(Platform, uuid=uuid)
+#     # platform = Platform.objects.get(pk=uuid)
+#     allow_list = platform.iptables_set.all()
+#     return render(request,'business/platform_detail.html',locals())
 
-    backend_station_all  = [p for p in server_all if p not in backend_station_host]
-    backend_proxy_all  = [p for p in server_all if p not in backend_proxy_host]
-    backend_image_all  = [p for p in server_all if p not in backend_image_host]
-    backend_active_all  = [p for p in server_all if p not in backend_active_host]
+# @permission_required('business.add_business', login_url='/auth_error/')
+# def platform_edit(request,uuid):
+#     platform = get_object_or_404(Platform, uuid=uuid)
+#     pf = PlatfForm(instance=platform)
 
-    third_party_all  = [p for p in server_all if p not in third_party_host]
+#     server_all = Server.objects.all()
+#     front_station_host = platform.front_station.all()
+#     front_proxy_host = platform.front_proxy.all()
+#     front_image_host = platform.front_image_site.all()
+#     front_download_host = platform.front_download_site.all()
+#     front_active_host = platform.front_active_site.all()
+#     front_active_cache_host = platform.front_active_cache.all()
+
+#     backend_station_host = platform.backend_station.all()
+#     backend_proxy_host = platform.backend_proxy.all()
+#     backend_image_host = platform.backend_image_site.all()
+#     backend_active_host = platform.backend_active_site.all()
+
+#     third_party_host = platform.third_party_node.all()
 
 
-    allow_list = platform.iptables_set.all()
-    if request.method == 'POST':
-        pf = PlatfForm(request.POST,instance=platform)
-        if pf.is_valid():
-            p_data = pf.save()
-            return HttpResponseRedirect('/allow/welcome/')
-    return render(request,'business/platform_edit.html',locals())
+#     front_station_all = [p for p in server_all if p not in front_station_host]
+#     front_proxy_all  = [p for p in server_all if p not in front_proxy_host]
+#     front_image_all  = [p for p in server_all if p not in front_image_host]
+#     front_download_all  = [p for p in server_all if p not in front_download_host]
+#     front_active_all  = [p for p in server_all if p not in front_active_host]
+#     front_active_cache_all  = [p for p in server_all if p not in front_active_cache_host]
+
+#     backend_station_all  = [p for p in server_all if p not in backend_station_host]
+#     backend_proxy_all  = [p for p in server_all if p not in backend_proxy_host]
+#     backend_image_all  = [p for p in server_all if p not in backend_image_host]
+#     backend_active_all  = [p for p in server_all if p not in backend_active_host]
+
+#     third_party_all  = [p for p in server_all if p not in third_party_host]
+
+
+#     allow_list = platform.iptables_set.all()
+#     if request.method == 'POST':
+#         pf = PlatfForm(request.POST,instance=platform)
+#         if pf.is_valid():
+#             p_data = pf.save()
+#             return HttpResponseRedirect('/allow/welcome/')
+#     return render(request,'business/platform_edit.html',locals())
 
 
 
@@ -273,7 +273,7 @@ def get_domain_code(request):
     res_obj = DomainInfo.objects.filter(name=name)
     if res_obj:
         for i in res_obj:
-            axais.append(i.created_at)
+            axais.append(i.created_at.replace(microsecond=0))
             yxais.append(i.res_code)
         data['xaxis'] = axais
         data['yaxis'] = yxais
@@ -285,34 +285,55 @@ def restart_all_monitor(request):
     ##由于重启celery后所有的在监控任务都失效，所以写一个一键让其任务重新进入celery的按钮
     data_list = DomainName.objects.all()
     maxnum = 60
-    # for i in data_list:
-    #     if i.monitor_status == True:
-            # job = monitor_code.delay(maxnum,i.uuid)
-            
     data = {'retu':"True"}
     return JsonResponse(data,safe=False)
 
 
 ##域名增删查改
-@permission_required('business.add_domainname', login_url='/auth_error/')
-def domain_list(request):
-    domain_data = DomainName.objects.all()
-
-
+def domain_list_select(request,siteid):
+    business = Business.objects.get(pk=siteid)
+    domain_data = DomainName.objects.filter(business=business)
     return render(request,'business/domain_list.html',locals())
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
-def domain_add(request):
-    df = DomainNameForm()
+def domain_add_select(request,siteid):
+    business = Business.objects.get(pk=siteid)
+    data = DomainName.objects.filter(business=business)
+    errors = []
     if request.method == 'POST':
-        df = DomainNameForm(request.POST)
-        if df.is_valid():
-            df_data = df.save()
-            # if df_data.monitor_status == True:
-            #     uuid = df_data.uuid
-            #     job = monitor_code.delay(60,uuid)
-            return HttpResponseRedirect('/business/domain_list/')
-    return render(request,'business/domain_add.html',locals())
+        use = request.POST.get('selectdomainuse')
+        supplier = request.POST.get('selectdomainmanage')
+        domainname = request.POST.get('description')
+        if not use:
+            errors.append("你没有选择域名用途！")
+        if not supplier:
+            errors.append("你没有选择域名管理者！")
+        if not domainname:
+            errors.append("你没有填写域名！")
+        else:
+            for i in domainname.split('\r\n'):
+                if "." not in i.strip():
+                    errors.append("你填写域名：%s 格式错误！"% i.strip())
+                if use == '1' and "ag" not in i.strip():
+                    errors.append("你填写域名：%s 格式错误！缺少ag"% i.strip())
+                if use == '2' and "ds168" not in i.strip():
+                    errors.append("你填写域名：%s 格式错误！缺少ds168"% i.strip())
+                if use == '0' and ("ds168." in i.strip() or "ag." in i.strip()):
+                    errors.append("网站域名：%s 不应该改包含ds168 or ag"% i.strip())
+                if i.strip() in [x.name for x in data]:
+                    errors.append("域名：%s 已存在"% i.strip())
+        if errors:
+            return render(request,'business/domain_add_select.html',locals())
+        if use == '2':
+            pool = Domain_ip_pool.objects.get(name="新站后台反代")
+        elif use == '1':
+            pool = Domain_ip_pool.objects.get(name="新站第三方ag反代")
+        else:
+            pool = Domain_ip_pool.objects.get(name="CDN（抗攻击）")
+        for i in domainname.split('\r\n'):
+            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',address=pool,supplier=supplier)
+            save_data.save()
+    return render(request,'business/domain_add_select.html',locals())
+
 
 @permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_edit(request,uuid):
@@ -329,7 +350,10 @@ def domain_edit(request,uuid):
 def domain_delete(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     domainname.delete()
-    return render(request,'business/domain_list.html',locals())
+    return JsonResponse({'res':"OK",'info':"已删除！"},safe=False)
+    # return render(request,'business/domain_list.html',locals())
+
+
 
 @permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_detail(request,uuid):
@@ -345,13 +369,6 @@ def domain_detail(request,uuid):
         address = res_obj.address
         info = res_obj.info
         no_ip = res_obj.no_ip
-        # print address
-        # if set(address) < set(L):
-        #     info = info+"-解析IP与绑定IP一致"
-        #     # print info
-        # else:
-        #     info = "解析IP与绑定IP不一致，域名可能被劫持"
-        #     alert = True
 
     return render(request,'business/domain_detail.html',locals())
 
@@ -387,73 +404,77 @@ def domain_add_batch(request):
 
     return render(request,'business/domain_add_batch.html',locals())
 
+def domain_manage_business_list(request):
+    data = Business.objects.all()
+    return render(request,'business/domain_manage_business_list.html',locals())
 
 
 ##将域名同步至服务器
-@permission_required('business.add_domainname', login_url='/auth_error/')
-def business_domain_rsync(request,uuid):
-    business = get_object_or_404(Business,uuid=uuid)
-    return render(request,'business/domain_rsync_to_server.html',locals())
+# @permission_required('business.add_domainname', login_url='/auth_error/')
+# def business_domain_rsync(request,uuid):
+#     business = get_object_or_404(Business,uuid=uuid)
+#     return render(request,'business/domain_rsync_to_server.html',locals())
 
 
 
-def get_inventory(tag,groupname):
-    hostsFile = NamedTemporaryFile(delete=False)
-    plat_data = Platform.objects.get(name=tag)
-    data = []
-    group = "[%s]" % groupname
-    data.append(group)
-    for i in plat_data.front_station.all():
-        hosts = "%s ansible_ssh_port=%s ansible_ssh_use=root ansible_ssh_pass=%s" % (i.ssh_host,i.ssh_port,i.ssh_password)
-        data.append(hosts)
-    for s in data:
-        hostsFile.write(s+'\n')
-    hostsFile.close()
-    return hostsFile.name
+
+# def get_inventory(tag,groupname):
+#     hostsFile = NamedTemporaryFile(delete=False)
+#     plat_data = Platform.objects.get(name=tag)
+#     data = []
+#     group = "[%s]" % groupname
+#     data.append(group)
+#     for i in plat_data.front_station.all():
+#         hosts = "%s ansible_ssh_port=%s ansible_ssh_use=root ansible_ssh_pass=%s" % (i.ssh_host,i.ssh_port,i.ssh_password)
+#         data.append(hosts)
+#     for s in data:
+#         hostsFile.write(s+'\n')
+#     hostsFile.close()
+#     return hostsFile.name
 
 
 
-def domain_rsync_to_server(request):
-    data = {}
-    data['group1'] = {'10.10.239.145':"root"}
-    if request.method == 'GET':
-        uuid = request.GET['uuid']
-        business = get_object_or_404(Business,uuid=uuid)
-        tag = business.platform.name
-        template_dir_one = business.platform.nic_name
+# def domain_rsync_to_server(request):
+#     data = {}
+#     data['group1'] = {'10.10.239.145':"root"}
+#     if request.method == 'GET':
+#         uuid = request.GET['uuid']
+#         business = get_object_or_404(Business,uuid=uuid)
+#         tag = business.platform.name
+#         template_dir_one = business.platform.nic_name
 
-        use = request.GET['use']
-        domainname_list = [x.name for x in business.domainname_set.all() if x.use == use ]
-        domainname_list = ' '.join(domainname_list)
-        if use == '0':
-            groupname = 'front_station'
-            template_dir_two = 'front_station'
-            domainname_dir = business.front_station_web_dir
-            domainname_conf = business.front_station_web_file
-        elif use == '1' and tag == u"新平台":
-            groupname = 'third_party_node'
-            template_dir_two = 'third_proxy'
-            domainname_dir = business.third_proxy_web_dir
-            domainname_conf = business.third_proxy_web_file
-        elif use == '1' and tag == u"老平台":
-            groupname = 'front_station'
-            template_dir_two = 'front_station'
-            domainname_dir = business.front_station_web_dir
-            domainname_conf = business.front_station_web_file
-        else:
-            groupname = 'backend_proxy'
-            template_dir_two = 'backend_proxy'
-            domainname_dir = business.backend_station_web_dir
-            domainname_conf = business.backend_station_web_file
+#         use = request.GET['use']
+#         domainname_list = [x.name for x in business.domainname_set.all() if x.use == use ]
+#         domainname_list = ' '.join(domainname_list)
+#         if use == '0':
+#             groupname = 'front_station'
+#             template_dir_two = 'front_station'
+#             domainname_dir = business.front_station_web_dir
+#             domainname_conf = business.front_station_web_file
+#         elif use == '1' and tag == u"新平台":
+#             groupname = 'third_party_node'
+#             template_dir_two = 'third_proxy'
+#             domainname_dir = business.third_proxy_web_dir
+#             domainname_conf = business.third_proxy_web_file
+#         elif use == '1' and tag == u"老平台":
+#             groupname = 'front_station'
+#             template_dir_two = 'front_station'
+#             domainname_dir = business.front_station_web_dir
+#             domainname_conf = business.front_station_web_file
+#         else:
+#             groupname = 'backend_proxy'
+#             template_dir_two = 'backend_proxy'
+#             domainname_dir = business.backend_station_web_dir
+#             domainname_conf = business.backend_station_web_file
 
-        inventory = get_inventory(tag,groupname)
-        task = "/etc/ansible/domainname_rsync.yml"
-        ansiblex_domain(inventory,task,groupname,template_dir_one,template_dir_two,domainname_dir,domainname_conf,domainname_list)
-        print domainname_dir
-        print inventory
-        print domainname_list
-        os.remove(inventory)
-    return HttpResponse("SUCCESS")
+#         inventory = get_inventory(tag,groupname)
+#         task = "/etc/ansible/domainname_rsync.yml"
+#         ansiblex_domain(inventory,task,groupname,template_dir_one,template_dir_two,domainname_dir,domainname_conf,domainname_list)
+#         print domainname_dir
+#         print inventory
+#         print domainname_list
+#         os.remove(inventory)
+#     return HttpResponse("SUCCESS")
 
 def domain_monitor(request,uuid):
     return 0

@@ -18,7 +18,19 @@ def do_ansible(task,ip,remark,comment):
 @shared_task()
 def change_backend_task(host_ip,include_name):
     resource = gen_resource(Server.objects.get(ssh_host=host_ip))
-    module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="include vhost/" line="        include vhost/%s.conf"'% include_name
+    module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="include vhost/" line="        include vhost/%s.conf;"'% include_name
+    print(module_args)
+    mytask = MyRunner(resource)
+    res = mytask.run('lineinfile',module_args)
+    return res
+
+@shared_task()
+def change_backend_second(host_ip,include_name,status):
+    resource = gen_resource(Server.objects.get(ssh_host=host_ip))
+    if status:
+        module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="#include vhost/%s.conf" line="        include vhost/%s.conf;"'% (include_name,include_name)
+    else:
+        module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="include vhost/%s.conf" line="        #include vhost/%s.conf;"'% (include_name,include_name)
     print(module_args)
     mytask = MyRunner(resource)
     res = mytask.run('lineinfile',module_args)

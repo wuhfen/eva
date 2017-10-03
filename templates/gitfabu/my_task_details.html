@@ -1,0 +1,289 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 任务详情 {% endblock %}
+
+{% block head %} 
+<style type="text/css">
+p {text-indent: 1cm}
+</style>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>任务详情</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">我的任务</a></li>
+        <li><a href="#">任务详情</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+
+<ul class="timeline">
+
+    <!-- timeline time label -->
+    <li class="time-label">
+        <span class="bg-green">
+            {{ data.create_date.date }}
+        </span>
+    </li>
+    <!-- /.timeline-label -->
+
+    <!-- timeline item -->
+    <li>
+        <!-- timeline icon -->
+        <i class="fa fa-envelope bg-blue"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">创建申请</a></h3>
+
+            <div class="timeline-body">
+                <h4>名称：</h4>
+                <p>{{ data.name }}</p>
+                <h4>内容：</h4>
+                <p>{{ data.memo }}</p>
+                <h4>申请人：</h4>
+                <p>{{ data.initiator }}</p>
+
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">...</a>
+            </div>
+        </div>
+    </li>
+<!-- 任务作废开始 -->
+    {% if data.loss_efficacy %}
+        <li class="time-label">
+            <span class="bg-red">
+                {{ data.end_date.date }}
+            </span>
+        </li>
+        <li>
+        <!-- timeline icon -->
+        
+        <i class="fa fa-times bg-purple"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.end_date.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">任务废除</a> </h3>
+
+            <div class="timeline-body">
+                <h4>用户：{{ data.initiator }} 废除了此任务</h4>
+                <p>相关审核信息已被删除！</p>
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">END</a>
+            </div>
+        </div>
+        
+    </li>
+    {% else %}
+<!-- 任务作废结束 -->
+<!-- 任务有效开始 -->
+<!--发布任务开始-->
+    {% if classify == 'fabu' %}
+    <li>
+        <!-- timeline icon -->
+        
+        <i class="fa fa-wrench bg-blue"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">自动配置</a></h3>
+
+            <div class="timeline-body">
+                <h4>公共仓库：</h4>
+                {% if gitpublic %}
+                {% for i in gitpublic %}
+                    <p>{{ i.address }}  分支：{{ i.branch }}</p>
+                {% endfor %}
+                {% else %}<p class="bg-danger">没有配置php和js公共repo，请联系运维！</p>{% endif %}
+                <h4>私有仓库：</h4>
+                {% for i in gitprivate %}
+                    <p>{{ i.address }}  分支：{{ i.branch }}</p>
+                {% endfor %}
+                <h4>域名信息：</h4>
+                {% for i in domains %}
+                    <p>{{ i.name }}: {{ i.domainname }}</p>
+                {% endfor %}
+                <h4>服务器配置：</h4>
+                {% if servers %}
+                {% for i in servers %}
+                <p class="bg-info"><b>{{ i.name }}:</b> {{ i.remoteip }}</p>
+                    {% if i.name == "源站" %}
+                    <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
+                    <p>源码目录: {{ i.remotedir }}</p>
+                    <p>属主: {{ i.owner }}</p>
+                    <p>排除文件: {{ i.exclude }}</p>
+                    <p>代码部署前命令: {{ i.rsync_command }}</p>
+                    <p>代码部署后命令: {{ i.last_command }}</p>
+                    {% else %}
+                    <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
+                    {% endif %}
+                {% endfor %}
+                {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
+                <h4>审核人员：</h4>
+                {% if auditors %}
+                {% for i in auditors %}
+                    {% for x in i.user.all %}
+                        <p>{{ x.username }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">...</a>
+            </div>
+        </div>
+        
+    </li>
+<!-- 发布任务结束 -->
+<!-- 更新任务开始 -->
+    {% else %}
+    <li>
+        <!-- timeline icon -->
+        
+        <i class="fa fa-wrench bg-blue"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">自动配置</a></h3>
+
+            <div class="timeline-body">
+                <h4>更新方式：</h4>
+                    <p>{{ name }}：{{ repo }}</p>
+                {% if deploy_data %}
+                <h4>当前版本：</h4>
+                    <p>{{ deploy_data.now_reversion }}</p>
+                <h4>更新版本：</h4>
+                    <p> web版本号：{{ df.web_release }} PHP电脑端版本号：{{ df.php_pc_release }} PHP手机端版本号：{{ df.php_moblie_release }} JS电脑端版本号：{{ df.js_pc_release }} JS手机端版本号：{{ df.js_mobile_release }}</p>
+                {% else %}
+                <h4>涉及站点：</h4>
+                    <p>全站</p>
+                {% endif %}
+                <h4>具体变更(commit_id)：</h4>
+                    <p>分支：{{ branch }}</p>
+                    <p>详情：</p>
+                    <!-- {% for i in version_details %}<p>{{ i }}</p>{% endfor %} -->
+                    <p>{{ version_details }}</p>
+                <h4>审核人员：</h4>
+                {% if auditors %}
+                {% for i in auditors %}
+                    {% for x in i.user.all %}
+                        <p>{{ x.username }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">...</a>
+            </div>
+        </div>
+        
+    </li>
+<!-- 更新任务结束 -->
+    {% endif %}
+
+<!--审核任务开始 -->
+    {% for i in others_data %}
+    {% if i.isaudit %}
+    <li class="time-label">
+        <span class="bg-green">
+            {{ i.audit_time.date }}
+        </span>
+    </li>
+    <li>
+        <!-- timeline icon -->
+        <i class="fa fa-user bg-aqua"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ i.audit_time.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">{{ i.auditor }}</a> 已审核</h3>
+
+            <div class="timeline-body">
+                <h4>审核情况：</h4>
+                    <p>{% if i.ispass %}已通过{% else %}未通过{% endif %}</p>
+                <h4>批注：</h4>
+                    <p>{{ i.postil }}</p>
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">...</a>
+            </div>
+        </div>
+    </li>
+    {% else %}
+    <li class="time-label">
+        <span class="bg-yellow">
+            {{ i.create_date.date }}
+        </span>
+    </li>
+    <li>
+        <!-- timeline icon -->
+        <i class="fa fa-user bg-aqua"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ i.create_date.time }}</span>
+            <h3 class="timeline-header"><a href="#">{{ i.auditor }}</a> 未审核</h3>
+            <div class="timeline-body">
+            </div>
+            <div class="timeline-footer">
+            </div>
+        </div>
+    </li>
+    {% endif %}
+    {% endfor %}
+<!--审核任务结束-->
+
+
+<!-- 日志开始 -->
+    {% if df.islog %}
+    <li class="time-label">
+        <span class="bg-green">
+            {{ data.end_date.date }}
+        </span>
+    </li>
+    <li>
+        <!-- timeline icon -->
+        <i class="fa fa-file-text-o bg-purple"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.end_date.time }}</span>
+
+            <h3 class="timeline-header"><a href="#">日志</a></h3>
+
+            <div class="timeline-body">
+                {% for i in  dflog %}
+                <h4>记录时间：</h4>
+                    <p>{{ i.create_time }}</p>
+                <h4>内容：</h4>
+                    <pre class="text-success">{{ i.log }}</pre>
+                {% endfor %}
+            </div>
+
+            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">END</a>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+<!-- 日志结束 -->
+    {% endif %}
+<!-- 任务有效结束 -->
+
+    <li>
+      <i class="fa fa-clock-o bg-gray"></i>
+    </li>
+</ul>
+
+
+
+</div>
+{% endblock %}

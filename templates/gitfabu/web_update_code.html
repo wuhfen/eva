@@ -1,0 +1,174 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 网站详情{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">{{ data.name }}-更新</strong></h4><hr>
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_site">当前版本<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <pre>{{ data.now_reversion }}</pre>
+                        <div class="help-block"></div>
+                        <label class="text-right bolder" for="id_site">历史版本<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        {% if old_reversion == "Nothing" %}
+                            <p>没有信息</p>
+                        {% else %}
+                            <pre>{{ old_reversion }}</pre>
+                            <a href="#">点击查看更多</a>
+                        {% endif %}
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+
+                            <option value="">---SELECT---</option>
+                            <option value="web">web更新</option>
+                            <option value="php_pc">PHP电脑端更新</option>
+                            <option value="php_mobile">PHP手机端更新</option>
+                            <option value="js_pc">JS电脑端更新</option>
+                            <option value="js_mobile">JS手机端更新</option>
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_branch">代码分支<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
+                            {% for i in all_branch %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group " id="id_args">
+                        <label class="text-right bolder" for="id_release">版本号(commit_id)<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_release" name="release" aria-required="true">
+                            {% for i in web_commits %}
+                            <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group">
+                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                    </div>
+                </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        var memo = $('#id_memo').val();
+        var method = $('#id_command').val();
+        var release = $('#id_release').val();
+        var branch = $("#id_branch").val();
+        var urls= "{% url 'web_update_code' data.id %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: {  
+                'memo': memo, 
+                'method': method, 
+                'release': release, 
+                'branch': branch, 
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+                },
+        });
+    });
+</script>
+
+<script type="text/javascript">
+$("#id_command").change(function(){
+
+     // 先清空第二个
+
+      $("#id_branch").empty();
+      $("#id_release").empty();
+      layer.load();
+     // 实际的应用中，这里的option一般都是用循环生成多个了
+        var urls = "/fabu/git_batch_change/"+{{ uuid }}+"/"
+        var method = $('#id_command').val();
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {  
+                'method': method, 
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    for (i in data.commit) {
+                        var option = $("<option>").val(data.commit[i]).text(data.commit[i]);
+                        $("#id_release").append(option);
+                    };
+                    for (i in data.branches) {
+                        var option = $("<option>").val(data.branches[i]).text(data.branches[i]);
+                        $("#id_branch").append(option);
+                    };
+                };
+                layer.closeAll('loading');
+                },
+        });
+
+});
+$("#id_branch").change(function(){
+
+     // 先清空第二个
+
+      $("#id_release").empty();
+      layer.load();
+
+     // 实际的应用中，这里的option一般都是用循环生成多个了
+        var urls = "/fabu/git_batch_change/"+{{ uuid }}+"/"
+        var method = $('#id_command').val();
+        var branch = $("#id_branch").val();
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {  
+                'method': method, 
+                'branch': branch, 
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    for (i in data.commit) {
+                        var option = $("<option>").val(data.commit[i]).text(data.commit[i]);
+                        $("#id_release").append(option);
+                    };
+                };
+                layer.closeAll('loading');
+                },
+        });
+
+});
+</script>
+
+
+
+{% endblock  %}

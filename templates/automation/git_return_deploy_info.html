@@ -1,0 +1,49 @@
+{% extends 'default/base_layer.html' %}
+
+{% block title %} Edit Conf {% endblock %}
+
+
+{% block head %} 
+
+{% endblock %}
+{% block content %}
+<div class="container">
+
+
+
+
+<div class="row">
+  <form class="form-horizontal" action="" id="tools_add"  method="post" name="horizontal" role="form" autocomplete="off">{% csrf_token %}
+  <div class="col-md-12">
+    <h3 class="text-center">发布站点：{{ data.name }}</h3>
+    <h3 class="text-center">环境：{% if env == 'online' %}生产<small>线上</small>{% else %}灰度{% endif %}</h3>
+    <div class="text-center"><button class="btn btn-default" type="submit">确认无误并提交发布申请</button></div>
+    <hr>
+  </div>
+    <div class="col-md-4">
+        <h4>网站前端域名</h4>
+        <textarea class="form-control yuming" readonly="readonly" rows="{{ webnum }}">{% if webtext %}{{ webtext }}{% else %}点击添加{% endif %}</textarea>
+        
+    </div>
+    <div class="col-md-4">
+        <h4>网站ag域名</h4>
+        <textarea class="form-control yuming" readonly="readonly" rows="{{ agnum }}">{% if agtext %}{{ agtext }}{% else %}点击添加{% endif %}</textarea>
+    </div>
+    <div class="col-md-4">
+        <h4>网站后台域名</h4>
+        <textarea class="form-control yuming" readonly="readonly" rows="{{ ds168num }}">{% if ds168text %}{{ ds168text }}{% else %}点击添加{% endif %}</textarea>
+    </div>
+  </form>
+</div>
+
+</div>
+
+<script type="text/javascript">
+  $(".yuming").on('click',function() {
+    $(this).removeAttr('readonly');
+  })
+</script>
+
+
+
+{% endblock content %}

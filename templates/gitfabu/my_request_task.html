@@ -1,0 +1,92 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布新站|ADD NEW WEBSITE {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>我申请的任务</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">我的申请</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-lg-12">
+        <div class="box">
+        <div class="box-body">
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>内容</th>
+                        <th>审核人</th>
+                        <th>创建时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for v in data %}
+                    {% if v.loss_efficacy %}
+                        <tr>
+                            <td>{{ v.name }}</td>
+                            <td>{{ v.memo }}</td>
+                            <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>
+                            <td>{{ v.create_date }}</td>
+                            <td>{{ v.status }}</td>
+                            <td><a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>
+                        </tr>
+                    {% else %}
+                        <tr class="info">
+                            <td>{{ v.name }}</td>
+                            <td>{{ v.memo }}</td>
+                            <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>
+                            <td>{{ v.create_date }}</td>
+                            <td>{{ v.status }}</td>
+                            <td>{% if v.isend %}日志{% else %}{% if v.status = "通过审核，更新中" %}更新中{% else %}<a href="{% url 'cancel_my_task' v.id %}" class="btn btn-xs btn-danger cancel">作废</a>{% endif %}{% endif %}/<a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>
+                        </tr>
+                    {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+  </div>
+  </div>
+  </div>
+
+
+</div>
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+  });
+
+
+    $(".cancel").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定作废吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+</script>
+{% endblock %}

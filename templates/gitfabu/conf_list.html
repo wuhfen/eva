@@ -1,0 +1,134 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布新站|ADD NEW WEBSITE {% endblock %}
+
+{% block head %} 
+
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>更新发布</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">网站更新列表</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+        <div class="col-md-12">
+          <!-- Custom Tabs (Pulled to the right) -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs pull-right">
+              <li ><a href="#tab_1-1" data-toggle="tab">灰度环境</a></li>
+              <li class="active"><a href="#tab_2-2" data-toggle="tab">测试环境</a></li>
+              <li><a href="#tab_3-2" data-toggle="tab">生产环境</a></li>
+              <li class="pull-left header"><i class="fa fa-th"></i> 现金网更新发布</li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane" id="tab_1-1">
+                <div class="row">
+                  <div class="col-lg-6">
+                  <a href="{% url 'conf_add' 'money_huidu' %}" class="btn btn-primary">申请发布灰度</a>
+                  <hr>
+                  </div>
+                  <div class="col-lg-6">
+                  {% if data_huidu %}
+                  <a href="{% url 'public_update_code' 'huidu' %}" class="btn btn-warning pull-data">更新全部站点</a>
+                  <hr>
+                  {% endif %}
+                  </div>
+                    
+                  {% for i in data_huidu %}
+                      {% if i.islog %}
+                      <div class="col-md-2">
+                        <a href="{% url 'web_update_code' i.id %}" target="_blank" class="btn btn-info pull-data"><span class="badge bg-purple">{{ i.business.name }}</span>{{ i.name }}</a>
+                      </div>
+                      {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <!-- /.tab-pane -->
+              <div class="tab-pane active" id="tab_2-2">
+                <div class="row">
+                  <div class="col-lg-6">
+                  <a href="{% url 'conf_add' 'money_test' %}" class="btn btn-primary">申请发布测试</a>
+                  <hr>
+                  </div>
+                  <div class="col-lg-6">
+                  {% if data_test %}
+                  <a href="{% url 'public_update_code' 'test' %}" class="btn btn-warning pull-data">更新全部站点</a>
+                  <hr>
+                  {% endif %}
+                  </div>
+                    
+                  {% for i in data_test %}
+                      {% if i.islog %}
+                      <div class="col-md-2">
+                        <a href="{% url 'web_update_code' i.id %}" target="_blank" class="btn btn-info pull-data"><span class="badge bg-purple">{{ i.business.name }}</span>{{ i.name }}</a>
+                      </div>
+                      {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <!-- /.tab-pane -->
+              <div class="tab-pane" id="tab_3-2">
+                <div class="row">
+                  <div class="col-lg-6">
+                  <a href="{% url 'conf_add' 'money_online' %}" class="btn btn-primary">申请发布生产</a>
+                  <hr>
+                  </div>
+                  <div class="col-lg-6">
+                  {% if data_online %}
+                  <a href="{% url 'public_update_code' 'online' %}" class="btn btn-warning pull-data">更新全部站点</a>
+                  <hr>
+                  {% endif %}
+                  </div>
+                    
+                  {% for i in data_online %}
+                      {% if i.islog %}
+                      <div class="col-md-2">
+                        <a href="{% url 'web_update_code' i.id %}" target="_blank" class="btn btn-info pull-data"><span class="badge bg-purple">{{ i.business.name }}</span>{{ i.name }}</a>
+                      </div>
+                      {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              <!-- /.tab-pane -->
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+        </div>
+
+
+
+
+</div>
+<script type="text/javascript">
+    $(".pull-data").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1150px' , '700px'],
+                end : function () {
+                  location.reload();
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+
+</script>
+
+{% endblock %}

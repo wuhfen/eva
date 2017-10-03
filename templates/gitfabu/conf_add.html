@@ -1,0 +1,121 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布新站|ADD NEW WEBSITE {% endblock %}
+
+{% block head %} 
+
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>{{ dname }}</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">网站更新列表</a></li>
+        <li><a href="#">新站发布</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-8">
+    <form class="form-horizontal" action="" id="conf_add"  method="post" name="horizontal" role="form" autocomplete="off">{% csrf_token %}
+    <div class="box box-solid">
+        <div class="box-header with-border">
+            <i class="fa fa-text-width"></i>
+
+            <h3 class="box-title">选择发布业务</h3>
+            <button type="submit" class="btn btn-primary btn-xs pull-right">提交申请</button>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+        {% if errors %}
+        {% for i in errors %}<p class="text-danger"><b>Error:</b> {{ i }}</p>{% endfor %}
+        {% else %}
+            <div class="form-group col-md-12">
+                <select class=" form-control " id="id_business" name="business">
+                    <option value="">---select---</option>
+                    {% for i in busi %}
+                    <option value="{{ i.nic_name }}">{{ i.nic_name }}--{{ i.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if conf_domain %}
+            {% if platform == "现金网" %}
+            <div id="demo" hidden="hidden">
+                <div class="col-md-4">
+                    <h4>前端域名</h4>
+                    <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
+                </div>
+                <div class="col-md-4">
+                    <h4>ag域名</h4>
+                    <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
+                </div>
+                <div class="col-md-4">
+                    <h4>后台域名</h4>
+                    <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
+                </div>
+            </div>
+            {% else %}{% endif %}
+            {% endif %}
+        {% endif %}
+        </div>
+    </div>
+    </form>
+</div>
+    <div class="col-md-4">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <i class="fa fa-text-width"></i>
+
+          <h3 class="box-title">{{ platform }}_{{ envname }}发布_审核流程</h3>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+          <ol>
+            <li>运维人员配置项目信息</li>
+            <li>运维人员配置代码仓库地址</li>
+            <li>运维人员配置服务器信息</li>
+            <li>申请人选择发布项目</li>
+            {% if conf_domain %}
+            <li>申请人配置域名</li>
+            {% endif %}
+            <li>审核人审核</li>
+            {% for i in auditors %}
+            <li>{{ i }}审核通过</li>
+            {% endfor %}
+            <li>自动发布并生成日志</li>
+            <li>完成发布</li>
+          </ol>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+    </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+$('#id_business').change(function(){
+    var pp = $(this).children('option:selected').val();
+    var env = "{{ envir }}";
+    if (env == "huidu") { 
+        $('#front-domain').text(pp+".s1119.com");
+        $('#ag-domain').text("ag"+pp+".s1119.com");
+    } else if ( env == "test" ) {
+        $('#front-domain').text(pp+".test.s1118.com");
+        $('#ag-domain').text("测试环境忽略此项");
+        $('#backend-domain').text("测试环境忽略此项");
+    };
+    $('#demo').show();
+    })
+    })
+</script> 
+<script type="text/javascript">
+  $(".yuming").on('click',function() {
+    $(this).removeAttr('readonly');
+    $(this).empty();
+  })
+</script>
+{% endblock %}

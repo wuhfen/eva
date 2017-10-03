@@ -12,7 +12,7 @@ import time
 import json
 import urllib2,urllib
 from business.models import Business
-from .tasks import do_ansible,change_backend_task
+from .tasks import do_ansible,change_backend_task,change_backend_second
 from celery.result import AsyncResult
 from business.models import Business
 from business.tasks import dns_resolver_ip
@@ -180,7 +180,24 @@ def push_data(request,choice):
     return render(request,'allow_list/push_data.html',locals())
 
 def backend_status(request):
+    siteid_data = Business.objects.filter(nic_name__contains="10").order_by('nic_name')
     data = oldsite_line.objects.get(agent='备用后台')
+    if request.method == 'POST':
+        siteid = request.POST.get('siteid')
+        b_data = Business.objects.get(nic_name=siteid)
+        if b_data.reserve_b:
+            print "生效中转为未启用"
+            b_data.reserve_b = False
+            change_backend_second.delay(data.host_ip,siteid,False)
+            res = {"res":"OK","info":"后台节点已停用"}
+        else:
+            print "未启用转为生效中"
+            b_data.reserve_b = True
+            change_backend_second.delay(data.host_ip,siteid,True)
+            res = {"res":"OK","info":"后台节点已启用"}
+        b_data.save()
+        
+        return JsonResponse(res,safe=False)
     return render(request,'allow_list/backend_status.html',locals())
 
 def change_backend(request,id):
@@ -198,6 +215,9 @@ def change_backend(request,id):
     a = change_backend_task.delay(data.host_ip,include_name)
     print a.result
     return JsonResponse(res,safe=False)
+
+
+
 
 # 给客服用的管理域名的界面catg
 def kefu_domain_list(request):

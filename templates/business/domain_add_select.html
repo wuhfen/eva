@@ -1,0 +1,99 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加域名|Add Business {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>{{ business.name }}添加域名</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">域名管理</a></li>
+        <li><a href="#">添加域名</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-6 col-lg-6">
+    <div class="box box-info">
+        <div class="box-header">{% for i in errors %}<p class="text-danger">{{ i }}</p>{% endfor %}</div>
+        <div class="box-body">
+            <form class="form-horizontal" action="" id="domainname_add"  method="post" name="horizontal" role="form" autocomplete="off">
+                {% csrf_token %}
+                <h4>选择域名用途</h4>
+                <div class="radio">
+                    <label class="radio-inline" for="id_use">
+                        <input type="radio" name="selectdomainuse" value="0"> 网站域名
+                    </label>
+                    <label class="radio-inline" for="id_use">
+                        <input type="radio" name="selectdomainuse" value="1"> ag后台域名
+                    </label>
+                    <label class="radio-inline" for="id_use">
+                        <input type="radio" name="selectdomainuse" value="2"> ds168后台域名
+                    </label>
+                    <label class="radio-inline" for="id_use">
+                        <input type="radio" name="selectdomainuse" value="3"> 导航网域名
+                    </label>
+                    <label class="radio-inline hidden" for="id_use">
+                        <input type="radio" name="selectdomainuse" value="4"> 其他域名
+                    </label>
+                </div><hr>
+                <h4>选择域名管理者</h4>
+                    <div class="radio">
+                    <label class="radio-inline">
+                        <input type="radio" name="selectdomainmanage" value="网站"> 网站
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="selectdomainmanage" value="工程"> 工程
+                    </label>
+                    <label class="radio-inline hidden">
+                        <input type="radio" name="selectdomainmanage" value="其他"> 其他
+                    </label>
+                </div><hr>
+                <h4>域名<small>每行一条</small></h4>
+                <div class="form-group">
+                <div class=" col-sm-12 col-lg-12 ">
+                    <textarea class=" form-control" cols="40" id="id_description" name="description" rows="10"></textarea>
+                </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-5">
+                        <button class="btn btn-info " type="reset"> 重置 </button>
+                        <button class="btn btn-success " type="submit"> 提交 </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="col-md-6 col-lg-6">
+    <div class="box box-info">
+        <div class="box-body">
+            <table class="table table-striped">
+            <tr><th>域名</th><th>用途</th><th>管理者</th></tr>
+            {% for i in data %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>{% if i.use == '0' %}前端域名{% elif i.use == '1' %}ag后台域名{% elif i.use == '2' %}后台域名
+                        {% elif i.use == '3' %}彩票域名{% elif i.use == '4' %}导航网域名{% elif i.use == '5' %}其他域名{% endif %}</td>
+                <td>{{ i.supplier }}</td>
+                <!-- <td><a href="#" class="btn btn-xs btn-danger">delete</a></td> -->
+            </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+</div>
+
+
+{% endblock content %}

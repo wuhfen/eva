@@ -18,7 +18,8 @@ def dns_resolver_ip(url):
     iplist = []
     try:
         answers = dns.resolver.query(url, 'A')
-    except dns.resolver.NoAnswer:
+    # except dns.resolver.NoAnswer:
+    except:
         print "Alert NoAnswer"
         return False
     else:
@@ -35,7 +36,6 @@ def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
         Bb.save()
     except AttributeError:
         print 'NoneType object has no attribute update_attributes'
-    # print info+"OKOKOKOK"
     if address:
         address = [ str(x) for x in address]
     else:
@@ -46,7 +46,6 @@ def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
         no_ip = []
     Aa = DomainInfo(name=url,info=info,address=address,no_ip=no_ip,res_code=res_code,alert=alert)
     if Aa.is_valid():
-        # print "Data is storing redis-db-1 now"
         Aa.save()
     else:
         print "%s redis存储数据失败"% url

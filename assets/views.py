@@ -270,8 +270,14 @@ def virtual_detail(request,uuid):
     """ 虚拟主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
-    cpu_data = asset.cpu
-    nic_data = NIC.objects.filter(asset=asset)
+    try: 
+        cpu_data = asset.cpu
+    except:
+        cpu_data = []
+    try:
+        nic_data = NIC.objects.filter(asset=asset)
+    except:
+        nic_data = []
     # host_record = HostRecord.objects.filter(host=host).order_by('-time')
 
     return render(request,'assets/virtual_detail.html', locals())
@@ -322,8 +328,11 @@ def server_edit(request,uuid):
 def virtual_edit(request,uuid):
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
-    cpu = asset.cpu
-    cf = CPUForm(instance=cpu)
+    try:
+        cpu = asset.cpu
+        cf = CPUForm(instance=cpu)
+    except:
+        cpu = None
     af = AssetForm(instance=asset)
     sf = ServerForm(instance=server)
 
@@ -591,4 +600,23 @@ def initialization_system(request,uuid):
         print task_id
     return render(request,'assets/progress_bar.html',locals())
 
+
+def modify_password(request):
+    if request.method =='POST':
+        host_ip = request.POST.get('ip')
+        password = request.POST.get('password')
+        print host_ip,password
+        try:
+            a = Server.objects.filter(ssh_host=host_ip)
+            if a:
+                a.update(ssh_password=password)
+            else:
+                print "没有此ip：%s,开始创建数据"% host_ip
+                adata = Asset(asset_type='virtual',purpose="nothing")
+                adata.save()
+                vdata = Server(asset=adata,ssh_host=host_ip,ssh_port="22992",ssh_user="root",ssh_password=password)
+                vdata.save()
+        except:
+            print "没有此ip：%s"% host_ip
+    return HttpResponse("OK")
 

@@ -1,0 +1,164 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 网站详情{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">公共代码-全站更新</strong></h4><hr>
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                            <option value="php_pc">PHP电脑端更新</option>
+                            <option value="php_mobile">PHP手机端更新</option>
+                            <option value="js_pc">JS电脑端更新</option>
+                            <option value="js_mobile">JS手机端更新</option>
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_branch">选择分支</label>
+                        <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
+                        {% for i in all_branch %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_commit">更新版本号(commit_id)</label>
+                        <select class="form-control n-invalid" id="id_commit" name="commit" aria-required="true">
+                        {% for i in commit %}
+                            <option value="{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                        </select>
+                        <div class="help-block"></div>
+                    </div>
+
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                        <div class="help-block"></div>
+                    </div>
+                    <div class="form-group">
+                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                    </div>
+                </form>
+        </div>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        var memo = $('#id_memo').val();
+        var method = $('#id_command').val();
+        var release = $('#id_commit').val();
+        var branch = $('#id_branch').val();
+        var urls= "{% url 'public_update_code' env %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: {  
+                'memo': memo, 
+                'method': method, 
+                'release': release, 
+                'branch': branch, 
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+                },
+        });
+    });
+</script>
+<script type="text/javascript">
+$("#id_command").change(function(){
+
+     // 先清空第二个
+
+      $("#id_branch").empty();
+      $("#id_commit").empty();
+      host = window.location.href;
+      env = host.split('/')[6];
+      console.log(env);
+      layer.load();
+     // 实际的应用中，这里的option一般都是用循环生成多个了
+        var urls = "{% url 'public_branch_change' %}"
+        var method = $('#id_command').val();
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {  
+                'name': method, 
+                'env': env, 
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    for (i in data.commit) {
+                        var option = $("<option>").val(data.commit[i]).text(data.commit[i]);
+                        $("#id_commit").append(option);
+                    };
+                    for (i in data.branches) {
+                        var option = $("<option>").val(data.branches[i]).text(data.branches[i]);
+                        $("#id_branch").append(option);
+                    };
+                };
+                layer.closeAll('loading');
+                },
+        });
+
+});
+$("#id_branch").change(function(){
+
+     // 先清空第二个
+
+      $("#id_commit").empty();
+      host = window.location.href;
+      env = host.split('/')[6];
+      layer.load();
+
+     // 实际的应用中，这里的option一般都是用循环生成多个了
+        var urls = "{% url 'public_branch_change' %}"
+        var method = $('#id_command').val();
+        var branch = $("#id_branch").val();
+
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'GET',
+            data: {  
+                'name': method, 
+                'env': env,
+                'branch': branch, 
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    for (i in data.commit) {
+                        var option = $("<option>").val(data.commit[i]).text(data.commit[i]);
+                        $("#id_commit").append(option);
+                    };
+                };
+                layer.closeAll('loading');
+                },
+        });
+
+});
+</script>
+{% endblock %}

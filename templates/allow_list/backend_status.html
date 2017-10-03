@@ -11,9 +11,9 @@
 
 {% block content %}
 
-<div class="box box-info">
-    <div class="box-header"><h1>现金网ds168后台反代节点切换</h1></div>
-    <form class="form-horizontal" action="" id="change_backend"  method="post" name="horizontal" role="form">{% csrf_token %}
+<!-- <div class="box box-info">
+    
+
     <div class="box-body">
         <p>备用后台节点：{{ data.host_ip }}</p>
         <p>状态：{% if data.status %}生效中{% else %}停用{% endif %}</p>
@@ -26,8 +26,24 @@
             {% endif %}
         </label><br>
     </div>
+
+</div> -->
+    <form class="form-horizontal" action="" method="post" name="horizontal" role="form">{% csrf_token %}
+        <div class="box box-info">
+        <div class="box-header"><h2>现金网ds168后台反代节点切换</h2></div>
+        <div class="box-body">
+            {% for i in siteid_data %}<div class="col-md-3">
+
+            {% if i.reserve_b %}
+            <a href="javascript:;" class="btn btn-success yellow" id="{{ i.nic_name }}">{{ i.nic_name }}-<span>生效中</span></a>
+            {% else %}
+            <a href="javascript:;" class="btn btn-default yellow" id="{{ i.nic_name }}">{{ i.nic_name }}-<span>未启用</span></a>
+            {% endif %}
+
+            </div>{% endfor %}
+        </div>
+        </div>
     </form>
-</div>
 <script type="text/javascript">
     $(".blue").on("click", function(event){ 
         var urls = "{% url 'change_backend' data.id %}"
@@ -48,5 +64,30 @@
 
     });
 </script>
+<script type="text/javascript">
+    $(".yellow").on("click", function(event){ 
+        var urls = "{% url 'backend_status' %}";
+        var siteid = $(this).attr('id');
+        var token = $('input[name="csrfmiddlewaretoken"]').val();
+        console.log(siteid);
+        console.log(token);
+        $.ajax({
+        url:urls,
+        dataType: 'json',
+        type: 'POST',
+        data: {
+            'siteid': siteid,
+            'csrfmiddlewaretoken': token,
+        },
+        success: function(data) { 
+            if (data.res == "OK") {
+                layer.msg(data.info,{icon: 1,time: 4000},function(){
+                    parent.location.reload();
+                });
+            }
+            },
+        });
 
+    });
+</script>
 {% endblock %}
