@@ -20,7 +20,7 @@ from ansible.executor.task_queue_manager import TaskQueueManager
 from ansible.inventory.group import Group
 from ansible.inventory.host import Host
 
-from ansible.plugins.callback.json import  CallbackModule as minicb
+from ansible.plugins.callback.callback_json import  CallbackModule as minicb
 
 class ResultsCollector(CallbackBase):
 

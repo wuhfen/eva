@@ -154,6 +154,7 @@ class website_deploy(object):
         siteid = self.siteid.replace('m','')
         for i in remoteips.split('\r\n'):
             print "i="+i
+            owner = "chown -R 400.400 /data/wwwroot/%s"% siteid
             unlock = "chattr -R -i /data/wwwroot/"
             lock = "chown -R 400.400 /data/wwwroot/%s && chattr -R +i /data/wwwroot/ && find /data/wwwroot/ -maxdepth 6 -type d -name 'Logs' | xargs -i chattr -R -i {}"% siteid
             if self.env == 'online':
@@ -167,6 +168,8 @@ class website_deploy(object):
             rsync_res = task.genxin_rsync(self.pc_merge_dir,remotedir,exclude) #将代码从CMDB本地目录推送到服务器目录，需要此机器可以公钥访问源站
             if self.env == 'online':
                 command_lock = ssh_cmd(i,lock)
+            else:
+                command_lock = ssh_cmd(i,owner)
             last_command_res = ssh_cmd(i,last_command)  #执行代码推送后命令
             print rsync_res
             return rsync_res
@@ -199,8 +202,8 @@ class website_deploy(object):
             else:
                 remote_nginx_file = self.siteid+".conf"
                 local_nginx_file = "agent.conf"
-            resource = gen_resource(Server.objects.get(ssh_host='10.10.240.20'))
-            # resource = gen_resource(Server.objects.get(ssh_host='47.89.30.192'))
+            #resource = gen_resource(Server.objects.get(ssh_host='10.10.240.20'))
+            resource = gen_resource(Server.objects.get(ssh_host='47.89.30.192'))
             playtask = MyPlayTask(resource)
             playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remote_nginx_file,self.siteid,server_names)
         else:

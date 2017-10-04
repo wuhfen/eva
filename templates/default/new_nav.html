@@ -23,18 +23,7 @@
         </div>
       </div>
       {% endif %}
-      <!-- search form -->
-<!--       <form action="#" method="get" class="sidebar-form">
-        <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Search...">
-              <span class="input-group-btn">
-                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
-                </button>
-              </span>
-        </div>
-      </form> -->
-      <!-- /.search form -->
-      <!-- sidebar menu: : style can be found in sidebar.less -->
+
       <ul class="sidebar-menu">
         <li class="header">MAIN NAVIGATION</li>
         <li>
@@ -94,44 +83,13 @@
               <i class="fa fa-angle-left pull-right"></i>
             </span></a>
             <ul class="treeview-menu">
-<!--             <li id="business_manager">
-                <a href="#"><i class="fa fa-circle-o"></i>业务管理
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="{% url 'business_list' %}"><i class="fa fa-circle-o"></i> 业务列表</a></li>
-                    <li><a href="{% url 'platform_list' %}"><i class="fa fa-circle-o"></i> 业务平台</a></li>
-                    <li><a href="{% url 'business_add' %}"><i class="fa fa-circle-o"></i> 添加业务</a></li>
-                </ul>
-            </li> -->
+
             <li><a href="{% url 'business_list' %}"><i class="fa fa-circle-o"></i> 业务列表</a></li>
             <li><a href="{% url 'business_add' %}"><i class="fa fa-circle-o"></i> 添加业务</a></li>
 
-<!--             <li><a href="{% url 'line_add' %}"><i class="fa fa-circle-o"></i> 添加产品线</a></li>
-            <li><a href="{% url 'line_list' %}"><i class="fa fa-circle-o"></i> 查看产品线</a></li>
-            <li><a href="{% url 'project_add' %}"><i class="fa fa-circle-o"></i> 添加项目</a></li>
-            <li><a href="{% url 'project_list' %}"><i class="fa fa-circle-o"></i> 查看项目</a></li>
-            <li><a href="{% url 'service_add' %}"><i class="fa fa-circle-o"></i> 添加服务</a></li>
-            <li><a href="{% url 'service_list' %}"><i class="fa fa-circle-o"></i> 查看服务</a></li> -->
-
             </ul>
         </li>
-<!--         <li class="treeview">
-            <a href="#"><i class="fa fa-delicious"></i> <span>机房管理</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span></a>
-            <ul class="treeview-menu">
-            <li><a href="{% url 'idc_add' %}"><i class="fa fa-circle-o"></i> 添加机房</a></li>
-            <li><a href="{% url 'idc_list' %}"><i class="fa fa-circle-o"></i> 查看机房</a></li>
-            <li><a href="{% url 'moudle_add' %}"><i class="fa fa-circle-o"></i> 添加机房区域</a></li>
-            <li><a href="{% url 'moudle_list' %}"><i class="fa fa-circle-o"></i> 查看机房区域</a></li>
-            <li><a href="{% url 'cabinet_add' %}"><i class="fa fa-circle-o"></i> 添加机柜</a></li>
-            <li><a href="{% url 'cabinet_list' %}"><i class="fa fa-circle-o"></i> 查看机柜</a></li>
-            </ul>
-        </li> -->
+
         {% endif %}
         {% if perms.Allow_list.add_iptables %}
         <li class="treeview">
@@ -142,22 +100,11 @@
             </span>
           </a>
           <ul class="treeview-menu">
-<!--             <li><a href="{% url 'domain_list' %}"><i class="fa fa-circle-o"></i> 域名监控|DOMAIN MONITOR</a></li>
-            <li><a href="{% url 'domain_ip_list' %}"><i class="fa fa-circle-o"></i> IP管理|IP MANAGE</a></li> -->
+
             <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 源站信息|Source Info</a></li>
             <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 后台线路切换</a></li>
             <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台VPN白名单|VPN manage</a></li>
-<!--           <li>
-              <a href="#"><i class="fa fa-circle-o"></i> API白名单
-                <span class="pull-right-container">
-                  <i class="fa fa-angle-left pull-right"></i>
-                </span>
-              </a>
-              <ul class="treeview-menu">
-                <li><a href="#"><i class="fa fa-circle-o"></i> 查看白名单</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i> 添加白名单</a></li>
-              </ul>
-          </li> -->
+
         </ul>
         </li>
         {% endif %}

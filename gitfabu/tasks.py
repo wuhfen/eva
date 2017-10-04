@@ -354,14 +354,20 @@ class git_moneyweb_deploy(object):
             except:
                 self.results.append("ERROR:现金网-%s-后台没有配置"% self.env)
         #同步前端域名
-        if "f" in self.siteid:
-            local_nginx_file = "front_fu.conf"
+        if self.env == "test":
+            local_nginx_file = "front_test.conf"
         else:
-            local_nginx_file = "front_zhu.conf"
+            if "f" in self.siteid:
+                local_nginx_file = "front_fu.conf"
+            else:
+                local_nginx_file = "front_zhu.conf"
         try:
             resource = gen_resource([Server.objects.get(ssh_host=i) for i in front_remoteips.split('\r\n')])
             playtask = MyPlayTask(resource)
-            res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,front_data.conf_file_name,siteid,front_data.domainname)
+            if self.env == "test":
+                res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",siteid,front_data.domainname)
+            else:
+                res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,front_data.conf_file_name,siteid,front_data.domainname)
             self.results.append("源站：%s 文件名：%s"% (front_remoteips,remote_dir+front_data.conf_file_name))
             self.results.append("域名：%s"% front_data.domainname)
             if res == 0:
