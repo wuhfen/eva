@@ -117,7 +117,7 @@ def genxin_code_dir(path):
 
 
 def add100(x):
-    gg = "exclude=" + x
+    gg = "--exclude=" + x
     return gg
 
 def genxin_exclude_file(files):

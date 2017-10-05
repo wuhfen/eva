@@ -50,6 +50,7 @@ class git_moneyweb_deploy(object):
         self.php_mobile_dir = self.base_export_dir + "php_mobile/" #公共php代码手机端检出地址
         self.js_pc_dir = self.base_export_dir + "js_pc/" #公共js代码pc端检出地址
         self.js_mobile_dir = self.base_export_dir + "js_mobile/" #公共js代码手机端检出地址
+        self.config_dir = self.base_export_dir + "Config_" + self.siteid #公共config
 
         self.now_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         self.method = method
@@ -60,6 +61,8 @@ class git_moneyweb_deploy(object):
             self.export_git(what='js_pc')
             self.export_git(what='php_mobile')
             self.export_git(what='js_mobile')
+            if not self.env == "test":
+                self.export_config(branch="master")
             self.merge_git()
             self.ansible_rsync_web()
             self.web_front_domain()
@@ -77,6 +80,7 @@ class git_moneyweb_deploy(object):
             repo = Repo(self.js_pc_dir)
         else:
             repo = Repo(self.js_mobile_dir)
+        repo.git_pull()
         return repo.git_all_branch()
 
     def branch_checkout(self,what='web',branch=None):
@@ -96,7 +100,6 @@ class git_moneyweb_deploy(object):
             repo.git_checkout("master")
         repo.git_pull()
         return repo.show_commit()
-
 
 
 
@@ -137,6 +140,13 @@ class git_moneyweb_deploy(object):
             res = repo.git_log(limit=1)
         return res
 
+    def export_config(self,branch="master"):  #配置文件灰度与线上公用，测试环境不需要检出配置文件
+        url = "http://fabu:DSyunweibu110110@git.dtops.cc/config/"+ self.siteid +".git"
+        genxin_code_dir(self.config_dir)
+        repo = Repo(self.config_dir)
+        res = repo.git_clone(url,self.config_dir)
+        self.results.append("检出%s配置文件"% self.siteid)
+        return self.results
 
 
     def export_git(self,what='web',branch="master",reversion=None):
@@ -285,9 +295,14 @@ class git_moneyweb_deploy(object):
     def merge_git(self):
         genxin_code_dir(self.merge_dir)  #清空或创建目录
         self.results.append("清空合并目录：%s"% self.merge_dir)
-        cmd = '''\cp -ar %s/*  %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
-            '''% (self.web_dir,self.merge_dir,self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
-                self.js_pc_dir,self.merge_dir,self.js_mobile_dir,self.merge_dir)
+        if self.env == 'test':
+            cmd = '''\cp -ar %s/*  %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
+                '''% (self.web_dir,self.merge_dir,self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
+                    self.js_pc_dir,self.merge_dir,self.js_mobile_dir,self.merge_dir)
+        else:
+            cmd = '''\cp -ar %s/*  %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
+                '''% (self.web_dir,self.merge_dir,self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
+                    self.js_pc_dir,self.merge_dir,self.js_mobile_dir,self.merge_dir,self.config_dir,self.merge_dir)
         print cmd
         self.results.append("执行语句：%s"% cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -443,8 +458,6 @@ class git_moneyweb_deploy(object):
                 self.results.append("配置源站反代域名失败，任务结束！")
                 return self.results
         return self.results
-
-
 
 
 @shared_task()

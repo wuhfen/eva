@@ -243,7 +243,7 @@ class Repo(object):
 
     def git_pull(self):
         """Pull changes to this repo."""
-        res = self.git_command("pull","origin","master")
+        res = self.git_command("pull","--all")
         return res
 
     def git_fetch(self, source=None):
