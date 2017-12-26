@@ -18,25 +18,11 @@ urlpatterns = [
     url(r'^business/conf/create',views.deploy_nginx_tmp_file,name="deploy_nginx_tmp_file"),
 
 
-
-##BUG
-    url(r'^bugs_list/$', views.bugs_list, name="bugs_list"),
-
-##平台
-    # url(r'^platform_list/$', views.platform_list, name="platform_list"),
-    # url(r'^platform_detail/(?P<uuid>[^/]+)/$', views.platform_detail, name="platform_detail"),
-    # url(r'^platform_edit/(?P<uuid>[^/]+)/$', views.platform_edit, name="platform_edit"),
-    # url(r'^platform_add/$', views.platform_add, name="platform_add"),
-    # url(r'^platform_delete/$', views.platform_delete, name="platform_delete"),
-
-
 ##IP管理
     url(r'^domain_ip_list/$', views.domain_ip_list, name="domain_ip_list"),
     url(r'^domain_ip_add/$', views.domain_ip_add, name="domain_ip_add"),
     url(r'^domain_ip_edit/(?P<uuid>[^/]+)/$', views.domain_ip_edit, name="domain_ip_edit"),
     url(r'^domain_ip_delete/(?P<uuid>[^/]+)/$', views.domain_ip_delete, name="domain_ip_delete"),
-
-
 
 ##域名
     url(r'^domain_list/(?P<siteid>[^/]+)/$', views.domain_list_select, name="domain_list_select"),
@@ -51,6 +37,8 @@ urlpatterns = [
 ##更新域名至服务器
     # url(r'^domain_rsync/(?P<uuid>[^/]+)/$', views.business_domain_rsync, name="domain_rsync"),
     # url(r'^domain_rsync_to_server/$', views.domain_rsync_to_server, name="domain_rsync_to_server"),
+
+    url(r'^upload/file/$', views.domain_upload, name="domain_upload"),
 
 
 

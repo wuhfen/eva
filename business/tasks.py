@@ -112,9 +112,16 @@ def monitor_code():
         if judge:
             print url
             get_code(url,L)
+            ips = dns_resolver_ip(domain_name)
+            if ips:
+                if set(ips)&set(L): #加入ip有交集，就添加交集进ip库
+                    L = list(set(ips)|set(L))
+                    obj.address.attribute = L
+                    obj.address.save()
         else:
             print "domain %s monitor_status %s"% (url,judge)
     return "END.....task"
+
 
 @shared_task()
 def test_code():

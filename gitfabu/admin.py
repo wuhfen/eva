@@ -21,10 +21,6 @@ class CodeAdmin(admin.ModelAdmin):
     list_display = ('title','platform','classify')
 admin.site.register(models.git_coderepo,CodeAdmin)
 
-class DommainAdmin(admin.ModelAdmin):
-    list_display = ('name','conf_file_name')
-admin.site.register(models.git_website_domainname,DommainAdmin)
-
 class MytaskAdmin(admin.ModelAdmin):
     list_display = ('name','table_name','status','isend','memo','loss_efficacy')
 admin.site.register(models.my_request_task,MytaskAdmin)

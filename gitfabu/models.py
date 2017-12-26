@@ -12,9 +12,10 @@ CLASSIFY_CHOICE = (
     ('online', u'生产'),
     ('test', u'测试'),
 )
-SERVER_TYPE = [(i, i) for i in (u"源站",u"AG",u"后台","源站反代")]
-TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛")]
-NAME_CHOICE = [(i, i) for i in (u"发布",u"更新")]
+alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代"]
+SERVER_TYPE = [(i, i) for i in tuple(alone)]
+TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
+NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新")]
 
 # Create your models here.
 class git_coderepo(models.Model):
@@ -61,7 +62,11 @@ class my_request_task(models.Model):
     isend = models.BooleanField(_(u'是否完成'),default=False)
     loss_efficacy = models.BooleanField(_(u'是否作废'),default=False)
     class Meta:
-        ordering = ['-create_date']
+        ordering = ["-end_date"]
+        verbose_name = u'我发起的任务'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
 
 class git_task_audit(models.Model):
     """审核任务模型"""
@@ -96,14 +101,6 @@ class git_ops_configuration(models.Model):
         return self.name
 
 
-class git_website_domainname(models.Model):
-    """发布时网站域名配置 name格式：生产-1002前端域名"""
-    name = models.CharField(_(u'名称'),max_length=45,blank=True)
-    conf_file_name = models.CharField(_(u'配置文件名称'),max_length=68,blank=True)
-    conf = models.TextField(_(u'nginx配置'),null=True,blank=True)
-    domainname = models.TextField(_(u'域名'),null=True,blank=True)
-    git_deploy = models.ForeignKey('git_deploy',verbose_name=u'发布项目',related_name='deploy_domain')
-
 class git_deploy_logs(models.Model):
     """发布时日志"""
     name = models.CharField(_(u'类型'),max_length=45,choices=NAME_CHOICE)
@@ -116,10 +113,10 @@ class git_deploy_logs(models.Model):
 class git_deploy(models.Model):
     """代码发布新建站数据模型,有发布任务时会创建/tmp/cmdb-task.lock,没有此文件才可以执行，否则一直sleep状态"""
     name = models.CharField(_(u'名称'),max_length=45,blank=True,default="1001")
-    platform = models.CharField(verbose_name=u'项目类型',null=True,blank=True,max_length=32,choices=TOOL_TYPE)
-    classify =  models.CharField(_(u'发布类型'),max_length=64,choices=CLASSIFY_CHOICE,default="类别")
+    platform = models.CharField(verbose_name=u'项目类型',null=True,blank=True,max_length=32,choices=TOOL_TYPE,default="现金网")
+    classify =  models.CharField(_(u'发布类型'),max_length=64,choices=CLASSIFY_CHOICE)
     business = models.ForeignKey(Business,verbose_name=u'关联业务',null=True,blank=True)
-    conf_domain = models.BooleanField(_(u'是否配置域名'),default=False)
+    conf_domain = models.BooleanField(_(u'是否需要配置域名'),default=False)
     now_reversion = models.TextField(_(u'当前版本'),null=True,blank=True)
     old_reversion = models.TextField(_(u'历史版本'),null=True,blank=True)
     server = models.ForeignKey(git_ops_configuration,verbose_name=u'服务器配置',related_name='server_dev')
@@ -127,8 +124,8 @@ class git_deploy(models.Model):
     isops = models.BooleanField(_(u'运维是否完成配置'),default=False)
     isaudit = models.BooleanField(_(u'审核是否通过'),default=False)
     islog = models.BooleanField(_(u'是否发布完成'),default=False)
-    # audit = models.ForeignKey(git_deploy_audit,verbose_name=u'审核人',related_name='auditor')
-    # audit_task = models.ForeignKey(git_task_audit,verbose_name=u'审核任务',related_name='audit')
+    islock = models.BooleanField(_(u'是否有锁'),default=False)
+    usepub = models.BooleanField(_(u'是否调用公用库'),default=False)
 
     class Meta:
         ordering = ['name']
@@ -145,21 +142,29 @@ class git_code_update(models.Model):
     METHOD_CHOICE = (
         ('web', u'web更新'),
         ('php_pc', u'pc端php代码更新'),
-        ('php_moblie', u'手机端php代码更新'),
+        ('php_mobile', u'手机端php代码更新'),
         ('js_pc', u'pc端js代码更新'),
         ('js_mobile', u'手机端js代码更新'),
+        ('php', u'PHP-Pub代码更新'),
+        ('js', u'JS-Pub代码更新'),
+        ('config', u'PHP-Config更新'),
     )
-    method = models.CharField(max_length=10,null=True,blank=True,choices=METHOD_CHOICE)
+    method = models.CharField(max_length=20,null=True,blank=True,choices=METHOD_CHOICE)
+    version = models.CharField(_(u'变更版本号'),max_length=64,blank=True)
+    branch = models.CharField(_(u'变更分支'),max_length=64,blank=True,default='master')
     web_branches = models.CharField(_(u'web分支'),max_length=64,blank=True,default='master')
     php_pc_branches = models.CharField(_(u'php_pc分支'),max_length=64,blank=True,default='master')
     php_mobile_branches = models.CharField(_(u'php_mobile分支'),max_length=64,blank=True,default='master')
     js_pc_branches = models.CharField(_(u'js_pc分支'),max_length=64,blank=True,default='master')
     js_mobile_branches = models.CharField(_(u'js_mobile分支'),max_length=64,blank=True,default='master')
+    config_branches = models.CharField(_(u'config分支'),max_length=64,blank=True,default='master')
     web_release = models.CharField(_(u'web版本'),max_length=64,null=True,blank=True)
     php_pc_release = models.CharField(_(u'php电脑端'),max_length=64,null=True,blank=True)
     php_moblie_release = models.CharField(_(u'php手机端'),max_length=64,null=True,blank=True)
     js_pc_release = models.CharField(_(u'js电脑端'),max_length=64,null=True,blank=True)
     js_mobile_release = models.CharField(_(u'js手机端'),max_length=64,null=True,blank=True)
+    config_release = models.CharField(_(u'config版本'),max_length=64,null=True,blank=True)
+    last_version = models.TextField(_(u'上个版本'),null=True,blank=True)
     memo = models.TextField(_(u'发布原因'),null=True,blank=True)
     details = models.TextField(_(u'更新详情'),null=True,blank=True)
     isaudit = models.BooleanField(_(u'审核是否通过'),default=False)

@@ -27,10 +27,10 @@
                 <table id="example1" class="table table-bordered table-striped">
                     <thead>
                     <tr>
+                        <th>创建时间</th>
                         <th>名称</th>
                         <th>内容</th>
                         <th>审核人</th>
-                        <th>创建时间</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -39,19 +39,19 @@
                     {% for v in data %}
                     {% if v.loss_efficacy %}
                         <tr>
+                        <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ v.name }}</td>
                             <td>{{ v.memo }}</td>
                             <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>
-                            <td>{{ v.create_date }}</td>
                             <td>{{ v.status }}</td>
                             <td><a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>
                         </tr>
                     {% else %}
                         <tr class="info">
+                        <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ v.name }}</td>
                             <td>{{ v.memo }}</td>
                             <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>
-                            <td>{{ v.create_date }}</td>
                             <td>{{ v.status }}</td>
                             <td>{% if v.isend %}日志{% else %}{% if v.status = "通过审核，更新中" %}更新中{% else %}<a href="{% url 'cancel_my_task' v.id %}" class="btn btn-xs btn-danger cancel">作废</a>{% endif %}{% endif %}/<a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>
                         </tr>
@@ -70,7 +70,9 @@
 
 <script>
   $(function () {
-    $("#example1").DataTable();
+    $("#example1").DataTable(
+        {"order":[[0,'desc']]}
+    );
   });
 
 

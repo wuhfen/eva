@@ -9,16 +9,12 @@ from .models import dnsmanage_apikey,dnsmanage_name, dnsmanage_record
 class BusinessAdmin(admin.ModelAdmin):
     list_display =('name','nic_name','status','platform')
 
-class BugsAdmin(admin.ModelAdmin):
-    list_display =('bug_type','bug_name','bug_status','bug_level','issue_description','resolution_step')
-
 
 class DomainNameAdmin(admin.ModelAdmin):
     list_display =('name','business','supplier')
 
 
 admin.site.register(models.Business,BusinessAdmin)
-admin.site.register(models.Bugs,BugsAdmin)
 admin.site.register(models.DomainName,DomainNameAdmin)
 
 

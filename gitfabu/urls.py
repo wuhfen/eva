@@ -16,5 +16,9 @@ urlpatterns = [
     url(r'^public/update/(?P<env>[^/]+)/$', views.public_update_code, name="public_update_code"),
     url(r'^git_batch_change/(?P<uuid>[^/]+)/$', views.batch_change, name="batch_change"),
     url(r'^pubilc_branch_change/$', views.public_branch_change, name="public_branch_change"),
+    url(r'^version/list/(?P<uuid>[^/]+)/$', views.version_list, name="version_list"),
+
+    url(r'^manniu/list/$', views.manniu_list, name="manniu_list"),
+
 
 ]

@@ -163,7 +163,7 @@
         </li>
         <li><a href="{% url 'record_ops_command' %}"><i class="fa fa-files-o"></i><span>线上操作</span></a></li>
         {% endif %}
-        {% if perms.accounts.add_Article %}
+        {% if perms.opswiki.add_article %}
         <li>
           <a href="{% url 'list_article' %}">
             <i class="fa fa-dashboard"></i> <span>运维wiki</span>

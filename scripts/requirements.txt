@@ -28,9 +28,10 @@ pytz==2016.7
 PyYAML==3.10
 redis==2.10.5
 redisco==0.1.4
+restclient==0.11.0
 tablib==0.11.4
 uuid==1.30
 uWSGI==2.0.14
 vine==1.1.3
-restclient==0.11.0
-CloudXNS-API-SDK-Python==1.0.1
+xlrd==1.1.0
+CloudXNS-API-SDK-Python==1.0.4

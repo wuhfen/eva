@@ -216,7 +216,7 @@ class MyTask(MyRunner):
             srcs = src+"/"
         else:
             srcs = src
-        module_args = 'src="%s" dest="%s" delete=yes checksum=yes rsync_opts="%s"' % (srcs,dest,opts)
+        module_args = 'src="%s" dest="%s" delete=yes checksum=yes rsync_opts="%s,-q"' % (srcs,dest,opts)
         print(module_args)
         results = self.run("synchronize", module_args)
         return results

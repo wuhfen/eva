@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from views import index, auth_error, success, test
+from views import index, auth_error, success, test,hello
 
 
 urlpatterns = [
@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^auth_error/$', auth_error),
     url(r'^success/$', success,name='asset-success'),
     url(r'^test/$', test,name='test'),
+    url(r'^hello/$', hello,name='hello'),
 
 
 

@@ -32,6 +32,8 @@ def change_backend_second(host_ip,include_name,status):
     else:
         module_args = 'dest="/usr/local/nginx/conf/nginx.conf" regexp="include vhost/%s.conf" line="        #include vhost/%s.conf;"'% (include_name,include_name)
     print(module_args)
+    shell_args = 'service nginx reload'
     mytask = MyRunner(resource)
     res = mytask.run('lineinfile',module_args)
+    res = mytask.run('shell',shell_args)
     return res

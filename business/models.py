@@ -27,14 +27,10 @@ class Business(models.Model):
     full_name = models.CharField(max_length=128,blank=True, verbose_name=u"业务全名")
     name = models.CharField(max_length=64, blank=True,verbose_name=u"业务简称")
     nic_name = models.CharField(max_length=64,blank=True, verbose_name=u"发布代号")
-    TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛")]
+    TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
     platform = models.CharField(verbose_name=u'项目类型',max_length=32,blank=True, null=True,choices=TOOL_TYPE)
     initsite_data = models.CharField(max_length=64,blank=True,verbose_name=u"建站时间")
-    functionary = models.ForeignKey(User, related_name=u"functionary",blank=True, null=True,on_delete=models.SET_NULL, verbose_name=u"我司负责人", )
-    ds_contact = models.ForeignKey(User, related_name=u"ds_contact",blank=True, null=True,on_delete=models.SET_NULL, verbose_name=u"我司专员", )
-    agent_contact = models.CharField(max_length=100,blank=True, verbose_name=u"客户名")
-    agent_contact_method = models.CharField(max_length=100,blank=True, verbose_name=u"客户电话")
-    other_contact_method = models.CharField(max_length=100,blank=True, verbose_name=u"联系方式")
+    ip_info = models.TextField(blank=True, null=True, verbose_name=u"服务器信息")
     SITE_STATUS_CHOICES = (
     ('0', u"正常运转"),
     ('1', u"维护升级"),
@@ -52,12 +48,12 @@ class Business(models.Model):
     front_proxy_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"前端代理web路径")
     front_proxy_web_file = models.CharField(max_length=64,blank=True, verbose_name=u"前端代理web文件")
     ##管理后台路径
-    backend_station = models.TextField(blank=True, null=True, verbose_name=u"后台源站")
-    backend_station_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"后台web路径")
+    backend_station = models.TextField(blank=True, null=True, verbose_name=u"ds168后台源站")
+    backend_station_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"ds168后台web路径")
     backend_station_web_file = models.CharField(max_length=64,blank=True, verbose_name=u"后台web文件")
     ##后台nginx反代路径
-    backend_proxy = models.TextField(blank=True, null=True,  verbose_name=u"后台代理")
-    backend_proxy_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"后台代理web路径")
+    backend_proxy = models.TextField(blank=True, null=True,  verbose_name=u"ag后台代理")
+    backend_proxy_web_dir = models.CharField(max_length=64,blank=True, verbose_name=u"ag后台代理web路径")
     backend_proxy_web_file = models.CharField(max_length=64,blank=True, verbose_name=u"后台代理web文件")
     ##第三方nginx反代配置
     third_party_node = models.TextField(blank=True, null=True,  verbose_name=u"第三方反代节点")
@@ -88,33 +84,24 @@ class DomainName(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     name = models.CharField(max_length=64, verbose_name=u"域名")
     DOMAIN_USE_CHOICES = (
-    ('0', u"网站域名"),
-    ('1', u"ag后台域名"),
-    ('2', u"ds168后台域名"),
+    ('0', u"前端域名"),
+    ('1', u"代理后台域名"),
+    ('2', u"后台域名"),
     ('3', u"导航域名"),
     ('4', u"其他域名"),
     )
     use = models.CharField(max_length=64,blank=True, verbose_name=u"用途",choices=DOMAIN_USE_CHOICES)
     business = models.ForeignKey(Business,blank=True,null=True,on_delete=models.SET_NULL, related_name=u"domain")
+    classify = models.CharField(max_length=32,blank=True, verbose_name=u"环境",default="online")
     DOMAIN_STATUS_CHOICES = (
     ('0', u"备用"),
     ('1', u"再用"),
     ('2', u"弃用"),
     )
     state = models.CharField(max_length=64,blank=True, verbose_name=u"域名状态",choices=DOMAIN_STATUS_CHOICES)
-    monitor_status = models.BooleanField(default=True,verbose_name=u"是否监控")
-    # status_code = models.CharField(max_length=64,blank=True, verbose_name=u"状态码")
+    monitor_status = models.BooleanField(default=False,verbose_name=u"是否监控")
     address = models.ForeignKey('Domain_ip_pool',blank=True,null=True,on_delete=models.SET_NULL, verbose_name=u"解析到")
-    # address = models.CharField(max_length=128,blank=True, verbose_name=u"绑定IP")
-
-    # now_address = models.CharField(max_length=128,blank=True, verbose_name=u"解析IP")
-    # analyze = models.CharField(max_length=128,blank=True, verbose_name=u"解析分析")
-    DOMAIN_MANAGER =[(i, i) for i in (
-    u"工程",
-    u"网站",
-    u"其他",
-    )]
-    supplier = models.CharField(max_length=32,blank=True, verbose_name=u"管理者",choices=DOMAIN_MANAGER)
+    supplier = models.CharField(max_length=32,blank=True, verbose_name=u"管理者")
     description = models.TextField(blank=True, null=True, verbose_name=u'备注')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(blank=True,null=True, auto_now=True)

@@ -122,80 +122,6 @@ def deploy_nginx_tmp_file(request):
 
 
 
-
-
-
-##业务平台增删查改
-# @permission_required('business.add_business', login_url='/auth_error/')
-# def platform_list(request):
-#     platform_data = Platform.objects.all()
-#     return render(request,'business/platform_list.html',locals())
-
-# @permission_required('business.add_business', login_url='/auth_error/')
-# def platform_add(request):
-#     pf = PlatfForm()
-#     if request.method == 'POST':
-#         pf = PlatfForm(request.POST)
-#         if pf.is_valid():
-#             pf_data = pf.save()
-#             return HttpResponseRedirect('/allow/welcome/')
-#     return render(request,'business/platform_add.html',locals())
-
-
-# @permission_required('business.add_business', login_url='/auth_error/')
-# def platform_detail(request,uuid):
-#     platform = get_object_or_404(Platform, uuid=uuid)
-#     # platform = Platform.objects.get(pk=uuid)
-#     allow_list = platform.iptables_set.all()
-#     return render(request,'business/platform_detail.html',locals())
-
-# @permission_required('business.add_business', login_url='/auth_error/')
-# def platform_edit(request,uuid):
-#     platform = get_object_or_404(Platform, uuid=uuid)
-#     pf = PlatfForm(instance=platform)
-
-#     server_all = Server.objects.all()
-#     front_station_host = platform.front_station.all()
-#     front_proxy_host = platform.front_proxy.all()
-#     front_image_host = platform.front_image_site.all()
-#     front_download_host = platform.front_download_site.all()
-#     front_active_host = platform.front_active_site.all()
-#     front_active_cache_host = platform.front_active_cache.all()
-
-#     backend_station_host = platform.backend_station.all()
-#     backend_proxy_host = platform.backend_proxy.all()
-#     backend_image_host = platform.backend_image_site.all()
-#     backend_active_host = platform.backend_active_site.all()
-
-#     third_party_host = platform.third_party_node.all()
-
-
-#     front_station_all = [p for p in server_all if p not in front_station_host]
-#     front_proxy_all  = [p for p in server_all if p not in front_proxy_host]
-#     front_image_all  = [p for p in server_all if p not in front_image_host]
-#     front_download_all  = [p for p in server_all if p not in front_download_host]
-#     front_active_all  = [p for p in server_all if p not in front_active_host]
-#     front_active_cache_all  = [p for p in server_all if p not in front_active_cache_host]
-
-#     backend_station_all  = [p for p in server_all if p not in backend_station_host]
-#     backend_proxy_all  = [p for p in server_all if p not in backend_proxy_host]
-#     backend_image_all  = [p for p in server_all if p not in backend_image_host]
-#     backend_active_all  = [p for p in server_all if p not in backend_active_host]
-
-#     third_party_all  = [p for p in server_all if p not in third_party_host]
-
-
-#     allow_list = platform.iptables_set.all()
-#     if request.method == 'POST':
-#         pf = PlatfForm(request.POST,instance=platform)
-#         if pf.is_valid():
-#             p_data = pf.save()
-#             return HttpResponseRedirect('/allow/welcome/')
-#     return render(request,'business/platform_edit.html',locals())
-
-
-
-
 ##IP池add delete search change
 @permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_ip_list(request):
@@ -330,7 +256,7 @@ def domain_add_select(request,siteid):
         else:
             pool = Domain_ip_pool.objects.get(name="CDN（抗攻击）")
         for i in domainname.split('\r\n'):
-            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',address=pool,supplier=supplier)
+            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',address=pool,supplier=supplier,monitor_status=False)
             save_data.save()
     return render(request,'business/domain_add_select.html',locals())
 
@@ -353,14 +279,96 @@ def domain_delete(request,uuid):
     return JsonResponse({'res':"OK",'info':"已删除！"},safe=False)
     # return render(request,'business/domain_list.html',locals())
 
+import  xdrlib ,sys
+import xlrd
+from django.conf import settings
+def domain_upload(request):
+    if request.method == 'POST':
+        file = request.FILES.get('docfile')
+        basedir = settings.BASE_DIR + "/static/uploads/domain/"
+        print basedir
+        errors = []
+        if not file:
+            errors = ["你没有选择文件"]
+            return render(request,'business/domain_import.html',locals())
+        filename = os.path.join(basedir,file.name)
+        fobj = open(filename,'wb')
+        for chrunk in file.chunks():
+            fobj.write(chrunk)
+        fobj.close()
+        data = xlrd.open_workbook(filename)
+        table = data.sheets()[0]
+        nrows = table.nrows #行数
+        ncols = table.ncols #列数
+        colnames =  table.row_values(0) #第一行标头数据 
+        # print colnames
+        if "siteid" not in colnames: errors.append("没有siteid列")
+        if "域名" not in colnames: errors.append("没有域名列")
+        if "类型" not in colnames: errors.append("没有域名类型列")
+        if "管理者" not in colnames: errors.append("没有域名管理者列")
+        if "备注" not in colnames: errors.append("没有域名备注列")
+        if errors: return render(request,'business/domain_import.html',locals())
+
+        list =[]
+        for rownum in range(1,nrows):
+            row = table.row_values(rownum)
+            if row:
+                app = {}
+                app["Num"]=rownum
+                for i in range(len(colnames)):
+                    app[colnames[i]] = row[i]
+                list.append(app)
+        # print list
+
+        for i in list:
+            pps = []
+            if not i[u"siteid"]: 
+                pps.append("第%s行，没有给出siteid的值，跳过此行"% i["Num"])
+                errors.append("第%s行，没有给出siteid的值，跳过此行"% i["Num"])
+            if not i[u"域名"]: 
+                pps.append("第%s行，没有给出域名，跳过此行"% i["Num"])
+                errors.append("第%s行，没有给出域名，跳过此行"% i["Num"])
+            elif "." not in i[u"域名"]:
+                pps.append("第%s行，域名%s格式错误，跳过此行"% (i["Num"],i[u"域名"]))
+                errors.append("第%s行，域名%s格式错误，跳过此行"% (i["Num"],i[u"域名"]))
+            if not i[u"类型"]: 
+                pps.append("第%s行，没有域名类型，跳过此行"% i["Num"])
+                errors.append("第%s行，没有域名类型，跳过此行"% i["Num"])
+            elif i[u"类型"] == u"前端域名":
+                use = 0
+            elif i[u"类型"] == u"后台域名":
+                use = 2
+            elif i[u"类型"] == u"代理后台域名":
+                use = 1
+            elif i[u"类型"] == u"导航域名":
+                use = 3
+            else:
+                use = 4
+            if not i[u"管理者"]: 
+                pps.append("第%s行，没有给出管理员，跳过此行"% i["Num"])
+                errors.append("第%s行，没有给出管理员，跳过此行"% i["Num"])
+            if pps:
+                continue  #跳过有错误的行
+            else:
+                data = Business.objects.get(nic_name=int(i[u"siteid"]))
+                obj,created = DomainName.objects.get_or_create(name=i[u"域名"],defaults={'use':use,'business':data,'state':'1','supplier':i[u"管理者"],'description':i[u"备注"]})
+                if obj:
+                    errors.append("此域名：%s已存在"% i[u"域名"])
+        if errors: return render(request,'business/domain_import.html',locals())
+
+
+    return render(request,'business/domain_import.html',locals())
 
 
 @permission_required('business.add_domainname', login_url='/auth_error/')
 def domain_detail(request,uuid):
     domain_data = get_object_or_404(DomainName, uuid=uuid)
     name = domain_data.name
-    attribute = domain_data.address.attribute
-    L = attribute.split('\r\n')
+    try:
+        attribute = domain_data.address.attribute
+        L = attribute.split('\r\n')
+    except:
+        L = []
     # print L
     res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
     if res_obj:
@@ -479,14 +487,4 @@ def domain_manage_business_list(request):
 def domain_monitor(request,uuid):
     return 0
 
-
-
-
-
-
-##故障增删查改
-@permission_required('business.add_business', login_url='/auth_error/')
-def bugs_list(request):
-    bugs_data = Bugs.objects.all()
-    return render(request,'business/bugs_list.html',locals())
 

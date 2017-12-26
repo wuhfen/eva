@@ -10,6 +10,14 @@ from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from assets.models import Server
 
+import telegram
+bot = telegram.Bot(token='333468932:AAGKPxYrLc3jkhYP68FUSnwa0DVTjR-9zmA')
+
+def send_message(username,text):
+    if username == "lookback":
+        bot.sendMessage(chat_id='228902627', text=text)
+
+
 def page_list_return(total, current=1):
     min_page = current - 2 if current - 4 > 0 else 1
     max_page = min_page + 4 if min_page + 4 < total else total

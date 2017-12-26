@@ -12,7 +12,7 @@ try:
     import json 
 except:
     import simplejson as json
-
+import time
 
 class GitException(Exception):
     """Exception class allowing a exit_code parameter and member
@@ -64,7 +64,6 @@ class Repo(object):
         """Run a git command in path and return the result. Throws on error."""
         if not path:
             path = '.'
-        print(args)
         proc = Popen(["git"] + list(args), stdout=PIPE, stderr=PIPE, cwd=path)
 
         out, err = [x.decode("utf-8") for x in  proc.communicate()]
@@ -103,7 +102,8 @@ class Repo(object):
         if branch:
             cmd.append('-b')
         cmd.append(str(reference))
-        return self.git_command(*cmd)
+        res = self.git_command(*cmd)
+        return res
 
     def git_change_branch(self, branch):
         """Checkout and create branch """
@@ -196,7 +196,7 @@ class Repo(object):
 
     def show_commit(self):
         """H是满hash，h是7位hash"""
-        cmds = ["log","-10","--pretty=format:%h"]
+        cmds = ["log","-50","--oneline"]
         res = self.git_command(*cmds)
         return res.strip().split('\n')
 
@@ -243,7 +243,7 @@ class Repo(object):
 
     def git_pull(self):
         """Pull changes to this repo."""
-        res = self.git_command("pull","--all")
+        res = self.git_command("pull","--all","-p")
         return res
 
     def git_fetch(self, source=None):
