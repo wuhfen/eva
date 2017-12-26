@@ -296,27 +296,61 @@ def audit_my_task(request,uuid):
         data.postil = postil
         data.save()
         alldata = data.request_task.reqt.all()
-        if False not in [i.ispass for i in alldata]:
-            print "所有审核已通过，开始更新发布"
-            print [i.ispass for i in alldata]
-            data.request_task.status="通过审核，更新中"
-            data.request_task.save()
-            df.isaudit= True
-            df.save()
-            print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
-            if data.request_task.table_name == "git_deploy":
-                reslut = git_fabu_task.delay(df.id,data.request_task.id)
-            else:
-                if df.code_conf:
-                    reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
+        if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
+            if False not in [i.ispass for i in alldata]: #所有人都通过
+                print "所有审核已通过，开始更新发布"
+                print [i.ispass for i in alldata]
+                data.request_task.status="通过审核，更新中"
+                data.request_task.save()
+                df.isaudit= True
+                df.save()
+                print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
+                if data.request_task.table_name == "git_deploy":
+                    reslut = git_fabu_task.delay(df.id,data.request_task.id)
                 else:
-                    if "现金网" in df.name: platform="现金网"
-                    if "蛮牛" in df.name: platform="蛮牛"
-                    reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
-        else:
-            print "尚有审核未通过"
+                    if df.code_conf:
+                        reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
+                    else:
+                        if "现金网" in df.name: platform="现金网"
+                        if "蛮牛" in df.name: platform="蛮牛"
+                        reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
+            else: #有人未通过
+                data.request_task.status="未通过审核"
+                data.request_task.isend=True
+                data.request_task.save()
+                df.isaudit= True  #更新任务已审核
+                df.islog= True    #更新任务已完成
+                if data.request_task.table_name == "git_code_update":
+                    if df.code_conf:
+                        df.code_conf.islock=False
+                        df.code_conf.save()
+                    else:
+                        if "现金网" in df.name: platform="现金网"
+                        if "蛮牛" in df.name: platform="蛮牛"
+                        if "huidu" in df.name: classify="huidu"
+                        if "online" in df.name: classify="online"
+                        git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
+                df.save()
+        else:  #还有人未审核
+            audit_data = data.request_task.reqt.filter(isaudit=True)
+            if False in [i.ispass for i in audit_data]:
+                data.request_task.status="未通过审核"
+                data.request_task.isend=True
+                data.request_task.save()
+                df.isaudit= True  #更新任务已审核
+                df.islog= True    #更新任务已完成
+                if data.request_task.table_name == "git_code_update":
+                    if df.code_conf:
+                        df.code_conf.islock=False
+                        df.code_conf.save()
+                    else:
+                        if "现金网" in df.name: platform="现金网"
+                        if "蛮牛" in df.name: platform="蛮牛"
+                        if "huidu" in df.name: classify="huidu"
+                        if "online" in df.name: classify="online"
+                        git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
+                df.save()
         return JsonResponse({'res':"OK"},safe=False)
-
     return render(request,'gitfabu/audit_my_task.html',locals())
 
 @login_required
@@ -331,7 +365,6 @@ def web_update_code(request,uuid):
         old_reversion = data.old_reversion.split('\r\n')[0:5]
     else:
         old_reversion = []
-
 
     if request.method == 'GET':
         if data.platform == "现金网" or data.platform == "蛮牛":

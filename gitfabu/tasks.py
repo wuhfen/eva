@@ -641,8 +641,21 @@ def git_update_task(uuid,myid):
     print type(updata.method)
     if updata.method != 'web':
         print "非web更新，需要执行web代码"
+    if data.platform == "现金网":
         MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
-    export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #必须保证公共代码不会无故更新，必须每个项目都有自己的公共代码目录，查看版本信息不会涉及此目录的代码
+        MyWeb.export_git(what='php_pc',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
+        MyWeb.export_git(what='php_mobile',branch=updata.php_mobile_branches,reversion=updata.php_moblie_release)
+        MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+        MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
+        export_reslut = True
+    elif data.platform == "蛮牛":
+        MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+        MyWeb.export_git(what='php',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
+        MyWeb.export_git(what='js',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+        MyWeb.export_git(what='config',branch=updata.config_branches,reversion=updata.config_release)
+        export_reslut = True
+    else:
+        export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #必须保证公共代码不会无故更新，必须每个项目都有自己的公共代码目录，查看版本信息不会涉及此目录的代码
     if export_reslut:
         MyWeb.update_release()
         MyWeb.merge_git()
