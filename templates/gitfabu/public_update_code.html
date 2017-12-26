@@ -17,43 +17,56 @@
         <div class="col-lg-12">
             <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">公共代码-全站更新</strong></h4><hr>
                 <form role="form" action="" method="post" id="post_form">{% csrf_token %}
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
-                            <option value="php_pc">PHP电脑端更新</option>
-                            <option value="php_mobile">PHP手机端更新</option>
-                            <option value="js_pc">JS电脑端更新</option>
-                            <option value="js_mobile">JS手机端更新</option>
-                        </select>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_branch">选择分支</label>
-                        <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
-                        {% for i in all_branch %}
-                            <option value="{{ i }}">{{ i }}</option>
+                    {% if WaitTask %}
+                        {% for i in WaitTask %}
+                            <h3 class="text-danger">{{ i.name }}有未完成申请需要处理！</h3>
                         {% endfor %}
-                        </select>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_commit">更新版本号(commit_id)</label>
-                        <select class="form-control n-invalid" id="id_commit" name="commit" aria-required="true">
-                        {% for i in commit %}
-                            <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                        </select>
-                        <div class="help-block"></div>
-                    </div>
+                    {% else %}
 
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group">
-                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
-                    </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                            {% if platform == "现金网" %}
+                                <option value="php_pc">PHP电脑端更新</option>
+                                <option value="php_mobile">PHP手机端更新</option>
+                                <option value="js_pc">JS电脑端更新</option>
+                                <option value="js_mobile">JS手机端更新</option>
+                            {% else %}
+                                <option value="php">PHP-Pub更新</option>
+                                <option value="js">前端-Pub更新</option>
+                                <option value="config">PHP-Config更新</option>
+                            {% endif %}
+                            </select>
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_branch">选择分支</label>
+                            <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
+                            {% for i in all_branch %}
+                                <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_commit">更新版本号(commit_id)</label>
+                            <select class="form-control n-invalid" id="id_commit" name="commit" aria-required="true">
+                            {% for i in commit %}
+                                <option value="{{ i }}">{{ i }}</option>
+                            {% endfor %}
+                            </select>
+                            <div class="help-block"></div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group">
+                            <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                        </div>
+                    {% endif %}
                 </form>
         </div>
         </div>

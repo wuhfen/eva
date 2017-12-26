@@ -23,51 +23,82 @@
                             <pre>{{ data.now_reversion }}</pre>
                         <div class="help-block"></div>
                         <label class="text-right bolder" for="id_site">历史版本<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        {% if old_reversion == "Nothing" %}
-                            <p>没有信息</p>
+                        
+                            <pre>{% for i in old_reversion %}{{ i }}<a href="#">回退</a><br>{% endfor %}</pre>
+                        
+                            <a href="{% url 'version_list' data.id %}" target="_blank">点击查看更多</a>
+                    </div>
+                    {% if data.islock %}
+                        <div class="form-group">
+                        {% for i in WaitTask %}
+                            <h3 class="text-danger"> 此项目有未完成提交</h3>
+                            <h6>名称：{{ i.name }} </h6>
+                            <h6>原因：{{ i.memo }} </h6>
+                            <p>版本：{{ i.details }}</p>
+                        {% endfor %}
+                        </div>
+                    {% else %}
+                        {% if data.platform == "现金网" %}
+                            <div class="form-group ">
+                                <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                                    <option value="">---SELECT---</option>
+                                    <option value="web">web更新</option>
+                                    <option value="php_pc">PHP电脑端更新</option>
+                                    <option value="php_mobile">PHP手机端更新</option>
+                                    <option value="js_pc">JS电脑端更新</option>
+                                    <option value="js_mobile">JS手机端更新</option>
+                                </select>
+                                <div class="help-block"></div>
+                            </div>
+                        {% elif data.platform == "蛮牛" %}
+                            <div class="form-group ">
+                                <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                                    <option value="">---SELECT---</option>
+                                    <option value="web">web更新</option>
+                                    <option value="php">PHP-Pub更新</option>
+                                    <option value="js">前端-Pub更新</option>
+                                    <option value="config">PHP-Config更新</option>
+                                </select>
+                                <div class="help-block"></div>
+                            </div>
                         {% else %}
-                            <pre>{{ old_reversion }}</pre>
-                            <a href="#">点击查看更多</a>
+                            <div class="form-group " hidden="hidden">
+                                <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                                    <option value="web" selected="selected">web更新</option>
+                                </select>
+                                <div class="help-block"></div>
+                            </div>
                         {% endif %}
-                    </div>
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_branch">代码分支<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
+                                {% for i in all_branch %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="help-block"></div>
+                        </div>
+                        <div class="form-group " id="id_args">
+                            <label class="text-right bolder" for="id_release">版本号(commit_id)<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <select class="form-control n-invalid" id="id_release" name="release" aria-required="true">
+                                {% for i in web_commits %}
+                                <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group ">
+                            <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
+                            <div class="help-block"></div>
+                        </div>
 
-                            <option value="">---SELECT---</option>
-                            <option value="web">web更新</option>
-                            <option value="php_pc">PHP电脑端更新</option>
-                            <option value="php_mobile">PHP手机端更新</option>
-                            <option value="js_pc">JS电脑端更新</option>
-                            <option value="js_mobile">JS手机端更新</option>
-                        </select>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_branch">代码分支<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <select class="form-control n-invalid" id="id_branch" name="branch" aria-required="true">
-                            {% for i in all_branch %}
-                            <option value="{{ i }}">{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group " id="id_args">
-                        <label class="text-right bolder" for="id_release">版本号(commit_id)<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <select class="form-control n-invalid" id="id_release" name="release" aria-required="true">
-                            {% for i in web_commits %}
-                            <option value="{{ i }}">{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group ">
-                        <label class="text-right bolder" for="id_memp">更新原因<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
-                        <textarea class="form-control" rows="3" name="memo" id="id_memo" ></textarea>
-                        <div class="help-block"></div>
-                    </div>
-                    <div class="form-group">
-                        <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
-                    </div>
+                        <div class="form-group">
+                            <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                        </div>
+                    {% endif %}
                 </form>
         </div>
         </div>
@@ -106,7 +137,6 @@
 $("#id_command").change(function(){
 
      // 先清空第二个
-
       $("#id_branch").empty();
       $("#id_release").empty();
       layer.load();
@@ -118,7 +148,8 @@ $("#id_command").change(function(){
             dataType: 'json',
             type: 'GET',
             data: {  
-                'method': method, 
+                'method': method,
+                'env': "moneyweb",
             },
             success: function(data) { 
                 if (data.res == "OK") {
@@ -137,12 +168,9 @@ $("#id_command").change(function(){
 
 });
 $("#id_branch").change(function(){
-
      // 先清空第二个
-
       $("#id_release").empty();
       layer.load();
-
      // 实际的应用中，这里的option一般都是用循环生成多个了
         var urls = "/fabu/git_batch_change/"+{{ uuid }}+"/"
         var method = $('#id_command').val();
@@ -154,6 +182,7 @@ $("#id_branch").change(function(){
             data: {  
                 'method': method, 
                 'branch': branch, 
+                'env': "moneyweb", 
             },
             success: function(data) { 
                 if (data.res == "OK") {
@@ -165,7 +194,6 @@ $("#id_branch").change(function(){
                 layer.closeAll('loading');
                 },
         });
-
 });
 </script>
 

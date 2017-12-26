@@ -23,7 +23,18 @@
         </div>
       </div>
       {% endif %}
-
+      <!-- search form -->
+<!--       <form action="#" method="get" class="sidebar-form">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+        </div>
+      </form> -->
+      <!-- /.search form -->
+      <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu">
         <li class="header">MAIN NAVIGATION</li>
         <li>
@@ -31,30 +42,17 @@
             <i class="fa fa-dashboard"></i> <span>仪表盘</span>
           </a>
         </li>
-        {% if perms.automation.delete_deploy %}
-        <li>
-          <a href="{% url 'my_audit_list' %}">
-            <i class="fa fa-wheelchair-alt"></i> <span>任务审核</span>
-          </a>
-        </li>
-        {% endif %}
         {% if perms.automation.add_deploy %}
-        <li>
-          <a href="{% url 'genxin_my_deploy_task' %}">
-            <i class="fa fa-tasks"></i> <span>我的任务</span>
-          </a>
-        </li>
-        <li><a href="{% url 'gengxin_deploy_list' %}"><i class="fa fa-cc-mastercard"></i> 现金网更新</a></li>
         <li class="treeview">
           <a href="#">
-            <i class="fa fa-laptop "></i> <span>git发布更新</span>
+            <i class="fa fa-laptop "></i> <span>发布更新</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu ">
             <li><a href="{% url 'conf_list' %}"><i class="fa fa-circle-o"></i> 现金网</a></li>
-            <li><a href="#"><i class="fa fa-circle-o"></i> 蛮牛</a></li>
+            <li><a href="{% url 'manniu_list' %}"><i class="fa fa-circle-o"></i> 蛮牛</a></li>
             <li><a href="{% url 'my_request_task_list' %}"><i class="fa fa-circle-o"></i> 我的申请<span class="pull-right-container">
               <small class="label pull-right bg-red">{{ myrequesttasks }}</small>
             </span></a></li>
@@ -64,7 +62,8 @@
           </ul>
         </li>
         {% endif %}
-        {% if perms.accounts.add_customuser %}
+        {% if perms.assets.add_Asset %}
+
         <li class="treeview">
           <a href="#">
             <i class="fa fa-laptop "></i> <span>资产管理</span>
@@ -75,42 +74,59 @@
           <ul class="treeview-menu ">
             <li><a href="{% url 'server_list' %}"><i class="fa fa-circle-o"></i> 资产列表</a></li>
             <li><a href="{% url 'virtual_add' %}"><i class="fa fa-circle-o"></i> 添加虚拟机</a></li>
+
           </ul>
         </li>
+        {% endif %}
+        {% if perms.assets.add_business %}
         <li class="treeview">
             <a href="#"><i class="fa fa-coffee"></i> <span>业务管理</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span></a>
             <ul class="treeview-menu">
-
             <li><a href="{% url 'business_list' %}"><i class="fa fa-circle-o"></i> 业务列表</a></li>
             <li><a href="{% url 'business_add' %}"><i class="fa fa-circle-o"></i> 添加业务</a></li>
-
             </ul>
         </li>
-
         {% endif %}
         {% if perms.Allow_list.add_iptables %}
         <li class="treeview">
           <a href="#">
-            <i class="fa fa-gamepad"></i> <span>自动化管理|AUTO MANAGE</span>
+            <i class="fa fa-gamepad"></i> <span>自动化管理</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-
-            <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 源站信息|Source Info</a></li>
-            <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 后台线路切换</a></li>
-            <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 后台VPN白名单|VPN manage</a></li>
-
+          {% if perms.Allow_list.change_iptables %}
+            <!-- <li><a href="{% url 'domain_ip_list' %}"><i class="fa fa-circle-o"></i> IP管理|IP MANAGE</a></li>  -->
+            <!-- <li><a href="{% url 'linechange' %}"><i class="fa fa-circle-o"></i> 源站查询</a></li> -->
+            <li><a href="{% url 'iptables' %}"><i class="fa fa-circle-o"></i> 现金网后台白名单 </a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i> KG经典彩白名单 </a></li>
+            <li><a href="#"><i class="fa fa-circle-o"></i> 蛮牛后台白名单 </a></li>
+          {% endif %}
+            {% if perms.Allow_list.change_oldsite_line %}
+            <li><a href="{% url 'domain_manage_business_list' %}"><i class="fa fa-circle-o"></i> 域名管理</a></li>
+            <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 现金网备用后台</a></li>
+            {% endif %}
+<!--           <li>
+              <a href="#"><i class="fa fa-circle-o"></i> 黑名单
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li><a href="#"><i class="fa fa-circle-o"></i> 现金网黑名单</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i> 蛮牛黑名单</a></li>
+              </ul>
+          </li> -->
         </ul>
         </li>
         {% endif %}
         {% if perms.business.add_dnsmanage_apikey %}
         <li class="treeview">
-            <a href="#"><i class="fa fa-globe" aria-hidden="true"></i> <span>域名管理</span>
+            <a href="#"><i class="fa fa-globe" aria-hidden="true"></i> <span>DNS解析管理</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span></a>
@@ -124,14 +140,13 @@
         {% endif %}
         {% if perms.automation.add_scriptdeploy %}
         <li class="treeview">
-            <a href="#"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span>更新发布</span>
+            <a href="#"><i class="fa fa-cloud-upload" aria-hidden="true"></i> <span>导航网和第三方</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span></a>
             <ul class="treeview-menu">
-            <li><a href="{% url 'deploy_script' %}"><i class="fa fa-circle-o"></i> 脚本更新</a></li>
-            {% if perms.automation.add_gengxin_code %}
-            <li><a href="{% url 'gengxin_code_list' %}"><i class="fa fa-circle-o"></i> 现金网发布</a></li>
+            {% if perms.automation.add_deploy %}
+            <li><a href="{% url 'deploy_script' %}"><i class="fa fa-circle-o"></i> 更新</a></li>
             {% endif %}
             </ul>
         </li>
@@ -163,6 +178,7 @@
         </li>
         <li><a href="{% url 'record_ops_command' %}"><i class="fa fa-files-o"></i><span>线上操作</span></a></li>
         {% endif %}
+
         {% if perms.opswiki.add_article %}
         <li>
           <a href="{% url 'list_article' %}">

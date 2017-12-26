@@ -39,7 +39,7 @@
                     {% for v in data %}
                     {% if v.loss_efficacy %}
                         <tr>
-                        <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ v.name }}</td>
                             <td>{{ v.memo }}</td>
                             <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>
@@ -48,7 +48,7 @@
                         </tr>
                     {% else %}
                         <tr class="info">
-                        <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ v.name }}</td>
                             <td>{{ v.memo }}</td>
                             <td>{% for i in v.reqt.all %}{{ i.auditor }}  {% endfor %}</td>

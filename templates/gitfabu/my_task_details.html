@@ -97,47 +97,75 @@ p {text-indent: 1cm}
             <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
 
             <h3 class="timeline-header"><a href="#">自动配置</a></h3>
-
-            <div class="timeline-body">
-                <h4>公共仓库：</h4>
-                {% if gitpublic %}
-                {% for i in gitpublic %}
-                    <p>{{ i.address }}  分支：{{ i.branch }}</p>
-                {% endfor %}
-                {% else %}<p class="bg-danger">没有配置php和js公共repo，请联系运维！</p>{% endif %}
-                <h4>私有仓库：</h4>
-                {% for i in gitprivate %}
-                    <p>{{ i.address }}  分支：{{ i.branch }}</p>
-                {% endfor %}
-                <h4>域名信息：</h4>
-                {% for i in domains %}
-                    <p>{{ i.name }}: {{ i.domainname }}</p>
-                {% endfor %}
-                <h4>服务器配置：</h4>
-                {% if servers %}
-                {% for i in servers %}
-                <p class="bg-info"><b>{{ i.name }}:</b> {{ i.remoteip }}</p>
-                    {% if i.name == "源站" %}
+            {% if fabu_details %}
+                <div class="timeline-body">
+                    <h4>公共仓库：</h4>
+                    {% if gitpublic %}
+                    {% for i in gitpublic %}
+                        <p>{{ i.address }}</p>
+                    {% endfor %}
+                    {% else %}<p class="bg-danger">没有配置php和js公共repo，请联系运维！</p>{% endif %}
+                    <h4>私有仓库：</h4>
+                    {% for i in gitprivate %}
+                        <p>{{ i.address }}</p>
+                    {% endfor %}
+                    <h4>域名信息：</h4>
+                    {% for i in domains %}
+                        <p>{{ i.name }}: {{ i.domainname }}</p>
+                    {% endfor %}
+                    <h4>服务器配置：</h4>
+                    {% if servers %}
+                    {% for i in servers %}
+                    <p class="bg-info"><b>{{ i.name }}:</b> {{ i.remoteip }}</p>
+                        {% if i.name == "源站" %}
+                        <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
+                        <p>源码目录: {{ i.remotedir }}</p>
+                        <p>属主: {{ i.owner }}</p>
+                        <p>排除文件: {{ i.exclude }}</p>
+                        <p>代码部署前命令: {{ i.rsync_command }}</p>
+                        <p>代码部署后命令: {{ i.last_command }}</p>
+                        {% else %}
+                        <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
+                        {% endif %}
+                    {% endfor %}
+                    {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
+                    <h4>审核人员：</h4>
+                    {% if auditors %}
+                    {% for i in auditors %}
+                        {% for x in i.user.all %}
+                            <p>{{ x.username }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
+                </div>
+            {% else %}
+                <div class="timeline-body">
+                    <h4>代码仓库：</h4>
+                    {% for i in gitprivate %}
+                        <p>{{ i.address }}   分支：{% if classify == 'fabu' %}master{% else %}{{ i.branch }}{% endif %}</p>
+                    {% endfor %}
+                    <h4>服务器配置：</h4>
+                    {% if servers %}
+                    {% for i in servers %}
+                    <p class="bg-info"><b>{{ i.name }}:</b> {{ i.remoteip }}</p>
                     <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
                     <p>源码目录: {{ i.remotedir }}</p>
                     <p>属主: {{ i.owner }}</p>
                     <p>排除文件: {{ i.exclude }}</p>
                     <p>代码部署前命令: {{ i.rsync_command }}</p>
                     <p>代码部署后命令: {{ i.last_command }}</p>
-                    {% else %}
-                    <p>配置文件存放目录: "/usr/local/nginx/conf/vhost/"</p>
-                    {% endif %}
-                {% endfor %}
-                {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
-                <h4>审核人员：</h4>
-                {% if auditors %}
-                {% for i in auditors %}
-                    {% for x in i.user.all %}
-                        <p>{{ x.username }}</p>
                     {% endfor %}
-                {% endfor %}
-                {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
-            </div>
+                    {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
+                    <h4>审核人员：</h4>
+                    {% if auditors %}
+                    {% for i in auditors %}
+                        {% for x in i.user.all %}
+                            <p>{{ x.username }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
+                </div>
+            {% endif %}
 
             <div class="timeline-footer">
                 <a class="btn btn-primary btn-xs">...</a>
@@ -161,13 +189,21 @@ p {text-indent: 1cm}
                 <h4>更新方式：</h4>
                     <p>{{ name }}：{{ repo }}</p>
                 {% if deploy_data %}
-                <h4>当前版本：</h4>
-                    <p>{{ deploy_data.now_reversion }}</p>
-                <h4>更新版本：</h4>
-                    <p> web版本号：{{ df.web_release }} PHP电脑端版本号：{{ df.php_pc_release }} PHP手机端版本号：{{ df.php_moblie_release }} JS电脑端版本号：{{ df.js_pc_release }} JS手机端版本号：{{ df.js_mobile_release }}</p>
+                    <h4>当前版本<small>(目前在使用中的版本)</small>：</h4>
+                        <p>{{ deploy_data.now_reversion }}</p>
+                    <h4>上次版本<small>(更新申请发出前一秒的版本或更新完成前一秒的版本)</small>：</h4>
+                        <p>{{ df.last_version }}</p>
+                    <h4>更新版本：</h4>
+                        {% if deploy_data.platform == "现金网" %}
+                            <p>日期：{{ df.execution_time|date:"Y-m-d H:i:s" }} WEB({{ df.web_branches }})：{{ df.web_release }} PHP电脑端({{ df.php_pc_branches }})：{{ df.php_pc_release }} PHP手机端({{ df.php_mobile_branches }})：{{ df.php_moblie_release }} JS电脑端({{ df.js_pc_branches }})：{{ df.js_pc_release }} JS手机端({{ df.js_mobile_branches }})：{{ df.js_mobile_release }}</p>
+                        {% elif deploy_data.platform == "蛮牛" %}
+                            <p>日期：{{ df.execution_time|date:"Y-m-d H:i:s" }} WEB({{ df.web_branches }})：{{ df.web_release }} PHP-Pub代码({{ df.php_pc_branches }})：{{ df.php_pc_release }} 前端-Pub代码({{ df.js_pc_branches }})：{{ df.js_pc_release }} PHP-Config代码({{ df.config_branches }})：{{ df.config_release }}</p>
+                        {% else %}
+                            <p>日期：{{ df.execution_time|date:"Y-m-d H:i:s" }} 分支：{{ branch }}版本：{{ version }}</p>
+                        {% endif %}
                 {% else %}
-                <h4>涉及站点：</h4>
-                    <p>全站</p>
+                    <h4>涉及站点：</h4>
+                        <p>全站</p>
                 {% endif %}
                 <h4>具体变更(commit_id)：</h4>
                     <p>分支：{{ branch }}</p>

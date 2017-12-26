@@ -26,8 +26,9 @@
     <div class="box box-info">
         <div class="box-header with-border">
             <a href="{% url 'domain_add_select' business.uuid %}" class="btn btn-xs btn-info project-delete">添加域名</a>
+            <a href="{% url 'domain_upload' %}" class="btn btn-xs btn-info project-delete">导入域名文件</a>
             <div class="box-tools pull-right">
-                <a href="{% url 'restart_all_monitor' %}"  type="button" class="btn btn-xs btn-warning domain-monitor-restart">重启域名监控</a>
+                <!-- <a href="{% url 'restart_all_monitor' %}"  type="button" class="btn btn-xs btn-warning domain-monitor-restart">重启域名监控</a> -->
             </div>
         </div>
         <form id="asset_form">
@@ -40,7 +41,7 @@
                     <th>用途</th>
                     <th>所属网站</th>
                     <th>域名状态</th>
-<!--                     <th>是否监控</th> -->
+                    <th>环境</th>
 <!--                     <th>告警</th> -->
                     <th>解析到</th>
                     <th>备注</th>
@@ -52,7 +53,6 @@
                 <tbody>
                 {% for v in domain_data %}
                     <tr>
-                        
                         <td id='id_name'>{{ v.name }}</td>
                         <td>{% if v.use == '0' %}前端域名{% elif v.use == '1' %}ag后台域名{% elif v.use == '2' %}后台域名
                         {% elif v.use == '3' %}彩票域名{% elif v.use == '4' %}导航网域名{% elif v.use == '5' %}其他域名{% endif %}</td>
@@ -61,18 +61,16 @@
                         {% else %}
                         <td></td>
                         {% endif %}
-                        <!-- <td>{% if v.state == '0' %}备用{% elif v.state == '1' %}在用{% elif v.state == '2' %}弃用{% endif %}</td> -->
                         <!-- <td>{% if v.monitor_status == True %}已监控{% else %}未监控{% endif %}</td> -->
                         <td id='id_status' name="{{ v.uuid }}"></td>
+                        <td>{{ v.classify }}</td>
                         <td>{{ v.address }}</td>
                         <td>{{ v.description }}</td>
                         <td>{{ v.supplier }}</td>
-
                         <td>
-                            <a href="{% url 'domain_detail' v.uuid %}" class="btn btn-xs btn-primary">详情</a>
+                            <a href="{% url 'domain_detail' v.uuid %}" target="_blank" class="btn btn-xs btn-primary">详情</a>
                             <a href="{% url 'domain_edit' v.uuid %}" class="btn btn-xs btn-primary">修改</a>
                             <a href="{% url 'domain_delete' v.uuid %}" class="btn btn-xs btn-danger domain-delete">删除</a>
-                            <!-- <a href="{% url 'domain_rsync' v.uuid %}" class="btn btn-xs btn-success">同步</a> -->
                             <a id = '{{ v.uuid }}' href="/business/domain/change_monitor_status/?uuid={{ v.uuid }}" class="btn btn-xs monitor" {% if v.monitor_status == True %} style="background-color:#34495E;color:white">已监控 {% else %} style="background-color:#34495E;color:white" > 未监控 {% endif %} </a> 
                         </td>
                     </tr>

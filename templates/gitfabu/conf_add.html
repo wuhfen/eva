@@ -43,22 +43,37 @@
                 </select>
             </div>
             {% if conf_domain %}
-            {% if platform == "现金网" %}
-            <div id="demo" hidden="hidden">
-                <div class="col-md-4">
-                    <h4>前端域名</h4>
-                    <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
+                {% if platform == "现金网" %}
+                <div id="demo" hidden="hidden">
+                    <div class="col-md-4">
+                        <h4>前端域名</h4>
+                        <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>ag域名</h4>
+                        <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>后台域名</h4>
+                        <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h4>ag域名</h4>
-                    <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
+                {% elif platform == "蛮牛" %}
+                <div id="demo" hidden="hidden">
+                    <div class="col-md-4">
+                        <h4>蛮牛前端域名</h4>
+                        <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>蛮牛代理域名</h4>
+                        <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>蛮牛后台域名</h4>
+                        <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h4>后台域名</h4>
-                    <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
-                </div>
-            </div>
-            {% else %}{% endif %}
+                {% endif %}
             {% endif %}
         {% endif %}
         </div>
@@ -100,9 +115,15 @@ $(document).ready(function(){
 $('#id_business').change(function(){
     var pp = $(this).children('option:selected').val();
     var env = "{{ envir }}";
+    var platform = "{{ platform }}";
     if (env == "huidu") { 
-        $('#front-domain').text(pp+".s1119.com");
-        $('#ag-domain').text("ag"+pp+".s1119.com");
+        if (platform == "现金网") {
+            $('#front-domain').text(pp+".s1119.com");
+            $('#ag-domain').text("ag"+pp+".s1119.com");
+        } else if (platform == "蛮牛") {
+            $('#front-domain').text(pp+".kg-44.com");
+            $('#ag-domain').text("ag"+pp+".kg-44.com");
+        }
     } else if ( env == "test" ) {
         $('#front-domain').text(pp+".test.s1118.com");
         $('#ag-domain').text("测试环境忽略此项");

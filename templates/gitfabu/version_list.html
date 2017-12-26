@@ -1,0 +1,29 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 版本更新列表 {% endblock %}
+{% block content %}
+
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            <h4 class="text-center"><i class="fa  fa-object-group bg-orange" aria-hidden="true"></i> <strong class="text-info">{{ data.name }}-更新</strong></h4><hr>
+
+                    <div class="form-group ">
+                        <label class="text-right bolder" for="id_site">当前版本<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                            <pre>{{ data.now_reversion }}</pre>
+                        <div class="help-block"></div>
+                        <label class="text-right bolder" for="id_site">历史版本<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        
+                            <pre>{% for i in old_reversion %}{{ i }}<a href="#" class="btn btn-warnning">回退</a><br>{% endfor %}</pre>
+                        
+                    </div>
+
+        </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
