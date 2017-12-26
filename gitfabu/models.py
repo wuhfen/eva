@@ -12,7 +12,8 @@ CLASSIFY_CHOICE = (
     ('online', u'生产'),
     ('test', u'测试'),
 )
-alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代"]
+#alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代"]
+alone = [u"源站",u"AG",u"后台",u"源站反代"]
 SERVER_TYPE = [(i, i) for i in tuple(alone)]
 TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
 NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新")]
