@@ -5,14 +5,13 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.translation import ugettext as _
 from accounts.models import CustomUser as User
-# from business.models import Business
+from business.models import Business
 
 
-# IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
+IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
 
 
-IPTABLE_CHOICE = [(i, i) for i in (u"鸿发国际", u"澳门娱乐城",u"一筒国际",u"四季城",u"金六福",u"云顶至尊",u"箐英会",u"新濠天地",u"法拉利保时捷",u"永利",u"金沙城",
-     u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
+# IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
 TAG_CHOICE = [(i, i) for i in (u"新平台", u"老平台")]
 
 # Create your models here.
