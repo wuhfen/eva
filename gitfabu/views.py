@@ -230,7 +230,9 @@ def my_task_details(request,uuid):
         auditors = git_deploy_audit.objects.filter(platform=df.platform,classify=df.classify,name="发布")
         if df.platform == "现金网" or df.platform == "蛮牛":
             fabu_details = True
-            domains = df.business.domain.filter(classify=df.classify)
+            domains = df.business.domain.filter(classify=df.classify,use=0)
+            ag_domains = df.business.domain.filter(classify=df.classify,use=1)
+            backend_domains = df.business.domain.filter(classify=df.classify,use=2)
             gitpublic = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=True)
             servers = git_ops_configuration.objects.filter(platform=df.platform,classify=df.classify,name="源站")
         else:

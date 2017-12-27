@@ -48,7 +48,7 @@ p {text-indent: 1cm}
                 <h4>内容：</h4>
                 <p>{{ data.memo }}</p>
                 <h4>申请人：</h4>
-                <p>{{ data.initiator }}</p>
+                <p>{{ data.initiator.first_name }}</p>
 
             </div>
 
@@ -109,9 +109,17 @@ p {text-indent: 1cm}
                     {% for i in gitprivate %}
                         <p>{{ i.address }}</p>
                     {% endfor %}
-                    <h4>域名信息：</h4>
+                    <h4>后台域名：</h4>
+                    {% for i in backend_domains %}
+                        <p>{{ i.name }}</p>
+                    {% endfor %}
+                    <h4>前端域名：</h4>
                     {% for i in domains %}
-                        <p>{{ i.name }}: {{ i.domainname }}</p>
+                        <p>{{ i.name }}</p>
+                    {% endfor %}
+                    <h4>代理域名：</h4>
+                    {% for i in ag_domains %}
+                        <p>{{ i.name }}</p>
                     {% endfor %}
                     <h4>服务器配置：</h4>
                     {% if servers %}
@@ -133,7 +141,7 @@ p {text-indent: 1cm}
                     {% if auditors %}
                     {% for i in auditors %}
                         {% for x in i.user.all %}
-                            <p>{{ x.username }}</p>
+                            <p>{{ x.first_name }}</p>
                         {% endfor %}
                     {% endfor %}
                     {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
@@ -160,7 +168,7 @@ p {text-indent: 1cm}
                     {% if auditors %}
                     {% for i in auditors %}
                         {% for x in i.user.all %}
-                            <p>{{ x.username }}</p>
+                            <p>{{ x.first_name }}</p>
                         {% endfor %}
                     {% endfor %}
                     {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
@@ -214,7 +222,7 @@ p {text-indent: 1cm}
                 {% if auditors %}
                 {% for i in auditors %}
                     {% for x in i.user.all %}
-                        <p>{{ x.username }}</p>
+                        <p>{{ x.first_name }}</p>
                     {% endfor %}
                 {% endfor %}
                 {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
@@ -243,7 +251,7 @@ p {text-indent: 1cm}
         <div class="timeline-item">
             <span class="time"><i class="fa fa-clock-o"></i> {{ i.audit_time.time }}</span>
 
-            <h3 class="timeline-header"><a href="#">{{ i.auditor }}</a> 已审核</h3>
+            <h3 class="timeline-header"><a href="#">{{ i.auditor.first_name }}</a> 已审核</h3>
 
             <div class="timeline-body">
                 <h4>审核情况：</h4>
@@ -268,7 +276,7 @@ p {text-indent: 1cm}
         <i class="fa fa-user bg-aqua"></i>
         <div class="timeline-item">
             <span class="time"><i class="fa fa-clock-o"></i> {{ i.create_date.time }}</span>
-            <h3 class="timeline-header"><a href="#">{{ i.auditor }}</a> 未审核</h3>
+            <h3 class="timeline-header"><a href="#">{{ i.auditor.first_name }}</a> 未审核</h3>
             <div class="timeline-body">
             </div>
             <div class="timeline-footer">
