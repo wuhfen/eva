@@ -140,7 +140,7 @@ def conf_add(request,env):
             php_mob,php_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="php_mobile",defaults={'address':money_git+"php/1000m_public_php.git",'user':username,'passwd':password})
             js_pc,js_pc_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_pc",defaults={'address':money_git+"web/1000_public_js.git",'user':username,'passwd':password})
             js_mob,js_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_mobile",defaults={'address':money_git+"web/1000m_public_js.git",'user':username,'passwd':password})
-            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title=name+"_config",defaults={'address':money_git+"config/"+name+".git",'user':username,'passwd':password})
+            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_config",defaults={'address':money_git+"config/"+name+".git",'user':username,'passwd':password})
         elif platform == "蛮牛":
             web = money_git+"jack/%s.git"% name
             obj,created = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name,defaults={'address':web,'user':username,'passwd':password},)

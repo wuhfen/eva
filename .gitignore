@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+*.sqlite3
+sftp-config.json
+*.sql
+*.retry
+tmp/
+.ansible/
+
