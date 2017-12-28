@@ -193,15 +193,16 @@ def my_request_task_list(request):
 
 @login_required
 def others_request_task_list(request):
-    if request.user.username == "wuhf":
-        data = []
-        ll = []
-        sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
-        for i in sdata:
-            for j in i.reqt.all():
-                data.append(j)
-    else:
-        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
+    # if request.user.username == "wuhf":
+    #     data = []
+    #     ll = []
+    #     sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
+    #     for i in sdata:
+    #         for j in i.reqt.all():
+    #             data.append(j)
+    # else:
+    #     data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
+    data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
     return render(request,'gitfabu/others_request_task.html',locals())
 
 @login_required
