@@ -173,21 +173,21 @@ def change_domain_monitor_status(request):
     return JsonResponse(data,safe=False)
 
 def get_domain_status(request):
-    uuid = request.GET.get('uuid')
-    obj = DomainName.objects.get(pk=uuid)
-    name = obj.name
-    try:
-        res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
-        if res_obj.alert == True:
-            status = "red"
-        else:
+    # uuid = request.GET.get('uuid')
+    # obj = DomainName.objects.get(pk=uuid)
+    # name = obj.name
+    # try:
+    #     res_obj = DomainInfo.objects.filter(name=name,new_msg=True).first()
+    #     if res_obj.alert == True:
+    #         status = "red"
+    #     else:
 
-            status = "green"
-        info = res_obj.info
-        print info,"red-green"
-        data = {'status':status,'info':info}
-    except AttributeError:
-        data = {'status':'green','info':"NO INFOMATION"}
+    #         status = "green"
+    #     info = res_obj.info
+    #     print info,"red-green"
+    #     data = {'status':status,'info':info}
+    # except AttributeError:
+    data = {'status':'green','info':"NO INFOMATION"}
     return JsonResponse(data,safe=False)
 
 def get_domain_code(request):
