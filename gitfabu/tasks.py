@@ -493,7 +493,7 @@ class git_moneyweb_deploy(object):
             return self.results
 
         #同步AG域名
-        if and self.platform == "现金网":
+        if self.platform == "现金网":
             if self.env == "huidu" or self.env == "online":
                 if self.env == "huidu" and self.platform=="现金网":
                     local_nginx_file = "agent_huidu.conf"
@@ -565,7 +565,7 @@ class git_moneyweb_deploy(object):
                         self.results.append("配置源站反代域名失败，任务结束！")
                         return self.results
         #同步蛮牛源站反代域名
-        if and self.platform == "蛮牛":
+        if self.platform == "蛮牛":
             if self.env == "online":
                 local_nginx_file = "mn_agent.conf"
                 filename = self.siteid+"_online.conf"
