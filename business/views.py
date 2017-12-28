@@ -249,14 +249,14 @@ def domain_add_select(request,siteid):
                     errors.append("域名：%s 已存在"% i.strip())
         if errors:
             return render(request,'business/domain_add_select.html',locals())
-        if use == '2':
-            pool = Domain_ip_pool.objects.get(name="新站后台反代")
-        elif use == '1':
-            pool = Domain_ip_pool.objects.get(name="新站第三方ag反代")
-        else:
-            pool = Domain_ip_pool.objects.get(name="CDN（抗攻击）")
+        # if use == '2':
+        #     pool = Domain_ip_pool.objects.get(name="新站后台反代")
+        # elif use == '1':
+        #     pool = Domain_ip_pool.objects.get(name="新站第三方ag反代")
+        # else:
+        #     pool = Domain_ip_pool.objects.get(name="CDN（抗攻击）")
         for i in domainname.split('\r\n'):
-            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',address=pool,supplier=supplier,monitor_status=False)
+            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',classify="online",supplier=supplier,monitor_status=False)
             save_data.save()
     return render(request,'business/domain_add_select.html',locals())
 

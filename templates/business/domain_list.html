@@ -107,8 +107,8 @@ $('.domain-monitor-restart').on("click",function(remonitor){
 </script>
 
 <script type="text/javascript">
-flush_status();
-var int=self.setInterval("flush_status()",60000); //60s执行一次刷新
+// flush_status();
+// var int=self.setInterval("flush_status()",60000); //60s执行一次刷新
     function flush_status() {
         $('#example1 tr td#id_status').each(function(){
             var uuid = $(this).attr('name');
