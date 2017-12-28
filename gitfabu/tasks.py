@@ -565,25 +565,25 @@ class git_moneyweb_deploy(object):
                         self.results.append("配置源站反代域名失败，任务结束！")
                         return self.results
         #同步蛮牛源站反代域名
-        if self.platform == "蛮牛":
+        if and self.platform == "蛮牛":
             if self.env == "online":
                 local_nginx_file = "mn_agent.conf"
                 filename = self.siteid+"_online.conf"
-            try:
-                resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
-                playtask = MyPlayTask(resource)
-                res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,filename,self.siteid,ag_domain)
-                self.results.append("AG站：%s 文件名：%s"% (ag_remoteips,remote_dir+filename))
-                self.results.append("域名：%s"% ag_domain)
-                if res == 0:
-                    self.results.append("结果：成功！")
-                elif res == 1:
-                    self.results.append("结果：执行错误！")
-                else:
-                    self.results.append("结果：主机不可用！")
-            except:
-                self.results.append("配置AG域名失败，任务结束！")
-                return self.results
+                try:
+                    resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
+                    playtask = MyPlayTask(resource)
+                    res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,filename,self.siteid,ag_domain)
+                    self.results.append("AG站：%s 文件名：%s"% (ag_remoteips,remote_dir+filename))
+                    self.results.append("域名：%s"% ag_domain)
+                    if res == 0:
+                        self.results.append("结果：成功！")
+                    elif res == 1:
+                        self.results.append("结果：执行错误！")
+                    else:
+                        self.results.append("结果：主机不可用！")
+                except:
+                    self.results.append("配置AG域名失败，任务结束！")
+                    return self.results
             #同步后台域名
             if self.env == "online":
                 local_nginx_file = "mn_backend.conf"
@@ -602,33 +602,36 @@ class git_moneyweb_deploy(object):
                 except:
                     self.results.append("配置后台域名失败，任务结束！")
                     return self.results
-        if self.platform == "蛮牛" and self.env is not "test":
             if self.env == "huidu":
                 local_nginx_file = "mn_huidu_front_proxy.conf"
                 remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
                 remote_nginx_file = "huidu"+self.siteid+".conf"
-            else:
+                proxy = True
+            elif self.env == "online":
+                proxy = True
                 local_nginx_file = "mn_online_front_proxy.conf"
                 remote_dir = "/usr/local/nginx/conf/vhost/"
                 remote_nginx_file = self.siteid+".conf"
-            try:
-                proxy_remoteips = git_ops_configuration.objects.get(platform="蛮牛",classify=self.env,name="源站反代").remoteip
-                resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
-                playtask = MyPlayTask(resource)
-                playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remote_nginx_file,self.siteid,front_domain)
-                self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remote_nginx_file))
-                self.results.append("域名：%s"% front_domain)
-                if res == 0:
-                    self.results.append("结果：成功！")
-                elif res == 1:
-                    self.results.append("结果：执行错误！")
-                else:
-                    self.results.append("结果：主机不可用！")
-            except:
-                self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
-                self.results.append("配置源站反代域名失败，任务结束！")
-                return self.results
-
+            else:
+                proxy = False
+            if proxy:
+                try:
+                    proxy_remoteips = git_ops_configuration.objects.get(platform="蛮牛",classify=self.env,name="源站反代").remoteip
+                    resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
+                    playtask = MyPlayTask(resource)
+                    playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remote_nginx_file,self.siteid,front_domain)
+                    self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remote_nginx_file))
+                    self.results.append("域名：%s"% front_domain)
+                    if res == 0:
+                        self.results.append("结果：成功！")
+                    elif res == 1:
+                        self.results.append("结果：执行错误！")
+                    else:
+                        self.results.append("结果：主机不可用！")
+                except:
+                    self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
+                    self.results.append("配置源站反代域名失败，任务结束！")
+                    return self.results
         return self.results
 
 @shared_task()
