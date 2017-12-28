@@ -493,17 +493,80 @@ class git_moneyweb_deploy(object):
             return self.results
 
         #同步AG域名
-        if self.env == "huidu" or self.env == "online":
-            if self.env == "huidu" and self.platform=="现金网":
-                local_nginx_file = "agent_huidu.conf"
-                filename = self.siteid+"_huidu.conf"
-            elif self.env == "online" and self.platform=="现金网":
-                local_nginx_file = "agent.conf"
-                filename = self.siteid+"_online.conf"
-            elif self.env == "huidu" and self.platform=="蛮牛":
-                local_nginx_file = "mn_huidu_agent.conf"
-                filename = self.siteid+"_huidu.conf"
-            elif self.env == "online" and self.platform=="蛮牛":
+        if and self.platform == "现金网":
+            if self.env == "huidu" or self.env == "online":
+                if self.env == "huidu" and self.platform=="现金网":
+                    local_nginx_file = "agent_huidu.conf"
+                    filename = self.siteid+"_huidu.conf"
+                elif self.env == "online" and self.platform=="现金网":
+                    local_nginx_file = "agent.conf"
+                    filename = self.siteid+"_online.conf"
+                elif self.env == "huidu" and self.platform=="蛮牛":
+                    local_nginx_file = "mn_huidu_agent.conf"
+                    filename = self.siteid+"_huidu.conf"
+                elif self.env == "online" and self.platform=="蛮牛":
+                    local_nginx_file = "mn_agent.conf"
+                    filename = self.siteid+"_online.conf"
+                try:
+                    resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
+                    playtask = MyPlayTask(resource)
+                    res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,filename,self.siteid,ag_domain)
+                    self.results.append("AG站：%s 文件名：%s"% (ag_remoteips,remote_dir+filename))
+                    self.results.append("域名：%s"% ag_domain)
+                    if res == 0:
+                        self.results.append("结果：成功！")
+                    elif res == 1:
+                        self.results.append("结果：执行错误！")
+                    else:
+                        self.results.append("结果：主机不可用！")
+                except:
+                    self.results.append("配置AG域名失败，任务结束！")
+                    return self.results
+            #同步后台域名
+            if self.env == "huidu":
+                if "f" not in self.siteid: 
+                    if self.platform == "现金网": local_nginx_file = "backend.conf"
+                    if self.platform == "蛮牛": local_nginx_file = "mn_backend.conf"
+                    try:
+                        resource = gen_resource([Server.objects.get(ssh_host=i) for i in backend_remoteips.split('\r\n')])
+                        playtask = MyPlayTask(resource)
+                        res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",siteid,backend_domain)
+                        self.results.append("后台站：%s 文件名：%s"% (backend_remoteips,remote_dir+self.siteid+".conf"))
+                        self.results.append("域名：%s"% backend_domain)
+                        if res == 0:
+                            self.results.append("结果：成功！")
+                        elif res == 1:
+                            self.results.append("结果：执行错误！")
+                        else:
+                            self.results.append("结果：主机不可用！")
+                    except:
+                        self.results.append("配置后台域名失败，任务结束！")
+                        return self.results
+            #同步现金网源站反代域名
+            if self.env == "huidu":
+                if "f" not in self.siteid:
+                    local_nginx_file = "front_proxy.conf"
+                    remote_nginx_file = siteid+".s1119.conf"
+                    try:
+                        proxy_remoteips = git_ops_configuration.objects.get(platform="现金网",classify=self.env,name="源站反代").remoteip
+                        resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
+                        playtask = MyPlayTask(resource)
+                        playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remote_nginx_file,siteid,front_domain)
+                        self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remote_nginx_file))
+                        self.results.append("域名：%s"% front_domain)
+                        if res == 0:
+                            self.results.append("结果：成功！")
+                        elif res == 1:
+                            self.results.append("结果：执行错误！")
+                        else:
+                            self.results.append("结果：主机不可用！")
+                    except:
+                        self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
+                        self.results.append("配置源站反代域名失败，任务结束！")
+                        return self.results
+        #同步蛮牛源站反代域名
+        if and self.platform == "蛮牛":
+            if self.env == "online":
                 local_nginx_file = "mn_agent.conf"
                 filename = self.siteid+"_online.conf"
             try:
@@ -521,11 +584,9 @@ class git_moneyweb_deploy(object):
             except:
                 self.results.append("配置AG域名失败，任务结束！")
                 return self.results
-        #同步后台域名
-        if self.env == "huidu":
-            if "f" not in self.siteid: 
-                if self.platform == "现金网": local_nginx_file = "backend.conf"
-                if self.platform == "蛮牛": local_nginx_file = "mn_backend.conf"
+            #同步后台域名
+            if self.env == "online":
+                local_nginx_file = "mn_backend.conf"
                 try:
                     resource = gen_resource([Server.objects.get(ssh_host=i) for i in backend_remoteips.split('\r\n')])
                     playtask = MyPlayTask(resource)
@@ -541,29 +602,6 @@ class git_moneyweb_deploy(object):
                 except:
                     self.results.append("配置后台域名失败，任务结束！")
                     return self.results
-        #同步现金网源站反代域名
-        if self.env == "huidu" and self.platform == "现金网":
-            if "f" not in self.siteid:
-                local_nginx_file = "front_proxy.conf"
-                remote_nginx_file = siteid+".s1119.conf"
-                try:
-                    proxy_remoteips = git_ops_configuration.objects.get(platform="现金网",classify=self.env,name="源站反代").remoteip
-                    resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
-                    playtask = MyPlayTask(resource)
-                    playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remote_nginx_file,siteid,front_domain)
-                    self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remote_nginx_file))
-                    self.results.append("域名：%s"% front_domain)
-                    if res == 0:
-                        self.results.append("结果：成功！")
-                    elif res == 1:
-                        self.results.append("结果：执行错误！")
-                    else:
-                        self.results.append("结果：主机不可用！")
-                except:
-                    self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
-                    self.results.append("配置源站反代域名失败，任务结束！")
-                    return self.results
-        #同步蛮牛源站反代域名
         if self.platform == "蛮牛" and self.env is not "test":
             if self.env == "huidu":
                 local_nginx_file = "mn_huidu_front_proxy.conf"
