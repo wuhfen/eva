@@ -12,8 +12,7 @@ import time
 from api.git_api import Repo
 
 import telegram
-bot = telegram.Bot(token='333468932:AAGKPxYrLc3jkhYP68FUSnwa0DVTjR-9zmA')
-
+bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo') #鼎泰科技bot
 
 def mytasknums(request):
     nums = {}
@@ -176,8 +175,8 @@ def conf_add(request,env):
             reslut = git_fabu_task.delay(ddata.id,mydata.id)
         else:
             for i in auditor[0].user.all():
-                # if i.username == "lookback":
-                #     bot.sendMessage(chat_id='228902627', text="有审核任务")
+                if i.username == "lookback":
+                    bot.sendMessage(chat_id='228902627', text="有审核任务")
                 task_data = git_task_audit(request_task=mydata,auditor=i)
                 task_data.save()
 
@@ -463,11 +462,12 @@ def web_update_code(request,uuid):
         else:
             if data.classify == 'huidu' or data.classify == 'online':
                 for i in auditor.user.all():
-                    # if i.username == "wuhf":
-                    #     bot.sendMessage(chat_id='229344728', text="有审核任务")
-                    # if i.username == "lookback":
-                    #     bot.sendMessage(chat_id='228902627', text="有审核任务")
-                    #     bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
+                    if i.username == "wuhf":
+                        bot.sendMessage(chat_id='229344728', text="有审核任务")
+                        bot.sendMessage(chat_id='229344728', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
+                    if i.username == "lookback":
+                        bot.sendMessage(chat_id='228902627', text="有审核任务")
+                        bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
                     task_data = git_task_audit(request_task=mydata,auditor=i)
                     task_data.save()
             else:
