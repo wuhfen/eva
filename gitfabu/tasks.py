@@ -792,12 +792,15 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         new_data.save()
         #开始更新
         MyWeb = git_moneyweb_deploy(data.id)
-        MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
-        export_reslut = MyWeb.export_git(what="php_pc",branch=new_data.php_pc_branches,reversion=new_data.php_pc_release) #取更新的公共代码版本号
-        export_reslut = MyWeb.export_git(what="php_mobile",branch=new_data.php_mobile_branches,reversion=new_data.php_moblie_release) #取更新的公共代码版本号
-        export_reslut = MyWeb.export_git(what="js_pc",branch=new_data.js_pc_branches,reversion=new_data.js_pc_release) #取更新的公共代码版本号
-        export_reslut = MyWeb.export_git(what="js_mobile",branch=new_data.js_mobile_branches,reversion=new_data.js_mobile_release) #取更新的公共代码版本号
-        #export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
+        if data.platform == "现金网":
+            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+            export_reslut = MyWeb.export_git(what="php_pc",branch=new_data.php_pc_branches,reversion=new_data.php_pc_release) #取更新的公共代码版本号
+            export_reslut = MyWeb.export_git(what="php_mobile",branch=new_data.php_mobile_branches,reversion=new_data.php_moblie_release) #取更新的公共代码版本号
+            export_reslut = MyWeb.export_git(what="js_pc",branch=new_data.js_pc_branches,reversion=new_data.js_pc_release) #取更新的公共代码版本号
+            export_reslut = MyWeb.export_git(what="js_mobile",branch=new_data.js_mobile_branches,reversion=new_data.js_mobile_release) #取更新的公共代码版本号
+        else:
+            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+            export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
         if export_reslut:
             MyWeb.update_release()  #此步骤已经解锁data
             MyWeb.merge_git()
