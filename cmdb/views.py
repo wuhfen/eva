@@ -201,61 +201,76 @@ def audit(message):
     try:
         data = git_task_audit.objects.get(id=uuid)
         print data.request_task.table_name
-        df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
-        print df.name
-        if go:
-            print "go"
-            for i in data.request_task.reqt.all():
-                i.ispass = ok
-                i.isaudit = True
-                i.postil = postil
-                i.save()
-        else:
-            print "审核关键字%s"% ispass
-            data.ispass = ok
-            data.isaudit = True
-            data.postil = postil
-            data.save()
-        if not ok:
-            bot.sendMessage(chat_id=message.chat.id, text=postil)
-            return 2
-        alldata = data.request_task.reqt.all()
-
-        if False not in [i.ispass for i in alldata]:
-            data.request_task.status="通过审核，更新中"
-            data.request_task.save()
-            df.isaudit= True
-            df.save()
-            if data.request_task.table_name == "git_deploy":
-                text = postil + "开始现金网发布"
-                name = "发布"
-                print text
-                reslut = git_fabu_task.delay(data.request_task.uuid,data.request_task.id)
-            else:
-                name = "更新"
-                if df.code_conf:
-                    text = postil+"开始现金网更新"
-                    reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
-                else:
-                    if "现金网" in df.name: platform="现金网"
-                    if "蛮牛" in df.name: platform="蛮牛"
-                    reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
-                    text = postil + df.name
-            bot.sendMessage(chat_id=message.chat.id, text=text)
-            try:
-                reslut.wait(timeout=600)
-            except:
-                bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
-                return 7
-            if reslut.successful():
-                deploy_data = df.code_conf
-                dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
-                for i in dflog:
-                    text = "".join(i.log)
-        else:
-            text="你已审核，等待其他人审核！"
+        print data.request_task.uuid
     except:
         text="没有找到此任务，ID：%s"% uuid
+        bot.sendMessage(chat_id=message.chat.id, text=text)
+        return 9
+    try:
+        df = eval(data.request_task.table_name).objects.get(id=data.request_task.uuid)
+        print df.name
+    except:
+        text="没有找%s项目"% data.request_task.table_name
+        bot.sendMessage(chat_id=message.chat.id, text=text)
+        return 9
+    if go:
+        print "go"
+        for i in data.request_task.reqt.all():
+            i.ispass = ok
+            i.isaudit = True
+            i.postil = postil
+            i.save()
+    else:
+        print "审核关键字%s"% ispass
+        data.ispass = ok
+        data.isaudit = True
+        data.postil = postil
+        data.save()
+    if not ok:
+        bot.sendMessage(chat_id=message.chat.id, text=postil)
+        return 2
+    try:
+        alldata = data.request_task.reqt.all()
+    except:
+        text="没有找到其他审核"
+        bot.sendMessage(chat_id=message.chat.id, text=text)
+        return 9
+
+    if False not in [i.ispass for i in alldata]:
+        data.request_task.status="通过审核，更新中"
+        data.request_task.save()
+        df.isaudit= True
+        df.save()
+        if data.request_task.table_name == "git_deploy":
+            text = postil + "开始现金网发布"
+            name = "发布"
+            print text
+            reslut = git_fabu_task.delay(data.request_task.uuid,data.request_task.id)
+        else:
+            name = "更新"
+            if df.code_conf:
+                text = postil+"开始现金网更新"
+                reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
+            else:
+                if "现金网" in df.name: platform="现金网"
+                if "蛮牛" in df.name: platform="蛮牛"
+                reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
+                text = postil + df.name
+            print text
+        bot.sendMessage(chat_id=message.chat.id, text=text)
+        try:
+            reslut.wait(timeout=600)
+        except:
+            bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
+            return 7
+        if reslut.successful():
+            deploy_data = df.code_conf
+            dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
+            for i in dflog:
+                text = "".join(i.log)
+    else:
+        text="你已审核，等待其他人审核！"
+
     num = len(text)/4096
     if num == 0:
         bot.sendMessage(chat_id=message.chat.id, text=text)
