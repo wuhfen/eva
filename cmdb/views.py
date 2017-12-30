@@ -307,7 +307,8 @@ def handle_message(message):
         elif '/help' in text:
             helpp(message)
         elif '/audit' in text:
-            audit(message)
+            return True
+            # audit(message)
         elif '/get_host' in text:
             get_host(message)
         else:
