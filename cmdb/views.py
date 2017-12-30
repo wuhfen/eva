@@ -268,8 +268,11 @@ def audit(message):
             bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
             return 7
         if reslut.successful():
-            deploy_data = df.code_conf
-            dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
+            if data.request_task.table_name == "git_deploy":
+                dflog = df.deploy_logs.filter(name=name,update=df.id)
+            else:
+                deploy_data = df.code_conf
+                dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
             for i in dflog:
                 text = "".join(i.log)
     else:
@@ -307,8 +310,7 @@ def handle_message(message):
         elif '/help' in text:
             helpp(message)
         elif '/audit' in text:
-            return True
-            # audit(message)
+            audit(message)
         elif '/get_host' in text:
             get_host(message)
         else:
