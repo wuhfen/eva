@@ -197,7 +197,9 @@ def audit(message):
         return 9
     try:
         data = git_task_audit.objects.get(id=uuid)
+        print data.name
         df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
+        print df.name
         if go:
             for i in data.request_task.reqt.all():
                 i.ispass = ok
@@ -205,6 +207,7 @@ def audit(message):
                 i.postil = postil
                 i.save()
         else:
+            print "通过"
             data.ispass = ok
             data.isaudit = True
             data.postil = postil
@@ -213,6 +216,7 @@ def audit(message):
             bot.sendMessage(chat_id=message.chat.id, text=postil)
             return 2
         alldata = data.request_task.reqt.all()
+
         if False not in [i.ispass for i in alldata]:
             data.request_task.status="通过审核，更新中"
             data.request_task.save()
@@ -221,6 +225,7 @@ def audit(message):
             if data.request_task.table_name == "git_deploy":
                 text = postil + "开始现金网发布"
                 name = "发布"
+                print text
                 reslut = git_fabu_task.delay(data.request_task.uuid,data.request_task.id)
             else:
                 name = "更新"
