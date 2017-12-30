@@ -12,7 +12,7 @@ import telegram
 import json
 from api.ssh_api import ssh_cmd
 from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_update_public_task
-from gitfabu.models import git_code_update
+from gitfabu.models import git_code_update,git_deploy,git_task_audit,my_request_task,git_deploy_audit
 global bot
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')  #dtkjbot
 # bot = telegram.Bot(token='480303523:AAHjlmvdiEBZZ_zs78cj3hivwzcpyJuz8xQ') #mofei-bot
