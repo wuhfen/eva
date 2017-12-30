@@ -174,7 +174,9 @@ def audit(message):
     username = CustomUser.objects.get(first_name=tuser)
     try:
         uuid = message.text.split()[1].split('@')[0]
+        print "任务id%s"% uuid
         ispass = message.text.split()[1].split('@')[1]
+        print ispass
     except IndexError:
         text = "缺少参数！/audit 任务ID@yes or no"
         bot.sendMessage(chat_id=message.chat.id, text=text)
@@ -195,19 +197,21 @@ def audit(message):
     else:
         bot.sendMessage(chat_id=message.chat.id, text="格式错误！/audit 任务ID@yes or no")
         return 9
+
     try:
         data = git_task_audit.objects.get(id=uuid)
-        print data.name
+        print data.request_task.table_name
         df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
         print df.name
         if go:
+            print "go"
             for i in data.request_task.reqt.all():
                 i.ispass = ok
                 i.isaudit = True
                 i.postil = postil
                 i.save()
         else:
-            print "通过"
+            print "审核关键字%s"% ispass
             data.ispass = ok
             data.isaudit = True
             data.postil = postil
