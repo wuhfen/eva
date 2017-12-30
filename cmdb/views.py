@@ -124,7 +124,7 @@ def get_mytask(message):
                 classify = df.classify
                 business = df.business
                 domain = [i.name for i in DomainName.objects.filter(business=business,classify=classify,use=0)]
-                text.append("域名："+"\n".join(domain))
+                text.append("域名：\n"+"\n".join(domain))
             else:
                 print "更新任务"
                 bf = git_code_update.objects.get(pk=data.request_task.uuid)
