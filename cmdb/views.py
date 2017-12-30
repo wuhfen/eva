@@ -207,10 +207,14 @@ def audit(message):
         bot.sendMessage(chat_id=message.chat.id, text=text)
         return 9
     try:
-        df = eval(data.request_task.table_name).objects.get(id=data.request_task.uuid)
+        if data.request_task.table_name == "git_deploy":
+            df = git_deploy.objects.get(id=data.request_task.uuid)
+        else:
+            df = git_code_update.objects.get(id=data.request_task.uuid)
         print df.name
     except:
         text="没有找%s项目"% data.request_task.table_name
+        print text
         bot.sendMessage(chat_id=message.chat.id, text=text)
         return 9
     if go:
