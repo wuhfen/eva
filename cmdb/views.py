@@ -132,7 +132,7 @@ def get_mytask(message):
                 classify = df.classify
                 business = df.business
                 domain = [i.name for i in DomainName.objects.filter(business=business,classify=classify,use=0)]
-                text.append("域名: http://")
+                text.append("域名: \n")
                 text.append(" ".join(domain))
         except:
             text.append("没有找到此ID：%s 信息"% args[-1])
