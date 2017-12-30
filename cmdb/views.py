@@ -21,6 +21,7 @@ bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')  #dtkj
 from assets.models import Server
 from gitfabu.models import git_task_audit
 from accounts.models import CustomUser
+from business.models import Business,DomainName
 
 from api.common_api import isValidIp
 def helpp(message):
@@ -119,17 +120,18 @@ def get_mytask(message):
                     text.append("审核人： "+i.auditor.username+"未审核\n")
             if data.request_task.table_name == "git_deploy":
                 print "发布任务"
-                df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
-                f_dname = "生产-%s前端域名"% df.name
-                domain = df.deploy_domain.get(name=f_dname).domainname.split()[0:5]
+                df = git_deploy.objects.get(id=data.request_task.uuid)
+                classify = df.classify
+                business = df.business
+                domain = [i.name for i in DomainName.objects.filter(business=business,classify=classify,use=0)]
                 text.append("域名："+"\n".join(domain))
             else:
                 print "更新任务"
-                bf = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
+                bf = git_code_update.objects.get(pk=data.request_task.uuid)
                 df = bf.code_conf
-                f_dname = "生产-%s前端域名"% df.name
-                print df.deploy_domain.get(name=f_dname).domainname
-                domain = df.deploy_domain.get(name=f_dname).domainname.split()[0:5]
+                classify = df.classify
+                business = df.business
+                domain = [i.name for i in DomainName.objects.filter(business=business,classify=classify,use=0)]
                 text.append("域名: http://")
                 text.append(" ".join(domain))
         except:
