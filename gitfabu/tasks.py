@@ -100,9 +100,9 @@ class git_moneyweb_deploy(object):
             self.export_git(what='config')
             self.update_release()
             self.merge_git()
-            self.ansible_rsync_web()
-            if data.conf_domain:
-                self.web_front_domain()
+            # self.ansible_rsync_web()
+            # if data.conf_domain:
+            #     self.web_front_domain()
         elif self.method == "op_fabu":
             self.export_git(what='only')
             self.update_release()
@@ -568,7 +568,7 @@ class git_moneyweb_deploy(object):
         if self.platform == "蛮牛":
             if self.env == "online":
                 local_nginx_file = "mn_agent.conf"
-                filename = self.siteid+"_online.conf"
+                filename = "ag_"+self.siteid+".conf"
                 try:
                     resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
                     playtask = MyPlayTask(resource)
@@ -682,21 +682,23 @@ def git_update_task(uuid,myid):
     print type(updata.method)
     if updata.method != 'web':
         print "非web更新，需要执行web代码"
-    if data.platform == "现金网":
         MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
-        MyWeb.export_git(what='php_pc',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
-        MyWeb.export_git(what='php_mobile',branch=updata.php_mobile_branches,reversion=updata.php_moblie_release)
-        MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
-        MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
-        export_reslut = True
-    elif data.platform == "蛮牛":
-        MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
-        MyWeb.export_git(what='php',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
-        MyWeb.export_git(what='js',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
-        MyWeb.export_git(what='config',branch=updata.config_branches,reversion=updata.config_release)
-        export_reslut = True
-    else:
-        export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #必须保证公共代码不会无故更新，必须每个项目都有自己的公共代码目录，查看版本信息不会涉及此目录的代码
+    export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version)
+    # if data.platform == "现金网":  #cmdb迁移之后要使用下面代码，以保证存在的站更新不会错乱
+    #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+    #     MyWeb.export_git(what='php_pc',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
+    #     MyWeb.export_git(what='php_mobile',branch=updata.php_mobile_branches,reversion=updata.php_moblie_release)
+    #     MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+    #     MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
+    #     export_reslut = True
+    # elif data.platform == "蛮牛":
+    #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+    #     MyWeb.export_git(what='php',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
+    #     MyWeb.export_git(what='js',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+    #     MyWeb.export_git(what='config',branch=updata.config_branches,reversion=updata.config_release)
+    #     export_reslut = True
+    # else:
+    #     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #必须保证公共代码不会无故更新，必须每个项目都有自己的公共代码目录，查看版本信息不会涉及此目录的代码
     if export_reslut:
         MyWeb.update_release()
         MyWeb.merge_git()
@@ -792,15 +794,17 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         new_data.save()
         #开始更新
         MyWeb = git_moneyweb_deploy(data.id)
-        if data.platform == "现金网":
-            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
-            export_reslut = MyWeb.export_git(what="php_pc",branch=new_data.php_pc_branches,reversion=new_data.php_pc_release) #取更新的公共代码版本号
-            export_reslut = MyWeb.export_git(what="php_mobile",branch=new_data.php_mobile_branches,reversion=new_data.php_moblie_release) #取更新的公共代码版本号
-            export_reslut = MyWeb.export_git(what="js_pc",branch=new_data.js_pc_branches,reversion=new_data.js_pc_release) #取更新的公共代码版本号
-            export_reslut = MyWeb.export_git(what="js_mobile",branch=new_data.js_mobile_branches,reversion=new_data.js_mobile_release) #取更新的公共代码版本号
-        else:
-            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
-            export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
+        MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+        export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
+        # if data.platform == "现金网":
+        #     MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+        #     export_reslut = MyWeb.export_git(what="php_pc",branch=new_data.php_pc_branches,reversion=new_data.php_pc_release) #取更新的公共代码版本号
+        #     export_reslut = MyWeb.export_git(what="php_mobile",branch=new_data.php_mobile_branches,reversion=new_data.php_moblie_release) #取更新的公共代码版本号
+        #     export_reslut = MyWeb.export_git(what="js_pc",branch=new_data.js_pc_branches,reversion=new_data.js_pc_release) #取更新的公共代码版本号
+        #     export_reslut = MyWeb.export_git(what="js_mobile",branch=new_data.js_mobile_branches,reversion=new_data.js_mobile_release) #取更新的公共代码版本号
+        # else:
+        #     MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+        #     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
         if export_reslut:
             MyWeb.update_release()  #此步骤已经解锁data
             MyWeb.merge_git()
