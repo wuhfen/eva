@@ -16,13 +16,14 @@ Including another URLconf
 """
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from views import index, auth_error, success, test,hello
+from views import index, auth_error, success, test,hello,get_domains
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', index),
     url(r'^index/$', index),
+    url(r'^get_domains/(?P<platform>[^/]+)$', get_domains),
     url(r'accounts/', include("accounts.urls")),
     url(r'auth/', include("cmdb_auth.urls")),
     url(r'assets/', include("assets.urls")),
@@ -36,7 +37,7 @@ urlpatterns = [
 
     url(r'^auth_error/$', auth_error),
     url(r'^success/$', success,name='asset-success'),
-    url(r'^test/$', test,name='test'),
+    # url(r'^test/$', test,name='test'),
     url(r'^hello/$', hello,name='hello'),
 
 

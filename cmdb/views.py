@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from assets.forms import RAMForm,AssetForm,NICForm
 from assets.models import Asset, NIC
@@ -13,9 +13,10 @@ import json
 from api.ssh_api import ssh_cmd
 from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_update_public_task
 from gitfabu.models import git_code_update,git_deploy,git_task_audit,my_request_task,git_deploy_audit
+
 global bot
-bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')  #dtkjbot
-# bot = telegram.Bot(token='480303523:AAHjlmvdiEBZZ_zs78cj3hivwzcpyJuz8xQ') #mofei-bot
+#bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
+bot = telegram.Bot(token='480303523:AAHjlmvdiEBZZ_zs78cj3hivwzcpyJuz8xQ')
 
 # Create your views here.
 from assets.models import Server
@@ -295,7 +296,6 @@ def audit(message):
             end = start + len(text)%4096
             bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
 
-
 def handle_message(message):
     text = message.text
     tuser = message.chat.first_name
@@ -321,10 +321,39 @@ def handle_message(message):
         pass
 
 
-
 @login_required()
 def index(request):
+    manniu = {}
+    money = {}
+    manniu_data = Business.objects.filter(platform="蛮牛",status='0').order_by('nic_name') #正常运转的蛮牛项目
+    money_data = Business.objects.filter(platform="现金网",status='0').order_by('nic_name') #正常运转的现金网项目
+    manniu_domains = DomainName.objects.filter()
+    for data in manniu_data:
+        manniu[data.nic_name] = [{"front":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=0)])},
+        {"proxy":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=1)])},
+        {"backend":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=2)])}]
+    for data in money_data:
+        money[data.nic_name] = [{"front":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=0)])},
+        {"proxy":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=1)])},
+        {"backend":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=2)])}]
+
     return render(request,'default/index.html',locals())
+
+def get_domains(request,platform):
+    res = []
+    if platform=="manniu":
+        datas = Business.objects.filter(platform="蛮牛",status='0')
+    if platform=="money":
+        datas = Business.objects.filter(platform="现金网",status='0')
+    for data in datas:
+        res.append({
+        "name":data.nic_name,
+        "front":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=0)]),
+        "proxy":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=1)]),
+        "backend":" ".join([i.name for i in DomainName.objects.filter(business=data,classify="online",use=2)]),
+        })
+    return JsonResponse(res,safe=False)
+
 
 def auth_error(request):
     return render(request,'default/error_auth.html',locals())

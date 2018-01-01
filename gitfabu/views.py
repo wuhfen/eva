@@ -12,7 +12,8 @@ import time
 from api.git_api import Repo
 
 import telegram
-bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo') #鼎泰科技bot
+bot = telegram.Bot(token='333468932:AAGKPxYrLc3jkhYP68FUSnwa0DVTjR-9zmA')
+
 
 def mytasknums(request):
     nums = {}
@@ -175,8 +176,8 @@ def conf_add(request,env):
             reslut = git_fabu_task.delay(ddata.id,mydata.id)
         else:
             for i in auditor[0].user.all():
-                if i.username == "lookback":
-                    bot.sendMessage(chat_id='228902627', text="有审核任务")
+                # if i.username == "lookback":
+                #     bot.sendMessage(chat_id='228902627', text="有审核任务")
                 task_data = git_task_audit(request_task=mydata,auditor=i)
                 task_data.save()
 
@@ -192,16 +193,15 @@ def my_request_task_list(request):
 
 @login_required
 def others_request_task_list(request):
-    # if request.user.username == "wuhf":
-    #     data = []
-    #     ll = []
-    #     sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
-    #     for i in sdata:
-    #         for j in i.reqt.all():
-    #             data.append(j)
-    # else:
-    #     data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
-    data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
+    if request.user.username == "wuhf":
+        data = []
+        ll = []
+        sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
+        for i in sdata:
+            for j in i.reqt.all():
+                data.append(j)
+    else:
+        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')
     return render(request,'gitfabu/others_request_task.html',locals())
 
 @login_required
@@ -209,10 +209,21 @@ def cancel_my_task(request,uuid):
     data = my_request_task.objects.get(id=uuid)
     data.loss_efficacy=True
     data.status="已停止"
-    data.save()  #停止此次申请任务
+    data.save()  #停止此次申请任务，还应当将锁住的项目解锁
+    df = eval(data.table_name).objects.get(pk=data.uuid)
+    if data.table_name == "git_code_update":
+        if df.code_conf: #单个更新任务，删除任务，解锁项目
+            df.code_conf.islock = False
+            df.code_conf.save()
+        else:
+            if "现金网" in df.name: platform = "现金网"
+            if "蛮牛" in df.name: platform = "蛮牛"
+            if "huidu" in df.name: classify = "huidu"
+            if "online" in df.name: classify = "online"
+            if "test" in df.name: classify = "test"
+            git_deploy.objects.filter(platform=platform,classify=classify,islog=True,usepub=True).update(islock=False)
+    df.delete() #删除任务
     data.reqt.all().update(loss_efficacy=True) #停止相关的审核任务
-
-    eval(data.table_name).objects.get(pk=data.uuid).delete() #删除此次申请发布的项目信息，自动创建的gitrepo没有被删除
     return JsonResponse({'res':"已经终止申请"},safe=False)
 
 @login_required
@@ -462,12 +473,11 @@ def web_update_code(request,uuid):
         else:
             if data.classify == 'huidu' or data.classify == 'online':
                 for i in auditor.user.all():
-                    if i.username == "wuhf":
-                        bot.sendMessage(chat_id='229344728', text="有审核任务")
-                        bot.sendMessage(chat_id='229344728', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
-                    if i.username == "lookback":
-                        bot.sendMessage(chat_id='228902627', text="有审核任务")
-                        bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
+                    # if i.username == "wuhf":
+                    #     bot.sendMessage(chat_id='229344728', text="有审核任务")
+                    # if i.username == "lookback":
+                    #     bot.sendMessage(chat_id='228902627', text="有审核任务")
+                    #     bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
                     task_data = git_task_audit(request_task=mydata,auditor=i)
                     task_data.save()
             else:
