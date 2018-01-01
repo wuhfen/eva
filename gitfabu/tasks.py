@@ -100,9 +100,9 @@ class git_moneyweb_deploy(object):
             self.export_git(what='config')
             self.update_release()
             self.merge_git()
-            # self.ansible_rsync_web()
-            # if data.conf_domain:
-            #     self.web_front_domain()
+            self.ansible_rsync_web()
+            if data.conf_domain:
+                self.web_front_domain()
         elif self.method == "op_fabu":
             self.export_git(what='only')
             self.update_release()
