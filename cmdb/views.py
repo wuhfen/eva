@@ -15,8 +15,8 @@ from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_
 from gitfabu.models import git_code_update,git_deploy,git_task_audit,my_request_task,git_deploy_audit
 
 global bot
-#bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
-bot = telegram.Bot(token='480303523:AAHjlmvdiEBZZ_zs78cj3hivwzcpyJuz8xQ')
+bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo') #dtkj
+
 
 # Create your views here.
 from assets.models import Server
