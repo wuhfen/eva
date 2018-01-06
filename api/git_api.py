@@ -103,7 +103,7 @@ class Repo(object):
             cmd.append('-b')
         cmd.append(str(reference))
         res = self.git_command(*cmd)
-        print res
+        print(res)
         return res
 
     def git_change_branch(self, branch):
@@ -245,7 +245,7 @@ class Repo(object):
     def git_pull(self):
         """Pull changes to this repo."""
         res = self.git_command("pull","--all","-p")
-        print res
+        print(res)
         return res
 
     def git_fetch(self, source=None):

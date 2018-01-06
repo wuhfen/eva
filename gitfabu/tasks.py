@@ -230,7 +230,7 @@ class git_moneyweb_deploy(object):
         if reversion:  #如果提供了版本则拉最新代码后检出到版本
             try:
                 print "bug定位--检出过程切换分支%s"% branch
-                if branch != "master":
+                if branch is not "master":
                     repo.git_pull() #新建分支先拉取在切换
                 repo.git_checkout(branch)
                 repo.git_pull()
