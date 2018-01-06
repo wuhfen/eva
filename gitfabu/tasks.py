@@ -229,13 +229,18 @@ class git_moneyweb_deploy(object):
 
         if reversion:  #如果提供了版本则拉最新代码后检出到版本
             try:
-                print "bug定位--检出过程切换分支%s"% branch
-                if branch is not "master":
+                if branch != "master":
+                    print "新分支，先切换主分支"
+                    repo.git_checkout("master")
+                    print "新分支，切换主分支完毕，开始拉取最新代码"
                     repo.git_pull() #新建分支先拉取在切换
-                repo.git_checkout(branch)
+                    print "新分支，拉取最新代码完成"
+                print "bug定位--检出过程切换分支%s"% branch
+                dingwei = repo.git_checkout(branch)
+                print dingwei
                 repo.git_pull()
-                res = repo.git_checkout(reversion)
                 print "bug定位--检出过程切换到版本号：%s"% reversion
+                res = repo.git_checkout(reversion)
                 res1 = "切换分支%s,切换版本号%s"% (branch,reversion)
             except:
                 res = "版本检出错误，请查看本地代码仓库是否存在"
