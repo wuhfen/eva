@@ -12,7 +12,7 @@ import time
 from api.git_api import Repo
 
 import telegram
-bot = telegram.Bot(token='333468932:AAGKPxYrLc3jkhYP68FUSnwa0DVTjR-9zmA')
+bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
 
 
 def mytasknums(request):
