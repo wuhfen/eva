@@ -475,10 +475,11 @@ def web_update_code(request,uuid):
                 for i in auditor.user.all():
                     task_data = git_task_audit(request_task=mydata,auditor=i)
                     task_data.save()
-                    bot.sendMessage(chat_id='229344728', text="有审核任务")
+
                     if i.username == "lookback":
                         bot.sendMessage(chat_id='228902627', text="有审核任务")
                         bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
+                    # bot.sendMessage(chat_id='229344728', text="有审核任务")     #bot发消息函数有bug，调用后不会再执行以下代码
 
             else:
                 mydata.status="通过审核，更新中"
