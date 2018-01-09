@@ -473,8 +473,7 @@ def web_update_code(request,uuid):
         else:
             if data.classify == 'huidu' or data.classify == 'online':
                 for i in auditor.user.all():
-                    # if i.username == "wuhf":
-                    #     bot.sendMessage(chat_id='229344728', text="有审核任务")
+                    bot.sendMessage(chat_id='229344728', text="有审核任务")
                     if i.username == "lookback":
                         bot.sendMessage(chat_id='228902627', text="有审核任务")
                         bot.sendMessage(chat_id='228902627', text="任务ID: %s,名称：%s"% (task_data.id,task_name))
