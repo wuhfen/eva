@@ -186,11 +186,8 @@ def server_add(request):
 
 @permission_required('assets.add_asset', login_url='/auth_error/')
 def server_list(request):
-    # assets = Asset.objects.all()
-    # assets = Asset.objects.get(asset_number="DT-test-02932")
-    servers = Server.objects.all().order_by("-ssh_host")
-    # servers = Server.objects.get(name="ggg-003")
-    # return HttpResponse(servers.asset.nic)
+    servers = [i for i in Server.objects.all().order_by("-ssh_host") if i.asset.status=="on"]
+
     return render(request,'assets/server_list.html', locals())
 
 @permission_required('assets.add_asset', login_url='/auth_error/')
