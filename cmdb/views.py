@@ -297,6 +297,7 @@ def audit(message):
             bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
 
 def handle_message(message):
+    print message
     text = message.text
     tuser = message.chat.first_name
     try:
