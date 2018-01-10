@@ -323,7 +323,7 @@ def handle_message(message):
             pass
     elif message.chat.type == 'group':
         try:
-            text = "%s说：%s"% (message.from.first_name,message.text)
+            text = "%s说：%s"% (message.first_name,message.text)
             bot.sendMessage(chat_id=message.chat.id, text=text)
         except:
             bot.sendMessage(chat_id=message.chat.id, text="无效命令，输入 /help 获取帮助")
