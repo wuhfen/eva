@@ -299,27 +299,31 @@ def audit(message):
 def handle_message(message):
     print message
     text = message.text
-    tuser = message.chat.first_name
-    try:
-        username = CustomUser.objects.get(first_name=tuser)
-    except:
-        bot.sendMessage(chat_id=message.chat.id, text="未认证用户！请联系murphy")
-        return 4
-    try:
-        if '/shell' in text:
-            shell(message)
-        elif '/get_mytask' in text:
-            get_mytask(message)
-        elif '/help' in text:
-            helpp(message)
-        elif '/audit' in text:
-            audit(message)
-        elif '/get_host' in text:
-            get_host(message)
-        else:
-            bot.sendMessage(chat_id=message.chat.id, text="无效命令，输入 /help 获取帮助")
-    except TypeError:
-        pass
+    if message.chat.type == 'private':
+        tuser = message.chat.first_name
+        try:
+            username = CustomUser.objects.get(first_name=tuser)
+        except:
+            bot.sendMessage(chat_id=message.chat.id, text="未认证用户！请联系murphy")
+            return 4
+        try:
+            if '/shell' in text:
+                shell(message)
+            elif '/get_mytask' in text:
+                get_mytask(message)
+            elif '/help' in text:
+                helpp(message)
+            elif '/audit' in text:
+                audit(message)
+            elif '/get_host' in text:
+                get_host(message)
+            else:
+                bot.sendMessage(chat_id=message.chat.id, text="无效命令，输入 /help 获取帮助")
+        except TypeError:
+            pass
+    elif message.chat.type == 'group':
+        text = '%s说：%s'% (message.from.first_name,message.text)
+        bot.sendMessage(chat_id=message.chat.id, text=text)
 
 
 @login_required()
