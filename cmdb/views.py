@@ -322,8 +322,12 @@ def handle_message(message):
         except TypeError:
             pass
     elif message.chat.type == 'group':
-        text = '%s说：%s'% (message.from.first_name,message.text)
-        bot.sendMessage(chat_id=message.chat.id, text=text)
+        try:
+            text = "%s说：%s"% (message.from.first_name,message.text)
+            bot.sendMessage(chat_id=message.chat.id, text=text)
+        except:
+            bot.sendMessage(chat_id=message.chat.id, text="无效命令，输入 /help 获取帮助")
+
 
 
 @login_required()
