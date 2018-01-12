@@ -40,10 +40,10 @@
                     <th>域名</th>
                     <th>用途</th>
                     <th>所属网站</th>
-                    <th>域名状态</th>
+                    <!-- <th>域名状态</th> -->
                     <th>环境</th>
 <!--                     <th>告警</th> -->
-                    <th>解析到</th>
+                    <!-- <th>解析到</th> -->
                     <th>备注</th>
                     <th>管理者</th>
 
@@ -62,16 +62,16 @@
                         <td></td>
                         {% endif %}
                         <!-- <td>{% if v.monitor_status == True %}已监控{% else %}未监控{% endif %}</td> -->
-                        <td id='id_status' name="{{ v.uuid }}"></td>
+                        <!-- <td id='id_status' name="{{ v.uuid }}"></td> -->
                         <td>{{ v.classify }}</td>
-                        <td>{{ v.address }}</td>
+                        <!-- <td>{{ v.address }}</td> -->
                         <td>{{ v.description }}</td>
                         <td>{{ v.supplier }}</td>
                         <td>
                             <a href="{% url 'domain_detail' v.uuid %}" target="_blank" class="btn btn-xs btn-primary">详情</a>
                             <a href="{% url 'domain_edit' v.uuid %}" class="btn btn-xs btn-primary">修改</a>
                             <a href="{% url 'domain_delete' v.uuid %}" class="btn btn-xs btn-danger domain-delete">删除</a>
-                            <a id = '{{ v.uuid }}' href="/business/domain/change_monitor_status/?uuid={{ v.uuid }}" class="btn btn-xs monitor" {% if v.monitor_status == True %} style="background-color:#34495E;color:white">已监控 {% else %} style="background-color:#34495E;color:white" > 未监控 {% endif %} </a> 
+                            <!-- <a id = '{{ v.uuid }}' href="/business/domain/change_monitor_status/?uuid={{ v.uuid }}" class="btn btn-xs monitor" {% if v.monitor_status == True %} style="background-color:#34495E;color:white">已监控 {% else %} style="background-color:#34495E;color:white" > 未监控 {% endif %} </a>  -->
                         </td>
                     </tr>
                 {% endfor %}
