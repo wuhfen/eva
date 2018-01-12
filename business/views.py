@@ -354,7 +354,12 @@ def domain_upload(request):
                     nic_name = int(i[u"siteid"])
                 else:
                     nic_name = str(i[u"siteid"])
-                data = Business.objects.get(nic_name=nic_name)
+                try:
+                    data = Business.objects.get(nic_name=nic_name)
+                except:
+                    errors.append("此站不存在：%s"% nic_name)
+                    print "此站不存在：%s"% nic_name
+                    continue
                 try:
                     obj,created = DomainName.objects.get_or_create(name=i[u"域名"],defaults={'use':use,'business':data,'state':'1','supplier':i[u"管理者"],'description':i[u"备注"]})
                     if obj:
