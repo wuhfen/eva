@@ -355,9 +355,13 @@ def domain_upload(request):
                 else:
                     nic_name = str(i[u"siteid"])
                 data = Business.objects.get(nic_name=nic_name)
-                obj,created = DomainName.objects.get_or_create(name=i[u"域名"],defaults={'use':use,'business':data,'state':'1','supplier':i[u"管理者"],'description':i[u"备注"]})
-                if obj:
-                    errors.append("此域名：%s已存在"% i[u"域名"])
+                try:
+                    obj,created = DomainName.objects.get_or_create(name=i[u"域名"],defaults={'use':use,'business':data,'state':'1','supplier':i[u"管理者"],'description':i[u"备注"]})
+                    if obj:
+                        errors.append("此域名：%s已存在"% i[u"域名"])
+                except:
+                    print i[u"域名"]
+                    errors.append("此域名：%s已存在多条，请保留一条！"% i[u"域名"])
         if errors: return render(request,'business/domain_import.html',locals())
 
 
