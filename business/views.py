@@ -350,7 +350,7 @@ def domain_upload(request):
             if pps:
                 continue  #跳过有错误的行
             else:
-                data = Business.objects.get(nic_name=int(i[u"siteid"]))
+                data = Business.objects.get(nic_name=i[u"siteid"])
                 obj,created = DomainName.objects.get_or_create(name=i[u"域名"],defaults={'use':use,'business':data,'state':'1','supplier':i[u"管理者"],'description':i[u"备注"]})
                 if obj:
                     errors.append("此域名：%s已存在"% i[u"域名"])
