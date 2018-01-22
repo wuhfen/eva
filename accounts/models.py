@@ -46,7 +46,7 @@ class DepartmentGroup(models.Model):
 class department_Mode(models.Model):
     #组的概念
     name = models.CharField(max_length=64, blank=True,verbose_name=u'组名称')
-    manager = models.ForeignKey('CustomUser',verbose_name=u"组长",related_name='group_manager')
+    manager = models.ForeignKey('CustomUser',verbose_name=u"组长",null=True,blank=True,related_name='group_manager')
     members = models.ManyToManyField('CustomUser',verbose_name=u'所属用户',related_name='group_users')
 
     def __unicode__(self):
