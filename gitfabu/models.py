@@ -187,6 +187,5 @@ class git_code_update(models.Model):
     class Meta:
         ordering = ['-ctime']
         verbose_name = u'git_更新配置'
-        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
