@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from django import forms
-from .models import Iptables
+from .models import Iptables,white_conf
 from Allow_list.models import IPTABLE_CHOICE as IPTABLE_CHOICES
 class IptablesForm(forms.Form):
     # IPTABLE_CHOICES = [(i, i) for i in (u"鸿发Hongfa", u"澳门娱乐城Macau Entertainment City",u"一筒国际A tube of international",u"云顶至尊Genting Extreme",u"菁英会Elite Club",
@@ -21,3 +21,7 @@ class IptablesForm(forms.Form):
             )
     background = forms.ChoiceField(widget=forms.RadioSelect,choices=OPTIONS,required=True,error_messages={'required': u'你没有选择后端平台'})
 
+class WhiteConfForm(forms.ModelForm):
+    class Meta:
+        model = white_conf
+        fields = ['name','servers','file_path','is_reload']

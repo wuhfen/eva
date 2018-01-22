@@ -39,7 +39,7 @@ def user_login(request):
                 user_data = User.objects.get(username=request.user)
                 user_data.session_key = request.session.session_key
                 user_data.save()
-                request.session.set_expiry(28800)
+                request.session.set_expiry(1728000) #用户20天不登录，session将过期，session_key将被清空
                 return HttpResponseRedirect('/index/')
             else:
                 login_errors.append("用户或密码错误，请联系管理员！")

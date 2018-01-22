@@ -1,0 +1,83 @@
+{% extends 'default/base.html' %}
+
+{% block title %} group list {% endblock %}
+
+{% block assistant-header %} 
+
+    组列表 
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">用户管理</a></li>
+        <li><a href="/auth/cmdb_auth_index/">查看组</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+
+
+<div class="box">
+
+    <div class="box-header with-border">
+        <div class="col-lg-6">
+            <h4> 我的组</h4>
+        </div>
+    </div>
+
+    <div class="box-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>组</th>
+                    <th>组长</th>
+                    <th style="text-align:center">组员</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k,v in content.items %}
+                <tr>
+                    <td width="200">{{ k }}</td>
+                    <td width="400">{{ v.manager }}</td>
+                    <td>
+                        {% for t in v.user_list %}
+                            {{ t }}
+                        {% endfor %}
+                    </td>
+                    <td width="100">
+                        <a href="{% url 'member_add' v.department_id  %}" class="btn btn-xs btn-primary member_add" >添加组员</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<script>
+
+
+    $(".member_add").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: 'Member add',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1300px' , '500px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+</script>
+{% endblock content %}

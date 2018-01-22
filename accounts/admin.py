@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django import forms
-from .models import CustomUser, DepartmentGroup, department_Mode, server_auth
+from .models import CustomUser, department_Mode, server_auth
  # extend Django's built-in UserCreationForm and UserChangeForm to
  # remove the username field (and optionally add any others that are
  # required)
@@ -48,10 +48,8 @@ class CustomUserAdmin(UserAdmin):
     # that reference the removed 'username' field
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name',
-                                          'mobile', 'user_key', 'department')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
-                                       'groups', 'user_permissions')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name','mobile', 'user_key')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser','groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
@@ -71,6 +69,5 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(department_Mode)
-admin.site.register(DepartmentGroup)
 admin.site.register(server_auth)
 admin.site.unregister(Group)

@@ -1,0 +1,70 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布更新审核管理 {% endblock %}
+
+{% block head %} 
+
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>更新发布审核管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'manniu_list' %}">发布更新审核</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12">
+  <div class="box box-info">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>标题</th>
+          <th>审核时间</th>
+          <th>审核组</th>
+          <th>操作</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in data %}
+        <tr>
+          <td>{{ i.platform }}-{{ i.classify }}环境-{% if i.isurgent %}紧急{% else %}{% endif %}-{{ i.name }}</td>
+          <td>{{ i.start_time }}--{{ i.end_time }}</td>
+          <td>{% for v in i.group.all %}{{ v.name }} {% endfor %}</td>
+          <td><a href="{% url 'audit_manage' i.id %}" class="btn btn-xs btn-info btn-manage">管理审核组</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(".btn-manage").on('click',function() {
+    var url = $(this).attr("href");
+    var height = $(window).height();
+    layer.open({
+      content: url,
+      type: 2,
+      title: '组权限',
+      maxmin: true,
+      shade: 0.5,
+      shadeClose: true, //点击遮罩关闭层
+      area : ['1200px' , 600 + 'px'],
+      end : function () {
+        location.reload();
+      },
+    });
+    event.preventDefault();
+  });
+</script>
+
+
+{% endblock %}

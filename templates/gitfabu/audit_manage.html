@@ -1,0 +1,112 @@
+{% include "script.html" %}
+{% include "link_css.html" %}
+{% block content %}
+{% load bootstrap %}
+        <div class="box box-default">
+            <div class="box-body">
+                <form class="form-horizontal" method="post" action="" role="form">{% csrf_token %}
+                  <div hidden="hidden">
+                    {{ uf.platform|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.classify|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.isurgent|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.name|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.ischeck|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.start_time|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.end_time|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.user|bootstrap_horizontal }}
+                  </div>
+                  <div hidden="hidden">
+                    {{ uf.manager|bootstrap_horizontal }}
+                  </div>
+                  <div class="form-group col-md-12">
+                      <div class="col-sm-5 col-md-5">
+                          <h5> 所有组 </h5>
+                          <select id="groups" size="12" class="form-control m-b" multiple>
+                          {% for i in unselect_group %}
+                              <option value="{{ i.id }}">{{ i.name }}</option>
+                          {% endfor %}
+                          </select>
+                      </div>
+                      <div class="col-sm-2">
+                          <div class="btn-group" style="margin-top: 50px;">
+                              <button type="button" class="btn btn-info btn-block" onclick="move_right('groups', 'id_group')">添加<span class="glyphicon glyphicon-arrow-right"></span></button><br>
+                              <button type="button" class="btn btn-info btn-block" onclick="move_left('id_group', 'groups')"><span class="glyphicon glyphicon-arrow-left"></span>移除</button>
+                          </div>
+                      </div>
+                      <div class="col-sm-5 col-md-5">
+                          <h5> 生效组 </h5>
+                          <select id="id_group" name="group" class="form-control m-b" size="12"  multiple>
+                              {% for i in select_group %}
+                                  <option value="{{ i.id }}" selected="selected" >{{ i.name }}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+
+                  </div>
+                <!-- 业务 -->
+                    <div class="form-group">
+                       <div class="col-sm-4 col-sm-offset-5">
+                           <a class="btn btn-primary" href="javascript:;" id="submit" > 提交 </a>
+                       </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+<script type="text/javascript">
+//左右移动的select选项js
+function move_left(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+            $(this).prop("selected",false);
+        } else { $(this).prop("selected",true); }
+    });
+
+}
+function move_right(from, to) {
+    $("#"+from+" option").each(function(){
+        if ( $(this).prop("selected") == true ) {
+            $("#"+to).append(this);
+            $(this).prop("selected",false);
+        };
+    });
+    $("#"+to+" option").each(function(){
+        $(this).prop("selected",true);
+    });
+}
+
+</script>
+<script>
+    $(document).ready(function(){
+          $('#submit').click(function(){
+            jQuery.ajax({
+              url: "{% url 'audit_manage' uuid %}",                  // 提交的页面
+              data: $('.form-horizontal').serialize(), // 从表单中获取数据
+              type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+              dataType:'text',
+              success: function(){
+                  window.parent.location.reload();
+                  var index = parent.layer.getFrameIndex(window.name); //获取当前窗体索引
+                  parent.layer.close(index); //执行关闭
+              }
+            });
+          });
+          return false;
+    });
+</script>
+{% endblock content %}

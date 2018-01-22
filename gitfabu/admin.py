@@ -28,3 +28,7 @@ admin.site.register(models.my_request_task,MytaskAdmin)
 class UpdateAdmin(admin.ModelAdmin):
     list_display = ('name','method','memo','isuse','islog')
 admin.site.register(models.git_code_update,UpdateAdmin)
+
+class OtherTaskAdmin(admin.ModelAdmin):
+    list_display = ('auditor','audit_group_id','isaudit','ispass','loss_efficacy')
+admin.site.register(models.git_task_audit,OtherTaskAdmin)

@@ -31,7 +31,8 @@
                         <th>名称</th>
                         <th>内容</th>
                         <th>申请人</th>
-                        <th>审核时间</th>
+                        <th>审核人</th>
+                        <th>审核组</th>
                         <th>是否通过</th>
                         <th>状态</th>
                         <th>批注</th>
@@ -46,11 +47,13 @@
                             <td>{{ v.request_task.name }}</td>
                             <td>{{ v.request_task.memo }}</td>
                             <td>{{ v.request_task.initiator }}</td>
-                            <td>{{ v.audit_time|date:"Y-m-d H:i:s" }}</td>
+                            <!-- <td>{{ v.audit_time|date:"Y-m-d H:i:s" }}</td> -->
+                            <td>{{ v.auditor }}</td>
+                            <td>{{ v.audit_group_id }}</td>
                             <td>{% if v.isaudit %}{% if v.ispass %}已通过{% else %}未通过{% endif %}{% else %}未审核{% endif %}</td>
                             <td>{{ v.request_task.status }}</td>
                             <td>{{ v.postil }}</td>
-                            <td>{% if v.isaudit %}已审核{% else %}<a href="{% url 'audit_my_task' v.id %}" class="btn btn-xs btn-warning">审核</a>{% endif %}/<a href="{% url 'my_task_details' v.request_task.id %}" target="_blank" class="btn btn-xs btn-primary">详情</a>{% if request.user.username == "wuhf" %}<a href="{% url 'audit_my_task' v.id %}" class="btn btn-xs btn-warning">审核</a>{% endif %}</td>
+                            <td>{% if v.isaudit %}已审核{% else %}<a href="{% url 'audit_my_task' v.id %}" class="btn btn-xs btn-info">审核</a>{% endif %}<a href="{% url 'my_task_details' v.request_task.id %}" target="_blank" class="btn btn-xs btn-primary">详情</a>{% if one_key %}<a href="{% url 'one_key_task' v.id %}" class="btn btn-info btn-xs">一键审核</a>{% endif %}{% if request.user.username == "wuhf" %}<a href="{% url 'audit_my_task' v.id %}" class="btn btn-xs btn-info">调试</a>{% endif %}</td>
                         </tr>
                     {% else %}
                         <tr>
@@ -84,7 +87,7 @@
         );
   });
 
-    $(".btn-warning").on("click", function(event){ //一般更新
+    $(".btn-info").on("click", function(event){ //一般更新
          var url= $(this).attr('href');
         layer.open({
             type: 2,
@@ -92,7 +95,7 @@
             skin: 'layui-layer-rim',
             maxmin: false,
             shade: 0.5,
-            shadeClose: true, //点击遮罩关闭层
+            shadeClose: false, //点击遮罩关闭层
             area : ['300px' , '250px'],
             end : function () {
               location.reload();

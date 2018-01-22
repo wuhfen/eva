@@ -31,7 +31,6 @@ def auth_session_class(uuid):
             s = SessionStore(session_key=i.session_key)
             s["fun_auth"] = auth_class(i)
             s.save()
-
     return True
 
 
@@ -57,10 +56,8 @@ def group_edit(request, uuid):
         if uf.is_valid():
             uf.save()
             return HttpResponseRedirect("/success/")
-
     else:
         data = cmdb_groupForm(instance=group_uuid)
-
     return render(request,'cmdb_auth/group_edit.html', locals())
 
 @login_required
@@ -139,7 +136,6 @@ def auth_index(request):
     """
     data = auth_group.objects.all().order_by("-date_time")
     group_user_count = {}
-
     for i in data:
         data_id = auth_group.objects.get(uuid=i.uuid)
         group_user_count[i.uuid] = data_id.group_user.all().count()

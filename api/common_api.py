@@ -9,14 +9,24 @@ import shutil
 from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from assets.models import Server
+from accounts.models import CustomUser
 
 import telegram
-bot = telegram.Bot(token='333468932:AAGKPxYrLc3jkhYP68FUSnwa0DVTjR-9zmA')
+bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
 
 def send_message(username,text):
-    if username == "lookback":
-        bot.sendMessage(chat_id='228902627', text=text)
+    chat_id = CustomUser.objects.get(username=username).mobile
+    if chat_id:
+        try:
+            bot.sendMessage(chat_id=chat_id, text=text)
+        except:
+            print "用户：%s chat_id无效"% username
 
+def check_auth(request, data): #检查用户权限的公共api函数
+    if request.user.is_superuser or request.session["fun_auth"].get(data, False):
+        return True
+    else:
+        return False
 
 def page_list_return(total, current=1):
     min_page = current - 2 if current - 4 > 0 else 1
@@ -135,3 +145,4 @@ def genxin_exclude_file(files):
     else:
         b = ""
     return b
+

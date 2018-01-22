@@ -4,27 +4,25 @@
 from django.shortcuts import render_to_response, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.template import RequestContext
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 
-from cmdb_auth.views import check_auth
-from models import common_uuid, CustomUser
-from .forms import UserCreateForm, department_from
+from api.common_api import check_auth
+from accounts.auth_session import auth_class
+from django.contrib.sessions.backends.db import SessionStore
+
+from models import common_uuid, CustomUser,department_auth_cmdb,department_Mode
+from .forms import UserCreateForm, department_from,department_auth_addForm
+
 import hashlib
 import time
 from django.core.mail import send_mail
 from cmdb.settings import auth_key, EMAIL_PUSH
 
-from models import department_Mode
-
 @permission_required('accounts.add_customuser', login_url='/auth_error/')
 def register(request):
-# u"""
-# 注册用户
-# """
     # status = check_auth(request, "add_user")
     # if not status:
     #     return render(request,'default/error_auth.html', locals())
-
     content = {}
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
@@ -113,7 +111,6 @@ def user_status(request, id):
     user.save()
     return render(request,'accounts/user_list.html', locals())
 
-
 @permission_required('accounts.add_customuser', login_url='/auth_error/')
 def user_delete(request, id):
     u"""
@@ -130,6 +127,19 @@ def user_delete(request, id):
 
     return render(request,'accounts/user_list.html', locals())
 
+def auth_session_class(uuid):
+    u"""当权限组被禁用的时候调用此函数，重置当前用户权限"""
+    data = department_Mode.objects.get(id=uuid)
+    all_user = data.members.all()
+    for user in all_user:
+        print "用户：%s"% user.first_name
+        if user.session_key:
+            s = SessionStore(session_key=user.session_key)
+            s["fun_auth"] = auth_class(user)
+            print s["fun_auth"]
+            s.save()
+    return True
+
 @permission_required('accounts.add_customuser', login_url='/auth_error/')
 def department_list(request):
     u"""
@@ -138,47 +148,68 @@ def department_list(request):
     status = check_auth(request, "add_department")
     if not status:
         return render(request,'default/error_auth.html', locals())
-
     uf = department_Mode.objects.all()
-
     content = {}
-
     for i in uf:
         user_list = []
-        dep_all = i.users.all().values("first_name")
-
+        dep_all = i.members.all().values("first_name")
         for t in dep_all:
             user_list.append(t.get("first_name"))
-        content[i.department_name] = {"user_list": user_list, "department_id": i.id,"department_memo":i.description}
-
+        content[i.name] = {"user_list": user_list, "department_id": i.id,"manager":i.manager}
     return render(request,'accounts/department_list.html', locals())
+
+def department_auth(request,uuid):
+    u"""给组添加权限"""
+    uuid = str(uuid)
+    group_auth = department_Mode.objects.get(id=uuid)
+    try:
+        group_data = department_auth_cmdb.objects.get(department_name=group_auth)
+        data = department_auth_addForm(instance=group_data)
+    except:
+        data = department_auth_addForm()
+    if request.method == 'POST':
+        try:
+            uf = department_auth_addForm(request.POST, instance=group_data)
+        except:
+            uf = department_auth_addForm(request.POST)
+        if uf.is_valid():
+            uf.save()
+            auth_session_class(uuid)
+    return render(request,'accounts/group_auth.html', locals())
 
 @permission_required('accounts.add_customuser', login_url='/auth_error/')
 def department_view(request):
     u"""
-    添加部门
+    添加组
     """
     status = check_auth(request, "add_department")
     if not status:
         return render_to_response('default/error_auth.html', locals())
-
-    #验证post方法
     if request.method == 'POST':
         uf = department_from(request.POST)
-
         if uf.is_valid():
             uf.save()
-        # return render_to_response('user/department_add.html', locals(), context_instance=RequestContext(request))
         return HttpResponseRedirect("/accounts/list_department/")
     else:
         uf = department_from()
     return render(request,'accounts/add_department.html', locals())
 
+@permission_required('accounts.add_customuser', login_url='/auth_error/')
+def department_delete(request, id):
+    u"""
+    删除组
+    """
+    status = check_auth(request, "add_department")
+    if not status:
+        return render_to_response('default/error_auth.html', locals())
+    department_Mode.objects.get(id=id).delete()
+
+    return JsonResponse({'res':"OK"})
 
 @permission_required('accounts.add_customuser', login_url='/auth_error/')
 def department_edit(request, id):
     u"""
-    部门修改
+    组修改
     """
     status = check_auth(request, "add_department")
     if not status:
@@ -194,3 +225,45 @@ def department_edit(request, id):
 
     uf = department_from(instance=data)
     return render(request,'accounts/edit_department.html', locals())
+
+def mygroup(request):
+    u"""此函数给导航栏使用，在settings文件中配置全局变量"""
+    my_groups={}
+    try:
+        mdata = department_Mode.objects.filter(manager=request.user)
+    except:
+        mdata = False
+    if mdata:
+        my_groups["HaveMyGroup"]=True
+    else:
+        my_groups["HaveMyGroup"]=False
+    return my_groups
+
+def manage_mygroup(request):
+    data = department_Mode.objects.filter(manager=request.user)
+    content = {}
+    for i in data:
+        user_list = []
+        dep_all = i.members.all().values("first_name")
+        for t in dep_all:
+            user_list.append(t.get("first_name"))
+        content[i.name] = {"user_list": user_list, "department_id": i.id,"manager":i.manager}
+    return render(request,'accounts/manage_mygroup.html', locals())
+
+def member_add(request,uuid):
+    uuid = str(uuid)
+    data = department_Mode.objects.get(id=uuid)
+    uf = department_from(instance=data)
+
+    select_user = data.members.all()
+    unselect_user = [p for p in CustomUser.objects.all() if p not in select_user]
+
+    if request.method == 'POST':
+        uf = department_from(request.POST, instance=data)
+        if uf.is_valid():
+            member = uf.save(commit=False)
+            member.save()
+            uf.save_m2m()
+            auth_session_class(uuid)
+            return HttpResponseRedirect('/allow/welcome/')
+    return render(request,'accounts/group_user.html', locals())

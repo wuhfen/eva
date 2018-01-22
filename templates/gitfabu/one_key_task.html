@@ -1,0 +1,70 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+{% load genxin_tags %}
+{% block title %} 审核更新{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                <div class="form-group ">
+                    <label class="text-right bolder" for="id_site">是否通过：<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                        <label class="checkbox-inline">
+                            <input type="radio" name="optionsRadiosinline" id="optionsRadios1" value="yes" checked>YES
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="radio" name="optionsRadiosinline" id="optionsRadios2" value="no">NO
+                        </label>
+                    <div class="help-block"></div>
+                </div>
+                <div class="form-group ">
+                    <label class="text-right bolder" for="id_postil">批注：<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                    <textarea class="form-control" rows="3" name="postil" id="id_postil" ></textarea>
+                    <div class="help-block"></div>
+                </div>
+                <div class="form-group">
+                        <a href="javascript:;" class="btn btn-success btn-block" id="id_submit"> 确认 </a>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $('#id_submit').on("click",function(){
+        var ispass = $("#post_form input:checked").val();
+        var postil = $('#id_postil').val();
+        var urls= "{% url 'one_key_task' data.id %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: { 
+                'ispass': ispass,
+                'postil': postil,
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+            },
+        });
+    });
+</script>
+
+
+{% endblock  %}

@@ -94,13 +94,8 @@
             <li>运维人员配置代码仓库地址</li>
             <li>运维人员配置服务器信息</li>
             <li>申请人选择发布项目</li>
-            {% if conf_domain %}
             <li>申请人配置域名</li>
-            {% endif %}
             <li>审核人审核</li>
-            {% for i in auditors %}
-            <li>{{ i }}审核通过</li>
-            {% endfor %}
             <li>自动发布并生成日志</li>
             <li>完成发布</li>
           </ol>

@@ -1,75 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# =============================================================================
-#     FileName: auth_session.py
-#         Desc: 2015-15/3/30:下午1:45
-#       Author: 苦咖啡
-#        Email: voilet@qq.com
-#     HomePage: http://blog.kukafei520.net
-#      History: 
-# =============================================================================
 
-from cmdb_auth.models import user_auth_cmdb, auth_group
+from accounts.models import department_Mode, department_auth_cmdb
 
 def auth_class(user):
     """
-    修改session权限
-    刷新页面权限即生效
-    :return:
+    根据用户反向查找到所有的组，然后根据组权限返回一个dict，给用户session更新权限使用
     """
-    auth_group_data = {}
-    auth_list = [
-        "select_host",
-        "edit_host",
-        "update_host",
-        "add_host",
-        "bat_add_host",
-        "delete_host",
-        "project_name",
-        "add_user",
-        "edit_user",
-        "edit_pass",
-        "delete_user",
-        "add_department",
-        "add_idc",
-        "edit_idc",
-        "del_idc",
-        "setup_system",
-        "upload_system",
-        "salt_keys",
-        "project_auth",
-        "auth_log",
-        "add_project",
-        "edit_project",
-        "del_project",
-        "select_idc",
-        "auth_project",
-        "auth_highstate",
-        "cmdb_log",
-        "server_audit",
-    ]
-
-    user_name = user
-    if user_name:
-        group_auth = user_name.auth_group_set.all().filter(enable=True)
-        # 权限
-        for auth_uuid in group_auth:
-            uuid = str(auth_uuid.uuid)
-            data = auth_group.objects.get(uuid=uuid)
+    res = {}
+    if user:
+        try:
+            departments = user.group_users.all()
+        except:
+            return res
+        for group in departments:
+            # print "%s你在此组：%s"% (user.first_name,group.name)
             try:
-                auth_info = user_auth_cmdb.objects.get(group_name=data)
-
+                auth_data = department_auth_cmdb.objects.get(department_name=group)
+                auth_list = [f.name for f in auth_data._meta.get_fields() if f.name != "id"]  #排除id，给出权限列表
+                auth_list.remove('department_name') #权限列表排除组名
                 for i in auth_list:
-                    try:
-                        s = getattr(auth_info, i)
-                        if s:
-                            print auth_group_data.get(i)
-                            auth_group_data[i] = s
-
-                    except AttributeError:
-                        pass
-            except user_auth_cmdb.DoesNotExist:
+                    s=getattr(auth_data,i)  #获取权限为真的字段
+                    if s:res[i] = s
+            except:
                 pass
-        return auth_group_data
-    else:
-        return auth_group_data
+        # print res
+    return res
+
+def myauth(request):
+    """
+    返回我的权限给settings模板全局变量，用于nav展示
+    """
+    return auth_class(request.user)

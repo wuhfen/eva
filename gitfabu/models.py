@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from business.models import Business 
 from accounts.models import CustomUser as Users
+from accounts.models import department_Mode as Groups
 
 CLASSIFY_CHOICE = (
     ('huidu', u'灰度'),
@@ -13,7 +14,6 @@ CLASSIFY_CHOICE = (
     ('test', u'测试'),
 )
 alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代"]
-#alone = [u"源站",u"AG",u"后台",u"源站反代"]
 SERVER_TYPE = [(i, i) for i in tuple(alone)]
 TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
 NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新")]
@@ -47,7 +47,11 @@ class git_deploy_audit(models.Model):
     start_time = models.CharField(_(u'审核开始时间'),null=True,blank=True,max_length=45)
     end_time = models.CharField(_(u'审核结束时间'),null=True,blank=True,max_length=45)
     user = models.ManyToManyField(Users)
+    group = models.ManyToManyField(Groups)
     manager = models.ForeignKey(Users,verbose_name=u'审核管理员',null=True,blank=True,related_name='manage')
+    class Meta:
+        verbose_name = u'审核项设置'
+        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
 
@@ -73,6 +77,7 @@ class git_task_audit(models.Model):
     """审核任务模型"""
     request_task = models.ForeignKey(my_request_task,null=True,blank=True,related_name='reqt')
     auditor = models.ForeignKey(Users,verbose_name=u'审核人',related_name="auditor")
+    audit_group_id = models.CharField(_(u'审核人所属组'),max_length=64,null=True,blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     isaudit = models.BooleanField(_(u'是否审核'),default=False)
     ispass = models.BooleanField(_(u'是否通过'),default=False)
@@ -87,6 +92,7 @@ class git_task_audit(models.Model):
 
 
 
+
 class git_ops_configuration(models.Model):
     """服务器配置模型"""
     name = models.CharField(_(u'名称'),max_length=45,choices=SERVER_TYPE)
@@ -98,6 +104,9 @@ class git_ops_configuration(models.Model):
     exclude = models.TextField(_(u'排除文件'),null=True,blank=True,default='Logs/')
     rsync_command = models.TextField(_(u'推送前命令'),null=True,blank=True)
     last_command = models.TextField(_(u'生效前命令'),null=True,blank=True)
+    class Meta:
+        verbose_name = u'服务器配置'
+        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
 
@@ -178,5 +187,6 @@ class git_code_update(models.Model):
     class Meta:
         ordering = ['-ctime']
         verbose_name = u'git_更新配置'
+        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name

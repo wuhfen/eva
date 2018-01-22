@@ -1,56 +1,23 @@
 {% extends 'default/base.html' %}
 
 {% block title %} 添加部门 {% endblock %}
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
 
-{% block assistant-header %} 添加部门 | ADD DepartMent 
-
+{% block assistant-header %} 添加组 | ADD Group 
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
-        <li><a href="#">机房管理</a></li>
-        <li><a href="/accounts/add_department/">添加机房</a></li>
+        <li><a href="#">组</a></li>
+        <li><a href="#">组添加</a></li>
     </ol>
-
-
 {% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
-
-
-<script type="text/javascript">
- window.$ && $(function(){
-//验证初始化
-    $('.form-horizontal').validator({
-        //stopOnError:true,
-        //timely: 2,
-        theme: "yellow_right_effect",
-        showOk: "",
-        //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
-        rules: {
-
-            },
-    fields: {
-        "department_name":{
-            rule: "required;",
-            tip: "部门名称必填",
-            ok:"",
-            msg:{required: "必须填写!"}
-        },
-        "desc_gid":{
-            rule: "required;",
-            tip: "部门组必选",
-            ok:"",
-            msg:{required: "必选!"}
-        }
-    }
-});
-
-});
-
-</script>
-
-
 
 <div class="box box-info">
     <div class="box-header with-border">
@@ -65,16 +32,48 @@
     <div class="box-body">
         <form class="form-horizontal" method="post" action="" role="form">
         {% csrf_token %}
-            {{ uf|bootstrap_horizontal }}
-            <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                     <button type="submit" class="btn btn-primary btn-block">提交</button>
+            <div class="col-md-9">
+                {{ uf|bootstrap_horizontal }}
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                         <button type="submit" class="btn btn-primary btn-block">提交</button>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
+<script type="text/javascript">
+ window.$ && $(function(){
+//验证初始化
+    $('.form-horizontal').validator({
+        //stopOnError:true,
+        //timely: 2,
+        theme: "yellow_right_effect",
+        showOk: "",
+        //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+        rules: {
 
+            },
+    fields: {
+        "name":{
+            rule: "required;",
+            tip: "部门名称必填",
+            ok:"",
+            msg:{required: "必须填写!"}
+        },
+        "manager":{
+            rule: "required;",
+            tip: "组长必选",
+            ok:"",
+            msg:{required: "必选!"}
+        }
+    }
+});
+
+});
+
+</script>
 
 {% endblock content %}

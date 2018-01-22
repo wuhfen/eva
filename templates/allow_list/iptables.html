@@ -1,13 +1,13 @@
-{% extends "default/base.html" %}
-{% block title %}白名单{% endblock %}
+{% extends "default/base_layer.html" %}
 
-{% block assistant-header %} 后台管理|Management {% endblock %}
+
+{% block assistant-header %} White List Plus {% endblock %}
 {% load bootstrap %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<!-- <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
 <script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script> -->
 
  {% endblock %}
 
@@ -15,136 +15,49 @@
 {% block content %}
 
 <div class="col-lg-12">
-<div class="col-md-3">
 <div class="box box-info">
   <div class="box-header with-border">
     <h4 class="text-primary">添加vpn线路|ADD VPN IP</h4>
   </div>
   <div class="box-body">
-  {% for e in fo_errors %}
-      <p style="color:red;">{{ e }} <br /></p>
-  {% endfor %}
-  <form role="form" action="" method="post">{% csrf_token %}
-    <dir class="form-group col-lg-12">
-      <p><label>请输入vpn_ip:</label></p>
-        <input class=" form-control" id="id_ipaddr" maxlength="15" name="ipaddr" type="text" placeholder="0.0.0.0">
-      <p><label>请选择站点名称:</label></p>
-        <select class=" form-control" id="id_customer" name="customer">
-          {% for i in choice_data %}
-            <option value="{{ i.name }}">{{ i.name }}</option>
-          {% endfor %}
-        </select>
-    </dir>
-
-    <dir class="form-group col-lg-12">
-      <button type="submit" name="okk" class="btn btn-info" id="testid">
-        <span class="glyphicon glyphicon-ok"></span> 添加
-      </button>
+    <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
+      <dir class="form-group col-lg-12">
+        <p><label>请输入vpn_ip:</label></p>
+          <input class=" form-control" id="id_ipaddr" maxlength="15" name="ipaddr" type="text" placeholder="0.0.0.0">
+        <p><label>请选择站点名称:</label></p>
+          <select class=" form-control" id="id_customer" name="customer">
+            {% for i in choice_data %}
+              <option value="{{ i.name }}">{{ i.name }}</option>
+            {% endfor %}
+          </select>
       </dir>
-    </form>
-  </div>
-</div>
-</div>
-<div class="col-md-9">
-<div class="box box-info">
-  <div class="box-header with-border"><h4 class="text-primary">vpn记录</h4>
-  </div>
-  <div class="box-body">
-      <p>目前共有 {{ view_rules|length }} 条规则</p>
-      <table id="example1" class="table table-bordered table-striped">
-        <thead>
-        <tr>
-          <th>IP地址</th>
-          <th>站点备注</th>
-          <th>添加时间</th>
-          <th>添加用户</th>
-          <th>操作</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for v in view_rules %}
-        <tr>
-          <td>{{ v.i_source_ip }}</td>
-          <td id="demo_{{ v.id }}" class="demo" onmouseover="mouseOver('{{ v.id }}')" onmouseout="mouseOut()">{{ v.i_comment }}</td>
-          <td>{{ v.i_date_time }}</td>
-          <td>{{ v.i_user }}</td>
-          <td>
-              <a href="javascript:;" class="btn btn-danger btn-xs delete-ip" name="delete" id={{ v.id }}>
-                <span class="glyphicon glyphicon-remove"></span> 删除
-              </a>
-          </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-        <tfoot>
-        <tr>
-            <th>IP地址</th>
-            <th>站点备注</th>
-            <th>添加时间</th>
-            <th>添加用户</th>
-            <th>操作</th>
-        </tr>
-        </tfoot>
-      </table>
-  </div>
-</div>
 
+      <dir class="form-group col-lg-12">
+        <a href="javascript:;" name="okk" class="btn btn-info" id="testid">
+          <span class="glyphicon glyphicon-ok"></span> 提交
+        </a>
+        </dir>
+      </form>
+  </div>
 </div>
 </div>
-<div class="row"></div>
 <script type="text/javascript">
-  $(function () {
-    $("#example1").DataTable();
-  });
-
-$(".delete-ip").on("click", function(event){
-      var choice = $(this).attr('id')
-      var url= "/allow/iptables_delete/"+choice+"/";
-      layer.alert("确定删除吗？",{
-          skin: 'layui-layer-molv',
-          closeBtn: 2,
-          shift: 4,
-      },function(index){
-          layer.close(index);
-          $.get(url).done(function(data) {
-              window.location.reload();
-          });
-      });
-      event.preventDefault();
-});
-</script>
-
-<script>
-function mouseOver(id) {
-    var comment = $("#demo_"+id).text();
-    var id = "demo_"+id;
-    var url = "/allow/iptables/search/"+comment+"/";
-
-    $.get(url).done(function(data) {
-      var list = data.res;
-      layer.tips(list,'#'+id,{tips: [4, '#78BA32'],time: 0});
+  $("#testid").on('click',function(event) {
+    // layer.msg("hello world!")
+    var url = "{% url 'iptables' %}";
+    $.ajax({
+      url: url,
+      data: $('.form-horizontal').serialize(),
+      type: "POST",
+      dataType: "Json",
+      success: function(data) {
+        if (data.res=="falid") {
+          layer.msg(data.info);
+        } else { parent.layer.closeAll(); }
+      },
     });
-}
-function mouseOut() {
-  layer.closeAll();
-}
-
-
-// $(document).ready(function(){
-//   $(".demo").mouseover(function(){
-//     var comment = $(this).text();
-//     var id = $(this).attr('id');
-//     var url = "/allow/iptables/search/"+comment+"/";
-//     $.get(url).done(function(data) {
-//       var list = data.res;
-//       layer.tips(list,'#'+id,{tips: [4, '#78BA32'],time: 0});
-//     });
-//   });
-//   $(".demo").mouseout(function(){
-//     // $('.layui-layer-content').remove();
-//     layer.closeAll();
-//   });
-// });
+  });
 </script>
+
 
 {% endblock %}

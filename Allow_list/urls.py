@@ -9,8 +9,9 @@ urlpatterns = [
     url(r'^error/$',views.error),
     url(r'^welcome/$', views.welcome,name='result-page'),
     url(r'^iptables/$',views.iptables,name='iptables'),
+    url(r'^iptables/list/$',views.iptables_list,name='iptables_list'),
     url(r'^iptables_delete/(?P<id>[^/]+)/$',views.iptables_delete,name='delete-ip'),
-    url(r'^iptables/search/(?P<comment>[^/]+)/$',views.iptables_search,name='iptables_search'),
+    url(r'^iptables/search/$',views.iptables_search,name='iptables_search'),
     url(r'^linechange/$',views.linechange,name='linechange'),
     url(r'^poll_state$', views.poll_state,name='poll_state'),
     url(r'^linechange/pulldata/(?P<choice>[^/]+)/$', views.pull_data, name="allow_pull_data"),
@@ -19,7 +20,9 @@ urlpatterns = [
 
     url(r'^backend/status/',views.backend_status,name='backend_status'),
     url(r'^backend/change/(?P<id>[^/]+)/$',views.change_backend,name='change_backend'),
-    url(r'^domain/list/$',views.kefu_domain_list,name='kefu_domain_list'),
 
-    
+    #"""白名单服务器配置"""
+    url(r'^white/conf/list/$',views.white_conf_list,name='white_conf_list'),
+    url(r'^white/conf/modify/(?P<uuid>[^/]+)/$',views.white_conf_modify,name='white_conf_modify'),
+
 ]

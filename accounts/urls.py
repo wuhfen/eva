@@ -25,7 +25,11 @@ urlpatterns = [
 
     url(r'^list_department/$', accounts.views.department_list, name='department_list'),
     url(r'add_department/$', accounts.views.department_view, name='department_add'),
-    url(r'department/edit/(?P<id>\d+)/$', accounts.views.department_edit),
+    url(r'department/delete/(?P<id>\d+)/$', accounts.views.department_delete,name='department_delete'),
+    url(r'department/edit/(?P<id>\d+)/$', accounts.views.department_edit,name='department_edit'),
+    url(r'department/auth/(?P<uuid>\d+)/$', accounts.views.department_auth,name='department_auth'),
+    url(r'department/manage/$', accounts.views.manage_mygroup,name='manage_mygroup'),
+    url(r'department/add/user/(?P<uuid>\d+)/$', accounts.views.member_add,name='member_add'),
     url(r'test/$', accounts.tests.username_login),
 
 

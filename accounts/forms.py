@@ -4,7 +4,7 @@
 from django import forms
 from .fields import UsernameField,PasswordField
 from django.contrib.auth import authenticate,login
-from accounts.models import CustomUser, department_Mode
+from accounts.models import CustomUser, department_Mode,department_auth_cmdb
 # from cmdb_auth.models import AuthNode
 # from assets.models import project_swan, Host
 
@@ -12,13 +12,13 @@ class UserCreateForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name','last_name', 'email', 'department', 'mobile', "user_key")
+        fields = ('username', 'first_name','last_name', 'email', 'mobile', "user_key")
 
 class useredit_from(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ["first_name", "email", "mobile", "department", "user_key"]
+        fields = ["first_name", "email", "mobile", "user_key"]
 
 class LoginForm(forms.Form):
     username = forms.CharField(
@@ -92,4 +92,16 @@ class ResetPasswordForm(forms.ModelForm):
 class department_from(forms.ModelForm):
     class Meta:
         model = department_Mode
-        fields = "__all__"
+        fields = ["name","manager","members"]
+
+class department_auth_addForm(forms.ModelForm):
+    u"""给组赋予权限的表单"""
+
+    class Meta:
+        model = department_auth_cmdb
+
+        fields = ["show_a_group","add_a_group","edit_a_group","delete_a_group","select_host","update_host","add_host","delete_host","show_pro","add_pro",
+        "money_fabu" ,"money_gengxin" ,"manniu_fabu","manniu_gengxin","auth_project","auditor_manage","one_key","add_user","edit_user","edit_pass","delete_user",
+        "show_department","add_department","edit_department","delete_department","show_white","edit_white","show_domain","department_name",
+        "edit_domain","add_domain","delete_domain","show_nginx","edit_nginx","add_nginx","delete_nginx","show_dns","show_wiki","add_wiki","test_fun"
+        ]

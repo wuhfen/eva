@@ -1,0 +1,63 @@
+{% extends "default/base.html" %}
+{% block title %}white{% endblock %}
+
+{% block assistant-header %} 白名单
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">自动化管理</a></li>
+        <li><a href="#">后台白名单</a></li>
+    </ol>
+
+{% endblock %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="box box-info">
+
+    <div class="box-body">
+        <table class="table">
+            <thead>
+            <th>名称</th>
+            <th>服务器</th>
+            <th>文件绝对路径</th>
+            <th>是否重启服务</th>
+            <th>操作</th>
+            </thead>
+            <tbody>
+                {% for i in data %}
+                <tr>
+                    <td>{% if i.name == "KG-JDC" %}KG经典彩{% elif i.name == "MN-Backend" %}蛮牛后台{% else %}现金网后台{% endif %}</td>
+                    <td>{{ i.servers }}</td>
+                    <td>{{ i.file_path }}</td>
+                    <td>{% if i.is_reload %}重启{% else %}不重启{% endif %}</td>
+                    <td><a href="{% url 'white_conf_modify' i.id %}" class="btn btn-xs btn-info">修改</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    $('.btn-xs').on("click",function(event){
+
+        var urls= $(this).attr('href');
+        layer.open({
+                type: 2,
+                title: '修改白名单配置',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '600px'],
+                end : function () {
+                  location.reload();
+              },
+                content: urls
+            });
+        event.preventDefault();
+
+    });
+</script>
+
+{% endblock %}

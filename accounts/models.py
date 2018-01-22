@@ -15,7 +15,7 @@ import random, time
 import uuid
 
 
-auth_gid = [(1001, u"运维"), (1002, u"工程"), (1003, u"研发dev"), (1004, u"测试"),(1005, u"php前端"),(1006, u"技术支持")]
+
 
 def common_uuid():
     """
@@ -32,7 +32,6 @@ def common_uuid():
     uuid_data = str(uuid.uuid3(uuid.NAMESPACE_DNS, key_name.encode('utf-8')))
     return uuid_data
 
-
 class DepartmentGroup(models.Model):
     department_groups_name = models.CharField(max_length=64, blank=True, null=True, verbose_name=u'组名')
     description = models.TextField(verbose_name=u"介绍", blank=True, null=True, )
@@ -44,19 +43,113 @@ class DepartmentGroup(models.Model):
         verbose_name = u"部门组"
         verbose_name_plural = verbose_name
 
-
 class department_Mode(models.Model):
-    department_name = models.CharField(max_length=64, blank=True, null=True, verbose_name=u'部门名称')
-    description = models.TextField(verbose_name=u"介绍", blank=True, null=True, )
-    desc_gid = models.IntegerField(verbose_name=u"部门组", choices=auth_gid, blank=True, null=True, )
+    #组的概念
+    name = models.CharField(max_length=64, blank=True,verbose_name=u'组名称')
+    manager = models.ForeignKey('CustomUser',verbose_name=u"组长",related_name='group_manager')
+    members = models.ManyToManyField('CustomUser',verbose_name=u'所属用户',related_name='group_users')
 
     def __unicode__(self):
-        return self.department_name
+        return self.name
 
     class Meta:
-        verbose_name = u"部门"
+        verbose_name = u"成员组"
         verbose_name_plural = verbose_name
 
+class department_auth_cmdb(models.Model):
+    """
+    cmdb组权限
+    所有字段全部以0，1来表示
+    1表示有此权限，0表示无此权限
+    所有数据全部外键关联user表，当用户删除时相应权限也随之删除
+    """
+    department_name = models.ForeignKey('department_Mode',related_name='group_auth', verbose_name=u'所属组', help_text=u"添加组权限")
+    u"""
+    资产组管理
+    """
+    show_a_group = models.BooleanField(default=False, verbose_name=u"查看资产组")
+    add_a_group = models.BooleanField(default=False, verbose_name=u"添加资产组")
+    edit_a_group = models.BooleanField(default=False, verbose_name=u"更新资产组")
+    delete_a_group = models.BooleanField(default=False, verbose_name=u"删除资产组")
+
+    u"""
+    资产管理
+    """
+    select_host = models.BooleanField(default=False, verbose_name=u"查看资产")
+    update_host = models.BooleanField(default=False, verbose_name=u"更新资产")
+    add_host = models.BooleanField(default=False, verbose_name=u"添加资产")
+    delete_host = models.BooleanField(default=False, verbose_name=u"删除资产")
+    show_pro = models.BooleanField(default=False, verbose_name=u"查看项目")
+    add_pro = models.BooleanField(default=False, verbose_name=u"添加项目")
+
+    u"""
+    发布更新审核权限管理
+    """
+    money_fabu = models.BooleanField(default=False, verbose_name=u"现金网发布")
+    money_gengxin = models.BooleanField(default=False, verbose_name=u"现金网更新")
+    manniu_fabu = models.BooleanField(default=False, verbose_name=u"蛮牛发布")
+    manniu_gengxin = models.BooleanField(default=False, verbose_name=u"蛮牛更新")
+    auth_project = models.BooleanField(default=False, verbose_name=u"展示我的任务")
+    auditor_manage = models.BooleanField(default=False, verbose_name=u"审核人管理")
+    one_key = models.BooleanField(default=False, verbose_name=u"一键通过权限")
+
+    u"""
+    用户和组管理
+    """
+    add_user = models.BooleanField(default=False, verbose_name=u'添加用户')
+    edit_user = models.BooleanField(default=False, verbose_name=u'修改用户')
+    edit_pass = models.BooleanField(default=False, verbose_name=u"修改密码")
+    delete_user = models.BooleanField(default=False, verbose_name=u"删除用户")
+    show_department = models.BooleanField(default=False, verbose_name=u"查看组")
+    add_department = models.BooleanField(default=False, verbose_name=u"添加组")
+    edit_department = models.BooleanField(default=False, verbose_name=u"修改组")
+    delete_department = models.BooleanField(default=False, verbose_name=u"删除组")
+
+    u"""
+    白名单管理
+    """
+    show_white = models.BooleanField(default=False, verbose_name=u"白名单查看")
+    edit_white = models.BooleanField(default=False, verbose_name=u"白名单增删改")
+
+    u"""
+    域名管理
+    """
+    show_domain = models.BooleanField(default=False, verbose_name=u"域名查看")
+    edit_domain = models.BooleanField(default=False, verbose_name=u"域名修改")
+    add_domain = models.BooleanField(default=False, verbose_name=u"域名增加")
+    delete_domain = models.BooleanField(default=False, verbose_name=u"域名删除")
+
+    u"""
+    备用后台管理
+    """
+    show_nginx = models.BooleanField(default=False, verbose_name=u"备用后台查看")
+    edit_nginx = models.BooleanField(default=False, verbose_name=u"备用后台修改")
+    add_nginx = models.BooleanField(default=False, verbose_name=u"备用后台增加")
+    delete_nginx = models.BooleanField(default=False, verbose_name=u"备用后台删除")
+
+    u"""
+    DNS管理
+    """
+    show_dns = models.BooleanField(default=False, verbose_name=u"查看dns")
+
+    u"""
+    wiki管理
+    """
+    show_wiki = models.BooleanField(default=False, verbose_name=u"查看wiki")
+    add_wiki = models.BooleanField(default=False, verbose_name=u"wiki操作")
+
+    u"""
+    测试功能
+    """
+    test_fun = models.BooleanField(default=False, verbose_name=u"显示未上线测试项目")
+
+
+    def __unicode__(self):
+        return unicode(self.department_name)
+
+    class Meta:
+        verbose_name = u"组权限"
+        verbose_name_plural = verbose_name
 
 class CustomUserManager(BaseUserManager):
     def _create_user(self, username, email, password,
@@ -95,26 +188,19 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    uuid = models.CharField(max_length=64, unique=True)
+    
     username = models.CharField(_(u'用户名'), max_length=30, unique=True)
     email = models.EmailField(_(u'邮箱'), max_length=254, unique=True)
 
     first_name = models.CharField(_('first name'), max_length=30, blank=False)
     last_name = models.CharField(_('last name'), max_length=30, blank=False)
 
-    department = models.ForeignKey(department_Mode, blank=True, null=True, verbose_name=u"部门", related_name="users")
-    mobile = models.CharField(_(u'手机'), max_length=30, blank=False,
-                              validators=[validators.RegexValidator(r'^[0-9+()-]+$',
-                                                                    _('Enter a valid mobile number.'),
-                                                                    'invalid')])
+    mobile = models.CharField(_(u'Telegram_Bot_Chat_ID'), blank=True,max_length=60)
     session_key = models.CharField(max_length=60, blank=True, null=True, verbose_name=u"session_key")
     user_key = models.TextField(blank=True, null=True, verbose_name=u"用户登录key")
     menu_status = models.BooleanField(default=False, verbose_name=u'用户菜单状态')
     user_active = models.BooleanField(verbose_name=u'设置密码状态', default=0)
-    uuid = models.CharField(max_length=64, unique=True)
-
-    # uuid = models.CharField(default=str(uuid.uuid3(uuid.NAMESPACE_DNS, hashlib.md5(str(time.time()) + str("".join(
-    #         [random.choice("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@$%^&*()_") for i in
-    #          range(60)])) + str(uuid.uuid4())).hexdigest())), max_length=64)
 
     # Admin
     is_staff = models.BooleanField(_('staff status'), default=False,

@@ -6,12 +6,12 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from accounts.models import CustomUser as User
 from business.models import Business
-
+from gitfabu.models import git_deploy
 
 IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
 
 
-# IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
+#IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
 TAG_CHOICE = [(i, i) for i in (u"新平台", u"老平台")]
 
 # Create your models here.
@@ -91,5 +91,38 @@ class oldsite_line(models.Model):
     class Meta:
         verbose_name = u"后台线路管理"
         verbose_name_plural = verbose_name
+
+
+class white_conf(models.Model):
+    NAME = (
+    ('KG-JDC',u'KG经典彩'),
+    ('MN-Backend',u'蛮牛后台'),
+    ('MONEY-Backend',u'现金网后台'),
+    )
+    name = models.CharField(_(u'白名单配置'),max_length=25,choices=NAME,unique=True)
+    servers = models.TextField(_(u'服务器地址'))
+    file_path = models.CharField(_(u'文件绝对路径'),max_length=100)
+    is_reload = models.BooleanField(_(u'是否重启'),default=False)
+
+class white_list(models.Model):
+    u"""基于NGINX配置文件的白名单实现，allow和deny为key，ip为value,
+    deny单个ip为先, allow单个ip为中，deny放最后，allow为默认，不需要设置
+    """
+    KEY = (
+    ('allow',u'允许'),
+    ('deny',u'拒绝'),
+    )
+    
+    host_key = models.CharField(_(u'白名单key'),max_length=10,choices=KEY)
+    host_ip = models.CharField(_(u'白名单value'),max_length=15)
+    git_deploy = models.ForeignKey(git_deploy,related_name='white')
+    white_conf = models.ForeignKey(white_conf)
+
+
+
+
+
+
+
 
 

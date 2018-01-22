@@ -95,8 +95,8 @@ class git_moneyweb_deploy(object):
         elif self.method == "manniu_fabu":
             print "发布蛮牛web项目"
             self.export_git(what='web')
-            self.export_git(what='php')
             self.export_git(what='js')
+            self.export_git(what='php')
             self.export_git(what='config')
             self.update_release()
             self.merge_git()
@@ -298,12 +298,17 @@ class git_moneyweb_deploy(object):
             private_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name,ispublic=False).reversion
             web_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name,ispublic=False).branch
         else:
-            try:
-                new_data = git_code_update.objects.get(code_conf=datas,islog=False,isuse=False) #使用刚创建还没有完成的更新版本为最新版本
-            except:
-                print "有失败的更新导致的版本冲突，现在取最新的未完成版本为有效版本"
-                new_data = git_code_update.objects.filter(code_conf=datas,islog=False,isuse=False).latest('ctime')
+            total_data = git_code_update.objects.filter(code_conf=datas,islog=False,isuse=False)
+            if len(total_data) > 1:
+                print "有多个未完成版本，取最新的未完成版本为有效版本"
+                new_data = total_data.latest('ctime')
                 git_code_update.objects.filter(code_conf=datas,islog=False,isuse=False).update(islog=True)
+            elif len(total_data) == 1:
+                new_data = git_code_update.objects.get(code_conf=datas,islog=False,isuse=False)
+            else:
+                print "未发现未完成版本，取当前版本为有效版本"
+                new_data = git_code_update.objects.get(code_conf=datas,islog=True,isuse=True)
+
             #所有更新都要使用的数据
             private_data = new_data.web_release
             web_branch = new_data.web_branches

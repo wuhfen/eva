@@ -4,20 +4,25 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
-from .models import Iptables,oldsite_line
-from .forms import IptablesForm
+from .models import Iptables,oldsite_line,white_conf,white_list
+from .forms import IptablesForm,WhiteConfForm
 # Create your views here.
 from api.ansible_api import ansiblex
 import time
 import json
-import urllib2,urllib
-from business.models import Business
+# import urllib2,urllib
+
 from .tasks import do_ansible,change_backend_task,change_backend_second
 from celery.result import AsyncResult
 from business.models import Business
 from business.tasks import dns_resolver_ip
 from automation.models import gengxin_code
 from automation.tasks import fabu_nginxconf_task
+
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
+from api.paginator_api import JuncheePaginator
+from api.common_api import isValidIp
+
 def error(request):
     return render(request,'allow_list/error.html')
 
@@ -41,36 +46,47 @@ def poll_state(request):
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
 
+def iptables_list(request):
+    try:  
+        page = int(request.GET.get("page",1))
+        print request.GET
+        print('page----->',page)
+        if page < 1:  
+            page = 1  
+    except ValueError:  
+        page = 1
+    data = Iptables.objects.all().order_by('i_comment')
+    paginator = JuncheePaginator(data, 10)
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+        data = paginator.page(1)
+    except EmptyPage:
+        data = paginator.page(paginator.num_pages)
+
+    return render(request,'allow_list/iptables_list.html',locals())
+
 
 @permission_required('Allow_list.add_iptables', login_url='/allow/error/')
 def iptables(request):
-    ff = IptablesForm()
-    fo_errors = []
-    view_rules = Iptables.objects.filter(i_comment__contains="WEB_PORT_")
-    data = [i.i_source_ip for i in Iptables.objects.all()]
-    choice_data = [a for a in Business.objects.filter(nic_name__contains='10')]
-    if 'okk' in request.POST:
-        ip = request.POST.get('ipaddr')
-        comment = request.POST.get('customer')
+    choice_data = [a for a in Business.objects.filter(platform='现金网')]
+    if request.method == 'POST':
+        ip = request.POST.get('ipaddr').strip()
+        comment = request.POST.get('customer').strip()
         remark = "only_new"
         host_group = u"新平台"
         chain = "INPUT"
         comment = u"WEB_PORT_%s" % comment
         user = request.user
-        if ip in data:
-            fo_errors.append("你输入的VPN_IP: %s 已存在,添加失败!" % ip) 
-        # ip_api = "http://freeapi.ipip.net/%s" % ip
-        # req = urllib2.Request(ip_api)
-        # rel = urllib2.urlopen(req).read()
-        # result = rel.strip('[]').replace('\"','').split(',')
-        # if ("中国" not in result) and ("香港" not in result):
-        #     fo_errors.append("你输入的IP是:%s,IP属于:%s,添加状态：失败" % (ip,rel))
-        if not fo_errors:
-            i = Iptables(i_comment=comment,i_chain=chain,i_source_ip=ip,i_user=user,i_remark=remark,i_tag=host_group)
-            i.save()
-            task = "/etc/ansible/insertip.yml"
-            job = do_ansible.delay(task,ip,remark,comment)
-            task_id = job.id
+        if not isValidIp(ip): return JsonResponse({"res": "falid","info": "IP格式错误"},safe=False)
+        if Iptables.objects.filter(i_source_ip=ip): return JsonResponse({"res": "falid","info": "此IP已存在"},safe=False)
+
+        i = Iptables(i_comment=comment,i_chain=chain,i_source_ip=ip,i_user=user,i_remark=remark,i_tag=host_group)
+        i.save()
+        task = "/etc/ansible/insertip.yml"
+        job = do_ansible.delay(task,ip,remark,comment)
+        task_id = job.id
+        return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
     return render(request,'allow_list/iptables.html',locals())
 
 
@@ -83,19 +99,32 @@ def iptables_delete(request,id):
     count_num = Iptables.objects.filter(i_source_ip=ipaddr)
     if len(count_num) > 1:
         data.delete()
-        infos = "IP: %s 已经成功解除绑定" % str(ipaddr)
+        infos = "IP: %s Deleted! " % str(ipaddr)
         return JsonResponse({'res':"OK",'info':infos},safe=False)
     data.delete()
     task = "/etc/ansible/deleteip.yml"
     ansiblex(task,str(ipaddr),remark,comm)
-    infos = "IP: %s 已经成功解除绑定" % str(ipaddr)
+    infos = "IP: %s Deleted!" % str(ipaddr)
     return JsonResponse({'res':"OK",'info':infos},safe=False)
 
-def iptables_search(request,comment):
-    data = ["<p>"+i.i_source_ip+"</p>" for i in Iptables.objects.filter(i_comment=comment)]
-    data = "".join(data)
-    print data
-    return JsonResponse({'res':data},safe=False)
+def iptables_search(request):
+    comment = request.GET.get('comment','')
+    print comment
+    result = {}
+    ip_res = [i for i in Iptables.objects.filter(i_source_ip__contains=comment)]
+    comment_res = [i for i in Iptables.objects.filter(i_comment__contains=comment)]
+    res = list(set(ip_res).union(set(comment_res)))
+    if res:
+        fff = []
+        for i in res:
+            print i.i_date_time
+            fff.append({"ip":i.i_source_ip,"comment":i.i_comment,"date":i.i_date_time.strftime('%Y-%m-%d %H:%M:%S'),"user":i.i_user.first_name,"uuid":i.id})
+        result["res"] = "OK"
+        result["info"] = fff
+    else:
+        result["res"] = "Faild"
+
+    return JsonResponse(result,safe=False)
 
 def changes(a,b):
    for i in xrange(0,len(a),b):
@@ -173,7 +202,7 @@ def push_data(request,choice):
             classify = "agent"
         else:
             classify = "backend"
-            data.backend_domain = domain 
+            data.backend_domain = domain
         data.save()
         print data.phone_site
         configurate = fabu_nginxconf_task.delay(data.uuid,choice=classify)
@@ -219,6 +248,21 @@ def change_backend(request,id):
 
 
 
-# 给客服用的管理域名的界面catg
-def kefu_domain_list(request):
-    return render(request,'allow_list/domain_list.html',locals())
+# nginx白名单配置管理函数
+def white_conf_list(request):
+    data = white_conf.objects.all()
+    return render(request,'allow_list/white_conf_list.html',locals())
+
+def white_conf_modify(request,uuid):
+    data = white_conf.objects.get(pk=uuid)
+    wform = WhiteConfForm(instance=data)
+    if request.method == 'POST':
+        wform = WhiteConfForm(request.POST,instance=data)
+        if wform.is_valid():
+            wform.save()
+        return JsonResponse({"res":"OK"},safe=False)
+    return render(request,'allow_list/white_conf_modify.html',locals())
+
+def white_list(request):
+    data = white_list.objects.all()
+    return render(request,'allow_list/white_list.html',locals())

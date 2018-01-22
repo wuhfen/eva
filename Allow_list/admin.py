@@ -2,7 +2,7 @@
 # coding:utf-8
 
 from django.contrib import admin
-from .models import Iptables, oldsite_line
+from .models import Iptables, oldsite_line,white_conf
 from import_export import resources
 from import_export import fields
 from import_export.admin import ImportExportModelAdmin
@@ -31,3 +31,8 @@ class exportIPtablesAdmin(ImportExportActionModelAdmin):
     resource_class = IPResource
 
 admin.site.register(Iptables, importIPtablesAdmin)
+
+class WhiteConfAdmin(admin.ModelAdmin):
+    model = white_conf
+
+admin.site.register(white_conf, WhiteConfAdmin)

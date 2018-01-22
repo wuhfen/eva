@@ -110,7 +110,7 @@ def get_mytask(message):
     elif len(args) == 2:
         try:
             data = git_task_audit.objects.get(id=args[-1])
-            text.append("ID: "+str(data.id)+'\n'+"标题："+data.request_task.name+'\n'+"状态："+data.request_task.status+'\n'+"描述："+data.request_task.memo+'\n'+"申请人："+data.request_task.initiator.username+'\n')
+            text.append("ID: "+str(data.id)+'\n'+"时间："+data.create_date+'\n'+"标题："+data.request_task.name+'\n'+"状态："+data.request_task.status+'\n'+"描述："+data.request_task.memo+'\n'+"申请人："+data.request_task.initiator.username+'\n')
             for i in data.request_task.reqt.all():
                 if i.isaudit:
                     if i.ispass:
@@ -322,11 +322,8 @@ def handle_message(message):
         except TypeError:
             pass
     elif message.chat.type == 'group':
-        try:
-            text = "%s说：%s"% (message["from"].first_name,message.text)
-            bot.sendMessage(chat_id=message.chat.id, text=text)
-        except:
-            bot.sendMessage(chat_id=message.chat.id, text="无效命令，输入 /help 获取帮助")
+        text = '%s说：%s'% (message.first_name,message.text)
+        bot.sendMessage(chat_id=message.chat.id, text=text)
 
 
 

@@ -1,14 +1,14 @@
 {% extends 'default/base.html' %}
 
-{% block title %} 查看部门 {% endblock %}
+{% block title %} group list {% endblock %}
 
 {% block assistant-header %} 
 
-    部门列表 
+    组列表 
     <ol class="breadcrumb">
         <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
         <li><a href="#">用户管理</a></li>
-        <li><a href="/auth/cmdb_auth_index/">查看部门</a></li>
+        <li><a href="/auth/cmdb_auth_index/">查看组</a></li>
     </ol>
 
 {% endblock %}
@@ -19,12 +19,11 @@
 <div class="box">
 
     <div class="box-header with-border">
-        <h4> 部门详细信息列表 </h4>
-        <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                <i class="fa fa-times"></i></button>
+        <div class="col-lg-6">
+        <h4> 组详细信息</h4>
+        </div>
+        <div class="col-lg-6">
+            <a href="{% url 'department_add' %}" class="btn btn-info pull-right" >添加组</a>
         </div>
     </div>
 
@@ -32,9 +31,9 @@
 		<table class="table table-bordered">
 			<thead>
 				<tr>
-                    <th>部门</th>
-					<th>介绍</th>
-					<th style="text-align:center">人员</th>
+                    <th>组</th>
+					<th>组长</th>
+                    <th style="text-align:center">组员</th>
 					<th>操作</th>
 				</tr>
 			</thead>
@@ -42,13 +41,17 @@
 				{% for k,v in content.items %}
 				<tr>
                     <td width="200">{{ k }}</td>
-					<td width="400">{{ v.department_memo }}</td>
+					<td width="400">{{ v.manager }}</td>
 					<td>
 						{% for t in v.user_list %}
 							{{ t }}
 						{% endfor %}
 					</td>
-					<td width="100"><a href="/accounts/department/edit/{{ v.department_id }}/" class="btn btn-xs btn-primary node-edit" >修改</a></td>
+                    <td width="100">
+                        <a href="{% url 'department_delete' v.department_id %}" class="btn btn-xs btn-primary group-delete" >删除</a>
+                        <a href="{% url 'department_edit' v.department_id %}" class="btn btn-xs btn-primary group-edit" >修改</a>
+                        <a href="{% url 'department_auth' v.department_id %}" class="btn btn-xs btn-primary group-auth" >权限</a>
+                    </td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -59,7 +62,23 @@
 
 
 <script>
-    $(".node-edit").on("click", function(event){
+
+$(".group-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+
+    $(".group-edit").on("click", function(event){
          var url= $(this).attr("href");
          var height = $(window).height();
          // layer.msg('Hello layer');
@@ -77,5 +96,25 @@
             });
          event.preventDefault();
     });
+
+    $(".group-auth").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '组权限',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['700px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
 </script>
 {% endblock content %}

@@ -89,6 +89,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'gitfabu.views.mytasknums',
+                'accounts.views.mygroup', #检测我是不是组长
+                'accounts.auth_session.myauth', #检测我自己的权限，用于导航栏展示
             ],
         },
     },

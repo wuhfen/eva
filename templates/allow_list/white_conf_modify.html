@@ -1,0 +1,52 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 修改白名单配置文件{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+            <form role="form" class="form-horizontal" action="" method="post" id="post_form">{% csrf_token %}
+                <div hidden="hidden">{{ wform.name|bootstrap_horizontal }}</div>
+                
+                {{ wform.servers|bootstrap_horizontal }}
+                {{ wform.file_path|bootstrap_horizontal }}
+                {{ wform.is_reload|bootstrap_horizontal }}
+                
+                <div class="form-group">
+                    <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$('#id_submit').on("click",function(){
+
+    var urls= "{% url 'white_conf_modify' data.id %}";
+    jQuery.ajax({
+        url: urls,                  // 提交的页面
+        data: $('.form-horizontal').serialize(), // 从表单中获取数据
+        type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+        dataType:'text',
+        success: function(data){
+            parent.layer.closeAll();
+        }
+    });
+});
+</script>
+
+
+{% endblock  %}
