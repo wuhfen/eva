@@ -8,10 +8,10 @@ from accounts.models import CustomUser as User
 from business.models import Business
 from gitfabu.models import git_deploy
 
-IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
+#IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
 
 
-#IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
+IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
 TAG_CHOICE = [(i, i) for i in (u"新平台", u"老平台")]
 
 # Create your models here.
@@ -19,7 +19,7 @@ class Iptables(models.Model):
     ## 执行操作的serverip
     host_ip = models.GenericIPAddressField(max_length=15, default='0.0.0.0')
     ## 备注信息
-    i_comment = models.CharField(max_length=50, blank=True, choices=IPTABLE_CHOICE)
+    i_comment = models.CharField(max_length=50, blank=True)
     ## 执行的表 -t 指定表，默认filter
     i_table = models.CharField(max_length=50, blank=True, default='filter')
     ## 动作，默认是插入，还有追加-A，替换-P, 删除-D
@@ -45,7 +45,7 @@ class Iptables(models.Model):
     ## 时间
     i_date_time = models.DateTimeField(auto_now_add=True)
     ## 用户
-    i_user = models.ForeignKey(User,on_delete=models.CASCADE)
+    i_user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     ## 标记，主要是标记ansible的hosts中的哪一个组执行了这个规则
     i_remark = models.CharField(max_length=50, null=True, blank=True)
     ## 标签
