@@ -255,7 +255,6 @@ def my_task_details(request,uuid):
             if str(j.audit_group_id) == str(i.id):
                 print j.audit_group_id
                 L.append({"name":j.auditor.first_name,"isaudit":j.isaudit,"ispass":j.ispass,"time":j.audit_time.strftime('%Y-%m-%d %H:%M:%S'),"postil":j.postil})
-            print L
         res[i.name] = {"member":L,"date":j.audit_time.strftime('%Y-%m-%d'),"time":j.audit_time.strftime('%H:%M:%S'),"status":status}
 
     if data.loss_efficacy:
