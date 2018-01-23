@@ -14,7 +14,7 @@ def auth_class(user):
         except:
             return res
         for group in departments:
-            print "%s你在此组：%s"% (user.first_name,group.name)
+            # print "%s你在此组：%s"% (user.first_name,group.name)
             try:
                 auth_data = department_auth_cmdb.objects.get(department_name=group)
                 auth_list = [f.name for f in auth_data._meta.get_fields() if f.name != "id"]  #排除id，给出权限列表
@@ -24,7 +24,7 @@ def auth_class(user):
                     if s:res[i] = s
             except:
                 pass
-        print res
+        # print res
     return res
 
 def myauth(request):
