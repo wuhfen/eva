@@ -238,53 +238,35 @@ p {text-indent: 1cm}
     {% endif %}
 
 <!--审核任务开始 -->
-    {% for i in others_data %}
-    {% if i.isaudit %}
+    {% if df.islog %}
     <li class="time-label">
         <span class="bg-green">
-            {{ i.audit_time.date }}
+            {{ data.end_date.date }}
         </span>
     </li>
     <li>
         <!-- timeline icon -->
-        <i class="fa fa-user bg-aqua"></i>
+        <i class="fa fa-file-text-o bg-purple"></i>
         <div class="timeline-item">
-            <span class="time"><i class="fa fa-clock-o"></i> {{ i.audit_time.time }}</span>
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.end_date.time }}</span>
 
-            <h3 class="timeline-header"><a href="#">{{ i.auditor.first_name }}</a> 已审核</h3>
+            <h3 class="timeline-header"><a href="#">日志</a></h3>
 
             <div class="timeline-body">
-                <h4>审核情况：</h4>
-                    <p>{% if i.ispass %}已通过{% else %}未通过{% endif %}</p>
-                <h4>批注：</h4>
-                    <p>{{ i.postil }}</p>
+                {% for i in  dflog %}
+                <h4>记录时间：</h4>
+                    <p>{{ i.create_time }}</p>
+                <h4>内容：</h4>
+                    <pre class="text-success">{{ i.log }}</pre>
+                {% endfor %}
             </div>
 
             <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">...</a>
-            </div>
-        </div>
-    </li>
-    {% else %}
-    <li class="time-label">
-        <span class="bg-yellow">
-            {{ i.create_date.date }}
-        </span>
-    </li>
-    <li>
-        <!-- timeline icon -->
-        <i class="fa fa-user bg-aqua"></i>
-        <div class="timeline-item">
-            <span class="time"><i class="fa fa-clock-o"></i> {{ i.create_date.time }}</span>
-            <h3 class="timeline-header"><a href="#">{{ i.auditor.first_name }}</a> 未审核</h3>
-            <div class="timeline-body">
-            </div>
-            <div class="timeline-footer">
+                <a class="btn btn-primary btn-xs">END</a>
             </div>
         </div>
     </li>
     {% endif %}
-    {% endfor %}
 <!--审核任务结束-->
 
 

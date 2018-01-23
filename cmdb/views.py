@@ -13,6 +13,7 @@ import json
 from api.ssh_api import ssh_cmd
 from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_update_public_task
 from gitfabu.models import git_code_update,git_deploy,git_task_audit,my_request_task,git_deploy_audit
+from gitfabu.audit_api import check_group_audit
 
 global bot
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo') #dtkj
@@ -110,7 +111,7 @@ def get_mytask(message):
     elif len(args) == 2:
         try:
             data = git_task_audit.objects.get(id=args[-1])
-            text.append("ID: "+str(data.id)+'\n'+"时间："+data.create_date+'\n'+"标题："+data.request_task.name+'\n'+"状态："+data.request_task.status+'\n'+"描述："+data.request_task.memo+'\n'+"申请人："+data.request_task.initiator.username+'\n')
+            text.append("ID: "+str(data.id)+'\n'+"时间："+data.create_date.strftime('%Y-%m-%d %H:%M:%S')+'\n'+"标题："+data.request_task.name+'\n'+"状态："+data.request_task.status+'\n'+"描述："+data.request_task.memo+'\n'+"申请人："+data.request_task.initiator.username+'\n')
             for i in data.request_task.reqt.all():
                 if i.isaudit:
                     if i.ispass:
@@ -233,6 +234,8 @@ def audit(message):
         data.isaudit = True
         data.postil = postil
         data.save()
+        check_group_audit(data.request_task.id,username,ok,data.audit_group_id,postil)
+        
     if not ok:
         bot.sendMessage(chat_id=message.chat.id, text=postil)
         return 2

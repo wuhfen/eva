@@ -242,6 +242,22 @@ def cancel_my_task(request,uuid):
 def my_task_details(request,uuid):
     data = my_request_task.objects.get(id=uuid)
     others_data = data.reqt.all().order_by('audit_time')
+    groups = list(set([i.audit_group_id for i in others_data if i]))
+    groups = [department_Mode.objects.get(id=i) for i in groups]
+    res = {}
+    for i in groups:
+        L = []
+        status = "未审核"
+        for j in others_data:
+            if j.isaudit: status = "已审核"
+            if j.ispass: status = "该组已通过"
+
+            if str(j.audit_group_id) == str(i.id):
+                print j.audit_group_id
+                L.append({"name":j.auditor.first_name,"isaudit":j.isaudit,"ispass":j.ispass,"time":j.audit_time.strftime('%Y-%m-%d %H:%M:%S'),"postil":j.postil})
+            print L
+        res[i.name] = {"member":L,"date":j.audit_time.strftime('%Y-%m-%d'),"time":j.audit_time.strftime('%H:%M:%S'),"status":status}
+
     if data.loss_efficacy:
         return render(request,'gitfabu/my_task_details.html',locals())
     if data.table_name == "git_deploy":
