@@ -26,7 +26,7 @@
             <tbody>
                 {% for i in data %}
                 <tr>
-                    <td>{% if i.name == "KG-JDC" %}KG经典彩{% elif i.name == "MN-Backend" %}蛮牛后台{% else %}现金网后台{% endif %}</td>
+                    <td>{% if i.name == "KG-JDC" %}KG经典彩白名单{% elif i.name == "MN-Backend" %}蛮牛后台白名单{% elif i.name == "MONEY-Black" %}现金网黑名单{% else %}现金网后台白名单{% endif %}</td>
                     <td>{{ i.servers }}</td>
                     <td>{{ i.file_path }}</td>
                     <td>{% if i.is_reload %}重启{% else %}不重启{% endif %}</td>

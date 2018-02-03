@@ -654,6 +654,15 @@ def git_fabu_task(uuid,myid):
     start = "%s,%s环境,开始发布%s"% (data.platform,data.classify,data.name)
     print start
     logs.append(start)
+    #判断锁文件，有则等待，无则创建并发布，发布完成后删除锁文件
+    lock_file = "/tmp/"+data.platform+"_"+data.classify+".lock"
+    while os.path.isfile(lock_file):
+        sleep(1)
+    fo = open(lock_file,"wb")
+    fo.write("locked")
+    fo.close()
+    logs.append("创建锁文件：%s"% lock_file)
+
     if data.deploy_update.filter(islog=True,isuse=True): #如果此项目有存在的版本号可用，则是已发项目，跳过发布过程
         logs.append("该项目不能重复发布！")
     else:
@@ -668,6 +677,10 @@ def git_fabu_task(uuid,myid):
         logs = logs+MyWeb.results
     print "已完成发布%s"% data.name
     logs.append("已完成发布%s"% data.name)
+
+    os.remove(lock_file)
+    logs.append("删除锁文件：%s"% lock_file)
+
     #更新任务isend
     mydata = my_request_task.objects.get(pk=myid)
     mydata.status = "已完成"
@@ -689,9 +702,19 @@ def git_update_task(uuid,myid):
     start = "开始%s-%s环境-%s-%s更新\n"% (data.platform,data.classify,data.name,updata.method)
     logs.append(start)
     print start
+
+    lock_file = "/tmp/"+data.platform+"_"+data.classify+".lock"
+    while os.path.isfile(lock_file):
+        sleep(1)
+    fo = open(lock_file,"wb")
+    fo.write("locked")
+    fo.close()
+    logs.append("创建锁文件：%s"% lock_file)
+
+
     MyWeb = git_moneyweb_deploy(data.id)
     print "更新方式为：%s"% updata.method
-    print type(updata.method)
+
     if updata.method != 'web':
         print "非web更新，需要执行web代码"
         MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
@@ -726,6 +749,9 @@ def git_update_task(uuid,myid):
         data.save()
     logs.append(end)
     print end
+
+    os.remove(lock_file)
+    logs.append("删除锁文件：%s"% lock_file)
     #更新任务isend
     mydata = my_request_task.objects.get(pk=myid)
     mydata.status = status
@@ -754,6 +780,16 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         env = "online"
     else:
         env = "test"
+
+    #加锁
+    lock_file = "/tmp/"+platform+"_"+env+".lock"
+    while os.path.isfile(lock_file):
+        sleep(1)
+    fo = open(lock_file,"wb")
+    fo.write("locked")
+    fo.close()
+    logs.append("创建锁文件：%s"% lock_file)
+
     datas = git_deploy.objects.filter(platform=platform,classify=env,islog=True,usepub=True) #迁移的时候别忘记把所有的项目usepub项更新为真
     datas.update(islock=True) #全局锁
     logs=[]
@@ -850,6 +886,10 @@ def git_update_public_task(uuid,myid,platform="现金网"):
     mydata.status = "已完成"
     mydata.isend = True
     mydata.save()
+
+    os.remove(lock_file)
+    logs.append("删除锁文件：%s"% lock_file)
+    
     #记录日志
     logdata = git_deploy_logs(name="更新",log="\r\n".join(logs),update=updata.id)
     logdata.save()

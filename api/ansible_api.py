@@ -286,6 +286,10 @@ class MyPlayTask(MyPlaybook):
         result = self.run_playbook(['/etc/ansible/domainname_rsync.yml'], local=localfile,path=remotedir,file=remotefile,siteid=siteid,server_names=domains)
         return result
 
+    def rsync_nginx_white_conf(self,localfile,remotefile,ips,isreload,server_name=None,siteid=None):
+        u"""ips为allow ip"""
+        result = self.run_playbook(['/etc/ansible/nginx_white_rsync.yml'], local=localfile,file=remotefile,ips=ips,isreload=isreload,server_name=server_name,siteid=siteid)
+        return result
 
 class CallbackModule(CallbackBase):
     CALLBACK_VERSION = 2.0

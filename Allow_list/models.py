@@ -8,12 +8,6 @@ from accounts.models import CustomUser as User
 from business.models import Business
 from gitfabu.models import git_deploy
 
-#IPTABLE_CHOICE = [(i, i) for i in (a.name for a in Business.objects.filter(nic_name__contains='10'))]
-
-
-IPTABLE_CHOICE = [(i, i) for i in (u"澳门美高梅",u"新葡京",u"葡京国际",u"大发酷客",u"澳门国际",u"盛世国际",u"易发",u"菲律宾",u"诚信",u"博狗娱乐城",u"守信娱乐城",u"澳门威尼斯人",u"金宝博")]
-TAG_CHOICE = [(i, i) for i in (u"新平台", u"老平台")]
-
 # Create your models here.
 class Iptables(models.Model):
     ## 执行操作的serverip
@@ -45,7 +39,7 @@ class Iptables(models.Model):
     ## 时间
     i_date_time = models.DateTimeField(auto_now_add=True)
     ## 用户
-    i_user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
+    i_user = models.ForeignKey(User,on_delete=models.CASCADE)
     ## 标记，主要是标记ansible的hosts中的哪一个组执行了这个规则
     i_remark = models.CharField(max_length=50, null=True, blank=True)
     ## 标签
@@ -59,21 +53,6 @@ class Iptables(models.Model):
         ordering = ['i_comment']
         verbose_name = u"白名单管理"
         verbose_name_plural = verbose_name
-
-HOSTIP = (
-    ('47.90.52.200','后台源站转发200'),
-    ('47.89.54.223','后台源站转发223'),
-    )
-
-AGENT_CHOICE = [(i, i) for i in (u"诚信", u"易发", u"菲律宾", u"博狗", u"守信", u"威尼斯人", u"美高梅", u"酷客", u"大发", u"永利")]
-AGENT_NAME_CHOICE = [(i, i) for i in (u"chengxin", u"yifa", u"flb", u"bogou", u"shouxin", u"amwnsr", u"meigaomei", u"kuke", u"dafa", u"yongli")]
-LINE_CHOICE = [(i, i) for i in (u"47.90.37.137", u"119.28.13.102", u"119.9.108.157",u'47.90.67.26')]
-NUM_CHOICE = [(i, i) for i in (1, 2, 3,4)]
-
-
-COMMENT_CHOICE = [(i, i) for i in (u"线路一", u"线路二", u"线路三",u"线路四")]
-
-
 
 class oldsite_line(models.Model):
     """docstring for oldsite_line"""
@@ -95,9 +74,11 @@ class oldsite_line(models.Model):
 
 class white_conf(models.Model):
     NAME = (
-    ('KG-JDC',u'KG经典彩'),
-    ('MN-Backend',u'蛮牛后台'),
-    ('MONEY-Backend',u'现金网后台'),
+    ('KG-JDC',u'KG经典彩白名单'),
+    ('MN-Backend',u'蛮牛后台白名单'),
+    ('MONEY-Backend',u'现金网后台白名单'),
+    ('MONEY-Black',u'现金网黑名单'),
+    ('MN-Black',u'蛮牛黑名单'),
     )
     name = models.CharField(_(u'白名单配置'),max_length=25,choices=NAME,unique=True)
     servers = models.TextField(_(u'服务器地址'))
@@ -115,8 +96,11 @@ class white_list(models.Model):
     
     host_key = models.CharField(_(u'白名单key'),max_length=10,choices=KEY)
     host_ip = models.CharField(_(u'白名单value'),max_length=15)
-    git_deploy = models.ForeignKey(git_deploy,related_name='white')
+    git_deploy = models.ForeignKey(git_deploy,null=True,blank=True,related_name='white')
     white_conf = models.ForeignKey(white_conf)
+    user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+    ctime = models.DateTimeField(auto_now_add=True)
+    
 
 
 
