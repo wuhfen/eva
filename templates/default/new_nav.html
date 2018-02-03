@@ -114,8 +114,9 @@
           </a>
           <ul class="treeview-menu">
             <li><a href="{% url 'iptables_list' %}"><i class="fa fa-circle-o"></i> 现金网后台白名单 </a></li>
-            <li><a href="{% url 'white_list' %}"><i class="fa fa-circle-o"></i> KG经典彩和蛮牛后台 </a></li>
-            <li><a href="{% url 'black_list' %}"><i class="fa fa-circle-o"></i> 现金网黑名单 </a></li>
+            <li><a href="{% url 'white_list' 'KG-JDC' %}"><i class="fa fa-circle-o"></i> KG经典彩白名单 </a></li>
+            <li><a href="{% url 'white_list' 'MN-Backend' %}"><i class="fa fa-circle-o"></i> 蛮牛后台白名单 </a></li>
+            <li><a href="{% url 'black_list' %}"><i class="fa fa-circle-o"></i> 现金网前台黑名单 </a></li>
             <li><a href="{% url 'domain_manage_business_list' %}"><i class="fa fa-circle-o"></i> 域名管理</a></li>
             <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 现金网备用后台</a></li>
         </ul>

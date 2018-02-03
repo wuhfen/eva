@@ -92,7 +92,7 @@
 
 
 $("#id_btn_plus").on('click',function(event) {
-  var url = "{% url 'white_add' %}";
+  var url = "{% url 'white_add' uuid %}";
   var height = $(window).height();
   layer.open({
     type: 2,

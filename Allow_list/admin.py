@@ -34,5 +34,6 @@ admin.site.register(Iptables, importIPtablesAdmin)
 
 class WhiteConfAdmin(admin.ModelAdmin):
     model = white_conf
+    list_display = ('name','servers')
 
 admin.site.register(white_conf, WhiteConfAdmin)

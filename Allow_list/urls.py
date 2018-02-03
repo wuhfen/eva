@@ -25,8 +25,8 @@ urlpatterns = [
     url(r'^white/conf/list/$',views.white_conf_list,name='white_conf_list'),
     url(r'^white/conf/modify/(?P<uuid>[^/]+)/$',views.white_conf_modify,name='white_conf_modify'),
     #白名单
-    url(r'^white/list/$',views.white_list_fun,name='white_list'),
-    url(r'^white/add/$',views.white_add,name='white_add'),
+    url(r'^white/list/(?P<which>[^/]+)/$',views.white_list_fun,name='white_list'),
+    url(r'^white/add/(?P<uuid>[^/]+)/$',views.white_add,name='white_add'),
     url(r'^white/delete/(?P<uuid>[^/]+)/$',views.white_delete,name='white_delete'),
     url(r'^white/search/$',views.white_list_search,name='white_list_search'),
     #黑名单

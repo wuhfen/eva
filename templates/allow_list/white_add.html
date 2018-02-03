@@ -18,14 +18,14 @@
 <div class="box box-info">
   <div class="box-body">
     <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
-      <div class="form-group col-md-6">
+      <!-- <div class="form-group col-md-6">
         <label>请选择类型：</label>
         <select class="form-control select" id="id_classify" name="classify">
           <option selected="selected" value="KG-JDC">KG经典彩</option>
           <option value="MN-Backend">蛮牛后台</option>
-          <!-- <option value="MONEY-Backend">现金网后台</option> -->
+          <option value="MONEY-Backend">现金网后台</option>
         </select>
-      </div>
+      </div> -->
       <div class="form-group col-md-6">
         <label>请选择网站：</label>
         <select class="form-control select" id="id_uuid" name="uuid">
@@ -51,7 +51,7 @@
 <script type="text/javascript">
   $("#testid").on('click',function(event) {
     // layer.msg("hello world!")
-    var url = "{% url 'white_add' %}";
+    var url = "{% url 'white_add' uuid %}";
     $.ajax({
       url: url,
       data: $('.form-horizontal').serialize(),
