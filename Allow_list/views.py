@@ -357,7 +357,7 @@ def white_add(request,uuid):
 
         obj,created = white_list.objects.get_or_create(host_ip=ip,git_deploy=deploy,white_conf=conf,defaults={'host_key':"allow",'user':request.user})
         if not created: return JsonResponse({"res": "falid","info": "此项目的IP已存在"},safe=False)
-        if white_list.objects.filter(white_conf=conf,host_ip=ip).count() > 1: return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
+        if white_list.objects.filter(white_conf=conf,git_deploy=deploy,host_ip=ip).count() > 1: return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
 
         if classify == "KG-JDC": 
             template_file="kg_jdc_white.conf"
@@ -386,7 +386,7 @@ def white_delete(request,uuid):
     name = data.white_conf.name
     conf = white_conf.objects.get(name=name)
 
-    if white_list.objects.filter(host_ip=ipaddr,white_conf=conf).count() > 1:
+    if white_list.objects.filter(host_ip=ipaddr,git_deploy=deploy,white_conf=conf).count() > 1:
         data.delete()
         return HttpResponseRedirect('/allow/welcome/')
 
