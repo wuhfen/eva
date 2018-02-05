@@ -780,6 +780,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         env = "online"
     else:
         env = "test"
+    logs=[]
 
     #加锁
     lock_file = "/tmp/"+platform+"_"+env+".lock"
@@ -792,7 +793,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
 
     datas = git_deploy.objects.filter(platform=platform,classify=env,islog=True,usepub=True) #迁移的时候别忘记把所有的项目usepub项更新为真
     datas.update(islock=True) #全局锁
-    logs=[]
+
     counts=[]
     for data in datas:
         start = "%s公用代码-%s环境-%s-%s更新"% (platform,env,data.name,updata.method)
