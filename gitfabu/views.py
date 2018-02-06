@@ -469,12 +469,23 @@ def web_update_code(request,uuid):
 
     if request.method == 'POST':
         #先判断这个站是否被锁住了，没有锁就继续
+        print "1"
         memo = request.POST.get('memo')
         method = request.POST.get('method')
         release = request.POST.get('release')
         branch = request.POST.get('branch')
+        print method
+        print branch
+        print release
         #获取当前版本号,组成新版本信息
-        old_data = git_code_update.objects.get(code_conf=data,islog=True,isuse=True)
+        if git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).count() < 1: 
+            return JsonResponse({'res':"没有可用版本号，联系运维！"},safe=False)
+        elif git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).count() > 1:
+            print "多个版本被匹配到，取最新的一个"
+            old_data = git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).latest('id')
+            print old_data.id
+        else:
+            old_data = git_code_update.objects.get(code_conf=data,islog=True,isuse=True)
         web_branches = old_data.web_branches
         web_release = old_data.web_release
         php_pc_branches = old_data.php_pc_branches
@@ -516,16 +527,13 @@ def web_update_code(request,uuid):
             e = int(now.replace(":",""))
             if data.classify == 'online':
                 if c <= e and d >= e:
-                    print("normal不紧急")
                     if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
                         auditor = php_auditor
                     else:
                         auditor = normal_auditor
-                    print auditor.name
                     isurgent = False
                     name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
                 else:
-                    print("urgent紧急更新")
                     auditor = urgent_auditor
                     isurgent = True
                     name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-紧急更新"
@@ -534,13 +542,14 @@ def web_update_code(request,uuid):
                     auditor = php_auditor
                 else:
                     auditor = normal_auditor
-                print auditor.name
                 isurgent = False
                 name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
+            print "审核权限组名称为：%s-%s-%s"% (data.platform,data.classify,auditor.name)
         else:
             isurgent = False
             name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
         #保存更新版本信息
+        print name
         updata = git_code_update(name=name,code_conf=data,method=method,version=release[0:7],branch=branch,web_release=web_release,php_pc_release=php_pc_release,
             php_moblie_release=php_moblie_release,js_pc_release=js_pc_release,js_mobile_release=js_mobile_release,config_release=config_release,
             web_branches=web_branches,php_pc_branches=php_pc_branches,php_mobile_branches=php_mobile_branches,js_pc_branches=js_pc_branches,
@@ -561,6 +570,7 @@ def web_update_code(request,uuid):
             reslut = git_update_task.delay(updata.id,mydata.id)
         else:
             if data.classify == 'huidu' or data.classify == 'online':
+                print "创建审核任务"
                 task_distributing(mydata.id,auditor.id)
             else:
                 mydata.status="通过审核，更新中"
