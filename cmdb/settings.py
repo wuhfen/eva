@@ -28,8 +28,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*@tw#**f5&q*y2!$ry5=mr^k_o*-)$zjp@hy%q_ws%f%-(%v0d'
 auth_key = '*@tw#**f5&q*y2!$ry5=mr^k_o*-)$zjp@hy%q_ws%f%-(%v0d'
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+# DEBUG = False
 
 #ALLOWED_HOSTS = ["127.0.0.1"]
 ALLOWED_HOSTS = ['*']
@@ -164,6 +164,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     ('js', os.path.join(STATIC_ROOT, 'js').replace('\\', '/')),
+    ('ztree', os.path.join(STATIC_ROOT, 'ztree').replace('\\', '/')),
     ('admin-test', os.path.join(STATIC_ROOT, 'admin-test').replace('\\', '/')),
     ('css', os.path.join(STATIC_ROOT, 'css').replace('\\', '/')),
     ('images', os.path.join(STATIC_ROOT, 'images').replace('\\', '/')),

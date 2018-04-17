@@ -11,38 +11,30 @@
 {% endblock %}
 
 {% block content %}
-<div class="box">
+<div class="box box-info">
         <div class="box-header with-border">
-        <h4 class="text-primary">项目列表</h4>
-        <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-              <i class="fa fa-minus"></i></button>
-            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-              <i class="fa fa-times"></i></button>
-          </div>
+        <a href="{% url 'project_add' %}" id="project_add" class="btn btn-info">添加组</a>
+
         </div>
         <div class="box-body">
 
             <div class="table-responsive">
                 <table class="table table-hover table-striped">
                     <tr>
-                        <th>编号</th>
-                        <th>项目名称</th>
-                        <th>产品线</th>
-                        <th>负责人</th>
-                        <th>简介</th>
-                        <th>项目组成员</th>
+                        <th>层级</th>
+                        <th>父组</th>
+                        <th>组名</th>
+                        <th>子组</th>
+                        <th>组内服务器</th>
                         <th>操作</th>
-
                     </tr>
                 {% for v in data %}
                     <tr>
                         <td>{{ v.sort }}</td>
+                        <td>{{ v.parent.project_name }}</td>
                         <td>{{ v.project_name }}</td>
-                        <td>{{ v.line }}</td>
-                        <td>{{ v.project_contact }}</td>
-                        <td>{{ v.description }}</td>
-                        <td>{{ v.project_user_group }}</td>
+                        <td>{% for i in v.mychilden.all %}{{ i.project_name }}{% endfor %}</td>
+                        <td>{% for server in v.project_servers.all %}{{ server.ssh_host }}{% endfor %}</td>
                         <td>
                             <a href="{% url 'project_edit' v.uuid %}" class="btn btn-xs btn-primary project-edit">修改</a>
                             <a href="{% url 'project_delete' v.uuid %}" class="btn btn-xs btn-primary project-delete">删除</a>
@@ -55,18 +47,40 @@
 </div>
 
 <script>
+
+    $("#project_add").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '添加组',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , '400px'],
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+
     $(".project-edit").on("click", function(event){
          var url= $(this).attr("href");
          var height = $(window).height();
          // layer.msg('Hello layer');
             layer.open({
                 type: 2,
-                title: '项目修改',
+                title: '组修改',
                 maxmin: true,
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层
-                area : ['800px' , (height - 50) + 'px'],
-                content: url
+                area : ['800px' , '400px'],
+                content: url,
+                end : function () {
+                    location.reload();
+                },
             });
          event.preventDefault();
     });

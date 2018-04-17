@@ -312,7 +312,7 @@ def black_add(request):
 
 # NGINX 白名单 函数
 def white_list_fun(request,which):
-    try:
+    try:  
         page = int(request.GET.get("page",1))
         print request.GET
         print('page----->',page)
@@ -326,6 +326,7 @@ def white_list_fun(request,which):
         data = white_list.objects.filter(host_key="allow",white_conf=conf)
     except:
         return HttpResponse("你还没有配置白名单服务器！")
+
     paginator = JuncheePaginator(data, 15)
     try:
         data = paginator.page(page)
@@ -336,6 +337,7 @@ def white_list_fun(request,which):
     return render(request,'allow_list/white_list.html',locals())
 
 def white_add(request,uuid):
+
     conf = white_conf.objects.get(pk=uuid)
     if conf.name == "KG-JDC" or conf.name == "MONEY-Backend":
         data = git_deploy.objects.filter(platform="现金网",classify="online",islog=True)
@@ -359,12 +361,15 @@ def white_add(request,uuid):
         if not created: return JsonResponse({"res": "falid","info": "此项目的IP已存在"},safe=False)
         if white_list.objects.filter(white_conf=conf,git_deploy=deploy,host_ip=ip).count() > 1: return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
 
+
         if classify == "KG-JDC": 
             template_file="kg_jdc_white.conf"
             ips = ""
             for i in white_list.objects.filter(white_conf=conf):
+
                 ips += i.host_key+" "+i.host_ip+"; #"+i.git_deploy.name+" \n"
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
+
         elif classify == "MN-Backend":
             template_file="mn_backend.conf"
             file_path = conf.file_path+"/"+deploy.name+".conf"
@@ -372,9 +377,11 @@ def white_add(request,uuid):
             for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
                 ips += i.host_key+" "+i.host_ip+";\n    "
             business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
-            front_data = business.domain.filter(use=2,classify="online",state=0) #蛮牛线上在用的后台域名对象
+            front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
             front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
             job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+
+        task_id = job.id
         return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
 
     return render(request,'allow_list/white_add.html',locals())
@@ -391,13 +398,11 @@ def white_delete(request,uuid):
         return HttpResponseRedirect('/allow/welcome/')
 
     data.delete()
-    
-
     if name == "KG-JDC": 
         template_file="kg_jdc_white.conf"
         ips = ""
         for i in white_list.objects.filter(white_conf=conf):
-            ips += i.host_key+" "+i.host_ip+"; #"+deploy.name+" \n"
+            ips += i.host_key+" "+i.host_ip+"; #"+i.git_deploy.name+" \n"
         nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
     elif name == "MONEY-Black":
         template_file="moneyweb_black_ip.conf"
@@ -412,7 +417,7 @@ def white_delete(request,uuid):
         for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
             ips += i.host_key+" "+i.host_ip+";\n    "
         business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
-        front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+        front_data = business.domain.filter(use=2,classify="online",state=1) #蛮牛线上在用的后台域名对象
         front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
         nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
     return HttpResponseRedirect('/allow/welcome/')

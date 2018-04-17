@@ -1,0 +1,118 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布新站|ADD NEW WEBSITE {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>构建新项目</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">网站更新列表</a></li>
+        <li><a href="#">构建新项目</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-10">
+    <form class="form-horizontal" action="" id="conf_add"  method="post" name="horizontal" role="form" autocomplete="off">{% csrf_token %}
+    <div class="box box-solid">
+        <div class="box-header with-border">
+            <i class="fa fa-text-width"></i>
+
+            <h3 class="box-title">{{ project }}项目</h3>
+            <button type="submit" class="btn btn-primary btn-xs pull-right">提交申请</button>
+        </div>
+        <!-- /.box-header -->
+        <div class="box-body">
+        {% if errors %}
+        {% for i in errors %}<p class="text-danger"><b>Error:</b> {{ i }}</p>{% endfor %}
+        {% else %}
+            <div class="form-group col-md-12">
+                <label class="text-right bolder" for="id_name">项目名称
+                </label>
+                <input type="text" name="name" id="id_name" class="form-control" placeholder="必须是英文字母数字下划线">
+            </div>
+            <div class="form-group col-md-12">
+                <textarea type="textarea" name="memo" id="id_memo" class="form-control" placeholder="项目描述"></textarea><hr>
+            </div>
+            <div class="form-group col-md-12">
+                <div class="form-group col-md-6">
+                    <label class="text-right bolder" for="id_repo">git地址（仅支持http/https协议地址）
+                    </label>
+                    <input type="text" name="repo" id="id_repo" class="form-control" value="http://git.dtops.cc/">
+                </div>
+                <div class="form-group col-md-2">
+                    <label class="text-right bolder" for="id_git_branch">发布分支
+                    </label>
+                    <input type="text" name="git_branch" id="id_git_branch" class="form-control" value="master">
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-right bolder" for="id_git_commit">发布版本号
+                    </label>
+                    <input type="text" name="git_commit" id="id_git_commit" class="form-control" placeholder="默认最新">
+                </div>
+
+            </div>
+            <div class="form-group col-md-12">
+                <div class="form-group col-md-2">
+                    <label class="text-right bolder" for="id_git_user">git账号
+                    </label>
+                    <input type="text" name="git_user" id="id_git_user" readonly="readonly" class="form-control" value="fabu">
+                </div>
+                <div class="form-group col-md-4">
+                    <label class="text-right bolder" for="id_git_pass">git密码
+                    </label>
+                    <input type="password" name="git_pass" id="id_git_pass" readonly="readonly" class="form-control" value="DSyunweibu110110">
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="text-right bolder" for="id_git_export">工作目录
+                    </label>
+                    <input type="text" name="git_export" id="id_git_export" readonly="readonly" class="form-control" value="{{ export_dir }}项目名称">
+                </div>
+            </div>
+            <div class="form-group col-md-12">
+                <div class="form-group col-md-3">
+                <label class="text-right bolder" for="id_remoteip">服务器配置</label>
+                    <textarea type="textarea" name="remoteip" id="id_remoteip" class="form-control" rows="7" placeholder="服务器IP,每行一个"></textarea>
+                </div>
+                <div class="col-md-9">
+                    <div class="form-group col-md-9">
+                    <label class="text-right bolder" for="id_remotedir">线上路径</label>
+                    <input type="text" name="remotedir" id="id_remotedir" class="form-control" value="/data/wwwroot/">
+                    </div>
+                    <div class="form-group col-md-3">
+                    <label class="text-right bolder" for="id_owner">属主</label>
+                    <input type="text" name="owner" id="id_owner" class="form-control" value="www">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="text-right bolder" for="id_exclude">排除文件</label>
+                        <textarea type="textarea" name="exclude" id="id_exclude" class="form-control" rows="3" placeholder="rsync exclude模式 每行一个"></textarea>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="text-right bolder" for="id_rsync_command">代码部署前服务器执行语句</label>
+                        <textarea type="textarea" name="rsync_command" id="id_rsync_command" class="form-control" rows="3" placeholder="rm xxx.file"></textarea>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="text-right bolder" for="id_last_command">代码部署后服务器执行语句</label>
+                        <textarea type="textarea" name="last_command" id="id_last_command" class="form-control" rows="3" placeholder="service nginx reload"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+        {% endif %}
+        </div>
+    </div>
+    </form>
+</div>
+</div>
+{% endblock %}

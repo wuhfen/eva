@@ -1,0 +1,71 @@
+{% extends 'default/base_layer.html' %}
+
+{% block title %} 网站发布复核 {% endblock %}
+{% block head %} 
+<script src="/static/js/js.cookie.js"></script>
+{% endblock %}
+
+
+
+{% block content %}
+<div class="container">
+<div class="row">
+    <div class="box">
+        <div class="box-header">
+        <div class="col-md-6 col-xs-6">
+        <a href="javascript:;" class="btn btn-block btn-info" name="yes">确认完成</a>
+        </div>
+        <div class="col-md-6 col-xs-6">
+        <a href="javascript:;" class="btn btn-block btn-info" name="no">继续等待</a>
+        </div>
+        </div>
+        <div class="box-body">
+
+        <div class="col-md-4 col-xs-4">
+            <h4 class="bg-info">前台域名</h4>
+            {% for i in f_domains %}
+            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+            {% endfor %}
+        </div>
+        <div class="col-md-4 col-xs-4">
+            <h4 class="bg-info">代理域名</h4>
+            {% for i in a_domains %}
+            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+            {% endfor %}
+        </div>
+        <div class="col-md-4 col-xs-4">
+            <h4 class="bg-info">后台域名</h4>
+            {% for i in b_domains %}
+            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+            {% endfor %}
+        </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+    var token = Cookies.get('csrftoken');
+    $('.btn-block').on("click",function(){
+        var isok = $(this).attr('name');
+
+        var urls= "{% url 'confirm_mytask' mytask.id %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: { 
+                'isok': isok,
+                'csrfmiddlewaretoken':token
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+            },
+        });
+    });
+</script>
+
+
+{% endblock  %}

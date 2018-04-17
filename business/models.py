@@ -94,8 +94,8 @@ class DomainName(models.Model):
     business = models.ForeignKey(Business,blank=True,null=True,on_delete=models.SET_NULL, related_name=u"domain")
     classify = models.CharField(max_length=32,blank=True, verbose_name=u"环境",default="online")
     DOMAIN_STATUS_CHOICES = (
-    ('0', u"备用"),
-    ('1', u"再用"),
+    ('0', u"在用"),
+    ('1', u"备用"),
     ('2', u"弃用"),
     )
     state = models.CharField(max_length=64,blank=True, verbose_name=u"域名状态",choices=DOMAIN_STATUS_CHOICES)

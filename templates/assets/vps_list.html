@@ -1,0 +1,495 @@
+{% extends "default/base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/ztree/css/demo.css" type="text/css">
+<!-- <link rel="stylesheet" href="/static/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css"> -->
+<link rel="stylesheet" href="/static/ztree/css/metroStyle/metroStyle.css" type="text/css">
+<!-- <script type="text/javascript" src="/static/ztree/js/jquery-1.4.4.min.js"></script> -->
+<script type="text/javascript" src="/static/ztree/js/jquery.ztree.all.js"></script>
+<script src="/static/js/js.cookie.js"></script>
+{% endblock %}
+
+{% block assistant-header %} 
+<h3>资产列表|Asset List</h3>
+<ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+    <li><a href="{% url 'vps_list' %}">资产列表</a></li>
+</ol>
+{% endblock %}
+
+
+{% block content %}
+<div>
+   <div class="col-md-3 col-lg-3">
+      <ul id="treeDemo" class="ztree"></ul>
+   </div>
+   <div class="col-md-9 col-lg-9">
+
+      <div class="box box-info">
+          {% if data %}
+          <div class="box-header">
+              <div class="col-md-6">
+                <div class="input-group input-group-sm pull-left" style="width: 300px;">
+                  <input type="text" name="table_search" id="id_table_search" class="form-control" placeholder="Search">
+                  <div class="input-group-btn">
+                    <a href="javascript:;" class="btn btn-default" id="id_btn_search"><i class="fa fa-search"></i></a>
+                    <a href="{% url 'virtual_add' %}" target="_blank" class="btn btn-default" id="id_btn_plus"><i class="fa fa-plus"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="box-tools col-md-6">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                {% if data.has_previous %}
+                  <li><a class='paginator' title='上一页' href='?page={{ data.previous_page_number }}'>«</a></li>
+                {% endif %}
+                {% for page in data.paginator.page_range_ext %}
+                  {% if page = data.number %}
+                    <li><a class='paginator_current' title='当前页:{{ page }}'><span>{{ page }}</span></a></li>
+                  {% else %}
+                    <li><a class='paginator' href='?page={{ page }}' title='{{ page }}'><span>{{ page }}</span></a></li>
+                  {% endif %}
+                {% endfor %}
+                {% if data.has_next %}
+                  <li><a class='paginator' title='下一页' href='?page={{ data.next_page_number }}'>»</a></li>
+                {% endif %}
+                </ul>
+              </div>
+          </div>
+          {% endif %}
+          <div class="box-body">
+            <table class="table">
+              <thead>
+                <th>组</th>
+                <th>地址</th>
+                <th>其他IP</th>
+                <th>用途</th>
+                <th>状态</th>
+                <th>权限</th>
+                <th>操作</th>
+              </thead>
+              <tbody id="tbody">
+                {% for i in data %}
+                  <tr class="daemon">
+                    <td>{% for group in i.project.all %}<a href="#" class="btn btn-primary btn-xs">{{ group.project_name }}{% endfor %}</a></td>
+                    <td>{{ i.ssh_host }}</td>
+                    <td>{% for ip in i.asset.wangka.all %}
+                           {% if ip.ipaddress %}
+                           {% if ip.name %}{{ ip.name }}{% else %}eth0{% endif %}:{{ ip.ipaddress }}<br>
+                           {% endif %}
+                        {% endfor %}
+                     </td>
+                    <td>{{ i.asset.purpose }}</td>
+                    <td>
+                       {% if i.asset.status == 'on' %}
+                            <p class="text-success">线上</p>
+                        {% elif i.asset.status == 'in' %}
+                            <p class="text-danger">报废</p>
+                        {% else %}
+                            <p class="text-warning">闲置</p>
+                        {% endif %}
+                    </td>
+                    <td>
+                       <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-default btn-xs addpasswd" data-toggle="tooltip" title="添加权限"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                      <a href="{% url 'modify_sql_passwd' i.uuid %}" class="btn btn-default btn-xs changepasswd" data-toggle="tooltip" title="修改权限密码"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                      <a href="{% url 'look_server_passwd' i.uuid %}" class="btn btn-default btn-xs lookpasswd" data-toggle="tooltip" title="查看权限"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                    </td>
+                    <td>
+                        {% if i.asset.asset_type == 'serverhost' %}
+                          <a href="{% url 'server_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
+                        {% else %}
+                          <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
+                        {% endif %}
+                     </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+      </div>
+
+   </div>
+</div>
+<div class="row"></div>
+<script type="text/javascript">
+
+   $("#id_btn_search").on('click',function(event) {
+      var search_comment = $('#id_table_search').val()
+      if (search_comment) {
+         $.ajax({
+           url: "{% url 'vps_search' %}",
+           type: "GET",
+           data: {
+             "comment": search_comment
+           },
+           success: function(data) {
+             if (data.res=="OK") {
+               $(".daemon").remove();
+               for (var key in data.info) { 
+                   var option = $('<tr class="daemon"><td>'+data.info[key].group+'</td><td>'+data.info[key].ssh_host+'</td><td>'+data.info[key].nic+'</td><td>'+data.info[key].purpose+'</td><td>'+data.info[key].status+'</td><td>'+data.info[key].opreation+'</td><td>'+data.info[key].details+'</td></tr>');
+                   $("#tbody").append(option);
+               };
+             } else { layer.msg("没有可用信息！") }
+           },
+         })
+      }
+   });
+
+
+   $("#tbody").on('click','.lookpasswd',function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '查看权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['600px' , 800 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+   });
+
+   $("#tbody").on('click','.addpasswd',function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '添加权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['600px' , 850 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+   });
+
+   $("#tbody").on('click','.changepasswd',function(event){
+       var url= $(this).attr("href");
+       var height = $(window).height();
+       // layer.msg('Hello layer');
+          layer.open({
+              type: 2,
+              title: '修改权限',
+              maxmin: true,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['900px' , 400 + 'px'],
+              content: url
+          });
+       event.preventDefault();
+   });
+
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){
+   var zTreeObj;
+
+   var setting = {
+      view: {
+         addHoverDom: addHoverDom,
+         removeHoverDom: removeHoverDom,
+         selectedMulti: false
+      },
+      edit: {
+         drag: {
+               autoExpandTrigger: true,
+               prev: dropPrev,
+               inner: dropInner,
+               next: dropNext
+            },
+         enable: true,
+         editNameSelectAll: true,
+         showRemoveBtn: false,
+         showRenameBtn: showRenameBtn,
+         showRemoveBtn: showRemoveBtn
+      },
+      data: {
+         simpleData: {
+            enable: true,
+            idKey: "id",
+            pIdKey: "pid",
+            rootPId: 0
+         }
+      },
+      callback: {
+         beforeEditName: beforeEditName,
+         beforeRename: beforeRename,
+         onRename: onRename,
+         beforeRemove: beforeRemove,
+         onRemove: onRemove,
+         beforeDrag: beforeDrag,
+         beforeDrop: beforeDrop,
+         beforeDragOpen: beforeDragOpen,
+         onDrop: onDrop,
+         beforeClick: beforeClick,
+         onClick: server_onClick
+      }
+   };
+
+      var log, className = "dark";
+      var token = Cookies.get('csrftoken');
+
+      function beforeEditName(treeId, treeNode) {
+         className = (className === "dark" ? "":"dark");
+         var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+         zTree.selectNode(treeNode);
+         setTimeout(function() {
+            if (confirm("进入节点 -- " + treeNode.name + " 的编辑状态吗？")) {
+               setTimeout(function() {
+                  zTree.editName(treeNode);
+               }, 0);
+            }
+         }, 0);
+         return false;
+      }
+
+      function beforeClick(treeId, treeNode, clickFlag) {
+         if (treeNode.isproject == 'no') {
+            return true
+         }
+         return false
+      }
+
+      function server_onClick(event, treeId, treeNode) {
+         var url = "/assets/look_server_passwd/"+treeNode.id;
+         layer.open({
+              type: 2,
+              shade: 0.5,
+              shadeClose: true, //点击遮罩关闭层
+              area : ['600px' , 800 + 'px'],
+              content: url
+          });
+      }
+
+      function beforeRemove(treeId, treeNode) {
+         className = (className === "dark" ? "":"dark");
+         var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+         zTree.selectNode(treeNode);
+         return confirm("确认删除 节点 -- " + treeNode.name + " 吗？");
+      }
+
+      function onRemove(e, treeId, treeNode) {
+         $.ajax({
+            url: "/assets/project_delete/"+treeNode.id,
+            type:"GET",
+            dataType: "json",
+            // data: {'csrfmiddlewaretoken':token},
+            success: function (data) {
+                  if (data.result == 'SUCCESS') {
+                     location.reload();
+                  } else {
+                     layer.msg("没删掉！")
+                  }
+               },
+         });
+      }
+
+      function beforeRename(treeId, treeNode, newName, isCancel) {
+         className = (className === "dark" ? "":"dark");
+         if (newName.length == 0) {
+            setTimeout(function() {
+               var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+               zTree.cancelEditName();
+               alert("节点名称不能为空.");
+            }, 0);
+            return false;
+         }
+         return true;
+      }
+
+      function onRename(e, treeId, treeNode, isCancel) {
+         $.ajax({
+            url: "{% url 'project_rename' %}",
+            type:"POST",
+            dataType: "json",
+            data: {'project_name':treeNode.name,'uuid':treeNode.id,'csrfmiddlewaretoken':token},
+            success: function (data) {
+                  if (data.result == 'SUCCESS') {
+                     location.reload();
+                  } else {
+                     layer.msg("组名已存在！")
+                  }
+               },
+         });
+      }
+
+      function showRenameBtn(treeId, treeNode) {
+         return treeNode.isParent; //只允许父节点重命名，既组
+      }
+
+      function showRemoveBtn(treeId, treeNode) {
+         return treeNode.isParent; //只允许空组可以删除
+      }
+
+      function getTime() {
+         var now= new Date(),
+         h=now.getHours(),
+         m=now.getMinutes(),
+         s=now.getSeconds(),
+         ms=now.getMilliseconds();
+         return (h+":"+m+":"+s+ " " +ms);
+      }
+
+
+      var newCount = 1;
+      function addHoverDom(treeId, treeNode) {
+         var sObj = $("#" + treeNode.tId + "_span");
+         if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0 || !treeNode.isParent) return;
+
+         var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+            + "' title='add node' onfocus='this.blur();'></span>";
+         sObj.after(addStr);
+         var btn = $("#addBtn_"+treeNode.tId);
+         if (btn) btn.bind("click", function(){
+            var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+            var new_name = "new node" + (newCount++);
+
+            $.ajax ({
+               url: "{% url 'project_add' %}",
+               type: "POST",
+               dataType: 'json',
+               data: {'project_name': new_name,'parent': treeNode.id,'csrfmiddlewaretoken':token},
+               success: function (data) {
+                  if (data.result == 'SUCCESS') {
+                     location.reload();
+                  } else {
+                     layer.msg("组名已存在！")
+                  }
+               }
+            });
+            // zTree.addNodes(treeNode, {id:(100 + newCount), pid:treeNode.id, name: new_name});
+
+            return false;
+         });
+      };
+
+      function removeHoverDom(treeId, treeNode) {
+         $("#addBtn_"+treeNode.tId).unbind().remove();
+      };
+
+      //拖拽
+      function dropPrev(treeId, nodes, targetNode) {
+         var pNode = targetNode.getParentNode();
+         if (pNode && pNode.dropInner === 'false') {
+            return false;
+         } else {
+            for (var i=0,l=curDragNodes.length; i<l; i++) {
+               var curPNode = curDragNodes[i].getParentNode();
+               if (curPNode && curPNode !== targetNode.getParentNode() && curPNode.childOuter === false) {
+                  return false;
+               }
+            }
+         }
+         return true;
+      }
+      
+      function dropInner(treeId, nodes, targetNode) {
+         //判断是否可以成为目标节点的子节点
+         if (targetNode && targetNode.dropInner === 'false') {
+            return false;
+         } else {
+            
+            for (var i=0,l=curDragNodes.length; i<l; i++) {
+               if (!targetNode && curDragNodes[i].dropRoot === false) {
+                  return false;
+               } else if (curDragNodes[i].parentTId && curDragNodes[i].getParentNode() !== targetNode && curDragNodes[i].getParentNode().childOuter === false) {
+                  return false;
+               }
+            }
+         }
+         return true;
+      }
+      function dropNext(treeId, nodes, targetNode) {
+         var pNode = targetNode.getParentNode();
+         if (pNode && pNode.dropInner === 'false') {
+            return false;
+         } else {
+            for (var i=0,l=curDragNodes.length; i<l; i++) {
+               var curPNode = curDragNodes[i].getParentNode();
+               if (curPNode && curPNode !== targetNode.getParentNode() && curPNode.childOuter === false) {
+                  return false;
+               }
+            }
+         }
+         return true;
+      }
+
+      var log, className = "dark", curDragNodes, autoExpandNode;
+      function beforeDrag(treeId, treeNodes) {
+         className = (className === "dark" ? "":"dark");
+
+         for (var i=0,l=treeNodes.length; i<l; i++) {
+            if (treeNodes[i].drag === false) {
+               curDragNodes = null;
+               return false;
+            } else if (treeNodes[i].parentTId && treeNodes[i].getParentNode().childDrag === false) {
+               curDragNodes = null;
+               return false;
+            }
+         }
+         curDragNodes = treeNodes;
+         return true;
+      }
+
+      function beforeDragOpen(treeId, treeNode) {
+         return true;
+      }
+
+      function beforeDrop(treeId, treeNodes, targetNode, moveType, isCopy) {
+         return true;
+      }
+
+
+      function onDrop(event, treeId, treeNodes, targetNode, moveType, isCopy) {
+         className = (className === "dark" ? "":"dark");
+         //拖拽就是给节点换一个父节点
+         //如果moveType是inner，直接获取target的pid
+         //如果moveType是prev or next,先判断是否同级，是无动作，否获取targetNode的pid
+         //区分group移动和server移动
+         // var pNode = targetNode.getParentNode();
+         // layer.msg(moveType)
+         for (var i=0,l=treeNodes.length; i<l; i++) {
+            var curPNode = treeNodes[i].getParentNode();
+
+            var uuid = treeNodes[i].id;
+            var isproject = treeNodes[i].isproject;
+            if (curPNode) {
+               layer.msg("拖拽到节点："+curPNode.name);
+               $.ajax({
+                  url: "{% url 'project_reparent' %}",
+                  type: "POST",
+                  dataType: 'json',
+                  data:{
+                     'uuid': uuid,
+                     "pid": curPNode.id,
+                     "isproject": isproject,
+                     'csrfmiddlewaretoken':token
+                  }
+               })
+            };
+         }
+      }
+
+
+   $.ajax ({
+      url: "{% url 'group_tree' %}",
+      type: "GET",
+      dataType: 'json',
+      success: function(res) {
+         var zNodes = res.data;
+         zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+      },
+
+   });
+})
+</script>
+
+
+
+{% endblock %}

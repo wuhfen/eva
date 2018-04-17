@@ -24,7 +24,7 @@
 {% block content %}
 <div class="row">
 
-<div class="col-lg-4">
+<div class="col-lg-5">
     <div class="box box-info">
         <div class="box-header with-border">
             <h4 class="text-info"><strong>虚拟机基本信息 </strong></h4>
@@ -43,10 +43,7 @@
                     <th class="text-info">主机名</th>
                     <td>{{ server.name }}</td>
                 </tr>
-                <tr>
-                    <th class="text-info">ansible_节点名</th>
-                    <td>{{ server.ansible_name }}</td>
-                </tr>
+
                 <tr>
                     <th class="text-info">曾用IP</th>
                     <td>{{ server.old_ip }}</td>
@@ -63,10 +60,7 @@
                     <th class="text-info">SSH-PORT</th>
                     <td>{{ server.ssh_port }}</td>
                 </tr>
-                <tr>
-                    <th class="text-info">CPU颗数</th>
-                    <td>{{ server.asset.cpu.cpu_count }}</td>
-                </tr>
+
                 <tr>
                     <th class="text-info">内存(GB)</th>
                     <td>{{ server.RAM_total }}</td>
@@ -75,21 +69,10 @@
                     <th class="text-info">硬盘(GB)</th>
                     <td>{{ server.Disk_total }}</td>
                 </tr>
+
                 <tr>
-                    <th class="text-info">冗余级别</th>
-                    <td>{{ server.Raid_level }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">系统状态</th>
-                    {% if server.system_status == 0 %}
-                        <td>未安装</td>
-                    {% else %}
-                        <td>已安装</td>
-                    {% endif %}
-                </tr>
-                <tr>
-                    <th class="text-info">系统详情</th>
-                    <td>{{ server.os_type }}|{{ server.os_version }}|{{ server.os_release }}|{{ server.os_kernel }}</td>
+                    <th class="text-info">系统</th>
+                    <td>{{ server.os_type }}</td>
                 </tr>
                 <tr>
                     <th class="text-info">所属项目</th>
@@ -117,14 +100,7 @@
                         {% endif %}
                     </td>
                 </tr>
-                <tr>
-                    <th class="text-info">品牌型号</th>
-                    <td>{{ server.env }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">资产编号</th>
-                    <td>{{ asset.asset_number }}</td>
-                </tr>
+
                 <tr>
                     <th class="text-info">用途</th>
                     <td>{{ asset.purpose }}</td>
@@ -139,34 +115,14 @@
                         <td>闲置</td>
                     {% endif %}
                 </tr>
-                <tr>
-                    <th class="text-info">供应商</th>
-                    <td>{{ asset.manufactory }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">购买日期</th>
-                    <td>{{ asset.trade_date }}</td>
-                </tr>
+
+
                 <tr>
                     <th class="text-info">保修期</th>
                     <td>{{ asset.expire_date }}</td>
                 </tr>
-                <tr>
-                    <th class="text-info">价格</th>
-                    <td>{{ asset.price }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">续保次数</th>
-                    <td>{{ asset.price_total }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">资产申请人</th>
-                    <td>{{ asset.applicant }}</td>
-                </tr>
-                <tr>
-                    <th class="text-info">资产管理员</th>
-                    <td>{{ asset.manager }}</td>
-                </tr>
+
+
                 <tr>
                     <th class="text-info">标签</th>
                     <td>
@@ -184,7 +140,7 @@
     </div>
 </div>
 
-<div class="col-lg-5">
+<div class="col-lg-4">
 
     <div class="box box-info">
         <div class="box-header with-border">
@@ -201,56 +157,18 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <th>网卡名</th>
-                    <th>用途</th>
                     <th>IP地址</th>
-                    <th>子网掩码</th>
-                    <th>MAC地址</th>
-                    <th>型号</th>
-                    <th>sn</th>
                 </thead>
                 <tbody>
                 {% for i in nic_data %}
                     <tr>
                         <td>{{ i.name }}</td>
-                        <td>{{ i.memo }}</td>
                         <td>{{ i.ipaddress }}</td>
-                        <td>{{ i.netmask }}</td>
-                        <td>{{ i.macaddress }}</td>
-                        <td>{{ i.model }}</td>
-                        <td>{{ i.sn }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
 
-        </div>
-    </div>
-
-
-    <div class="box box-info">
-        <div class="box-header with-border">
-            <h4 class="text-info"><strong>CPU信息 </strong></h4>
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
-            </div>
-        </div>
-
-        <div class="box-body">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <th>型号</th>
-                    <th>颗数</th>
-                    <th>核数</th>
-                </thead>
-                <tbody>
-                    <td>{{ cpu_data.cpu_model }}</td>
-                    <td>{{ cpu_data.cpu_count }}</td>
-                    <td>{{ cpu_data.cpu_core_count }}</td>
-                </tbody>
-            </table>
         </div>
     </div>
 

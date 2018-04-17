@@ -1,0 +1,83 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% load unique_auditor %}
+{% block title %} 发布新站|ADD NEW WEBSITE {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>我申请的任务</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">我的申请</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+    <div class="box-body">
+        <table id="example1" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>创建时间</th>
+                    <th>名称</th>
+                    <th>审核人</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for v in fabu_tasks %}
+                <tr class="info">
+                    <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ v.name }}</td>
+                    <td>
+                    {% for i in v.reqt.all|auditor_uniq %}
+                        {% if i.isaudit %}
+                            <span class="bg-green">{{ i.auditor }}</span>
+                        {% else %}
+                            <span class="bg-orange">{{ i.auditor }}</span>
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                    <td>{{ v.status }}</td>
+                    <td><a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+  $(function () {
+    $("#example1").DataTable(
+        {"order":[[0,'desc']]}
+    );
+  });
+
+
+    $(".cancel").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定作废吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+</script>
+{% endblock %}

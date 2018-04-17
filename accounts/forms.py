@@ -103,5 +103,5 @@ class department_auth_addForm(forms.ModelForm):
         fields = ["show_a_group","add_a_group","edit_a_group","delete_a_group","select_host","update_host","add_host","delete_host","show_pro","add_pro",
         "money_fabu" ,"money_gengxin" ,"manniu_fabu","manniu_gengxin","auth_project","auditor_manage","one_key","add_user","edit_user","edit_pass","delete_user",
         "show_department","add_department","edit_department","delete_department","show_white","edit_white","show_domain","department_name",
-        "edit_domain","add_domain","delete_domain","show_nginx","edit_nginx","add_nginx","delete_nginx","show_dns","show_wiki","add_wiki","test_fun"
+        "edit_domain","add_domain","delete_domain","show_nginx","edit_nginx","add_nginx","delete_nginx","show_dns","show_wiki","add_wiki","test_fun","observer"
         ]

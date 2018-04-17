@@ -31,6 +31,7 @@ def user_login(request):
         if form.is_valid():
             username = request.POST.get('username', '')
             password = request.POST.get('password', '')
+            print "username:%s password:%s"% (username,password)
             user = authenticate(username=username, password=password)
             if user is not None and user.is_active: 
                 login(request, user)
@@ -43,6 +44,7 @@ def user_login(request):
                 return HttpResponseRedirect('/index/')
             else:
                 login_errors.append("用户或密码错误，请联系管理员！")
+
                 return render(request,'accounts/login_new.html',locals())
         else:
             return render(request,'accounts/login_new.html',locals())

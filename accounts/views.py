@@ -48,14 +48,13 @@ def register(request):
                 #
 
                 #send_mail(mail_title, mail_msg, u'运维自动化<devops@ds.com>', [new_user.email], fail_silently=False)
-
             return HttpResponseRedirect("/accounts/user_list/")
         else:
             data = UserCreateForm()
-
             return render(request,'accounts/register.html', locals())
     else:
         data = UserCreateForm()
+
     return render(request,'accounts/register.html', locals())
 
 @permission_required('accounts.add_customuser', login_url='/auth_error/')

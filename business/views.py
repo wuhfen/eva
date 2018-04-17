@@ -23,29 +23,39 @@ from .tasks import monitor_code
 
 
 ##业务增删查改
-@permission_required('business.add_business', login_url='/auth_error/')
+
 def business_list(request):
     business_data = Business.objects.all()
     return render(request,'business/business_list.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
+
 def business_delete(request,uuid):
     business_data = Business.objects.get(pk=uuid)
     business_data.delete()
     return render(request,'business/business_list.html',locals())
 
 
-@permission_required('business.add_business', login_url='/auth_error/')
+
 def business_add(request):
     bf = BusinessForm()
     if request.method == 'POST':
         bf = BusinessForm(request.POST)
         if bf.is_valid():
             bf_data = bf.save()
+            siteid = bf_data.nic_name
+
+            #需要创建测试环境和灰度环境的域名
+            test_f = DomainName(name=siteid+".test.s1118.com",use=0,business=bf_data,classify="test",state=0,supplier="工程")
+            test_f.save()
+            huidu_f = DomainName(name=siteid+".s1119.com",use=0,business=bf_data,classify="huidu",state=0,supplier="运维")
+            huidu_a = DomainName(name="ag"+siteid+".s1119.com",use=1,business=bf_data,classify="huidu",state=0,supplier="运维")
+            huidu_a.save()
+            huidu_f.save()
+
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/business_add.html',locals())
 
-@permission_required('business.add_business', login_url='/auth_error/')
+
 def business_edit(request,uuid):
     business = get_object_or_404(Business, uuid=uuid)
     status = business.status
@@ -64,7 +74,7 @@ def business_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/business_edit.html',locals())
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
+
 def business_detail(request,uuid):
     business_data = get_object_or_404(Business, uuid=uuid)
     front_ip = business_data.front_station
@@ -181,7 +191,6 @@ def get_domain_status(request):
     #     if res_obj.alert == True:
     #         status = "red"
     #     else:
-
     #         status = "green"
     #     info = res_obj.info
     #     print info,"red-green"
@@ -229,6 +238,7 @@ def domain_add_select(request,siteid):
         use = request.POST.get('selectdomainuse')
         supplier = request.POST.get('selectdomainmanage')
         domainname = request.POST.get('description')
+        classify = request.POST.get('selectclassify')
         if not use:
             errors.append("你没有选择域名用途！")
         if not supplier:
@@ -256,12 +266,12 @@ def domain_add_select(request,siteid):
         # else:
         #     pool = Domain_ip_pool.objects.get(name="CDN（抗攻击）")
         for i in domainname.split('\r\n'):
-            save_data = DomainName(name=i.strip(),use=use,business=business,state='1',classify="online",supplier=supplier,monitor_status=False)
+            save_data = DomainName(name=i.strip(),use=use,business=business,state='0',classify=classify,supplier=supplier,monitor_status=False)
             save_data.save()
     return render(request,'business/domain_add_select.html',locals())
 
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
+
 def domain_edit(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     df = DomainNameForm(instance=domainname)
@@ -272,7 +282,7 @@ def domain_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/domain_edit.html',locals())
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
+
 def domain_delete(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     domainname.delete()
@@ -350,10 +360,13 @@ def domain_upload(request):
             if pps:
                 continue  #跳过有错误的行
             else:
+                print type(i[u"siteid"])
                 if isinstance(i[u"siteid"],(float,int)):
                     nic_name = int(i[u"siteid"])
                 else:
                     nic_name = str(i[u"siteid"])
+                print nic_name
+
                 try:
                     data = Business.objects.get(nic_name=nic_name)
                 except:
@@ -373,7 +386,7 @@ def domain_upload(request):
     return render(request,'business/domain_import.html',locals())
 
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
+
 def domain_detail(request,uuid):
     domain_data = get_object_or_404(DomainName, uuid=uuid)
     name = domain_data.name
@@ -394,7 +407,7 @@ def domain_detail(request,uuid):
     return render(request,'business/domain_detail.html',locals())
 
 
-@permission_required('business.add_domainname', login_url='/auth_error/')
+
 def domain_add_batch(request):
     """批量添加域名"""
     if request.method == 'POST':
@@ -426,7 +439,7 @@ def domain_add_batch(request):
     return render(request,'business/domain_add_batch.html',locals())
 
 def domain_manage_business_list(request):
-    data = Business.objects.all()
+    data = Business.objects.filter(status=0)
     return render(request,'business/domain_manage_business_list.html',locals())
 
 

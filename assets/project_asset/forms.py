@@ -11,14 +11,7 @@ class LineForm(ModelForm):
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        fields = ["project_name",
-                  "aliases_name",
-                  "project_contact",
-                  "description",
-                  "line",
-                  "sort",
-                  "project_user_group",
-                  ]
+        fields = ["project_name","parent","sort"]
 
 class ServiceForm(ModelForm):
     class Meta:

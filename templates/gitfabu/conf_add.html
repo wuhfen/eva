@@ -43,37 +43,20 @@
                 </select>
             </div>
             {% if conf_domain %}
-                {% if platform == "现金网" %}
                 <div id="demo" hidden="hidden">
                     <div class="col-md-4">
                         <h4>前端域名</h4>
-                        <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
+                        <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="10" >{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
                     </div>
                     <div class="col-md-4">
                         <h4>ag域名</h4>
-                        <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
+                        <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="10" >{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
                     </div>
                     <div class="col-md-4">
                         <h4>后台域名</h4>
-                        <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
+                        <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="10" >{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
                     </div>
                 </div>
-                {% elif platform == "蛮牛" %}
-                <div id="demo" hidden="hidden">
-                    <div class="col-md-4">
-                        <h4>蛮牛前端域名</h4>
-                        <textarea class="form-control yuming" id="front-domain" name="front" readonly="readonly" rows="{{ webnum }}" placeholder="点击添加">{% if webtext %}{{ webtext }}{% else %}{% endif %}</textarea>
-                    </div>
-                    <div class="col-md-4">
-                        <h4>蛮牛代理域名</h4>
-                        <textarea class="form-control yuming" id="ag-domain" name="ag" readonly="readonly" rows="{{ agnum }}" placeholder="点击添加">{% if agtext %}{{ agtext }}{% else %}{% endif %}</textarea>
-                    </div>
-                    <div class="col-md-4">
-                        <h4>蛮牛后台域名</h4>
-                        <textarea class="form-control yuming" id="backend-domain" name="backend" readonly="readonly" rows="{{ ds168num }}" placeholder="点击添加">{% if ds168text %}{{ ds168text }}{% else %}{% endif %}</textarea>
-                    </div>
-                </div>
-                {% endif %}
             {% endif %}
         {% endif %}
         </div>
@@ -111,27 +94,27 @@ $('#id_business').change(function(){
     var pp = $(this).children('option:selected').val();
     var env = "{{ envir }}";
     var platform = "{{ platform }}";
-    if (env == "huidu") { 
-        if (platform == "现金网") {
-            $('#front-domain').text(pp+".s1119.com");
-            $('#ag-domain').text("ag"+pp+".s1119.com");
-        } else if (platform == "蛮牛") {
-            $('#front-domain').text(pp+".kg-44.com");
-            $('#ag-domain').text("ag"+pp+".kg-44.com");
+
+    $.ajax({
+        url: "{% url 'deploy_domains' %}",
+        type: "GET",
+        dataType: "json",
+        data: {'siteid':pp,'classify':env,'platform':platform},
+        success: function (data) {
+            $('#front-domain').text(data.webtext);
+            $('#ag-domain').text(data.agtext);
+            $('#backend-domain').text(data.ds168text);
         }
-    } else if ( env == "test" ) {
-        $('#front-domain').text(pp+".test.s1118.com");
-        $('#ag-domain').text("测试环境忽略此项");
-        $('#backend-domain').text("测试环境忽略此项");
-    };
+    });
+
     $('#demo').show();
     })
     })
 </script> 
 <script type="text/javascript">
-  $(".yuming").on('click',function() {
-    $(this).removeAttr('readonly');
-    $(this).empty();
-  })
+  // $(".yuming").on('click',function() {
+    // $(this).removeAttr('readonly');
+    // $(this).empty();
+  // })
 </script>
 {% endblock %}

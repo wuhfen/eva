@@ -42,10 +42,6 @@
                                 <!-- <th>服务器名</th> -->
                                 <td>{{ sf.name|bootstrap_horizontal }}</td>
                             </tr>
-                            <tr>
-                                <!-- <th>服务器名</th> -->
-                                <td>{{ sf.ansible_name|bootstrap_horizontal }}</td>
-                            </tr>
                              <tr>
                                 <td>{{ af.asset_type|bootstrap_horizontal }}</td>
                             </tr>
@@ -66,10 +62,6 @@
                                 <td>{{ sf.ssh_password|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
-                                <!-- <th>资产编号</th> -->
-                                <td>{{ af.asset_number|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
                                 <!-- <th>曾用IP</th> -->
                                 <td>{{ sf.old_ip|bootstrap_horizontal }}</td>
                             </tr>
@@ -82,10 +74,6 @@
                                 <td>{{ af.status|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
-                                <!-- <th>冗余级别</th> -->
-                                <td>{{ sf.Raid_level|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
                                 <!-- <th>硬盘总容量(GB)</th> -->
                                 <td>{{ sf.Disk_total|bootstrap_horizontal }}</td>
                             </tr>
@@ -94,28 +82,8 @@
                                 <td>{{ sf.RAM_total|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
-                                <!-- <th>设备供应商</th> -->
-                                <td>{{ af.manufactory|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                               <!--  <th>购买日期</th> -->
-                                <td>{{ af.trade_date|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
                                 <!-- <th>保修期</th> -->
                                 <td>{{ af.expire_date|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>价格</th> -->
-                                <td>{{ af.price|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>续费次数</th> -->
-                                <td>{{ af.price_total|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>资产管理员</th> -->
-                                <td>{{ af.manager|bootstrap_horizontal }}</td>
                             </tr>
                             <tr>
                                 <!-- <th>备注</th> -->
@@ -149,12 +117,8 @@
                             <table id="table-style" class="table table-hover table-striped table-bordered">
                                 <thead align="center"> 
                                     <tr>
-                                        <th >网卡名</th>  
-                                        <th >用途</th>  
-                                        <th >IP</th>  
-                                        <th >子网掩码</th>
-                                        <th >MAC</th>
-                                        <th >网卡型号</th>
+                                        <th >网卡名</th>
+                                        <th >IP</th>
                                         <th >操作</th>
                                     </tr>
                                 </thead>
@@ -163,11 +127,7 @@
                                     {% for i in nic %}
                                         <tr>
                                             <td>{{ i.name }}</td>
-                                            <td>{{ i.memo }}</td>
                                             <td>{{ i.ipaddress }}</td>
-                                            <td>{{ i.netmask }}</td>
-                                            <td>{{ i.macaddress }}</td>
-                                            <td>{{ i.model }}</td>
                                             <td >
                                                 <a id="delete-nic" type="button" class="btn btn-danger btn-xs nic-delete" href="{% url 'nic_delete' i.uuid %}">删除</a>
                                                 <a id="edit-nic" type="button" class="btn btn-primary btn-xs add-information" href="{% url 'nic_edit' i.uuid %}">修改</a>
@@ -181,82 +141,6 @@
 
                 </div>
 
-            </div>
-
-
-<!--CPU修改-->
-            <div class="form-group">
-                <div class="box box-info">
-                    <div class="box-header with-border"><h4>CPU信息</h4>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                                <i class="fa fa-minus"></i></button>
-                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                                <i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="box-body">
-                        <table id="table-style" class="table table-hover table-striped table-bordered">
-                            <tr>
-                                <th>CPU型号</th>
-                                <th>CPU颗数</th>
-                                <th>CPU核数</th>
-                                <th>备注</th>
-                            </tr>
-                            <tr>
-                                <td>{{ cf.cpu_model }}</td>
-                                <td>{{ cf.cpu_count }}</td>
-                                <td>{{ cf.cpu_core_count }}</td>
-                                <td>{{ cf.memo }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-<!--下面是系统信息-->
-            <div class="form-group">
-                <div class="box box-info">
-                    <div class="box-header with-border"> 添加系统信息 
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                                <i class="fa fa-minus"></i></button>
-                            <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                                <i class="fa fa-times"></i></button>
-                        </div>
-                    </div>
-                    <div class="box-body">
-
-                        <table data-toggle="table" id="table-cpu" data-row-style="rowStyle" class="table table-hover table-bordered">
-                            <tr>
-                                <!-- <th>系统状态</th> -->
-                                <td>{{ sf.system_status|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>系统类型</th> -->
-                                <td>{{ sf.os_type|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>系统版本</th> -->
-                                <td>{{ sf.os_version|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>系统版本号</th> -->
-                                <td>{{ sf.os_release|bootstrap_horizontal }}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>系统内核</th> -->
-                                <td>{{ sf.os_kernel |bootstrap_horizontal}}</td>
-                            </tr>
-                            <tr>
-                                <!-- <th>虚拟机环境</th> -->
-                                <td>{{ sf.env|bootstrap_horizontal }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
             </div>
 
 
@@ -380,37 +264,12 @@
                 check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
             },
         fields: {
-            // "name": {
-            //     rule: "required;check_node",
-            //     tip: "输入主机名",
-            //     ok: "",
-            //     msg: {required: "必须填写!"},
-            //     data: {'data-ok':"主机名可以使用", 'data-msg-required': '正确'}
-            // },
             "ssh_host":{
                 rule: "required;check_ip",
                 tip: "输入ip地址",
                 ok:"",
                 msg:{required: "必须填写!"}
-            },
-            "manager":{
-                rule: "required;",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-            // "asset_number":{
-            //     rule: "required;",
-            //     tip: "",
-            //     ok:"",
-            //     msg:{required: "必须填写!"}
-            // },
-            "system":{
-                rule: "required;",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
+            }
         },
         valid: function(form) {
             form.submit();
@@ -429,7 +288,7 @@
          // layer.msg('Hello layer');
             layer.open({
                 type: 2,
-                title: '修改服务器信息',
+                title: '修改NIC信息',
                 maxmin: true,
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层

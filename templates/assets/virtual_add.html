@@ -24,7 +24,7 @@
 
 <form class="form-horizontal" action="" id="virtual_add"  method="post" name="horizontal" role="form" autocomplete="off">
 {% csrf_token %}
-<div class="col-md-6 col-lg-5">
+<div class="col-md-6 col-lg-7">
     <div class="box box-info">
         <div class="box-header with-border">
             <div class="form-group">
@@ -63,13 +63,13 @@
                     <!-- <th>ssh password</th> -->
                     <td>{{ sf.ssh_password|bootstrap_horizontal }}</td>
                 </tr>
-                <tr hidden="hidden">
-                    <!-- <th>资产编号</th> -->
-                    <td>{{ sf.old_ip|bootstrap_horizontal }}</td>
+                <tr>
+                    <!-- <th>ssh password</th> -->
+                    <td>{{ sf.os_type|bootstrap_horizontal }}</td>
                 </tr>
                 <tr hidden="hidden">
-                    <!-- <th>资产编号</th> -->
-                    <td>{{ af.asset_number|bootstrap_horizontal }}</td>
+                    <!-- <th>曾用ip</th> -->
+                    <td>{{ sf.old_ip|bootstrap_horizontal }}</td>
                 </tr>
                 <tr>
                     <!-- <th>用途</th> -->
@@ -78,10 +78,6 @@
                 <tr hidden="hidden">
                     <!-- <th>使用情况</th> -->
                     <td>{{ af.status|bootstrap_horizontal }}</td>
-                </tr>
-                <tr hidden="hidden">
-                    <!-- <th>冗余级别</th> -->
-                    <td>{{ sf.Raid_level|bootstrap_horizontal }}</td>
                 </tr>
                 <tr hidden="hidden">
                     <!-- <th>硬盘总容量(GB)</th> -->
@@ -95,30 +91,11 @@
                     <!-- <th>虚拟主机父主机</th> -->
                     <td>{{ sf.parent |bootstrap_horizontal}}</td>
                 </tr>
-                <tr hidden="hidden">
-                    <!-- <th>设备供应商</th> -->
-                    <td>{{ af.manufactory|bootstrap_horizontal }}</td>
-                </tr>
-                <tr hidden="hidden">
-                   <!--  <th>购买日期</th> -->
-                    <td>{{ af.trade_date|bootstrap_horizontal }}</td>
-                </tr>
-                <tr hidden="hidden">
+                <tr>
                     <!-- <th>保修期</th> -->
                     <td>{{ af.expire_date|bootstrap_horizontal }}</td>
                 </tr>
-                <tr hidden="hidden">
-                    <!-- <th>价格</th> -->
-                    <td>{{ af.price|bootstrap_horizontal }}</td>
-                </tr>
-                <tr hidden="hidden">
-                    <!-- <th>保修期</th> -->
-                    <td>{{ af.price_total|bootstrap_horizontal }}</td>
-                </tr>
-                <tr hidden="hidden">
-                    <!-- <th>资产管理员</th> -->
-                    <td>{{ af.manager|bootstrap_horizontal }}</td>
-                </tr>
+
                 <tr>
                     <!-- <th>备注</th> -->
                     <td>{{ af.remarks |bootstrap_horizontal}}</td>
@@ -130,16 +107,12 @@
     </div>
 </div>
 
-<div class="col-md-6 col-lg-7">
+<div class="col-md-6 col-lg-5">
 <!--网卡信息-->
     <div class="box box-info">
         <div class="box-header with-border"> 添加网卡信息 
 
             <div class="columns btn-group pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
                 <button type="button" class="btn btn-box-tool" data-widget="add" data-toggle="tooltip" title="add" onclick="addTable();">
                     <i class="fa fa-plus-square"></i></button>
             </div>
@@ -150,11 +123,8 @@
             <div class="form-group">
             <table data-toggle="table" data-row-style="rowStyle" class="table table-hover table-bordered" id="myTable">
               <tr align="center"> 
-                  <th >网卡名</th>  
-                  <th >用途</th>  
-                  <th >MAC</th>
-                  <th >IP</th>  
-                  <th >子网掩码</th>
+                  <th >网卡名</th>
+                  <th >IP</th>
                   <th >操作</th>
               </tr>
             </table>
@@ -163,85 +133,12 @@
         </div>
     </div>
 
-<!--下面是系统信息-->
-    <div class="box box-info" hidden="hidden">
-        <div class="box-header with-border"> 添加系统信息 
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
-            </div>
-        </div>
-        <div class="box-body">
-            <div class="form-group">
-            <table data-toggle="table" id="table-cpu" data-row-style="rowStyle" class="table table-hover table-bordered">
-                <tr>
-                    <!-- <th>系统状态</th> -->
-                    <td>{{ sf.system_status|bootstrap_horizontal }}</td>
-                </tr>
-                <tr>
-                    <!-- <th>系统类型</th> -->
-                    <td>{{ sf.os_type|bootstrap_horizontal }}</td>
-                </tr>
-                <tr>
-                    <!-- <th>系统版本</th> -->
-                    <td>{{ sf.os_version|bootstrap_horizontal }}</td>
-                </tr>
-                <tr>
-                    <!-- <th>系统版本号</th> -->
-                    <td>{{ sf.os_release|bootstrap_horizontal }}</td>
-                </tr>
-                <tr>
-                    <!-- <th>系统内核</th> -->
-                    <td>{{ sf.os_kernel |bootstrap_horizontal}}</td>
-                </tr>
-                <tr>
-                    <!-- <th>虚拟机环境</th> -->
-                    <td>{{ sf.env|bootstrap_horizontal }}</td>
-                </tr>
-            </table>
-            </div>
-        </div>
-    </div>
 
-<!--下面是cpu信息-->
-    <div class="box box-info" hidden="hidden">
-        <div class="box-header with-border"> 添加CPU信息 
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fa fa-minus"></i></button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fa fa-times"></i></button>
-            </div>
-        </div>
-        <div class="box-body">
-            <div class="form-group">
-            <table data-toggle="table" id="table-cpu" data-row-style="rowStyle" class="table table-hover table-bordered">
-            <tr>
-                <th>CPU型号</th>
-                <th>物理cpu个数</th>
-                <th>cpu核数</th>
-                <th>备注</th>
-                
-            </tr>
-            <tr>
-                <td>{{ cf.cpu_model }}</td>
-                <td>{{ cf.cpu_count }}</td>
-                <td>{{ cf.cpu_core_count }}</td>
-                <td>{{ cf.memo}}</td>
-            </tr>
-            </table>
-            </div>
-        </div>
-    </div>
 
 
 <!--所属项目-->
-    <div class="row" hidden="hidden">
-        <div class="col-lg-6 col-md-6">
             <div class="box box-info">
-                <div class="box-header with-border"> 服务器所属项目 
+                <div class="box-header with-border"> 服务器所属项目组 
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
                             <i class="fa fa-minus"></i></button>
@@ -273,11 +170,9 @@
                     </div>
                 </div>
             </div>
-        </div>
 
 <!--运行服务-->
-        <div class="col-lg-6 col-md-6">
-            <div class="box box-info">
+            <div class="box box-info" hidden="hidden">
                 <div class="box-header with-border"> 服务器运行程序 
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
@@ -310,14 +205,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-    </div>
-<!--所属机房-->
-<!--     <div class="box box-info">
-
-    </div> -->
-
 </div>
 
 </form>
@@ -340,27 +227,9 @@
                 check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
             },
         fields: {
-             "nic_name0":{
-                rule: "required;check_node",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-             "nic_macaddress0":{
-                rule: "required;check_mac",
-                tip: "",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
-            "nic_ipaddress0":{
-                rule: "required;check_ip",
-                tip: "输入ip地址",
-                ok:"",
-                msg:{required: "必须填写!"}
-            },
             "purpose":{
                 rule: "required;",
-                tip: "输入ip地址",
+                tip: "输入用途",
                 ok:"",
                 msg:{required: "必须填写!"}
             },
@@ -370,9 +239,9 @@
                 ok:"",
                 msg:{required: "必须填写!"}
             },
-             "system_status":{
+            "ssh_password":{
                 rule: "required;",
-                tip: "",
+                tip: "输入密码",
                 ok:"",
                 msg:{required: "必须填写!"}
             }
@@ -393,11 +262,8 @@ var numo = 0;
     function addTable(){
         var tableHtml ="";
         tableHtml += '<tr id="tr'+numo+'">'
-                 +'<td><input class="form-control" id="nic_name'+numo+'" type="text" placeholder="必填 eth0..." name="nic_name'+numo+'" /></td>'
-                 +'<td><input class="form-control" id="nic_memo'+numo+'" type="text" placeholder="内网 or 外网" name="nic_memo'+numo+'"/></td>'
-                 +'<td><input class="form-control" id="nic_macaddress'+numo+'" type="text" placeholder="必填" name="nic_macaddress'+numo+'"/></td>'
+                 +'<td><input class="form-control" id="nic_name'+numo+'" type="text" placeholder="必填 eth0..." value="eth'+numo+'" name="nic_name'+numo+'" /></td>'
                  +'<td><input class="form-control" id="nic_ipaddress'+numo+'" type="text" placeholder="必填 0.0.0.0" name="nic_ipaddress'+numo+'"/></td>'
-                 +'<td><input class="form-control" id="nic_netmask'+numo+'" type="text" name="nic_netmask'+numo+'"/></td>'
                  +'<td><a class="btn btn-primary" onclick="removeTr('+numo+')">移除</a>'
                  +'</td>'
                  +'</tr>';

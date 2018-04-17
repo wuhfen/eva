@@ -1,0 +1,86 @@
+{% extends "default/base.html" %}
+{% block title %}Group{% endblock %}
+
+{% block assistant-header %} Group|资产组 {% endblock %}
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading col-lg-6"><h4 class="text-primary"><label for="name">资产组</label></h4></div>
+        <div class="panel-heading col-lg-6"><h4 class="text-primary"><a href="{% url 'group_add' %}" id="group-add" class="btn btn-xs btn-primary">添加</a></h4></div>
+        <div class="panel-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <tr>
+                        <th>名称</th>
+                        <th>父组</th>
+                        <th>层级</th>
+
+                    </tr>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.father.name }}</td>
+                        <td>{{ v.tier }}</td>
+                        <td>
+                            <a href="{% url 'group_edit' v.uuid %}" class="btn btn-xs btn-primary line-edit">修改</a>
+                            <a href="{% url 'group_delete' v.uuid %}" class="btn btn-xs btn-primary line-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(".line-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改产品线',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                content: url
+            });
+         event.preventDefault();
+    });
+
+        $("#group-add").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '增加组',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , '300px'],
+                content: url
+            });
+         event.preventDefault();
+    });
+
+$(".line-delete").on("click",function(de){
+    var url= $(this).attr("href");
+    layer.alert("确定删除吗？",{
+        skin: 'layui-layer-molv',
+        closeBtn: 2,
+        shift: 4,
+    },function(index){
+        layer.close(index);
+        $.get(url).done(function(data) {
+            window.location.reload();
+        });
+    });
+    de.preventDefault();
+});
+</script>
+{% endblock %}

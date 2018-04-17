@@ -54,7 +54,7 @@ class CPUInline(admin.TabularInline):
 class NICInline(admin.TabularInline):
     model = models.NIC
     exclude = ('memo',)
-    readonly_fields = ['create_date']
+    readonly_fields = ['name']
 
 class RAMInline(admin.TabularInline):
     model = models.RAM
@@ -69,7 +69,7 @@ class DiskInline(admin.TabularInline):
 class AssetAdmin(admin.ModelAdmin):
 #    list_display = ('asset_type','purpose','sn','manufactory','management_address','trade_date','expire_date','price',
 #                    'price_total','admin','Services_Code','cabinet','server_cabinet_id','status')
-    list_display = ('asset_type','purpose','asset_number','manufactory','expire_date','trade_date','price','manager','status')
+    list_display = ('asset_type','purpose','expire_date','status')
     inlines = [ServerInline,CPUInline,NICInline,RAMInline,DiskInline]
 
 # 资产
@@ -88,7 +88,7 @@ class CPUadmin(admin.ModelAdmin):
 admin.site.register(models.CPU,CPUadmin)
 
 class NICadmin(admin.ModelAdmin):
-    list_display =('asset','name','memo','model','macaddress','ipaddress','mark')
+    list_display =('asset','name','ipaddress')
 #网卡
 admin.site.register(models.NIC,NICadmin)
 #raid

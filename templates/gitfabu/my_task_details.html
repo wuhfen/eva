@@ -7,6 +7,8 @@
 <style type="text/css">
 p {text-indent: 1cm}
 </style>
+<script src="/static/js/readmore.min.js"></script>
+
 {% endblock %}
 
 
@@ -43,17 +45,7 @@ p {text-indent: 1cm}
             <h3 class="timeline-header"><a href="#">创建申请</a></h3>
 
             <div class="timeline-body">
-                <h4>名称：</h4>
-                <p>{{ data.name }}</p>
-                <h4>内容：</h4>
-                <p>{{ data.memo }}</p>
-                <h4>申请人：</h4>
-                <p>{{ data.initiator.first_name }}</p>
-
-            </div>
-
-            <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">...</a>
+                <h4>{{ data.name }}<small>_____申请人：{{ data.initiator.first_name }}</small></h4>
             </div>
         </div>
     </li>
@@ -98,7 +90,7 @@ p {text-indent: 1cm}
 
             <h3 class="timeline-header"><a href="#">自动配置</a></h3>
             {% if fabu_details %}
-                <div class="timeline-body">
+                <div class="timeline-body" id="task_body_id">
                     <h4>公共仓库：</h4>
                     {% if gitpublic %}
                     {% for i in gitpublic %}
@@ -137,17 +129,9 @@ p {text-indent: 1cm}
                         {% endif %}
                     {% endfor %}
                     {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
-                    <h4>审核人员：</h4>
-                    {% if auditors %}
-                    {% for i in auditors %}
-                        {% for x in i.user.all %}
-                            <p>{{ x.first_name }}</p>
-                        {% endfor %}
-                    {% endfor %}
-                    {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
                 </div>
             {% else %}
-                <div class="timeline-body">
+                <div class="timeline-body" id="task_body_id">
                     <h4>代码仓库：</h4>
                     {% for i in gitprivate %}
                         <p>{{ i.address }}   分支：{% if classify == 'fabu' %}master{% else %}{{ i.branch }}{% endif %}</p>
@@ -164,20 +148,8 @@ p {text-indent: 1cm}
                     <p>代码部署后命令: {{ i.last_command }}</p>
                     {% endfor %}
                     {% else %}<p>没有配置{{ df.platform }}源站信息，请联系运维！</p>{% endif %}
-                    <h4>审核人员：</h4>
-                    {% if auditors %}
-                    {% for i in auditors %}
-                        {% for x in i.user.all %}
-                            <p>{{ x.first_name }}</p>
-                        {% endfor %}
-                    {% endfor %}
-                    {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
                 </div>
             {% endif %}
-
-            <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">...</a>
-            </div>
         </div>
         
     </li>
@@ -193,7 +165,7 @@ p {text-indent: 1cm}
 
             <h3 class="timeline-header"><a href="#">自动配置</a></h3>
 
-            <div class="timeline-body">
+            <div class="timeline-body" id="task_body_id">
                 <h4>更新方式：</h4>
                     <p>{{ name }}：{{ repo }}</p>
                 {% if deploy_data %}
@@ -218,18 +190,6 @@ p {text-indent: 1cm}
                     <p>详情：</p>
                     <!-- {% for i in version_details %}<p>{{ i }}</p>{% endfor %} -->
                     <p>{{ version_details }}</p>
-                <h4>审核人员：</h4>
-                {% if auditors %}
-                {% for i in auditors %}
-                    {% for x in i.user.all %}
-                        <p>{{ x.first_name }}</p>
-                    {% endfor %}
-                {% endfor %}
-                {% else %}<p>没有发布审核人员，请联系运维！</p>{% endif %}
-            </div>
-
-            <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">...</a>
             </div>
         </div>
         
@@ -238,32 +198,29 @@ p {text-indent: 1cm}
     {% endif %}
 
 <!--审核任务开始 -->
-    {% for k,v in res.items %}
-    <li class="time-label">
-        <span class="bg-green">
-            {{ v.date }}
-        </span>
-    </li>
     <li>
         <!-- timeline icon -->
-        <i class="fa fa-user bg-aqua"></i>
+        <i class="fa fa-users bg-aqua"></i>
+        
         <div class="timeline-item">
-            <span class="time"><i class="fa fa-clock-o"></i> {{ v.time }}</span>
             
-            <h3 class="timeline-header"><a href="#">{{ k }} {{ v.status }}</a></h3>
-
+            <h3 class="timeline-header"><a href="#">任务审核情况</a></h3>
             <div class="timeline-body">
-                {% for i in v.member %}
-                    <p>成员：{{ i.name }}，{% if i.isaudit %}{% if i.ispass %}已通过{% else %}未通过{% endif %}，批注：{{ i.postil }}{% else %}未审核{% endif %}</p>
-                {% endfor %}
-            </div>
-
-            <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">...</a>
+            {% for k,v in res.items %}
+                {% if v.status == "该组已通过" %}
+                <div class="btn btn-app bg-olive" id="demo_{{ k }}" onmouseover="mouseOver('{{ k }}')" onmouseout="mouseOut()"><h4 class="text-black">{{ k }}</h4><span class="badge bg-blue"><i class="fa fa-check"></i></span></div>
+                
+                {% elif v.status == "该组未通过" %}
+                <div class="btn btn-app bg-close" id="demo_{{ k }}" onmouseover="mouseOver('{{ k }}')" onmouseout="mouseOut()"><h4 class="text-black">{{ k }}</h4><span class="badge bg-blue"><i class="fa fa-times"></i></span></div>
+                {% else %}
+                <div class="btn btn-app bg-default" id="demo_{{ k }}" onmouseover="mouseOver('{{ k }}')" onmouseout="mouseOut()"><h4 class="text-black">{{ k }}</h4><span class="badge bg-blue"><i class="fa fa-pause"></i></span></div>
+                {% endif %}
+                <div id="text_{{ k }}" hidden="hidden">{% for i in v.member %}{{ i.name }}: {% if i.isaudit %}{% if i.ispass %}已通过{% else %}未通过{% endif %}{% else %}未审核{% endif %} 时间：{{ i.time }} @{% endfor %}</div>
+            {% endfor %}
             </div>
         </div>
+        
     </li>
-    {% endfor %}
 <!--审核任务结束-->
 
 
@@ -282,7 +239,7 @@ p {text-indent: 1cm}
 
             <h3 class="timeline-header"><a href="#">日志</a></h3>
 
-            <div class="timeline-body">
+            <div class="timeline-body" id="log_body_id">
                 {% for i in  dflog %}
                 <h4>记录时间：</h4>
                     <p>{{ i.create_time }}</p>
@@ -291,9 +248,6 @@ p {text-indent: 1cm}
                 {% endfor %}
             </div>
 
-            <div class="timeline-footer">
-                <a class="btn btn-primary btn-xs">END</a>
-            </div>
         </div>
     </li>
     {% endif %}
@@ -309,4 +263,31 @@ p {text-indent: 1cm}
 
 
 </div>
+<script type="text/javascript">
+    function mouseOver(id) {
+        var comment = $("#text_"+id).text();
+        var comment = comment.replace(/@/g,'<br>')
+
+        // alert(comment)
+
+        layer.tips(comment,"#demo_"+id,{tips: [1,'#78BA32'],time: 0,area: '250px'});
+    }
+    function mouseOut() {
+        layer.closeAll();
+    }
+</script>
+
+
+<script type="text/javascript">
+    $('#task_body_id').readmore({
+        moreLink: '<div class="timeline-footer"><a class="btn btn-primary btn-xs"><i class="fa fa-angle-double-down" aria-hidden="true"></i></a></div>',
+        lessLink: '<div class="timeline-footer"><a class="btn btn-primary btn-xs"><i class="fa fa-angle-double-up" aria-hidden="true"></i></a></div>'
+    })
+    $('#log_body_id').readmore({
+        moreLink: '<div class="timeline-footer"><a class="btn btn-primary btn-xs"><i class="fa fa-angle-double-down" aria-hidden="true"></i></a></div>',
+        lessLink: '<div class="timeline-footer"><a class="btn btn-primary btn-xs"><i class="fa fa-angle-double-up" aria-hidden="true"></i></a></div>'
+    })
+</script>
+
+
 {% endblock %}

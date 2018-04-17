@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from gitfabu.models import my_request_task,git_deploy_audit,git_task_audit
 from api.common_api import send_message
-
+from accounts.models import CustomUser
 
 u"""
 1、分发审核任务给组内成员
@@ -21,23 +21,20 @@ def task_distributing(task_id,audit_id):
 
 
 def check_group_audit(task_id,username,status,group_id,postil):
+    """只能检测一个组，如果一个用户属于多个组无效，需要改进"""
     mydata = my_request_task.objects.get(pk=task_id)
+    user = CustomUser.objects.get(username=username)
+    git_task_audit.objects.filter(request_task=mydata,auditor=user,isaudit=False).update(isaudit=True,ispass=status,postil=postil)
+    data = git_task_audit.objects.filter(request_task=mydata,audit_group_id=group_id,isaudit=False)
     if status:
-        text="通过"
-        postil = "用户: %s,审核：%s,批注：%s,标记该组状态为：%s"% (username,text,postil,text)
-        data = git_task_audit.objects.filter(request_task=mydata,audit_group_id=group_id,isaudit=False)
-        if data:
-            data.update(isaudit=True,ispass=status,postil=postil)
-        else:
-            print "未匹配到组%s的任务"% group_id
+        postil = "《组员%s通过了该任务，本人未操作》"% username
     else:
-        text="未通过"
-        postil = "用户: %s,审核：%s,批注：%s"% (username,text,postil)
-        data = mydata.reqt.all()
-        if data:
-            data.update(isaudit=True,ispass=status,postil=postil)
-        else:
-            print "未匹配到组%s的任务"% group_id
+        postil = "《组员%s否决了该任务，本人未操作》"% username
+    if data:
+        data.update(isaudit=True,ispass=status,postil=postil)
+    else:
+        print "未匹配到组%s的任务"% group_id
+    
 
 
 def onekey_access(task_id,username,status):

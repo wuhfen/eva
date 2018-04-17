@@ -40,10 +40,7 @@
                     <th>域名</th>
                     <th>用途</th>
                     <th>所属网站</th>
-                    <!-- <th>域名状态</th> -->
                     <th>环境</th>
-<!--                     <th>告警</th> -->
-                    <!-- <th>解析到</th> -->
                     <th>备注</th>
                     <th>管理者</th>
 
@@ -54,17 +51,13 @@
                 {% for v in domain_data %}
                     <tr>
                         <td id='id_name'>{{ v.name }}</td>
-                        <td>{% if v.use == '0' %}前端域名{% elif v.use == '1' %}ag后台域名{% elif v.use == '2' %}后台域名
-                        {% elif v.use == '3' %}彩票域名{% elif v.use == '4' %}导航网域名{% elif v.use == '5' %}其他域名{% endif %}</td>
-                        {% if v %}
+                        <td>
+                            {% if v.use == '0' %}前端域名{% elif v.use == '1' %}ag后台域名{% elif v.use == '2' %}后台域名
+                            {% elif v.use == '3' %}彩票域名{% elif v.use == '4' %}导航网域名{% elif v.use == '5' %}其他域名
+                            {% endif %}
+                        </td>
                         <td><a href="{% url 'business_detail' v.business.uuid %}" class="btn btn-xs btn-primary">{{ v.business.name }}</a></td>
-                        {% else %}
-                        <td></td>
-                        {% endif %}
-                        <!-- <td>{% if v.monitor_status == True %}已监控{% else %}未监控{% endif %}</td> -->
-                        <!-- <td id='id_status' name="{{ v.uuid }}"></td> -->
                         <td>{{ v.classify }}</td>
-                        <!-- <td>{{ v.address }}</td> -->
                         <td>{{ v.description }}</td>
                         <td>{{ v.supplier }}</td>
                         <td>
@@ -80,10 +73,6 @@
             </div>
         </form>
         <div class="box-footer">
-            
-            <!-- <a href="{% url 'domain_add_batch' %}" class="btn btn-xs btn-success project-delete">批量添加域名</a> -->
-            <!-- <a href="#" class="btn btn-xs btn-danger project-delete">批量删除域名</a> -->
-            
         </div>
     </div>
 </div>

@@ -5,20 +5,23 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 
-from assets.models import IDC, Service, Line, Project, sqlpasswd
+from assets.models import Service, Project, sqlpasswd
 from assets.models import Asset, Server, NIC, RaidAdaptor, Disk, CPU, RAM
 from forms import ServerForm, AssetForm, CPUForm, RAMForm, DiskForm, NICForm, RaidForm, SQLpassForm
 # Create your views here.
 from ansible_update_assert import asset_ansible_update
 import re
 import time, hmac, hashlib, json
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
+from api.paginator_api import JuncheePaginator
+
 
 def isValidIp(ip):  
-    if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True  
+    if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True
     return False  
       
 def isValidMac(mac):  
-    if re.match(r"^\s*([0-9a-fA-F]{2,2}:){5,5}[0-9a-fA-F]{2,2}\s*$", mac): return True  
+    if re.match(r"^\s*([0-9a-fA-F]{2,2}:){5,5}[0-9a-fA-F]{2,2}\s*$", mac): return True
     return False 
 
 ##还没有对网卡输入的IP与mac进行验证，上面定义两个函数，有时间在进行处理，最好使用前端js进行验证，不用后端处理
@@ -61,125 +64,36 @@ def access_server(request,uuid):
 def server_add(request):
     sf = ServerForm()
     af = AssetForm()
-    cf = CPUForm()
     projects = Project.objects.all()
     services = Service.objects.all()
     ff_error = []
     if request.method == 'POST':
         af = AssetForm(request.POST)
         sf = ServerForm(request.POST)
-        cf = CPUForm(request.POST)
         ip = request.POST.get('ssh_host', '')
         if Server.objects.filter(ssh_host=ip):
             ff_error.append(u'添加失败, 该IP %s 已存在!' % ip)
             return render(request,'assets/server_add.html', locals())
-        if all((af.is_valid(),sf.is_valid(),cf.is_valid())):
-            asset_data = af.save()
-            cpu_data = cf.save(commit=False)
-            cpu_data.asset = asset_data
-            cpu_data.save()
-            cf.save_m2m()
+        if all((af.is_valid(),sf.is_valid())):
+            asset_data = af.save(commit=False)
+            asset_data.asset_type = "serverhost"
+            asset_data.save()
             server_data = sf.save(commit=False)
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-##网卡
+            ##网卡
             nic_name0 = request.POST.get('nic_name0', '')
             if nic_name0:
                 for i in range(6):
                     nic_name = "nic_name" + str(i)
                     nic_name = request.POST.get(nic_name)
-
-                    nic_memo = "nic_memo" + str(i)
-                    nic_memo = request.POST.get(nic_memo)
-
-                    nic_macaddress = "nic_macaddress" + str(i)
-                    nic_macaddress = request.POST.get(nic_macaddress)
-
                     nic_ipaddress = "nic_ipaddress" + str(i)
                     nic_ipaddress = request.POST.get(nic_ipaddress)
-
-                    nic_netmask = "nic_netmask" + str(i)
-                    nic_netmask = request.POST.get(nic_netmask)
-
-                    nic_model = "nic_model" + str(i)
-                    nic_model = request.POST.get(nic_model)
-
-                    if nic_name and nic_macaddress:
-                        NIC.objects.create(asset = asset_data,name=nic_name,model=nic_model,macaddress=nic_macaddress,
-                        ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
-            return HttpResponseRedirect('/allow/welcome/')
-## 内存
-            ram_model0 = request.POST.get('ram_model0', '')
-            if ram_model0:
-                for i in range(16):
-                    ram_model = "ram_model" + str(i)
-                    ram_model = request.POST.get(ram_model)
-
-                    ram_slot = "ram_slot" + str(i)
-                    ram_slot = request.POST.get(ram_slot)
-
-                    ram_capacity = "ram_capacity" + str(i)
-                    ram_capacity = request.POST.get(ram_capacity)
-
-                    ram_sn = "ram_sn" + str(i)
-                    ram_sn = request.POST.get(ram_sn)
-
-                    ram_memo = "ram_memo" + str(i)
-                    ram_memo = request.POST.get(ram_memo)
-
-                    if ram_model and ram_capacity:
-                        RAM.objects.create(asset = asset_data,model=ram_model,slot=ram_slot,
-                        capacity=ram_capacity,sn=ram_sn,memo=ram_memo)
-##硬盘
-            disk_model0 = request.POST.get('disk_model0', '')
-            if disk_model0:
-                for i in range(12):
-                    disk_model = "disk_model" + str(i)
-                    disk_model = request.POST.get(disk_model)
-
-                    disk_manufactory = "disk_manufactory" + str(i)
-                    disk_manufactory = request.POST.get(disk_manufactory)
-
-                    disk_capacity = "disk_capacity" + str(i)
-                    disk_capacity = request.POST.get(disk_capacity)
-
-                    disk_iface_type = "disk_iface_type" + str(i)
-                    disk_iface_type = request.POST.get(disk_iface_type)
-
-                    disk_slot = "disk_slot" + str(i)
-                    disk_slot = request.POST.get(disk_slot)
-
-                    disk_sn = "disk_sn" + str(i)
-                    disk_sn = request.POST.get(disk_sn)
-
-                    disk_memo = "disk_memo" + str(i)
-                    disk_memo = request.POST.get(disk_memo)
-
-                    if disk_model and disk_capacity:
-                        Disk.objects.create(asset = asset_data,model=disk_model,manufactory=disk_manufactory,iface_type=disk_iface_type,slot=disk_slot,
-                        capacity=disk_capacity,sn=disk_sn,memo=disk_memo)
-##raid卡
-            raid_model0 = request.POST.get('raid_model0', '')
-            if raid_model0:
-                for i in range(2):
-                    raid_model = "raid_model" + str(i)
-                    raid_model = request.POST.get(raid_model)
-
-                    raid_slot = "raid_slot" + str(i)
-                    raid_slot = request.POST.get(raid_slot)
-
-                    raid_sn = "raid_sn" + str(i)
-                    raid_sn = request.POST.get(raid_sn)
-
-                    raid_memo = "raid_memo" + str(i)
-                    raid_memo = request.POST.get(raid_memo)
-
-                    if raid_model and raid_slot:
-                        RaidAdaptor.objects.create(asset = asset_data,model=raid_model,slot=raid_slot,
-                        sn=raid_sn,memo=raid_memo)
-
-            return HttpResponseRedirect('/allow/welcome/')
+                    if nic_name and nic_ipaddress:
+                        NIC.objects.create(asset = asset_data,name=nic_name,ipaddress=nic_ipaddress)
+            obj = server_data
+            return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
     return render(request,'assets/server_add.html', locals())
@@ -187,60 +101,41 @@ def server_add(request):
 @permission_required('assets.add_asset', login_url='/auth_error/')
 def server_list(request):
     servers = [i for i in Server.objects.all().order_by("-ssh_host") if i.asset.status=="on"]
-
     return render(request,'assets/server_list.html', locals())
 
 @permission_required('assets.add_asset', login_url='/auth_error/')
 def virtual_add(request):
     sf = ServerForm()
     af = AssetForm()
-    cf = CPUForm()
     projects = Project.objects.all()
     services = Service.objects.all()
     ff_error = []
     if request.method == 'POST':
         af = AssetForm(request.POST)
         sf = ServerForm(request.POST)
-        cf = CPUForm(request.POST)
         ip = request.POST.get('ssh_host', '')
         if Server.objects.filter(ssh_host=ip):
             ff_error.append(u'添加失败, 该IP %s 已存在!' % ip)
             return render(request,'assets/virtual_add.html', locals())
-        if all((af.is_valid(),sf.is_valid(),cf.is_valid())):
+        if all((af.is_valid(),sf.is_valid())):
             asset_data = af.save(commit=False)
             asset_data.asset_type = "virtual"
             asset_data.save()
-            cpu_data = cf.save(commit=False)
-            cpu_data.asset = asset_data
-            cpu_data.save()
-            cf.save_m2m()
             server_data = sf.save(commit=False)
             server_data.asset = asset_data
             server_data.save()
             sf.save_m2m()
-## 网卡信息
+            ## 网卡信息，好low啊，假装一台机器最多只有6个网卡
             nic_name0 = request.POST.get('nic_name0', '')
             if nic_name0:
                 for i in range(6):
                     nic_name = "nic_name" + str(i)
                     nic_name = request.POST.get(nic_name)
-
-                    nic_memo = "nic_memo" + str(i)
-                    nic_memo = request.POST.get(nic_memo)
-
-                    nic_macaddress = "nic_macaddress" + str(i)
-                    nic_macaddress = request.POST.get(nic_macaddress)
-
                     nic_ipaddress = "nic_ipaddress" + str(i)
                     nic_ipaddress = request.POST.get(nic_ipaddress)
-
-                    nic_netmask = "nic_netmask" + str(i)
-                    nic_netmask = request.POST.get(nic_netmask)
-
-                    if nic_name and nic_macaddress:
-                        NIC.objects.create(asset = asset_data,name=nic_name,macaddress=nic_macaddress,
-                        ipaddress=nic_ipaddress,netmask=nic_netmask,memo=nic_memo)
-            obj = get_object_or_404(Server, ssh_host=server_data.ssh_host)
+                    if nic_name and nic_ipaddress:
+                        NIC.objects.create(asset = asset_data,name=nic_name,ipaddress=nic_ipaddress)
+            obj = server_data
             return render(request,'assets/asset_success.html', locals())
         else:
             ff_error.append("关键信息遗漏或格式错误")
@@ -253,13 +148,8 @@ def server_detail(request,uuid):
     server = get_object_or_404(Server, uuid=uuid)
     virtuals = Server.objects.filter(parent=server)
     asset = server.asset
-    cpu_data = asset.cpu
-    ram_data = RAM.objects.filter(asset=asset)
-    disk_data = Disk.objects.filter(asset=asset)
-    raid_data = RaidAdaptor.objects.filter(asset=asset)
     nic_data = NIC.objects.filter(asset=asset)
     # host_record = HostRecord.objects.filter(host=host).order_by('-time')
-
     return render(request,'assets/server_detail.html', locals())
 
 @permission_required('assets.add_asset', login_url='/auth_error/')
@@ -267,16 +157,11 @@ def virtual_detail(request,uuid):
     """ 虚拟主机详情 """
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
-    try: 
-        cpu_data = asset.cpu
-    except:
-        cpu_data = []
     try:
         nic_data = NIC.objects.filter(asset=asset)
     except:
         nic_data = []
     # host_record = HostRecord.objects.filter(host=host).order_by('-time')
-
     return render(request,'assets/virtual_detail.html', locals())
 
 ###编辑物理主机信息###
@@ -285,15 +170,9 @@ def server_edit(request,uuid):
     # server = get_object_or_404(Server, uuid=uuid)
     server = Server.objects.get(pk=uuid)
     asset = server.asset
-    cpu = asset.cpu
-    cf = CPUForm(instance=cpu)
     af = AssetForm(instance=asset)
     sf = ServerForm(instance=server)
-
     nic = NIC.objects.filter(asset=asset)
-    ram = RAM.objects.filter(asset=asset)
-    disk = Disk.objects.filter(asset=asset)
-    raid = RaidAdaptor.objects.filter(asset=asset)
 
     project_all = Project.objects.all()
     project_host = server.project.all()
@@ -306,13 +185,8 @@ def server_edit(request,uuid):
     if request.method == 'POST':
         af = AssetForm(request.POST, instance=asset)
         sf = ServerForm(request.POST, instance=server)
-        cf = CPUForm(request.POST, instance=cpu)
-
-        if all((af.is_valid(),sf.is_valid(),cf.is_valid())):
+        if all((af.is_valid(),sf.is_valid())):
             asset_data = af.save()
-            cpu_data = cf.save(commit=False)
-            cpu_data.asset = asset_data
-            cpu_data.save()
             server_data = sf.save(commit=False)
             server_data.asset = asset_data
             server_data.save()
@@ -325,14 +199,8 @@ def server_edit(request,uuid):
 def virtual_edit(request,uuid):
     server = get_object_or_404(Server, uuid=uuid)
     asset = server.asset
-    try:
-        cpu = asset.cpu
-        cf = CPUForm(instance=cpu)
-    except:
-        cpu = None
     af = AssetForm(instance=asset)
     sf = ServerForm(instance=server)
-
     nic = NIC.objects.filter(asset=asset)
 
     project_all = Project.objects.all()
@@ -346,13 +214,8 @@ def virtual_edit(request,uuid):
     if request.method == 'POST':
         af = AssetForm(request.POST, instance=asset)
         sf = ServerForm(request.POST, instance=server)
-        cf = CPUForm(request.POST, instance=cpu)
-
-        if all((af.is_valid(),sf.is_valid(),cf.is_valid())):
+        if all((af.is_valid(),sf.is_valid())):
             asset_data = af.save()
-            cpu_data = cf.save(commit=False)
-            cpu_data.asset = asset_data
-            cpu_data.save()
             server_data = sf.save(commit=False)
             server_data.asset = asset_data
             server_data.save()
@@ -360,14 +223,14 @@ def virtual_edit(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'assets/virtual_edit.html', locals())
 
-##网卡操作
+##网卡操作11
 @permission_required('assets.add_asset', login_url='/auth_error/')
 def nic_add(request,uuid):
     asset_data = Asset.objects.get(uuid=uuid)
     nf = NICForm()
     error_information = []
     if request.method == 'POST':
-        mac = request.POST.get('macaddress', '')
+        mac = request.POST.get('ipaddress', '')
         if mac:
             nf = NICForm(request.POST)
             if nf.is_valid():
@@ -382,7 +245,7 @@ def nic_edit(request,uuid):
     nic_data = NIC.objects.get(pk=uuid)
     nf = NICForm(instance=nic_data)
     if request.method == 'POST':
-        mac = request.POST.get('macaddress', '')
+        mac = request.POST.get('ipaddress', '')
         if mac:
             nf = NICForm(request.POST,instance=nic_data)
             if nf.is_valid():
@@ -398,120 +261,119 @@ def nic_delete(request,uuid):
     return HttpResponse('Delete Success!')
 
 ##内存条操作
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def ram_add(request,uuid):
-    asset_data = Asset.objects.get(uuid=uuid)
-    rf = RAMForm()
-    ram_error_information = []
-    if request.method == 'POST':
-        capacity = request.POST.get('capacity', '')
-        if capacity:
-            rf = RAMForm(request.POST)
-            if rf.is_valid():
-                ram_data = rf.save(commit=False)
-                ram_data.asset = asset_data
-                ram_data.save()
-                return HttpResponse('ADD Success!')
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def ram_add(request,uuid):
+#     asset_data = Asset.objects.get(uuid=uuid)
+#     rf = RAMForm()
+#     ram_error_information = []
+#     if request.method == 'POST':
+#         capacity = request.POST.get('capacity', '')
+#         if capacity:
+#             rf = RAMForm(request.POST)
+#             if rf.is_valid():
+#                 ram_data = rf.save(commit=False)
+#                 ram_data.asset = asset_data
+#                 ram_data.save()
+#                 return HttpResponse('ADD Success!')
 
-    return render(request,'assets/ram_add.html', locals())
+#     return render(request,'assets/ram_add.html', locals())
 
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def ram_edit(request,uuid):
-    ram_data = RAM.objects.get(pk=uuid)
-    rf = RAMForm(instance=ram_data)
-    if request.method == 'POST':
-        capacity = request.POST.get('capacity', '')
-        if capacity:
-            rf = RAMForm(request.POST,instance=ram_data)
-            if rf.is_valid():
-                ram_data = rf.save()
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def ram_edit(request,uuid):
+#     ram_data = RAM.objects.get(pk=uuid)
+#     rf = RAMForm(instance=ram_data)
+#     if request.method == 'POST':
+#         capacity = request.POST.get('capacity', '')
+#         if capacity:
+#             rf = RAMForm(request.POST,instance=ram_data)
+#             if rf.is_valid():
+#                 ram_data = rf.save()
 
-    return render(request,'assets/ram_edit.html', locals())
+#     return render(request,'assets/ram_edit.html', locals())
 
-@permission_required('assets.delete_asset', login_url='/auth_error/')
-def ram_delete(request,uuid):
-    ram_data = RAM.objects.get(pk=uuid)
-    ram_data.delete()
+# @permission_required('assets.delete_asset', login_url='/auth_error/')
+# def ram_delete(request,uuid):
+#     ram_data = RAM.objects.get(pk=uuid)
+#     ram_data.delete()
 
-    return HttpResponse('Delete Success!')
+#     return HttpResponse('Delete Success!')
 
-##硬盘信息
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def disk_add(request,uuid):
-    asset_data = Asset.objects.get(uuid=uuid)
-    diskf = DiskForm()
-    disk_error_information = []
-    if request.method == 'POST':
-        capacity = request.POST.get('capacity', '')
-        if capacity:
-            diskf = DiskForm(request.POST)
-            if diskf.is_valid():
-                disk_data = diskf.save(commit=False)
-                disk_data.asset = asset_data
-                disk_data.save()
-                return HttpResponse('ADD Success!')
+# ##硬盘信息
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def disk_add(request,uuid):
+#     asset_data = Asset.objects.get(uuid=uuid)
+#     diskf = DiskForm()
+#     disk_error_information = []
+#     if request.method == 'POST':
+#         capacity = request.POST.get('capacity', '')
+#         if capacity:
+#             diskf = DiskForm(request.POST)
+#             if diskf.is_valid():
+#                 disk_data = diskf.save(commit=False)
+#                 disk_data.asset = asset_data
+#                 disk_data.save()
+#                 return HttpResponse('ADD Success!')
 
-    return render(request,'assets/disk_add.html', locals())
+#     return render(request,'assets/disk_add.html', locals())
 
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def disk_edit(request,uuid):
-    disk_data = Disk.objects.get(pk=uuid)
-    diskf = DiskForm(instance=disk_data)
-    if request.method == 'POST':
-        capacity = request.POST.get('capacity', '')
-        if capacity:
-            diskf = DiskForm(request.POST,instance=disk_data)
-            if diskf.is_valid():
-                disk_data = diskf.save()
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def disk_edit(request,uuid):
+#     disk_data = Disk.objects.get(pk=uuid)
+#     diskf = DiskForm(instance=disk_data)
+#     if request.method == 'POST':
+#         capacity = request.POST.get('capacity', '')
+#         if capacity:
+#             diskf = DiskForm(request.POST,instance=disk_data)
+#             if diskf.is_valid():
+#                 disk_data = diskf.save()
 
-    return render(request,'assets/disk_edit.html', locals())
+#     return render(request,'assets/disk_edit.html', locals())
 
-@permission_required('assets.delete_asset', login_url='/auth_error/')
-def disk_delete(request,uuid):
-    disk_data = Disk.objects.get(pk=uuid)
-    disk_data.delete()
+# @permission_required('assets.delete_asset', login_url='/auth_error/')
+# def disk_delete(request,uuid):
+#     disk_data = Disk.objects.get(pk=uuid)
+#     disk_data.delete()
 
-    return HttpResponse('Delete Success!')
+#     return HttpResponse('Delete Success!')
 
-##raid卡
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def raid_add(request,uuid):
-    asset_data = Asset.objects.get(uuid=uuid)
-    raidf = RaidForm()
-    raid_error_information = []
-    if request.method == 'POST':
-        model = request.POST.get('model', '')
-        if model:
-            raidf = RaidForm(request.POST)
-            if raidf.is_valid():
-                raid_data = raidf.save(commit=False)
-                raid_data.asset = asset_data
-                raid_data.save()
-                return HttpResponse('ADD Success!')
+# ##raid卡
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def raid_add(request,uuid):
+#     asset_data = Asset.objects.get(uuid=uuid)
+#     raidf = RaidForm()
+#     raid_error_information = []
+#     if request.method == 'POST':
+#         model = request.POST.get('model', '')
+#         if model:
+#             raidf = RaidForm(request.POST)
+#             if raidf.is_valid():
+#                 raid_data = raidf.save(commit=False)
+#                 raid_data.asset = asset_data
+#                 raid_data.save()
+#                 return HttpResponse('ADD Success!')
 
-    return render(request,'assets/raid_add.html', locals())
+#     return render(request,'assets/raid_add.html', locals())
 
-@permission_required('assets.add_asset', login_url='/auth_error/')
-def raid_edit(request,uuid):
-    raid_data = RaidAdaptor.objects.get(pk=uuid)
-    raidf = RaidForm(instance=raid_data)
-    if request.method == 'POST':
-        model = request.POST.get('model', '')
-        if model:
-            raidf = RaidForm(request.POST,instance=raid_data)
-            if raidf.is_valid():
-                raid_data = raidf.save()
+# @permission_required('assets.add_asset', login_url='/auth_error/')
+# def raid_edit(request,uuid):
+#     raid_data = RaidAdaptor.objects.get(pk=uuid)
+#     raidf = RaidForm(instance=raid_data)
+#     if request.method == 'POST':
+#         model = request.POST.get('model', '')
+#         if model:
+#             raidf = RaidForm(request.POST,instance=raid_data)
+#             if raidf.is_valid():
+#                 raid_data = raidf.save()
 
-    return render(request,'assets/raid_edit.html', locals())
+#     return render(request,'assets/raid_edit.html', locals())
 
-@permission_required('assets.delete_asset', login_url='/auth_error/')
-def raid_delete(request,uuid):
-    raid_data = RaidAdaptor.objects.get(pk=uuid)
-    raid_data.delete()
+# @permission_required('assets.delete_asset', login_url='/auth_error/')
+# def raid_delete(request,uuid):
+#     raid_data = RaidAdaptor.objects.get(pk=uuid)
+#     raid_data.delete()
 
-    return HttpResponse('Delete Success!')
+#     return HttpResponse('Delete Success!')
 
-@permission_required('assets.add_sqlpasswd', login_url='/auth_error/')
 def look_server_passwd(request,uuid):
     data = Server.objects.get(pk=uuid)
     nic_data = NIC.objects.filter(asset=data.asset)
@@ -616,4 +478,106 @@ def modify_password(request):
         except:
             print "没有此ip：%s"% host_ip
     return HttpResponse("OK")
+
+# def organize_data(group):
+#     data = Project.objects.filter(parent=group)
+#     servers = group.project_servers.all()
+#     if servers:
+#         server = [{"name":i.ssh_host} for i in servers]
+#     else:
+#         server = []
+#     res = {"name":group.project_name,"children":server}
+#     L = []
+#     print "开支组装组：%s"% group.project_name
+#     if data:
+#         print "有分支"
+#         for i in data:
+#             L.append(organize_data(i))
+#         res["children"] = server + L
+#     return res
+
+def znodes(groups):
+    L = []
+    gservers = []
+    for i in groups:
+        name = i.project_name
+        uuid = str(i.uuid)
+        if i.parent:
+            L.append({"name":name,"id":uuid,"pid":str(i.parent.uuid),"isParent":"true","isproject":"yes"})
+        else:
+            L.append({"name":name,"id":uuid,"pid": 0,"isParent":"true","open":"true","isproject":"yes"})
+        servers = i.project_servers.all()
+        if servers:
+            for server in servers:
+                gservers.append(server)
+                L.append({"name":server.ssh_host,"id":str(server.uuid),"pid":uuid,"isParent":"false","dropInner":"false","isproject":"no"})
+    L = L + [{"name":i.ssh_host,"id":str(i.uuid),"pid":0,"isParent":"false","dropInner":"false","isproject":"no"} for i in Server.objects.all() if i not in gservers]
+    return L
+
+def group_tree(request):
+    groups = Project.objects.all()
+    res = []
+    res = znodes(groups)
+    return JsonResponse({"data":res},safe=False)
+
+def vps_list(request):
+    try:  
+        page = int(request.GET.get("page",1))
+        if page < 1:  
+            page = 1  
+    except ValueError:  
+        page = 1
+    data = Server.objects.all()
+    paginator = JuncheePaginator(data, 10)
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+        data = paginator.page(1)
+    except EmptyPage:
+        data = paginator.page(paginator.num_pages)
+    return render(request,'assets/vps_list.html',locals())
+
+def vps_search(request):
+    result = {}
+    comment = request.GET.get("comment")
+    print comment
+    dataA = Server.objects.filter(project__project_name__contains=comment) #根据project关键字获取server集合
+    dataB = Server.objects.filter(ssh_host__contains=comment) #ssh_host关键字查找
+    dataC = [ i.asset.server for i in NIC.objects.filter(ipaddress__contains=comment) if i] #网卡ip过滤
+    dataD = [i.server for i in Asset.objects.filter(purpose__contains=comment) if i] #purpose用途过滤
+    res = list(set(dataA)|set(dataB)|set(dataC)|set(dataD))
+    if res:
+        ff = []
+        for i in res:
+            projects = i.project.all()
+            phtml = ""
+            if projects:
+                for p in projects:
+                    phtml = phtml + "<a class='btn btn-primary btn-xs'>"+p.project_name+"</a>"
+            nic = ""
+            for n in i.asset.wangka.all():
+                if n.ipaddress:
+                    if n.name:
+                        nic=nic+n.name+":"+n.ipaddress+"<br>"
+                    else:
+                        nic = nic+"eth0:"+n.ipaddress+"<br>"
+            status = "<p class='text-danger'>报废</p>"
+            if i.asset.status == 'on':
+                status = "<p class='text-success'>线上</p>"
+            opreation = """
+            <a href="/assets/add_sql_passwd/%s" class="btn btn-default btn-xs addpasswd" data-toggle="tooltip" title="添加权限"><i class="fa fa-plus"></i></a>
+            <a href="/assets/modify_sql_passwd/%s" class="btn btn-default btn-xs changepasswd" data-toggle="tooltip" title="修改权限密码"><i class="fa fa-pencil-square-o"></i></a>
+            <a href="/assets/look_server_passwd/%s" class="btn btn-default btn-xs lookpasswd" data-toggle="tooltip" title="查看权限"><i class="fa fa-eye"></i></a>
+            """% (i.uuid,i.uuid,i.uuid)
+            if i.asset.asset_type == 'serverhost':
+                details ="""<a href="/assets/server_detail/%s" target="_blank" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk"></i>详情</a>"""% i.uuid
+            else:
+                details ="""<a href="/assets/virtual_detail/%s" target="_blank" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk"></i>详情</a>"""% i.uuid
+            ff.append({"group":phtml,"ssh_host":i.ssh_host,"nic":nic,"purpose":i.asset.purpose,"status":status,"uuid":i.uuid,"opreation":opreation,"details":details})
+        result["res"] = "OK"
+        result["info"] = ff
+    else:
+        result["res"] = "Faild"
+
+    return JsonResponse(result,safe=False)
 

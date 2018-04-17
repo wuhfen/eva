@@ -15,7 +15,6 @@ class AssetForm(ModelForm):
         ('contain', u'Docker'),
         ('others', u'其它类'),
     )
-    asset_number = forms.CharField(label=u'资产编号',required=False,widget=forms.TextInput(attrs={'placeholder': 'DT-server-20161014-001'}))
     asset_type = forms.CharField(label=u'资产类型',required=False,widget=forms.Select(attrs={'initial': 'serverhost','hidden': "hidden"}, choices=FAVORITE_COLORS_CHOICES))
     class Meta:
         model = models.Asset
@@ -25,8 +24,7 @@ class ServerForm(ModelForm):
     # ssh_password = forms.CharField(label=u'SHH密码',required=False,widget=forms.PasswordInput)
     class Meta:
         model = models.Server
-        fields = ['name','ansible_name','ipmitool','ssh_user','ssh_host','ssh_port','ssh_password','parent','Raid_level','Disk_total','RAM_total','project','service','model','env',
-                'os_kernel','Raid_level','system_status','os_type','os_version','os_release','server_sn','Services_Code','idc','cabinet','server_cabinet_id','old_ip']
+        fields = ['name','ssh_user','ssh_host','ssh_port','ssh_password','parent','Disk_total','RAM_total','project','service','os_type','old_ip']
 
 
 
@@ -47,10 +45,10 @@ class DiskForm(ModelForm):
         fields = ["sn","slot","iface_type","model","manufactory","capacity","memo"]
 
 class NICForm(ModelForm):
-    macaddress = forms.CharField(label=u'MAC地址',required=True, widget=forms.TextInput(attrs={'placeholder': '必填项'}))
+    ipaddress = forms.CharField(label=u'IP地址',required=True, widget=forms.TextInput(attrs={'placeholder': '必填项'}))
     class Meta:
         model = models.NIC
-        fields = ["name","model","macaddress","ipaddress","netmask","memo"]
+        fields = ["name","ipaddress"]
 
 class RaidForm(ModelForm):
     class Meta:

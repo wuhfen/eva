@@ -13,12 +13,13 @@
  {% endblock %}
 
 
-    {% block assistant-header %} <h3>资产列表|Asset List</h3>
-    <ol class="breadcrumb">
-        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
-        <li><a href="{% url 'server_list' %}">资产列表</a></li>
-        <li><a href="#">资产详情</a></li>
-    </ol>
+{% block assistant-header %} 
+<h3>资产列表|Asset List</h3>
+<ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+    <li><a href="{% url 'server_list' %}">资产列表</a></li>
+    <li><a href="#">资产详情</a></li>
+</ol>
 {% endblock %}
 
 
@@ -28,6 +29,7 @@
     <div class="box box-info">
         <div class="box-header with-border">
             <a href="{% url 'virtual_add' %}" class="btn btn-info">添加虚拟机</a>
+            <a href="{% url 'project_list' %}" class="btn btn-info">分组</a>
             <div class="btn-group">
               <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">批量
                 <span class="caret"></span>
@@ -51,22 +53,11 @@
                 <thead>
                 <tr>
                   <th class="text-center"><input type="checkbox" id="select_all"></th>
+                  <th>项目分组</th>
                   <th>地址</th>
                   <th>其他IP</th>
                   <th>用途</th>
-
-                  <!-- <th>ansible节点名</th> -->
-                  <!-- <th>系统信息</th> -->
-                  <!-- <th>系统状态</th> -->
-                  <!-- <th>CPU|内存(GB)|硬盘(GB)</th> -->
-                  <th>项目</th>
-                  <th>服务</th>
-                  <!-- <th>机房</th> -->
                   <th>资产状态</th>
-
-                  <!-- <th>资产类型</th> -->
-                  <!-- <th>品牌型号</th> -->
-                  <!-- <th>保修期</th> -->
                   <th>权限</th>
                   <th>操作</th>
                 </tr>
@@ -75,28 +66,10 @@
                 {% for i in servers %}
                 <tr>
                   <td class="text-center"><input type="checkbox" name="selected" value="{{ i.uuid }}"></td>
-                  <td>
-                  {% if i.asset.mark == True %}
-                  <a target="_blank" href="{% url 'access_server' i.uuid %}" class="btn btn-success btn-xs" data-toggle="tooltip" title="open-web-ssh">{{ i.ssh_host }}</a> {% else %}<a href="#" class="btn btn-danger btn-xs" data-toggle="tooltip" title="can't connect">{{ i.ssh_host }}</a> {% endif %}
-                  </td>
+                  <td>{% for s in i.uuid|business_list %}<a href="#" class="btn btn-primary btn-xs">{{ s }}</a>{% endfor %}</td>
+                  <td>{{ i.ssh_host }}</td>
                   <td>{% for s in  i.asset.wangka.all %}{% if s.ipaddress != i.ssh_host %}{{ s.name }}:{{ s.ipaddress }} <br>{% endif %}{% endfor %}{% if i.old_ip %}曾用IP：{{ i.old_ip }}{% endif %}</td>
                   <td>{{ i.asset.purpose }}</td>
-
-                  <!-- <td>{{ i.ansible_name }}</td> -->
-                  <!-- <td>{{ i.os_type }}|{{ i.os_version }}|{{ i.os_release }}</td> -->
-<!--                   <td>
-                        {% if i.system_status == 0 %}
-                        <p class="text-danger">未安装</p>
-                        {% else %}
-                        <p class="text-success">已安装</p>
-                        {% endif %}
-                  </td> -->
-                  <!-- <td>{{ i.asset.cpu.cpu_count }}|{{ i.RAM_total }}|{{ i.Disk_total }}</td> -->
-                  <td>{% for s in i.uuid|business_list %}
-                <a href="#" class="btn btn-primary btn-xs">{{ s }}</a>
-                {% endfor %}</td>
-                  <td>{{ i.service.all|group_str2 }}</td>
-                  <!-- <td>{{ i.idc }}</td> -->
                   <td>
                         {% if i.asset.status == 'on' %}
                             <p class="text-success">线上</p>
@@ -106,14 +79,6 @@
                             <p class="text-warning">闲置</p>
                         {% endif %}
                   </td>
-<!--                     {% if i.asset.asset_type == 'serverhost' %}
-                        <td>物理机</td>
-                        <td>{{ i.model }}</td>
-                    {% else %}
-                        <td>虚拟机</td>
-                        <td>{{ i.env }}</td>
-                    {% endif %} -->
-                  <!-- <td>{{ i.asset.expire_date }}</td> -->
                   <td>
                       <a href="{% url 'add_sql_passwd' i.uuid %}" class="btn btn-default btn-xs addpasswd" data-toggle="tooltip" title="添加权限"><i class="fa fa-plus" aria-hidden="true"></i></a>
                       <a href="{% url 'modify_sql_passwd' i.uuid %}" class="btn btn-default btn-xs changepasswd" data-toggle="tooltip" title="修改权限密码"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
@@ -122,43 +87,18 @@
                   <td>
                       {% if i.asset.asset_type == 'serverhost' %}
                           <a href="{% url 'server_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
-                          <!-- <a href="{% url 'server_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a>  -->
-
                       {% else %}
                           <a href="{% url 'virtual_detail' i.uuid %}" class="btn btn-info btn-xs" style="color: black"><i class="fa fa-asterisk" aria-hidden="true"></i>详情</a>
-                          <!-- <a href="{% url 'virtual_edit' i.uuid %}" class="btn btn-info btn-xs">修改</a>  -->
                       {% endif %}
-                      <a href="{% url 'initialization_system' i.uuid %}" id="init_{{ i.uuid }}" class="btn btn-primary btn-xs initialization" style="color: black"><i class="fa fa-linux" aria-hidden="true"></i>初始化</a>
-                      <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-warning btn-xs" style="color: black"><span class="glyphicon glyphicon-flash"></span>更新</a>
+                      <!-- <a href="{% url 'initialization_system' i.uuid %}" id="init_{{ i.uuid }}" class="btn btn-primary btn-xs initialization" style="color: black"><i class="fa fa-linux" aria-hidden="true"></i>初始化</a>
+                      <a href="{% url 'pull_server_information' i.uuid %}" class="btn btn-warning btn-xs" style="color: black"><span class="glyphicon glyphicon-flash"></span>更新</a> -->
 
 
                   </td>
                 </tr>
                 {% endfor %}
                 </tbody>
-                <tfoot>
-                <tr>
-                  <th class="text-center"><input type="checkbox" id="select_all" onclick="check_all('asset_form')"></th>
-                  <th>地址</th>
-                  <th>用途</th>
 
-                  <!-- <th>ansible节点名</th> -->
-                  <!-- <th>系统信息</th> -->
-                  <!-- <th>系统状态</th> -->
-                  <!-- <th>CPU|内存(GB)|硬盘(GB)</th> -->
-                  <th>项目</th>
-                  <th>服务</th>
-
-                  <!-- <th>机房</th> -->
-                  <th>资产状态</th>
-
-                  <!-- <th>资产类型</th> -->
-                  <!-- <th>品牌型号</th> -->
-                  <!-- <th>保修期</th> -->
-                  <th>权限</th>
-                  <th>操作</th>
-                </tr>
-                </tfoot>
               </table>
             </div>
         </form>

@@ -10,14 +10,14 @@ register = template.Library()
 
 @register.filter(name='business_list')
 ##顶一个接受server uuid的函数
-def business_list(host):
-    cmdb_data = Server.objects.get(pk=host)
-    data = cmdb_data.project.all()
-##根据uuid获取server实例，然后找出实例中的项目实例
+def business_list(server_uuid):
+    server = Server.objects.get(pk=server_uuid)
+    data = server.project.all()
+    ##根据uuid获取server实例，然后找出实例中的项目实例
     project_all = []
     for i in data:
         project_all.append(i.project_name)
-##定义一个数组，将项目实例的名称添加进去，返回项目名称的数组
+    ##定义一个数组，将项目实例的名称添加进去，返回项目名称的数组
     return project_all
 
 

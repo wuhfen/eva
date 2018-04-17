@@ -16,7 +16,7 @@ CLASSIFY_CHOICE = (
 alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代",u"AG反代"]
 SERVER_TYPE = [(i, i) for i in tuple(alone)]
 TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
-NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新")]
+NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新","发布复核")]
 
 # Create your models here.
 class git_coderepo(models.Model):
@@ -57,15 +57,16 @@ class git_deploy_audit(models.Model):
 
 class my_request_task(models.Model):
     name = models.CharField(_(u'名称'),max_length=64)
+    types = models.CharField(_(u'任务类型'),max_length=64,blank=True,default='gx') #新增字段，发布fabu，更新gengxin，发布确认fabuconfirm
     table_name = models.CharField(_(u'关联表'),null=True,blank=True,max_length=64)
     uuid = models.CharField(_(u'表中某字段id'),null=True,blank=True,max_length=64)
     memo = models.TextField(_(u'内容'))
     initiator = models.ForeignKey(Users,verbose_name=u'发起人',related_name="whoami")
-    create_date = models.DateTimeField(auto_now_add=True)
-    end_date = models.DateTimeField(auto_now=True)
     status = models.CharField(_(u'状态'),max_length=64)
     isend = models.BooleanField(_(u'是否完成'),default=False)
     loss_efficacy = models.BooleanField(_(u'是否作废'),default=False)
+    create_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(auto_now=True)
     class Meta:
         ordering = ["-end_date"]
         verbose_name = u'我发起的任务'
@@ -131,7 +132,7 @@ class git_deploy(models.Model):
     old_reversion = models.TextField(_(u'历史版本'),null=True,blank=True)
     server = models.ForeignKey(git_ops_configuration,verbose_name=u'服务器配置',related_name='server_dev')
     isdev = models.BooleanField(_(u'开发是否完成配置'),default=False)
-    isops = models.BooleanField(_(u'运维是否完成配置'),default=False)
+    isops = models.BooleanField(_(u'运维是否确认发布完成'),default=False)
     isaudit = models.BooleanField(_(u'审核是否通过'),default=False)
     islog = models.BooleanField(_(u'是否发布完成'),default=False)
     islock = models.BooleanField(_(u'是否有锁'),default=False)
@@ -187,5 +188,6 @@ class git_code_update(models.Model):
     class Meta:
         ordering = ['-ctime']
         verbose_name = u'git_更新配置'
+        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name

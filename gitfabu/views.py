@@ -3,7 +3,8 @@
 from django.shortcuts import render
 
 from gitfabu.models import git_deploy,my_request_task,git_deploy_logs,git_deploy_audit,git_task_audit,git_coderepo,git_ops_configuration,git_code_update
-from business.models import Business,DomainName,Domain_ip_pool
+from business.models import Business,DomainName
+from assets.models import Server
 from accounts.models import department_Mode
 from gitfabu.forms import git_deploy_audit_from
 # Create your views here.
@@ -33,10 +34,10 @@ def mytasknums(request):
 
 @login_required
 def conf_list(request):
-    data_huidu = git_deploy.objects.filter(platform="现金网",classify="huidu")
-    data_test = git_deploy.objects.filter(platform="现金网",classify="test")
-    data_online = git_deploy.objects.filter(platform="现金网",classify="online")
-    alone = git_deploy.objects.filter(platform="单个项目")
+    data_huidu = git_deploy.objects.filter(platform="现金网",classify="huidu",isops=True,islog=True)
+    data_test = git_deploy.objects.filter(platform="现金网",classify="test",islog=True)
+    data_online = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True)
+    alone = git_deploy.objects.filter(platform="单个项目",classify="online",isops=True,islog=True)
     return render(request,'gitfabu/conf_list.html',locals())
 
 @login_required
@@ -48,12 +49,135 @@ def version_list(request,uuid):
         old_reversion = []
     return render(request,'gitfabu/version_list.html',locals())
 
+def deploy_domains(request):
+    classify = request.GET.get('classify')
+    siteid = request.GET.get('siteid')
+    platform = request.GET.get('platform')
+    business = Business.objects.get(platform=platform,status=0,nic_name=siteid)
+    f = business.domain.filter(use=0,classify=classify)
+    a = business.domain.filter(use=1,classify=classify)
+    b = business.domain.filter(use=2,classify=classify)
+    webtext = "\n".join([i.name for i in f if i])
+    agtext = "\n".join([i.name for i in a if i])
+    ds168text = "\n".join([i.name for i in b if i])
+    return JsonResponse({"webtext":webtext,"agtext":agtext,"ds168text":ds168text},safe=False)
+
+@login_required
+def conf_add_alone_project(request):
+    """单独项目添加，需要配置服务器，git地址，线上目录"""
+    project = "现金网"
+    export_dir = "/data/onlyproject/online/export/"
+    errors = []
+    if request.method == "POST":
+        name = request.POST.get("name")
+        memo = request.POST.get("memo")
+        git_branch = request.POST.get("git_branch")
+        git_commit = request.POST.get("git_commit")
+        repo = request.POST.get("repo")
+
+        if not "http" in repo: errors.append("git地址有错误！缺少http关键字")
+
+        git_export = export_dir+name
+
+        remoteip = request.POST.get("remoteip")
+        for i in remoteip.split('\r\n'):
+            try:
+                Server.objects.get(ssh_host=i)
+            except:
+                errors.append("CMDB中无此IP：%s"% i)
+
+        remotedir = request.POST.get("remotedir")
+        owner = request.POST.get("owner")
+        exclude = request.POST.get("exclude")
+        rsync_command = request.POST.get("rsync_command")
+        last_command = request.POST.get("last_command")
+
+        #if git_coderepo.objects.filter(title=name,classify="online",platform="单个项目"): errors.append("已有相关项目git地址配置,请检查是否有重名项目！")
+        #if git_ops_configuration.objects.filter(name=name,classify="online",platform="单个项目"): errors.append("已有相关项目服务器配置,请检查是否有重名项目！")
+
+        if errors: return render(request,'gitfabu/add_alone_project.html',locals())
+
+        #先存储服务器相关配置
+        obj,server_data = git_ops_configuration.objects.get_or_create(name=name,classify="online",platform="单个项目",defaults={'remoteip':remoteip,'remotedir':remotedir,'owner':owner,"exclude":exclude,"rsync_command":rsync_command,"last_command":last_command})
+        if obj:
+            server_data = obj
+        else:
+            server_data = server_data
+        #再存储git相关配置
+        obj,repo_data = git_coderepo.objects.get_or_create(title=name,classify="online",platform="单个项目",defaults={"address":repo,"user":"fabu","passwd":"DSyunweibu110110","branch":git_branch,"reversion":git_commit})
+        #先创建git_deploy实例
+        deploy_obj,deploy = git_deploy.objects.get_or_create(name=name,platform="单个项目",classify="online",server=server_data,isdev=True,isops=True)
+        if obj:
+            data = deploy_obj
+        else:
+            data = deploy
+        #最后创建审核任务，分发审核,因为运维直接参与配置所以不需要审核
+        mydata = my_request_task(name=name+"_线上发布",table_name="git_deploy",uuid=data.id,initiator=request.user,memo=memo,status="发布中")
+        mydata.save()
+        reslut = git_fabu_task.delay(data.id,mydata.id)
+        return HttpResponseRedirect('/fabu/mytask/')
+    return render(request,'gitfabu/add_alone_project.html',locals())
+
+@login_required
+def conf_add_java_project(request):
+    """单独项目添加，需要配置服务器，git地址，线上目录"""
+    project = "蛮牛JAVA"
+    export_dir = "/data/javaproject/online/export/"
+    errors = []
+    if request.method == "POST":
+        name = request.POST.get("name")
+        memo = request.POST.get("memo")
+        git_branch = request.POST.get("git_branch")
+        git_commit = request.POST.get("git_commit")
+        repo = request.POST.get("repo")
+
+        if not "http" in repo: errors.append("git地址有错误！缺少http关键字")
+
+        git_export = export_dir+name
+
+        remoteip = request.POST.get("remoteip")
+        for i in remoteip.split('\r\n'):
+            try:
+                Server.objects.get(ssh_host=i)
+            except:
+                errors.append("CMDB中无此IP：%s"% i)
+
+        remotedir = request.POST.get("remotedir")
+        owner = request.POST.get("owner")
+        exclude = request.POST.get("exclude")
+        rsync_command = request.POST.get("rsync_command")
+        last_command = request.POST.get("last_command")
+
+        #if git_coderepo.objects.filter(title=name,classify="online",platform="JAVA项目"): errors.append("已有相关项目git地址配置,请检查是否有重名项目！")
+        #if git_ops_configuration.objects.filter(name=name,classify="online",platform="JAVA项目"): errors.append("已有相关项目服务器配置,请检查是否有重名项目！")
+
+        if errors: return render(request,'gitfabu/add_alone_project.html',locals())
+
+        #先存储服务器相关配置
+        obj,server_data = git_ops_configuration.objects.get_or_create(name=name,classify="online",platform="JAVA项目",defaults={'remoteip':remoteip,'remotedir':remotedir,'owner':owner,"exclude":exclude,"rsync_command":rsync_command,"last_command":last_command})
+        if obj:
+            server_data = obj
+        else:
+            server_data = server_data
+        #再存储git相关配置
+        obj,repo_data = git_coderepo.objects.get_or_create(title=name,classify="online",platform="JAVA项目",defaults={"address":repo,"user":"fabu","passwd":"DSyunweibu110110","branch":git_branch,"reversion":git_commit})
+        #先创建git_deploy实例
+        deploy_obj,deploy = git_deploy.objects.get_or_create(name=name,platform="JAVA项目",classify="online",server=server_data,isdev=True,isops=True)
+        if obj:
+            data = deploy_obj
+        else:
+            data = deploy
+        #最后创建审核任务，分发审核,因为运维直接参与配置所以不需要审核
+        mydata = my_request_task(name=name+"_线上发布",table_name="git_deploy",uuid=data.id,initiator=request.user,memo=memo,status="发布中")
+        mydata.save()
+        reslut = git_fabu_task.delay(data.id,mydata.id)
+        return HttpResponseRedirect('/fabu/mytask/')
+    return render(request,'gitfabu/add_alone_project.html',locals())
+
 
 @login_required
 def conf_add(request,env):
-    print env
     errors = []
-
     if "money" in env:
         platform = "现金网"
         conf_domain = True
@@ -78,15 +202,15 @@ def conf_add(request,env):
         dname = platform + "_测试发布"
         envir = "test"
         envname = "测试"
-    busi = Business.objects.filter(platform=platform)
-    try:
-        auditor = git_deploy_audit.objects.filter(platform=platform,classify=envir,name="发布")
-    except:
-        errors.append("审核组未设置！！！")
+    deploy = [i.name for i in git_deploy.objects.filter(platform=platform,classify=envir,isops=True,islog=True)]
+    busi = [] #只显示没有发布过的项目
+    for i in Business.objects.filter(platform=platform,status=0):
+        if i.nic_name not in deploy:
+            busi.append(i)
 
     if request.method == 'POST':
         name = request.POST.get('business') #所有发布的项目使用business中的nic_name当作名称
-        gg = git_deploy.objects.filter(name=name,platform=platform,classify=envir)
+        gg = git_deploy.objects.filter(name=name,platform=platform,classify=envir,isops=True,islog=True)
 
         if len(gg) > 0:
             errors.append("项目以存在，请联系运维处理")
@@ -95,48 +219,32 @@ def conf_add(request,env):
         #配置服务器地址，没有配置会报错，所以使用try
         try:
             if platform == "现金网" or platform == "蛮牛":
-                server = git_ops_configuration.objects.filter(name="源站",platform=platform,classify=envir)[0]
+                server = git_ops_configuration.objects.get(name="源站",platform=platform,classify=envir)
             else:
-                server = git_ops_configuration.objects.filter(name=name,platform=platform,classify=envir)[0]
+                server = git_ops_configuration.objects.get(name=name,platform=platform,classify=envir)
         except IndexError:
             errors.append("没有配置-%s-%s-%s-服务器地址"% (platform,business.name,envir))
 
-        #检测域名正确性，测试环境不会检查ag与backend域名
+        #检测域名正确性，测试环境不会检查ag与backend域名,发布Huidu的时候需要填写后台域名，发布线上的时候需要填写前台与ag域名
         if platform == "现金网" or platform == "蛮牛":
-            if not request.POST.get('front'):
-                errors.append("没有给出前端域名")
+            f_domainname = DomainName.objects.filter(use=0,business=business,classify=envir)
+            a_domainname = DomainName.objects.filter(use=1,business=business,classify=envir)
+            b_domainname = DomainName.objects.filter(use=2,business=business,classify=envir)
+            if f_domainname:
+                f_domainname = [i.name for i in f_domainname]
             else:
-                f_dname = "%s-%s前端域名"% (envname,name)
-                f_cname = "%s_%s.conf"% (name,envir)
-                f_domainname = request.POST.get('front').split('\r\n')
-            if envir != "test" and platform == "现金网":
-                if not request.POST.get('ag'):
-                    errors.append("没有给出ag域名")
+                errors.append("没有给出前端域名,请联系产品添加域名")
+            if envir != "test":
+                if a_domainname:
+                    a_domainname = [i.name for i in a_domainname]
                 else:
-                    a_dname = "%s-%sAG域名"% (envname,name)
-                    a_cname = "%s_%s.conf"% (name,envir)
-                    a_domainname = request.POST.get('ag').split('\r\n')
-                if not request.POST.get('backend'):
-                    errors.append("没有给出后台域名")
+                    errors.append("没有给出ag域名,请联系产品添加域名")
+                if b_domainname:
+                    b_domainname = [i.name for i in b_domainname]
                 else:
-                    b_dname = "%s-%s后台域名"% (envname,name)
-                    b_cname = "%s.conf"% name
-                    b_domainname = request.POST.get('backend').split('\r\n')
-            if envir == "online" and platform == "蛮牛":
-                if not request.POST.get('ag'):
-                    errors.append("没有给出ag域名")
-                else:
-                    a_dname = "%s-%sAG域名"% (envname,name)
-                    a_cname = "%s_%s.conf"% (name,envir)
-                    a_domainname = request.POST.get('ag').split('\r\n')
-                if not request.POST.get('backend'):
-                    errors.append("没有给出后台域名")
-                else:
-                    b_dname = "%s-%s后台域名"% (envname,name)
-                    b_cname = "%s.conf"% name
-                    b_domainname = request.POST.get('backend').split('\r\n')
-        if errors:
-            return render(request,'gitfabu/conf_add.html',locals())
+                    errors.append("没有给出后台域名,请联系产品添加域名")
+
+        if errors: return render(request,'gitfabu/conf_add.html',locals())
 
         #配置git地址，如果没有找到web/1001.git类似的私有仓库，则创建保存
         money_git = "http://git.dtops.cc/"
@@ -158,26 +266,18 @@ def conf_add(request,env):
             configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
 
 
-        ddata,created = git_deploy.objects.get_or_create(name=name,platform=platform,classify=envir,business=business,defaults={'conf_domain':conf_domain,'server':server,'usepub':conf_domain,'isdev':True,'isops':True},)
+        ddata,created = git_deploy.objects.get_or_create(name=name,platform=platform,classify=envir,business=business,defaults={'conf_domain':conf_domain,'server':server,'usepub':conf_domain,'isdev':True},)
 
         #保存配置域名
-        if platform == "现金网" or platform == "蛮牛":
-            for i in f_domainname:
-                obj,created = DomainName.objects.get_or_create(name=i,use='0',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
-                if obj:
-                    print "%s已存在域名%s"% (obj.classify,obj.name )
-                else:
-                    print "%s创建域名%s"% (created.classify,created.name)
-            if envir != "test" and platform == "现金网":
-                for i in a_domainname:
-                    obj,created = DomainName.objects.get_or_create(name=i,use='1',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
-                for i in b_domainname:
-                    obj,created = DomainName.objects.get_or_create(name=i,use='2',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
-            if envir == "online" and platform == "蛮牛":
-                for i in a_domainname:
-                    obj,created = DomainName.objects.get_or_create(name=i,use='1',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
-                for i in b_domainname:
-                    obj,created = DomainName.objects.get_or_create(name=i,use='2',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
+        # if platform == "现金网" or platform == "蛮牛":
+        #     for i in f_domainname:
+        #         obj,created = DomainName.objects.get_or_create(name=i,use='0',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
+        #     if envir != "test":
+        #         for i in a_domainname:
+        #             obj,created = DomainName.objects.get_or_create(name=i,use='1',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
+        #         for i in b_domainname:
+        #             obj,created = DomainName.objects.get_or_create(name=i,use='2',business=business,classify=envir,defaults={'state':'0','supplier':"工程"},)
+
 
         #分配审核任务
         task_name = "%s--%s"% (dname,name)
@@ -199,20 +299,21 @@ def my_request_task_list(request):
         data = my_request_task.objects.filter(isend=False,loss_efficacy=False).order_by('-create_date')
     else:
         data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
-    # data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
+    data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
     return render(request,'gitfabu/my_request_task.html',locals())
 
 @login_required
 def others_request_task_list(request):
     if request.user.username == "wuhf":
-        data = []
-        ll = []
-        sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
-        for i in sdata:
-            for j in i.reqt.all():
-                data.append(j)
+        # data = []
+        # ll = []
+        # sdata = my_request_task.objects.filter(isend=False,loss_efficacy=False)
+        # for i in sdata:
+        #     for j in i.reqt.all():
+        #         data.append(j)
+        data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
     else:
-        data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
+        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:100]
     # data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
     return render(request,'gitfabu/others_request_task.html',locals())
 
@@ -241,21 +342,25 @@ def cancel_my_task(request,uuid):
 @login_required
 def my_task_details(request,uuid):
     data = my_request_task.objects.get(id=uuid)
-    others_data = data.reqt.all().order_by('audit_time')
-    groups = list(set([i.audit_group_id for i in others_data if i]))
-    groups = [department_Mode.objects.get(id=i) for i in groups]
-    res = {}
-    for i in groups:
+    others_data = data.reqt.all().order_by('audit_time') #分发的审核任务
+    groups = list(set([i.audit_group_id for i in others_data if i])) #拿到审核组的ID
+    groups = [department_Mode.objects.get(id=i) for i in groups] #拿到审核组的对象集合
+    res = {} 
+    for i in groups: #组遍历，组织一个dist：{"GroupName":{"member":[组员审核信息],"date":"","time":"","status":""}}
         L = []
-        status = "未审核"
-        for j in others_data:
-            if j.isaudit: status = "已审核"
-            if j.ispass: status = "该组已通过"
+        status = "该组未审核"
+        others_data = data.reqt.filter(audit_group_id=str(i.id)).order_by('audit_time')
 
-            if str(j.audit_group_id) == str(i.id):
-                print j.audit_group_id
-                L.append({"name":j.auditor.first_name,"isaudit":j.isaudit,"ispass":j.ispass,"time":j.audit_time.strftime('%Y-%m-%d %H:%M:%S'),"postil":j.postil})
+        pass_data = data.reqt.filter(audit_group_id=str(i.id),isaudit=True,ispass=True)
+        if pass_data: status = "该组已通过"
+        nopass_data = data.reqt.filter(audit_group_id=str(i.id),isaudit=True,ispass=False)
+        if nopass_data: status = "该组未通过"
+
+        for j in others_data:
+            L.append({"name":j.auditor.first_name,"isaudit":j.isaudit,"ispass":j.ispass,"time":j.audit_time.strftime('%Y-%m-%d %H:%M:%S'),"postil":j.postil})
+            
         res[i.name] = {"member":L,"date":j.audit_time.strftime('%Y-%m-%d'),"time":j.audit_time.strftime('%H:%M:%S'),"status":status}
+
 
     if data.loss_efficacy:
         return render(request,'gitfabu/my_task_details.html',locals())
@@ -318,6 +423,43 @@ def my_task_details(request,uuid):
             version_details = df.details
     return render(request,'gitfabu/my_task_details.html',locals())
 
+
+def confirm_mytask(request,uuid):
+    """实现get方式复核，将git_deploy的isops为真，mytask的ispass为真"""
+    mytask = git_task_audit.objects.get(pk=uuid)
+    task = mytask.request_task
+    df = eval(task.table_name).objects.get(pk=task.uuid)
+    f_domains = df.business.domain.filter(classify=df.classify,use=0) #use=0前端域名，1为ag域名，2为后台域名
+    a_domains = df.business.domain.filter(classify=df.classify,use=1)
+    b_domains = df.business.domain.filter(classify=df.classify,use=2)
+    if request.method == "POST":
+        #重置网站状态
+        ok = request.POST.get('isok')
+        print ok
+        if ok=="yes":
+            WebSite = eval(task.table_name).objects.filter(pk=task.uuid)
+            WebSite.update(isops=True)
+            #修改任务状态
+            task.isend = True
+            task.status = "已完成"
+            task.save()
+            #修改审核任务状态
+            mytask.isaudit = True
+            mytask.ispass = True
+            mytask.save()
+            #重置其他组任务状态
+            user = request.user
+            groups = task.reqt.filter(auditor=user)
+            postil = "复核完成"
+            #目前只有工程一个组，如果是多个组，下面还要写判断
+            for i in groups:
+                check_group_audit(task.id,user.username,True,i.audit_group_id,postil)
+            return JsonResponse({'res':"OK"},safe=False)
+        else:
+            return JsonResponse({'res':"OK"},safe=False)
+    return render(request,'gitfabu/confirm_mytask.html',locals())
+
+
 @login_required
 def audit_my_task(request,uuid):
     """审核任务，分发布与更新的审核后续处理"""
@@ -325,7 +467,7 @@ def audit_my_task(request,uuid):
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
     print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
     if request.method == 'POST':
-        #if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
+        if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
         ispass = request.POST.get('ispass')
         if ispass == "yes":
             ok = True
@@ -337,7 +479,11 @@ def audit_my_task(request,uuid):
         data.postil = postil
         data.save()
 
-        check_group_audit(data.request_task.id,request.user.username,ok,data.audit_group_id,postil) #检测组成员审核情况的函数
+        user = request.user
+        print "当前审核人：%s"% user.username
+        groups = data.request_task.reqt.filter(auditor=user)
+        for i in groups:
+            check_group_audit(data.request_task.id,user.username,ok,i.audit_group_id,postil) #检测组成员审核情况的函数
         alldata = data.request_task.reqt.all()
 
         if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
@@ -469,23 +615,12 @@ def web_update_code(request,uuid):
 
     if request.method == 'POST':
         #先判断这个站是否被锁住了，没有锁就继续
-        print "1"
         memo = request.POST.get('memo')
         method = request.POST.get('method')
         release = request.POST.get('release')
         branch = request.POST.get('branch')
-        print method
-        print branch
-        print release
         #获取当前版本号,组成新版本信息
-        if git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).count() < 1: 
-            return JsonResponse({'res':"没有可用版本号，联系运维！"},safe=False)
-        elif git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).count() > 1:
-            print "多个版本被匹配到，取最新的一个"
-            old_data = git_code_update.objects.filter(code_conf=data,islog=True,isuse=True).latest('id')
-            print old_data.id
-        else:
-            old_data = git_code_update.objects.get(code_conf=data,islog=True,isuse=True)
+        old_data = git_code_update.objects.get(code_conf=data,islog=True,isuse=True)
         web_branches = old_data.web_branches
         web_release = old_data.web_release
         php_pc_branches = old_data.php_pc_branches
@@ -517,39 +652,47 @@ def web_update_code(request,uuid):
             config_branches = branch
             config_release = release[0:7]
         #判断是否紧急
-        if data.classify == 'huidu' or data.classify == 'online':
-            normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新") #正常审核人
-            php_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
-            urgent_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=True,name="更新") #紧急审核人
-            c = int(normal_auditor.start_time.replace(":",""))
-            d = int(normal_auditor.end_time.replace(":",""))
-            now = time.strftime('%H:%M',time.localtime(time.time()))
-            e = int(now.replace(":",""))
-            if data.classify == 'online':
-                if c <= e and d >= e:
+        if data.platform == "现金网" or data.platform == "蛮牛":
+            if data.classify == 'huidu' or data.classify == 'online':
+                normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新") #正常审核人
+                php_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
+                urgent_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=True,name="更新") #紧急审核人
+                c = int(normal_auditor.start_time.replace(":",""))
+                d = int(normal_auditor.end_time.replace(":",""))
+                now = time.strftime('%H:%M',time.localtime(time.time()))
+                e = int(now.replace(":",""))
+                if data.classify == 'online':
+                    if c <= e and d >= e:
+                        print("normal不紧急")
+                        if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
+                            auditor = php_auditor
+                        else:
+                            auditor = normal_auditor
+                        print auditor.name
+                        isurgent = False
+                        name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
+                    else:
+                        print("urgent紧急更新")
+                        auditor = urgent_auditor
+                        isurgent = True
+                        name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-紧急更新"
+                else:
                     if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
                         auditor = php_auditor
                     else:
                         auditor = normal_auditor
+                    print auditor.name
                     isurgent = False
                     name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
-                else:
-                    auditor = urgent_auditor
-                    isurgent = True
-                    name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-紧急更新"
             else:
-                if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
-                    auditor = php_auditor
-                else:
-                    auditor = normal_auditor
                 isurgent = False
                 name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
-            print "审核权限组名称为：%s-%s-%s"% (data.platform,data.classify,auditor.name)
         else:
+            name = data.platform+"-"+data.classify+"-"+data.name+"-更新"
+            normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新")
+            auditor = normal_auditor
             isurgent = False
-            name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
         #保存更新版本信息
-        print name
         updata = git_code_update(name=name,code_conf=data,method=method,version=release[0:7],branch=branch,web_release=web_release,php_pc_release=php_pc_release,
             php_moblie_release=php_moblie_release,js_pc_release=js_pc_release,js_mobile_release=js_mobile_release,config_release=config_release,
             web_branches=web_branches,php_pc_branches=php_pc_branches,php_mobile_branches=php_mobile_branches,js_pc_branches=js_pc_branches,
@@ -570,7 +713,6 @@ def web_update_code(request,uuid):
             reslut = git_update_task.delay(updata.id,mydata.id)
         else:
             if data.classify == 'huidu' or data.classify == 'online':
-                print "创建审核任务"
                 task_distributing(mydata.id,auditor.id)
             else:
                 mydata.status="通过审核，更新中"
@@ -698,7 +840,6 @@ def batch_change(request,uuid):
             all_branch = data.deploy_all_branch(what=method)
             web_commits = manniu_web_deploy(uuid).branch_checkout(what=method)
             res = {'res':"OK",'branches':all_branch,"commit":web_commits}
-    print res
     return JsonResponse(res,safe=False)
 
 def public_branch_change(request):
@@ -742,9 +883,9 @@ def public_branch_change(request):
 
 @login_required
 def manniu_list(request):
-    data = git_deploy.objects.filter(platform="JAVA项目") #蛮牛java组件项目
-    data_huidu = git_deploy.objects.filter(platform="蛮牛",classify="huidu")
-    data_online = git_deploy.objects.filter(platform="蛮牛",classify="online")
+    data = git_deploy.objects.filter(platform="JAVA项目",classify="online",isops=True,islog=True) #蛮牛java组件项目
+    data_huidu = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True)
+    data_online = git_deploy.objects.filter(platform="蛮牛",classify="online",isops=True,islog=True)
     return render(request,'gitfabu/manniu_list.html',locals())
 
 @login_required
@@ -769,3 +910,11 @@ def audit_manage(request,uuid):
             return HttpResponseRedirect('/allow/welcome/')
 
     return render(request,'gitfabu/audit_manage.html',locals())
+
+def task_observer(request):
+    """写一个任务追踪模块，专门用于查看发布任务进度的，但是不能用于审核，只有查看的功能"""
+    #fabu_tasks = my_request_task.objects.filter(table_name="git_deploy")
+    fabu_tasks = my_request_task.objects.filter(loss_efficacy=False,isend=False)
+    #去除重复的审核人
+
+    return render(request,'gitfabu/task_observer.html',locals())

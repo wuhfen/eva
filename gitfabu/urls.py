@@ -7,7 +7,10 @@ from gitfabu import views
 urlpatterns = [
     url(r'^conf/list/$', views.conf_list, name="conf_list"),
     url(r'^conf/add/(?P<env>[^/]+)/$', views.conf_add, name="conf_add"),
+    url(r'^conf/add_alone/$', views.conf_add_alone_project, name="conf_add_alone_project"),
+    url(r'^conf/add_java/$', views.conf_add_java_project, name="conf_add_java_project"),
     url(r'^mytask/$', views.my_request_task_list, name="my_request_task_list"),
+    url(r'^observer/$', views.task_observer, name="task_observer"),
     url(r'^otherstask/$', views.others_request_task_list, name="others_request_task_list"),
     url(r'^cancel/task/(?P<uuid>[^/]+)/$', views.cancel_my_task, name="cancel_my_task"),
     url(r'^task/details/(?P<uuid>[^/]+)/$', views.my_task_details, name="my_task_details"),
@@ -22,5 +25,9 @@ urlpatterns = [
     url(r'^manniu/list/$', views.manniu_list, name="manniu_list"),
     url(r'^audit/list/$', views.audit_list, name="audit_list"),
     url(r'^audit/manage/(?P<uuid>[^/]+)/$', views.audit_manage, name="audit_manage"),
+
+    #confirm_mytask复核
+    url(r'^task/confirm/(?P<uuid>[^/]+)/$', views.confirm_mytask, name="confirm_mytask"),
+    url(r'^conf/domains/$', views.deploy_domains, name="deploy_domains"),
 
 ]

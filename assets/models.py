@@ -23,14 +23,9 @@ class Line(models.Model):
 # 项目，包含多个资产，比如使用多少台服务器
 class Project(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    project_name = models.CharField(max_length=60, blank=True, null=True, verbose_name=u'项目名')
-    aliases_name = models.CharField(max_length=60, blank=True, null=True, verbose_name=u'别名，用于监控')
-    project_contact = models.ForeignKey(User, related_name=u"main_business", verbose_name=u"负责人", )
-    description = models.TextField(blank=True, null=True, verbose_name=u'项目介绍')
-    line = models.ForeignKey(Line, null=True, blank=True, related_name=u"business", verbose_name=u"产品线", db_index=False,on_delete=models.SET_NULL)
-    project_doc = models.TextField(blank=True, null=True, verbose_name=u'项目维护说明')
-    project_user_group = models.TextField(blank=True, null=True, verbose_name=u'组成员', help_text=u"只有项目组成员才能申请发布")
-    sort = models.IntegerField(blank=True, null=True, default=0, verbose_name=u"排序")
+    project_name = models.CharField(max_length=180, blank=True, null=True, verbose_name=u'项目名')
+    parent = models.ForeignKey("self",blank=True, null=True,on_delete=models.SET_NULL, verbose_name=u'父项目',related_name="mychilden")
+    sort = models.IntegerField(default=0, verbose_name=u"层级")
     def __unicode__(self):
         return self.project_name
 
@@ -38,20 +33,7 @@ class Project(models.Model):
         verbose_name = u"项目"
         verbose_name_plural = verbose_name
 
-# 项目组成员
-# class ProjectUser(models.Model):
-#     uuid = UUIDField(auto=True, primary_key=True)
-#     project = models.ForeignKey(Project,db_index=False,default="")
-#     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name=u"user")
-#     data_created = models.DateTimeField(auto_now_add=True)
-#     project_env = models.CharField(max_length=100, blank=True, null=True, verbose_name=u"项目环境")
 
-#     def __unicode__(self):
-#         return unicode(self.user.username)
-
-#     class Meta:
-#         verbose_name = u"项目组成员"
-#         verbose_name_plural = verbose_name
 
 
 #机房的哪个区域，关联一些机柜，关联机房
@@ -65,6 +47,7 @@ class Moudle(models.Model):
     class Meta:
         verbose_name = '机房area'
         verbose_name_plural = verbose_name
+
 
 #机柜表
 class Cabinet(models.Model):
@@ -144,34 +127,34 @@ class Manufactory(models.Model):
 
 # 资产的属性
 class Asset(models.Model):
-    asset_type_choices = (
-        ('serverhost', u'物理机'),
-        ('virtual', u'虚拟机'),
-        ('switch', u'交换机'),
-        ('router', u'路由器'),
-        ('firewall', u'防火墙'),
-        ('storage', u'存储设备'),
-        ('contain', u'Docker'),
-        ('others', u'其它类'),
-    )
+    # asset_type_choices = (
+    #     ('serverhost', u'物理机'),
+    #     ('virtual', u'虚拟机'),
+    #     ('switch', u'交换机'),
+    #     ('router', u'路由器'),
+    #     ('firewall', u'防火墙'),
+    #     ('storage', u'存储设备'),
+    #     ('contain', u'Docker'),
+    #     ('others', u'其它类'),
+    # )
     Status_Status = (
         ('on','线上使用'),
         ('wait','线下闲置'),
         ('in','报废'),
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    asset_number = models.CharField(verbose_name=u'资产编号',max_length=128, blank=True,null=True)
+    # asset_number = models.CharField(verbose_name=u'资产编号',max_length=128, blank=True,null=True)
     asset_type = models.CharField(verbose_name=u'资产类型',max_length=64, blank=True)
     purpose = models.CharField(max_length=64,null=True, blank=True,verbose_name=u'用途')
     status = models.CharField(choices=Status_Status,max_length=64,verbose_name = u'设备状态',default='on')
-    manufactory = models.ForeignKey('Manufactory',verbose_name=u'供应商',null=True, blank=True)
-    trade_date = models.CharField(u'购买时间',max_length=64,blank=True,default='2016-01-01')
+    # manufactory = models.ForeignKey('Manufactory',verbose_name=u'供应商',null=True, blank=True)
+    # trade_date = models.CharField(u'购买时间',max_length=64,blank=True,default='2016-01-01')
     expire_date = models.CharField(u'保修期',max_length=64,blank=True,default='2016-01-01')
-    price = models.FloatField(u'价格(元)',null=True, blank=True)
-    price_total = models.IntegerField(u'续保次数',null=True, blank=True,help_text=u'如果是租的vps，计算每月续保可以算出成本')
+    # price = models.FloatField(u'价格(元)',null=True, blank=True)
+    # price_total = models.IntegerField(u'续保次数',null=True, blank=True,help_text=u'如果是租的vps，计算每月续保可以算出成本')
     tags = models.ManyToManyField('Tags' ,blank=True)
-    applicant = models.CharField(verbose_name=u'资产申请者',max_length=64,null=True, blank=True)
-    manager = models.ForeignKey(User, verbose_name=u'资产管理员',null=True, blank=True)
+    # applicant = models.CharField(verbose_name=u'资产申请者',max_length=64,null=True, blank=True)
+    # manager = models.ForeignKey(User, verbose_name=u'资产管理员',null=True, blank=True)
     remarks = models.TextField(u'备注', blank=True)
     mark = models.BooleanField(default=False)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -187,45 +170,45 @@ class Server(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     asset = models.OneToOneField('Asset')
     name = models.CharField(verbose_name=u"主机名",max_length=64, blank=True,null=True)
-    ansible_name = models.CharField(verbose_name=u"ansible节点名",max_length=64,blank=True,default='ansible_host_name')
+    # ansible_name = models.CharField(verbose_name=u"ansible节点名",max_length=64,blank=True,default='ansible_host_name')
     ssh_user = models.CharField(u'ssh用户',max_length=32,default='root')
     ssh_host = models.GenericIPAddressField(u'SSH地址',help_text=u'一般填写外网IP',default='127.0.0.1')
     ssh_port = models.IntegerField(u'SSH端口', default='22')
     ssh_password = models.CharField(verbose_name=u"SSH密码",max_length=100)
-    ipmitool = models.GenericIPAddressField(u'远控IP', blank=True,null=True)
+    # ipmitool = models.GenericIPAddressField(u'远控IP', blank=True,null=True)
     # #如果是虚拟机 那么他的宿主机是这个
     parent = models.ForeignKey('self',related_name='parent_server',blank=True,null=True,verbose_name=u"虚拟机父主机")
-    model = models.CharField(u'品牌型号',max_length=128,null=True, blank=True )
-    server_sn = models.CharField(verbose_name=u"SN编号", max_length=32, blank=True, null=True)
-    Services_Code = models.CharField(max_length=16, blank=True, null=True, verbose_name=u"快速服务编码")
+    # model = models.CharField(u'品牌型号',max_length=128,null=True, blank=True )
+    # server_sn = models.CharField(verbose_name=u"SN编号", max_length=32, blank=True, null=True)
+    # Services_Code = models.CharField(max_length=16, blank=True, null=True, verbose_name=u"快速服务编码")
     #cpu 内存 网卡 raid卡 都是 这些关联他
 
-    SERVER_STATUS = (
-    (0, u"未安装系统"),
-    (1, u"已安装系统"),
-    )
-    system_status = models.IntegerField(verbose_name=u"系统状态",default=1, choices=SERVER_STATUS,blank=True,null=True)
-    SYSTEM_OS = [(i, i) for i in (u"Linux", u"Windows","unix")]
+    # SERVER_STATUS = (
+    # (0, u"未安装系统"),
+    # (1, u"已安装系统"),
+    # )
+    # system_status = models.IntegerField(verbose_name=u"系统状态",default=1, choices=SERVER_STATUS,blank=True,null=True)
+    # SYSTEM_OS = [(i, i) for i in (u"Linux", u"Windows","unix")]
     os_type  = models.CharField(u"系统类型", max_length=32, default="Linux", blank=True,null=True)
-    SYSTEM_VERSION = [(i, i) for i in (u"CentOS",u"Ubuntu",u"Windows Server")]
-    os_version =models.CharField(u'系统版本',max_length=64, default="CentOS",blank=True,null=True)
-    SYSTEM_RELEASE = [(i, i) for i in ("5","6","7","12.04","14.04","16.04","2003","2008","2012","2016")]
-    os_release  = models.CharField(u'系统版本号',max_length=64,default='7', blank=True,null=True)
-    SYSTEM_KERNEL = [(i, i) for i in ("2.6.32","3.2.82","3.4.112","3.10.103","3.12.64","3.16.37","3.18.43","4.1.34","4.4.25","4.7.8","4.8.2")]
-    os_kernel = models.CharField(u'系统内核',max_length=128,default='3.2.82',null=True, blank=True )
-    Raid_level = models.CharField(u'冗余级别',max_length=8,null=True, blank=True )
+    # SYSTEM_VERSION = [(i, i) for i in (u"CentOS",u"Ubuntu",u"Windows Server")]
+    # os_version =models.CharField(u'系统版本',max_length=64, default="CentOS",blank=True,null=True)
+    # SYSTEM_RELEASE = [(i, i) for i in ("5","6","7","12.04","14.04","16.04","2003","2008","2012","2016")]
+    # os_release  = models.CharField(u'系统版本号',max_length=64,default='7', blank=True,null=True)
+    # SYSTEM_KERNEL = [(i, i) for i in ("2.6.32","3.2.82","3.4.112","3.10.103","3.12.64","3.16.37","3.18.43","4.1.34","4.4.25","4.7.8","4.8.2")]
+    # os_kernel = models.CharField(u'系统内核',max_length=128,default='3.2.82',null=True, blank=True )
+    # Raid_level = models.CharField(u'冗余级别',max_length=8,null=True, blank=True )
     Disk_total = models.CharField(u'硬盘总容量(GB)',max_length=8,null=True, blank=True )
     RAM_total = models.CharField(u'内存总容量(GB)',max_length=8,null=True, blank=True )
 
-    idc = models.ForeignKey(IDC, null=True,blank=True,verbose_name=u'机房', on_delete=models.SET_NULL)
-    cabinet = models.ForeignKey(Cabinet, verbose_name=u'所属机柜',null=True, blank=True)
-    server_cabinet_id = models.IntegerField(blank=True, null=True, verbose_name=u'机器位置')
+    # idc = models.ForeignKey(IDC, null=True,blank=True,verbose_name=u'机房', on_delete=models.SET_NULL)
+    # cabinet = models.ForeignKey(Cabinet, verbose_name=u'所属机柜',null=True, blank=True)
+    # server_cabinet_id = models.IntegerField(blank=True, null=True, verbose_name=u'机器位置')
 
-    project = models.ManyToManyField(Project, blank=True, verbose_name=u'所属项目')
+    project = models.ManyToManyField(Project,related_name='project_servers', blank=True, verbose_name=u'所属项目')
     service = models.ManyToManyField(Service, blank=True, verbose_name=u'运行服务')
     # 虚拟机vps需要写环境，例如阿里云
-    ENVIRONMENT = [(i, i) for i in (u"aliyun", u"aws", u"Tencent", u"pub")]
-    env = models.CharField(max_length=32, blank=True, null=True, verbose_name=u"系统环境", choices=ENVIRONMENT)
+    # ENVIRONMENT = [(i, i) for i in (u"aliyun", u"aws", u"Tencent", u"pub")]
+    # env = models.CharField(max_length=32, blank=True, null=True, verbose_name=u"系统环境", choices=ENVIRONMENT)
     old_ip = models.CharField(u'曾用IP',max_length=128,null=True, blank=True )
 
     create_date = models.DateTimeField(auto_now_add=True)
@@ -324,17 +307,17 @@ class NIC(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     asset = models.ForeignKey('Asset',related_name='wangka')
     name = models.CharField(u'网卡名', max_length=64, blank=True,null=True)
-    sn = models.CharField(u'SN号', max_length=128, blank=True,null=True)
-    model =  models.CharField(u'网卡型号', max_length=128, blank=True,null=True)
-    macaddress = models.CharField(u'MAC', max_length=64, blank=True)
+    # sn = models.CharField(u'SN号', max_length=128, blank=True,null=True)
+    # model =  models.CharField(u'网卡型号', max_length=128, blank=True,null=True)
+    # macaddress = models.CharField(u'MAC', max_length=64, blank=True)
     ipaddress = models.GenericIPAddressField(u'IP', blank=True,null=True)
-    netmask = models.CharField(verbose_name='子网掩码',max_length=64,blank=True,null=True)
-    bonding = models.CharField(max_length=64,blank=True,null=True)
+    # netmask = models.CharField(verbose_name='子网掩码',max_length=64,blank=True,null=True)
+    # bonding = models.CharField(max_length=64,blank=True,null=True)
     memo = models.CharField(u'备注',max_length=128, blank=True,null=True)
-    create_date = models.DateTimeField(blank=True, auto_now_add=True)
-    update_date = models.DateTimeField(blank=True,null=True)
-    mark = models.BooleanField(default='False')
-    auto_create_fields = ['name','sn','model','macaddress','ipaddress','netmask','bonding','mark']
+    # create_date = models.DateTimeField(blank=True, auto_now_add=True)
+    # update_date = models.DateTimeField(blank=True,null=True)
+    # mark = models.BooleanField(default='False')
+    auto_create_fields = ['name','ipaddress']
     #auto_create_fields 定义这个表需要的数据 用于更新资产信息
     #我从例如json里 取出我这个表需要的key 之后插入到dataset里
     def __unicode__(self):
