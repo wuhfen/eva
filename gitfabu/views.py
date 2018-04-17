@@ -325,7 +325,7 @@ def audit_my_task(request,uuid):
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
     print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
     if request.method == 'POST':
-        if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
+        #if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
         ispass = request.POST.get('ispass')
         if ispass == "yes":
             ok = True

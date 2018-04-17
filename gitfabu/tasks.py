@@ -388,6 +388,7 @@ class git_moneyweb_deploy(object):
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         res = p.stdout.readlines()
         resok = ",".join(res)
+        print cmd
         print ",".join(res)
         self.results.append(cmd)
         self.results.append("合并代码结果：%s"% resok)
@@ -443,6 +444,7 @@ class git_moneyweb_deploy(object):
     def web_front_domain(self):
         remote_dir = "/usr/local/nginx/conf/vhost/" #此处前期写死了，后期应该从business里面娶
         siteid = self.siteid.replace('f','')
+        siteid = self.siteid.replace('c','')
         frontname = self.env_ch+"-"+self.siteid+"前端域名" #灰度的前端域名与前端反代节点域名一样
         agname = self.env_ch+"-"+self.siteid+"AG域名"
         backendname = self.env_ch+"-"+self.siteid+"后台域名"
@@ -462,6 +464,10 @@ class git_moneyweb_deploy(object):
         front_remoteips = self.remoteip
         if self.env == "huidu" or self.env == "online": #测试环境不需要ag与后台
             try:
+                ag_proxy_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=u"AG反代").remoteip
+            except:
+                self.results.append("ERROR:%s-%s-AG反代没有配置"% (self.platform,self.env))
+            try:
                 ag_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name="AG").remoteip
             except:
                 self.results.append("ERROR:%s-%s-AG没有配置"% (self.platform,self.env))
@@ -474,9 +480,11 @@ class git_moneyweb_deploy(object):
             if self.env == "test":
                 local_nginx_file = "front_test.conf"
             else:
-                if "f" in self.siteid:
+                if "f" == self.siteid[-1]: #1058f
                     local_nginx_file = "front_fu.conf"
-                else:
+                elif "c" == self.siteid[-1]: #1058fa
+                    local_nginx_file = "front_c.conf"
+                else: #1058
                     local_nginx_file = "front_zhu.conf"
         elif self.platform == "蛮牛":
             local_nginx_file = "mn_source.conf"
@@ -536,7 +544,7 @@ class git_moneyweb_deploy(object):
                     return self.results
             #同步后台域名
             if self.env == "huidu":
-                if "f" not in self.siteid: 
+                if "f" not in self.siteid and "c" not in self.siteid: 
                     if self.platform == "现金网": local_nginx_file = "backend.conf"
                     if self.platform == "蛮牛": local_nginx_file = "mn_backend.conf"
                     try:
@@ -576,7 +584,7 @@ class git_moneyweb_deploy(object):
                         self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
                         self.results.append("配置源站反代域名失败，任务结束！")
                         return self.results
-        #同步蛮牛源站反代域名
+        #同步蛮牛AG反代域名
         if self.platform == "蛮牛":
             if self.env == "online":
                 local_nginx_file = "mn_agent.conf"
@@ -597,7 +605,7 @@ class git_moneyweb_deploy(object):
                     self.results.append("配置AG域名失败，任务结束！")
                     return self.results
             #同步后台域名
-            if self.env == "online":
+            if self.env == "online" or self.env == "huidu":
                 local_nginx_file = "mn_backend.conf"
                 try:
                     resource = gen_resource([Server.objects.get(ssh_host=i) for i in backend_remoteips.split('\r\n')])
