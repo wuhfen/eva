@@ -89,6 +89,7 @@
           <ul class="treeview-menu ">
             <li><a href="{% url 'vps_list' %}"><i class="fa fa-circle-o"></i> 资产列表</a></li>
             {% if add_host %}
+            <li><a href="{% url 'project_list' %}"><i class="fa fa-circle-o"></i> 资产分组</a></li>
             <li><a href="{% url 'batch_add_vm' %}"><i class="fa fa-circle-o"></i> 添加虚拟机</a></li>
             {% endif %}
 
