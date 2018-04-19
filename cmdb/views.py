@@ -279,8 +279,11 @@ def audit(message):
             else:
                 deploy_data = df.code_conf
                 dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
-            for i in dflog:
-                text = "".join(i.log)
+            if dflog:
+                for i in dflog:
+                    text = "".join(i.log)
+            else:
+                text=""
     else:
         text="你已审核，等待其他人审核！"
 
@@ -317,6 +320,7 @@ def handle_message(message):
             elif '/help' in text:
                 helpp(message)
             elif '/audit' in text:
+                #return True
                 audit(message)
             elif '/get_host' in text:
                 get_host(message)
@@ -325,8 +329,9 @@ def handle_message(message):
         except TypeError:
             pass
     elif message.chat.type == 'group':
-        text = '%s说：%s'% (message.first_name,message.text)
-        bot.sendMessage(chat_id=message.chat.id, text=text)
+        return True
+        #text = '%s说：%s'% (message.first_name,message.text)
+        #bot.sendMessage(chat_id=message.chat.id, text=text)
 
 
 

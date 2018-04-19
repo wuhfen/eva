@@ -255,7 +255,7 @@ def domain_add_select(request,siteid):
                     errors.append("你填写域名：%s 格式错误！缺少ds168"% i.strip())
                 if use == '0' and ("ds168." in i.strip() or "ag." in i.strip()):
                     errors.append("网站域名：%s 不应该改包含ds168 or ag"% i.strip())
-                if i.strip() in [x.name for x in data]:
+                if i.strip() in [x.name for x in DomainName.objects.filter(business=business,classify=classify,state='0',use=use)]:
                     errors.append("域名：%s 已存在"% i.strip())
         if errors:
             return render(request,'business/domain_add_select.html',locals())

@@ -299,7 +299,7 @@ def my_request_task_list(request):
         data = my_request_task.objects.filter(isend=False,loss_efficacy=False).order_by('-create_date')
     else:
         data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
-    data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
+    #data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
     return render(request,'gitfabu/my_request_task.html',locals())
 
 @login_required
@@ -311,7 +311,8 @@ def others_request_task_list(request):
         # for i in sdata:
         #     for j in i.reqt.all():
         #         data.append(j)
-        data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
+        #data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
+        data = git_task_audit.objects.all()[0:100]
     else:
         data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:100]
     # data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
