@@ -85,7 +85,7 @@
           if (data.res=="OK") {
             $(".daemon").remove();
             for (var key in data.info) { 
-                var option = $('<tr class="daemon"><td>'+data.info[key].ip+'</td><td>'+data.info[key].comment+'</td><td>'+data.info[key].date+'</td><td>'+data.info[key].user+'</td><td><a href="/allow/iptables_delete/'+data.info[key].uuid+'" class="btn btn-danger btn-xs delete-ip"><span class="glyphicon glyphicon-remove"></span></a></td></tr>');
+                var option = $('<tr class="daemon"><td>'+data.info[key].ip+'</td><td>'+data.info[key].comment+'</td><td>'+data.info[key].date+'</td><td>'+data.info[key].user+'</td><td><a href="/allow/iptables_delete/'+data.info[key].uuid+'" class="btn btn-danger btn-xs delete-ip" name="delete" id='+data.info[key].uuid+'><span class="glyphicon glyphicon-remove"></span></a></td></tr>');
                 $("#tbody").append(option);
             };
           } else { layer.msg("没有可用信息！") }
@@ -110,8 +110,7 @@ $("#id_btn_plus").on('click',function(event) {
 });
 
 
-
-$(".delete-ip").on("click", function(event){
+$("#tbody").on('click','.delete-ip',function(event){
       var choice = $(this).attr('id')
       var url= "/allow/iptables_delete/"+choice+"/";
       layer.alert("确定删除吗？",{

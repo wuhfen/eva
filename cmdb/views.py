@@ -235,7 +235,6 @@ def audit(message):
         data.postil = postil
         data.save()
         check_group_audit(data.request_task.id,username,ok,data.audit_group_id,postil)
-        
     if not ok:
         bot.sendMessage(chat_id=message.chat.id, text=postil)
         return 2
@@ -267,40 +266,39 @@ def audit(message):
                 reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
                 text = postil + df.name
             print text
-        bot.sendMessage(chat_id=message.chat.id, text=text)
-        try:
-            reslut.wait(timeout=600)
-        except:
-            bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
-            return 7
-        if reslut.successful():
-            if data.request_task.table_name == "git_deploy":
-                dflog = df.deploy_logs.filter(name=name,update=df.id)
-            else:
-                deploy_data = df.code_conf
-                dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
-            if dflog:
-                for i in dflog:
-                    text = "".join(i.log)
-            else:
-                text=""
+        #try:
+        #    reslut.wait(timeout=600)
+        #except:
+        #    bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
+        #    return 7
+        #if reslut.successful():
+        #    if data.request_task.table_name == "git_deploy":
+        #        dflog = df.deploy_logs.filter(name=name,update=df.id)
+        #    else:
+        #        deploy_data = df.code_conf
+        #        dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
+        #    if dflog:
+        #        for i in dflog:
+        #            text = "".join(i.log)
+        #    else:
+        #        text=""
     else:
         text="你已审核，等待其他人审核！"
-
-    num = len(text)/4096
-    if num == 0:
-        bot.sendMessage(chat_id=message.chat.id, text=text)
-    else:
-        start = 0
-        for i in num:
-            end = start + 4096
-            bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
-            start += 4096
-        if len(text)%4096 == 0:
-            pass
-        else:
-            end = start + len(text)%4096
-            bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
+    bot.sendMessage(chat_id=message.chat.id, text=text)
+    #num = len(text)/4096
+    #if num == 0:
+    #    bot.sendMessage(chat_id=message.chat.id, text=text)
+    #else:
+    #    start = 0
+    #    for i in num:
+    #        end = start + 4096
+    #        bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
+    #        start += 4096
+    #    if len(text)%4096 == 0:
+    #        pass
+    #    else:
+    #        end = start + len(text)%4096
+    #        bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
 
 def handle_message(message):
     print message

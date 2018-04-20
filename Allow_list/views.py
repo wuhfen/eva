@@ -45,19 +45,15 @@ def poll_state(request):
         data = task.status
     else:
         data = 'No task_id in the request'
-
-
     json_data = json.dumps(data)
     return HttpResponse(json_data, content_type='application/json')
 
 def iptables_list(request):
-    try:  
+    try:
         page = int(request.GET.get("page",1))
-        print request.GET
-        print('page----->',page)
-        if page < 1:  
-            page = 1  
-    except ValueError:  
+        if page < 1:
+            page = 1
+    except ValueError:
         page = 1
     data = Iptables.objects.all().order_by('i_comment')
     paginator = JuncheePaginator(data, 10)
@@ -67,7 +63,6 @@ def iptables_list(request):
         data = paginator.page(1)
     except EmptyPage:
         data = paginator.page(paginator.num_pages)
-
     return render(request,'allow_list/iptables_list.html',locals())
 
 
@@ -121,7 +116,6 @@ def iptables_search(request):
     if res:
         fff = []
         for i in res:
-            print i.i_date_time
             fff.append({"ip":i.i_source_ip,"comment":i.i_comment,"date":i.i_date_time.strftime('%Y-%m-%d %H:%M:%S'),"user":i.i_user.first_name,"uuid":i.id})
         result["res"] = "OK"
         result["info"] = fff
@@ -337,12 +331,11 @@ def white_list_fun(request,which):
     return render(request,'allow_list/white_list.html',locals())
 
 def white_add(request,uuid):
-
     conf = white_conf.objects.get(pk=uuid)
     if conf.name == "KG-JDC" or conf.name == "MONEY-Backend":
-        data = git_deploy.objects.filter(platform="现金网",classify="online",islog=True)
+        data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True)
     elif conf.name == "MN-Backend":
-        data = git_deploy.objects.filter(platform="蛮牛",classify="online",islog=True)
+        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True)
     else:
         data = git_deploy.objects.filter(classify="online",islog=True)
     if request.method == 'POST':
@@ -361,23 +354,31 @@ def white_add(request,uuid):
         if not created: return JsonResponse({"res": "falid","info": "此项目的IP已存在"},safe=False)
         if white_list.objects.filter(white_conf=conf,git_deploy=deploy,host_ip=ip).count() > 1: return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
 
-
         if classify == "KG-JDC": 
             template_file="kg_jdc_white.conf"
             ips = ""
             for i in white_list.objects.filter(white_conf=conf):
-
                 ips += i.host_key+" "+i.host_ip+"; #"+i.git_deploy.name+" \n"
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
-
         elif classify == "MN-Backend":
             template_file="mn_backend.conf"
             file_path = conf.file_path+"/"+deploy.name+".conf"
             ips = ""
-            for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
-                ips += i.host_key+" "+i.host_ip+";\n    "
+            huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",isops=True,islog=True)
+            online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",isops=True,islog=True)
+
+            if huidu_deploy:
+                for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
+                    ips += i.host_key+" "+i.host_ip+";\n    "
+                    print "找到灰度后台白名单：%s"% ips
+            if online_deploy:
+                for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+                    ips += i.host_key+" "+i.host_ip+";\n    "
+            print "所有后台白名单：%s"% ips
             business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
             front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+            if not front_data:
+                front_data = business.domain.filter(use=2,classify="huidu")
             front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
             job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
 
@@ -425,13 +426,18 @@ def white_delete(request,uuid):
 def white_list_search(request):
     comment = request.GET.get('comment','')
     result = {}
-    ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment)]
-    try:
-        obj = git_deploy.objects.get(name=comment,classify="online")
-        comment_res = [i for i in obj.white.all()]
-    except:
-        comment_res = []
+    comment_res = []
+    ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment) if i]
 
+    huidu_obj = git_deploy.objects.filter(name=comment,classify="huidu")
+    if huidu_obj:
+        for i in huidu_obj[0].white.all():
+            comment_res.append(i)
+
+    online_obj = git_deploy.objects.filter(name=comment,classify="online")
+    if online_obj:
+        for i in online_obj[0].white.all():
+            comment_res.append(i)
     res = list(set(ip_res).union(set(comment_res)))
     if res:
         fff = []

@@ -197,8 +197,13 @@ class Repo(object):
 
     def show_commit(self):
         """H是满hash，h是7位hash"""
-        cmds = ["log","-50","--oneline"]
-        res = self.git_command(*cmds)
+        try:
+            cmds = ["log","-50","--oneline"]
+            res = self.git_command(*cmds)
+        except:
+            print("版本少于50个日志")
+            cmds = ["log","-1","--oneline"]
+            res = self.git_command(*cmds)
         return res.strip().split('\n')
 
     def git_show_tag(self,path,release=None):
