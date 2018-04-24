@@ -45,14 +45,14 @@ def business_add(request):
             siteid = bf_data.nic_name
 
             #需要创建测试环境和灰度环境的域名,傻啊，都不分现金网和蛮牛吗？
-            if bf_data.platform="现金网":
+            if bf_data.platform == "现金网":
                 test_f = DomainName(name=siteid+".test.s1118.com",use=0,business=bf_data,classify="test",state=0,supplier="工程")
                 test_f.save()
                 huidu_f = DomainName(name=siteid+".s1119.com",use=0,business=bf_data,classify="huidu",state=0,supplier="运维")
                 huidu_a = DomainName(name="ag"+siteid+".s1119.com",use=1,business=bf_data,classify="huidu",state=0,supplier="运维")
                 huidu_a.save()
                 huidu_f.save()
-            elif bf_data.platform="蛮牛":
+            elif bf_data.platform == "蛮牛":
                 huidu_f = DomainName(name=siteid+".kg-44.com",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a = DomainName(name="ag"+siteid+".kg-44.com",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a.save()
