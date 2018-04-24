@@ -226,6 +226,8 @@ def conf_add(request,env):
             errors.append("没有配置-%s-%s-%s-服务器地址"% (platform,business.name,envir))
 
         #检测域名正确性，测试环境不会检查ag与backend域名,发布Huidu的时候需要填写后台域名，发布线上的时候需要填写前台与ag域名
+        #蛮牛现金网副网不检测域名后台
+        #C网
         if platform == "现金网" or platform == "蛮牛":
             f_domainname = DomainName.objects.filter(use=0,business=business,classify=envir)
             a_domainname = DomainName.objects.filter(use=1,business=business,classify=envir)
@@ -298,8 +300,8 @@ def my_request_task_list(request):
     if request.user.username == "wuhf":
         data = my_request_task.objects.filter(isend=False,loss_efficacy=False).order_by('-create_date')
     else:
-        data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
-    #data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
+        data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
+    # data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=True).order_by('-create_date')[0:100]
     return render(request,'gitfabu/my_request_task.html',locals())
 
 @login_required
@@ -311,11 +313,10 @@ def others_request_task_list(request):
         # for i in sdata:
         #     for j in i.reqt.all():
         #         data.append(j)
-        #data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
-        data = git_task_audit.objects.all()[0:100]
+        data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
     else:
-        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:100]
-    # data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
+        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:50]
+    data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
     return render(request,'gitfabu/others_request_task.html',locals())
 
 @login_required
@@ -323,7 +324,6 @@ def cancel_my_task(request,uuid):
     data = my_request_task.objects.get(id=uuid)
     data.loss_efficacy=True
     data.status="已停止"
-    data.save()  #停止此次申请任务，还应当将锁住的项目解锁
     df = eval(data.table_name).objects.get(pk=data.uuid)
     if data.table_name == "git_code_update":
         if df.code_conf: #单个更新任务，删除任务，解锁项目
@@ -338,11 +338,13 @@ def cancel_my_task(request,uuid):
             git_deploy.objects.filter(platform=platform,classify=classify,islog=True,usepub=True).update(islock=False)
     df.delete() #删除任务
     data.reqt.all().update(loss_efficacy=True) #停止相关的审核任务
+    data.save()  #停止此次申请任务，还应当将锁住的项目解锁
     return JsonResponse({'res':"已经终止申请"},safe=False)
 
 @login_required
 def my_task_details(request,uuid):
     data = my_request_task.objects.get(id=uuid)
+    print data.loss_efficacy
     others_data = data.reqt.all().order_by('audit_time') #分发的审核任务
     groups = list(set([i.audit_group_id for i in others_data if i])) #拿到审核组的ID
     groups = [department_Mode.objects.get(id=i) for i in groups] #拿到审核组的对象集合
@@ -363,11 +365,13 @@ def my_task_details(request,uuid):
         res[i.name] = {"member":L,"date":j.audit_time.strftime('%Y-%m-%d'),"time":j.audit_time.strftime('%H:%M:%S'),"status":status}
 
 
-    if data.loss_efficacy:
-        return render(request,'gitfabu/my_task_details.html',locals())
+    if data.loss_efficacy: return render(request,'gitfabu/my_task_details.html',locals())
     if data.table_name == "git_deploy":
         classify = "fabu"
-        df = eval(data.table_name).objects.get(pk=data.uuid)
+        try:
+            df = eval(data.table_name).objects.get(pk=data.uuid)
+        except:
+            return render(request,'gitfabu/my_task_details.html',locals())
         dflog = df.deploy_logs.filter(name="发布")
         gitprivate = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=False,title=df.name)
         
@@ -468,7 +472,7 @@ def audit_my_task(request,uuid):
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
     print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
     if request.method == 'POST':
-        if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
+        # if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
         ispass = request.POST.get('ispass')
         if ispass == "yes":
             ok = True

@@ -474,7 +474,8 @@ class git_moneyweb_deploy(object):
     def web_front_domain(self):
         remote_dir = "/usr/local/nginx/conf/vhost/" #此处前期写死了，后期应该从business里面娶
         siteid = self.siteid.replace('f','')
-        siteid = self.siteid.replace('c','')
+        siteid = siteid.replace('c','')
+        print "当前siteid%s"% siteid
         #先找到域名
         business = Business.objects.get(nic_name=self.siteid,platform=self.platform) #某个项目的某个ID
         front_data = business.domain.filter(use=0,classify=self.env)
@@ -486,70 +487,6 @@ class git_moneyweb_deploy(object):
         # nav_data = business.domain.filter(use=3,classify=self.env)
         # nav_domain = " ".join([i.name for i in nav_data if i])
 
-        #开始找到源站的ip
-        # front_remoteips = self.remoteip  #前端源站
-        # if self.env != "test": #测试环境不需要ag与后台
-        #     try:
-        #         proxy_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name="源站反代").remoteip
-        #     except:
-        #         self.results.append("WARNNING:%s-%s-AG反代没有配置"% (self.platform,self.env))
-        #     try:
-        #         ag_proxy_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=u"AG反代").remoteip
-        #     except:
-        #         self.results.append("WARNNING:%s-%s-AG反代没有配置"% (self.platform,self.env))
-        #     try:
-        #         ag_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=u"AG").remoteip
-        #     except:
-        #         self.results.append("WARNNING:%s-%s-AG没有配置"% (self.platform,self.env))
-        #     try:
-        #         backend_remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=u"后台").remoteip
-        #     except:
-        #         self.results.append("WARNNING:%s-%s-后台没有配置"% (self.platform,self.env))
-        #同步前端域名
-        # if self.platform == "现金网":
-        #     name = "源站"
-        #     domains = front_domain
-        #     remotefile = self.siteid+".conf"
-        #     if self.env == "test":
-        #         local_nginx_file = "front_test.conf"
-        #         port = self.siteid
-        #     else:
-        #         port = siteid
-        #         if "f" == self.siteid[-1]: #1058f
-        #             local_nginx_file = "front_fu.conf"
-        #         elif "c" == self.siteid[-1]: #1058c
-        #             local_nginx_file = "front_c.conf"
-        #         else: #1058
-        #             local_nginx_file = "front_zhu.conf"
-        # elif self.platform == "蛮牛":
-        #     name = "源站"
-        #     domains = "-"
-        #     remotefile = self.siteid+".conf"
-        #     local_nginx_file = "mn_source.conf"
-        #     port = self.siteid
-
-        # self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-        #rsync_nginx_conf参数(localfile,remotedir,remotefile,siteid,domains)
-        # try:
-        #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in front_remoteips.split('\r\n')])
-        #     playtask = MyPlayTask(resource)
-        #     if self.platform == "现金网":
-        #         res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",port,front_domain) #现金网源站设置域名，线上没有源站反代，灰度有
-        #     elif self.platform == "蛮牛":
-        #         res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",port,"-") #蛮牛源站不放域名，域名在源站反代设置
-
-        #     self.results.append("源站：%s 文件名：%s"% (front_remoteips,remote_dir+self.siteid+".conf"))
-        #     self.results.append("域名：%s"% front_domain)
-        #     if res == 0:
-        #         self.results.append("结果：成功！")
-        #     elif res == 1:
-        #         self.results.append("结果：执行错误！")
-        #     else:
-        #         self.results.append("结果：主机不可用！")
-        # except:
-        #     self.results.append("配置源站域名失败，任务结束！")
-        #     return self.results
-
         if self.platform == "现金网":
             #同步源站域名
             name = "源站"
@@ -559,13 +496,19 @@ class git_moneyweb_deploy(object):
                 local_nginx_file = "front_test.conf"
                 port = self.siteid
             else:
+                print "siteid: %s"%siteid
+                print "self_siteid:%s"% self.siteid
                 port = siteid
                 if "f" == self.siteid[-1]: #1058f
+                    print "副站域名文件开始同步"
                     local_nginx_file = "front_fu.conf"
                 elif "c" == self.siteid[-1]: #1058c
+                    print "C网域名文件开始同步"
                     local_nginx_file = "front_c.conf"
                 else: #1058
+                    print "主站域名文件开始同步"
                     local_nginx_file = "front_zhu.conf"
+            print port
             self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
             #现金网同步AG域名
             if self.env != "test":
@@ -575,21 +518,7 @@ class git_moneyweb_deploy(object):
                 local_nginx_file = "agent_"+self.env+".conf"
                 remotefile = self.siteid+"_"+self.env+".conf"
                 self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-                # try:
-                #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
-                #     playtask = MyPlayTask(resource)
-                #     res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remotefile,self.siteid,ag_domain)
-                #     self.results.append("AG站：%s 文件名：%s"% (ag_remoteips,remote_dir+remotefile))
-                #     self.results.append("域名：%s"% ag_domain)
-                #     if res == 0:
-                #         self.results.append("结果：成功！")
-                #     elif res == 1:
-                #         self.results.append("结果：执行错误！")
-                #     else:
-                #         self.results.append("结果：主机不可用！")
-                # except:
-                #     self.results.append("配置AG域名失败，任务结束！")
-                #     return self.results
+
             #同步后台域名,灰度环境同步就够了，副网和C网都不用重复配置
             if self.env == "huidu":
                 if "f" not in self.siteid and "c" not in self.siteid: 
@@ -599,21 +528,7 @@ class git_moneyweb_deploy(object):
                     remotefile = self.siteid+"_b.conf"
                     local_nginx_file = "backend.conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-                    # try:
-                    #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in backend_remoteips.split('\r\n')])
-                    #     playtask = MyPlayTask(resource)
-                    #     res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",siteid,backend_domain)
-                    #     self.results.append("后台站：%s 文件名：%s"% (backend_remoteips,remote_dir+self.siteid+".conf"))
-                    #     self.results.append("域名：%s"% backend_domain)
-                    #     if res == 0:
-                    #         self.results.append("结果：成功！")
-                    #     elif res == 1:
-                    #         self.results.append("结果：执行错误！")
-                    #     else:
-                    #         self.results.append("结果：主机不可用！")
-                    # except:
-                    #     self.results.append("配置后台域名失败，任务结束！")
-                    #     return self.results
+
             #同步现金网灰度源站反代域名
             if self.env == "huidu":
                 if "f" not in self.siteid and "c" not in self.siteid:
@@ -623,23 +538,6 @@ class git_moneyweb_deploy(object):
                     local_nginx_file = "front_proxy.conf"
                     remotefile = siteid+".s1119.conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-                    # try:
-                    #     proxy_remoteips = git_ops_configuration.objects.get(platform="现金网",classify=self.env,name="源站反代").remoteip
-                    #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
-                    #     playtask = MyPlayTask(resource)
-                    #     playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remotefile,siteid,front_domain)
-                    #     self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remotefile))
-                    #     self.results.append("域名：%s"% front_domain)
-                    #     if res == 0:
-                    #         self.results.append("结果：成功！")
-                    #     elif res == 1:
-                    #         self.results.append("结果：执行错误！")
-                    #     else:
-                    #         self.results.append("结果：主机不可用！")
-                    # except:
-                    #     self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
-                    #     self.results.append("配置源站反代域名失败，任务结束！")
-                    #     return self.results
 
 
         if self.platform == "蛮牛":
@@ -666,35 +564,7 @@ class git_moneyweb_deploy(object):
 
                 self.ansible_rsync_api(name1,local_nginx_file1,remote_dir,remotefile1,port,domains)
                 self.ansible_rsync_api(name2,local_nginx_file2,remote_dir,remotefile2,port,domains)
-                # try:
-                #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_proxy_remoteips.split('\r\n')])
-                #     playtask = MyPlayTask(resource)
-                #     res = playtask.rsync_nginx_conf(local_ag_proxy_nginx_file,remote_dir,proxy_file_name,self.siteid,ag_domain)
-                #     self.results.append("AG反代站：%s 文件名：%s"% (ag_proxy_remoteips,remote_dir+proxy_file_name))
-                #     if res == 0:
-                #         self.results.append("结果：成功！")
-                #     elif res == 1:
-                #         self.results.append("结果：执行错误！")
-                #     else:
-                #         self.results.append("结果：主机不可用！")
-                # except:
-                #     self.results.append("配置AG反代域名失败，任务结束！")
-                #     return self.results
-                # try:
-                #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in ag_remoteips.split('\r\n')])
-                #     playtask = MyPlayTask(resource)
-                #     res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,filename,self.siteid,ag_domain)
-                #     self.results.append("AG站：%s 文件名：%s"% (ag_remoteips,remote_dir+filename))
-                #     self.results.append("域名：%s"% ag_domain)
-                #     if res == 0:
-                #         self.results.append("结果：成功！")
-                #     elif res == 1:
-                #         self.results.append("结果：执行错误！")
-                #     else:
-                #         self.results.append("结果：主机不可用！")
-                # except:
-                #     self.results.append("配置AG域名失败，任务结束！")
-                #     return self.results
+
             #同步后台域名
             if self.env == "huidu":
                 name = "后台"
@@ -703,27 +573,12 @@ class git_moneyweb_deploy(object):
                 local_nginx_file = "mn_backend.conf"
                 remotefile = self.siteid+".conf"
                 self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-                # try:
-                #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in backend_remoteips.split('\r\n')])
-                #     playtask = MyPlayTask(resource)
-                #     res = playtask.rsync_nginx_conf(local_nginx_file,remote_dir,self.siteid+".conf",siteid,backend_domain)
-                #     self.results.append("后台站：%s 文件名：%s"% (backend_remoteips,remote_dir+self.siteid+".conf"))
-                #     self.results.append("域名：%s"% backend_domain)
-                #     if res == 0:
-                #         self.results.append("结果：成功！")
-                #     elif res == 1:
-                #         self.results.append("结果：执行错误！")
-                #     else:
-                #         self.results.append("结果：主机不可用！")
-                # except:
-                #     self.results.append("配置后台域名失败，任务结束！")
-                #     return self.results
+
             #同步蛮牛源站反代域名
             if self.env != "test":
                 name = "源站反代"
                 domains = front_domain
                 port = self.siteid
-
                 if self.env == "huidu":
                     local_nginx_file = "mn_huidu_front_proxy.conf"
                     remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
@@ -734,23 +589,6 @@ class git_moneyweb_deploy(object):
                     remotefile = self.siteid+".conf"
 
                 self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-                # try:
-                #     proxy_remoteips = git_ops_configuration.objects.get(platform="蛮牛",classify=self.env,name="源站反代").remoteip
-                #     resource = gen_resource([Server.objects.get(ssh_host=i) for i in proxy_remoteips.split('\r\n')])
-                #     playtask = MyPlayTask(resource)
-                #     playtask.rsync_nginx_conf(local_nginx_file,remote_dir,remotefile,self.siteid,front_domain)
-                #     self.results.append("源站反代站：%s 文件名：%s"% (proxy_remoteips,remote_dir+remotefile))
-                #     self.results.append("域名：%s"% front_domain)
-                #     if res == 0:
-                #         self.results.append("结果：成功！")
-                #     elif res == 1:
-                #         self.results.append("结果：执行错误！")
-                #     else:
-                #         self.results.append("结果：主机不可用！")
-                # except:
-                #     self.results.append("ERROR:现金网-%s-源站反代没有配置"% self.env)
-                #     self.results.append("配置源站反代域名失败，任务结束！")
-                #     return self.results
         return self.results
 
 @shared_task()
@@ -899,7 +737,6 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         env = "online"
     else:
         env = "test"
-
     logs=[]
     #加锁
     lock_file = "/tmp/"+platform+"_"+env+".lock"
@@ -912,6 +749,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
 
     datas = git_deploy.objects.filter(platform=platform,classify=env,isops=True,islog=True,usepub=True) #迁移的时候别忘记把所有的项目usepub项更新为真
     datas.update(islock=True) #全局锁
+
     counts=[]
     for data in datas:
         start = "%s公用代码-%s环境-%s-%s更新"% (platform,env,data.name,updata.method)

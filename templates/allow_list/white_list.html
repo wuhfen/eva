@@ -34,7 +34,7 @@
               <li><a class='paginator' title='上一页' href='?page={{ data.previous_page_number }}'>«</a></li>
             {% endif %}
             {% for page in data.paginator.page_range_ext %}
-              {% if page = data.number %}
+              {% if page == data.number %}
                 <li><a class='paginator_current' title='当前页:{{ page }}'><span>{{ page }}</span></a></li>
               {% else %}
                 <li><a class='paginator' href='?page={{ page }}' title='{{ page }}'><span>{{ page }}</span></a></li>

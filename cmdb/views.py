@@ -216,6 +216,9 @@ def audit(message):
         else:
             df = git_code_update.objects.get(id=data.request_task.uuid)
         print df.name
+        if df.islog:
+            bot.sendMessage(chat_id=message.chat.id, text="任务已完成，检测到重复审核！")
+            return True
     except:
         text="没有找%s项目"% data.request_task.table_name
         print text
