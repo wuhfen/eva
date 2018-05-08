@@ -525,7 +525,7 @@ class git_moneyweb_deploy(object):
                     name = "后台"
                     domains = backend_domain
                     port = siteid
-                    remotefile = self.siteid+"_b.conf"
+                    remotefile = self.siteid+".conf"
                     local_nginx_file = "backend.conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
 

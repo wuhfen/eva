@@ -261,10 +261,14 @@ def conf_add(request,env):
             js_mob,js_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_mobile",defaults={'address':money_git+"web/1000m_public_js.git",'user':username,'passwd':password})
             configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_config",defaults={'address':money_git+"config/"+name+".git",'user':username,'passwd':password})
         elif platform == "蛮牛":
+            if envir == "huidu":
+                php_repo = money_git+"harrisdt15f/huidu-wcphpsec.git"
+            else:
+                php_repo = money_git+"harrisdt15f/wcphpsec.git"
             web = money_git+"jack/%s.git"% name
             obj,created = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name,defaults={'address':web,'user':username,'passwd':password},)
             jsobj,jsrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_js",defaults={'address':money_git+"jack/mn-web-public.git",'user':username,'passwd':password})
-            phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_php",defaults={'address':money_git+"harrisdt15f/wcphpsec.git",'user':username,'passwd':password})
+            phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_php",defaults={'address':php_repo,'user':username,'passwd':password})
             configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
 
 
@@ -293,6 +297,7 @@ def conf_add(request,env):
         else:
             auditor = git_deploy_audit.objects.get(platform=platform,classify=envir,name="发布")
             task_distributing(mydata.id,auditor.id)
+        return HttpResponseRedirect('/allow/welcome/')
     return render(request,'gitfabu/conf_add.html',locals())
 
 @login_required

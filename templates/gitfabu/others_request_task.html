@@ -29,6 +29,7 @@
                     <tr>
                         <th>申请时间</th>
                         <th>名称</th>
+                        <th>原因</th>
                         <th>申请人</th>
                         <th>审核人</th>
 <!--                         <th>审核组</th> -->
@@ -43,6 +44,7 @@
                         <tr class="info">
                             <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                             <td>{{ v.request_task.name }}</td>
+                            <td>{{ v.request_task.memo }}</td>
                             <td>{{ v.request_task.initiator }}</td>
                             <td>{{ v.auditor }}</td>
                             <!-- <td>{{ v.audit_group_id }}</td> -->

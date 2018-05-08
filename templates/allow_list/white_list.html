@@ -52,7 +52,7 @@
               <tbody id="tbody">
                 {% for i in data %}
                 <tr class="daemon">
-                <td>{% if i.white_conf.name ==  "KG-JDC" %}KG经典彩{% elif i.white_conf.name == "MN-Backend" %}蛮牛后台{% else %}现金网后台{% endif %}</td>
+                <td>{% if i.white_conf.name ==  "KG-JDC" %}KG经典彩{% elif i.white_conf.name == "MN-Backend" %}蛮牛后台{% elif i.white_conf.name == "MN-JDC" %}蛮牛经典彩{% elif i.white_conf.name == "MN-GFC" %}蛮牛官方彩{% elif i.white_conf.name == "DT-GFC" %}鼎泰官方彩{% else %}现金网后台{% endif %}</td>
                 <td>{{ i.git_deploy.name }}</td>
                 <td>{{ i.host_ip }}</td>
                 <td>{{ i.user }}</td>
@@ -75,7 +75,8 @@
         url: "{% url 'white_list_search' %}",
         type: "GET",
         data: {
-          "comment": search_comment
+          "comment": search_comment,
+          "uuid": "{{ uuid }}"
         },
         success: function(data) {
           if (data.res=="OK") {

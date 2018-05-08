@@ -28,6 +28,7 @@
 
             <h3 class="box-title">选择发布业务</h3>
             <button type="submit" class="btn btn-primary btn-xs pull-right">提交申请</button>
+            <a  href="javascript:;" id="id_test" class="btn btn-primary btn-xs">测试</a>
         </div>
         <!-- /.box-header -->
         <div class="box-body">
@@ -88,6 +89,23 @@
       <!-- /.box -->
     </div>
 </div>
+
+<script type="">
+    $("#id_test").on('click',function(){
+        layer.open({
+          content: 'http://www.baidu.com',
+          type: 2,
+          title: '组权限',
+          maxmin: true,
+          shade: 0.5,
+          shadeClose: true, //点击遮罩关闭层
+          area : ['1200px' , 600 + 'px'],
+        })
+    })
+
+</script>
+
+
 <script type="text/javascript">
 $(document).ready(function(){
 $('#id_business').change(function(){

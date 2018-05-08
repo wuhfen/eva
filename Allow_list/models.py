@@ -74,6 +74,9 @@ class oldsite_line(models.Model):
 
 class white_conf(models.Model):
     NAME = (
+    ('DT-GFC',u'鼎泰官方彩白名单'),
+    ('MN-GFC',u'蛮牛官方彩白名单'),
+    ('MN-JDC',u'蛮牛经典彩白名单'),
     ('KG-JDC',u'KG经典彩白名单'),
     ('MN-Backend',u'蛮牛后台白名单'),
     ('MONEY-Backend',u'现金网后台白名单'),

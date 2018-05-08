@@ -49,11 +49,11 @@ def poll_state(request):
     return HttpResponse(json_data, content_type='application/json')
 
 def iptables_list(request):
-    try:
+    try:  
         page = int(request.GET.get("page",1))
-        if page < 1:
-            page = 1
-    except ValueError:
+        if page < 1:  
+            page = 1  
+    except ValueError:  
         page = 1
     data = Iptables.objects.all().order_by('i_comment')
     paginator = JuncheePaginator(data, 10)
@@ -116,12 +116,12 @@ def iptables_search(request):
     if res:
         fff = []
         for i in res:
+            print i.i_date_time
             fff.append({"ip":i.i_source_ip,"comment":i.i_comment,"date":i.i_date_time.strftime('%Y-%m-%d %H:%M:%S'),"user":i.i_user.first_name,"uuid":i.id})
         result["res"] = "OK"
         result["info"] = fff
     else:
         result["res"] = "Faild"
-
     return JsonResponse(result,safe=False)
 
 def changes(a,b):
@@ -308,8 +308,6 @@ def black_add(request):
 def white_list_fun(request,which):
     try:  
         page = int(request.GET.get("page",1))
-        print request.GET
-        print('page----->',page)
         if page < 1:
             page = 1
     except ValueError:
@@ -332,9 +330,9 @@ def white_list_fun(request,which):
 
 def white_add(request,uuid):
     conf = white_conf.objects.get(pk=uuid)
-    if conf.name == "KG-JDC" or conf.name == "MONEY-Backend":
+    if conf.name == "KG-JDC" or conf.name == "MONEY-Backend" or conf.name == "DT-GFC":
         data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True)
-    elif conf.name == "MN-Backend":
+    elif conf.name == "MN-JDC" or conf.name == "MN-Backend" or conf.name == "MN-GFC":
         data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True)
     else:
         data = git_deploy.objects.filter(classify="online",islog=True)
@@ -354,11 +352,12 @@ def white_add(request,uuid):
         if not created: return JsonResponse({"res": "falid","info": "此项目的IP已存在"},safe=False)
         if white_list.objects.filter(white_conf=conf,git_deploy=deploy,host_ip=ip).count() > 1: return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
 
-        if classify == "KG-JDC": 
+        if classify == "KG-JDC" or classify == "MN-JDC" or classify == "DT-GFC" or classify == "MN-GFC":
             template_file="kg_jdc_white.conf"
             ips = ""
             for i in white_list.objects.filter(white_conf=conf):
                 ips += i.host_key+" "+i.host_ip+"; #"+i.git_deploy.name+" \n"
+            print "添加%s"% classify
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
         elif classify == "MN-Backend":
             template_file="mn_backend.conf"
@@ -370,11 +369,11 @@ def white_add(request,uuid):
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
                     ips += i.host_key+" "+i.host_ip+";\n    "
-                    print "找到灰度后台白名单：%s"% ips
+            print "找到灰度后台白名单：\n%s"% ips
             if online_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
                     ips += i.host_key+" "+i.host_ip+";\n    "
-            print "所有后台白名单：%s"% ips
+            print "所有后台白名单：\n%s"% ips
             business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
             front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
             if not front_data:
@@ -399,7 +398,7 @@ def white_delete(request,uuid):
         return HttpResponseRedirect('/allow/welcome/')
 
     data.delete()
-    if name == "KG-JDC": 
+    if classify == "KG-JDC" or classify == "MN-JDC" or classify == "DT-GFC" or classify == "MN-GFC":
         template_file="kg_jdc_white.conf"
         ips = ""
         for i in white_list.objects.filter(white_conf=conf):
@@ -436,24 +435,40 @@ def white_delete(request,uuid):
 
 def white_list_search(request):
     comment = request.GET.get('comment','')
+    uuid = request.GET.get('uuid','')
+    conf = white_conf.objects.get(pk=uuid)
+    print comment
     result = {}
     comment_res = []
-    ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment) if i]
+    ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment,white_conf=conf) if i]
 
     huidu_obj = git_deploy.objects.filter(name=comment,classify="huidu")
     if huidu_obj:
-        for i in huidu_obj[0].white.all():
+        for i in huidu_obj[0].white.filter(white_conf=conf):
             comment_res.append(i)
 
     online_obj = git_deploy.objects.filter(name=comment,classify="online")
     if online_obj:
-        for i in online_obj[0].white.all():
+        for i in online_obj[0].white.filter(white_conf=conf):
             comment_res.append(i)
+
     res = list(set(ip_res).union(set(comment_res)))
     if res:
         fff = []
         for i in res:
-            fff.append({"classify":i.white_conf.name,"siteid":i.git_deploy.name,"ip":i.host_ip,"user":i.user.first_name,"date":i.ctime.strftime('%Y-%m-%d %H:%M:%S'),"uuid":i.id})
+            if i.white_conf.name ==  "KG-JDC":
+                classify = 'KG经典彩'
+            elif i.white_conf.name == "MN-Backend":
+                classify = '蛮牛后台'
+            elif i.white_conf.name == "MN-JDC":
+                classify = '蛮牛经典彩'
+            elif i.white_conf.name == "MN-GFC":
+                classify = '蛮牛官方彩'
+            elif i.white_conf.name == "DT-GFC":
+                classify = '鼎泰官方彩'
+            else:
+                classify = "现金网后台"
+            fff.append({"classify":classify,"siteid":i.git_deploy.name,"ip":i.host_ip,"user":i.user.first_name,"date":i.ctime.strftime('%Y-%m-%d %H:%M:%S'),"uuid":i.id})
         result["res"] = "OK"
         result["info"] = fff
     else:
