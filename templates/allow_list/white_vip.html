@@ -1,0 +1,54 @@
+{% extends "default/base_layer.html" %}
+
+
+{% block assistant-header %} White List VIP {% endblock %}
+{% load bootstrap %}
+
+{% block head %}
+<!-- <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script> -->
+
+ {% endblock %}
+
+
+{% block content %}
+
+<div class="col-lg-12">
+<div class="box box-info">
+  <div class="box-body">
+    <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
+      <dir class="form-group col-md-6">
+        <label>请输入VIP:</label>
+          <textarea class="form-control" rows="10" id="id_ipaddr" name="ipaddr" placeholder="0.0.0.0">{{ conf.exception_ip }}</textarea>
+      </dir>
+
+      <dir class="form-group col-md-6">
+        <a href="javascript:;" name="okk" class="btn btn-info pull-center" id="testid">
+          <span class="glyphicon glyphicon-ok"></span> 提交
+        </a>
+        </dir>
+      </form>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+  $("#testid").on('click',function(event) {
+    // layer.msg("hello world!")
+    var url = "{% url 'white_vip' uuid %}";
+    $.ajax({
+      url: url,
+      data: $('.form-horizontal').serialize(),
+      type: "POST",
+      dataType: "Json",
+      success: function(data) {
+        if (data.res=="falid") {
+          layer.msg(data.info);
+        } else { parent.layer.closeAll(); }
+      },
+    });
+  });
+</script>
+
+
+{% endblock %}
