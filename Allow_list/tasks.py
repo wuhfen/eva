@@ -25,6 +25,7 @@ def nginx_white_copy(rss,tfn,fp,wl,isreload,**kw):
     status = False
     servers = []
     for i in rss.split('\r\n'):
+        print i
         data = Server.objects.filter(ssh_host=i)
         if len(data) == 0:
             print "CMDB中没有此服务器信息：%s,已跳过！"% i

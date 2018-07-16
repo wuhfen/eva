@@ -387,18 +387,24 @@ def white_add(request,uuid):
     return render(request,'allow_list/white_add.html',locals())
 
 def white_delete(request,uuid):
+    print uuid
     data = white_list.objects.get(pk=uuid)
     ipaddr = data.host_ip
+    print ipaddr
     deploy = data.git_deploy
     name = data.white_conf.name
     conf = white_conf.objects.get(name=name)
+    print name
+
 
     if white_list.objects.filter(host_ip=ipaddr,git_deploy=deploy,white_conf=conf).count() > 1:
         data.delete()
+        print "多条匹配,删一条"
         return HttpResponseRedirect('/allow/welcome/')
 
     data.delete()
-    if classify == "KG-JDC" or classify == "MN-JDC" or classify == "DT-GFC" or classify == "MN-GFC":
+    if name == "KG-JDC" or name == "MN-JDC" or name == "DT-GFC" or name == "MN-GFC":
+        print name
         template_file="kg_jdc_white.conf"
         ips = ""
         for i in white_list.objects.filter(white_conf=conf):

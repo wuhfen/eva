@@ -35,7 +35,7 @@ def mytasknums(request):
 @login_required
 def conf_list(request):
     data_huidu = git_deploy.objects.filter(platform="现金网",classify="huidu",isops=True,islog=True)
-    data_test = git_deploy.objects.filter(platform="现金网",classify="test",islog=True)
+    data_test = git_deploy.objects.filter(platform="现金网",classify="test",isops=True,islog=True)
     data_online = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True)
     alone = git_deploy.objects.filter(platform="单个项目",classify="online",isops=True,islog=True)
     return render(request,'gitfabu/conf_list.html',locals())
@@ -608,6 +608,7 @@ def web_update_code(request,uuid):
     data = git_deploy.objects.get(pk=uuid)
 
     WaitTask = data.deploy_update.filter(islog=False)
+
     if not WaitTask: WaitTask = git_code_update.objects.filter(name__contains=data.platform,islog=False)
 
     if data.old_reversion:
@@ -753,7 +754,7 @@ def public_update_code(request,env):
     gitrepo = Repo(base_export_dir)
     all_branch = gitrepo.git_all_branch()
     commit = gitrepo.show_commit()
-    WaitTask = git_deploy.objects.filter(platform=platform,classify=classify,islock=True) #如果某个站有锁，则无法申请全站更新
+    WaitTask = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True,islock=True) #如果某个站有锁，则无法申请全站更新
 
     if request.method == 'POST':
         memo = request.POST.get('memo')
@@ -800,7 +801,7 @@ def public_update_code(request,env):
         #创建更新申请
         mydata = my_request_task(name=name,table_name="git_code_update",uuid=updata.id,memo=memo,initiator=request.user,status="审核中")
         mydata.save()
-        git_deploy.objects.filter(platform=platform,classify=classify,islog=True,usepub=True).update(islock=True) #迁移的时候别忘记把所有的项目usepub项更新为真
+        git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True,usepub=True).update(islock=True) #迁移的时候别忘记把所有的项目usepub项更新为真
         #创建审核
         if classify == "test":
             mydata.status="通过审核，更新中"
