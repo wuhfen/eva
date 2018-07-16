@@ -155,16 +155,13 @@ p {text-indent: 1cm}
     </li>
 <!-- 发布任务结束 -->
 <!-- 更新任务开始 -->
-    {% else %}
+    {% elif classify == 'gengxin' %}
     <li>
         <!-- timeline icon -->
-        
         <i class="fa fa-wrench bg-blue"></i>
         <div class="timeline-item">
             <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
-
             <h3 class="timeline-header"><a href="#">自动配置</a></h3>
-
             <div class="timeline-body" id="task_body_id">
                 <h4>更新方式：</h4>
                     <p>{{ name }}：{{ repo }}</p>
@@ -192,9 +189,41 @@ p {text-indent: 1cm}
                     <p>{{ version_details }}</p>
             </div>
         </div>
-        
     </li>
 <!-- 更新任务结束 -->
+<!-- sql任务开始 -->
+    {% else %}
+    <li>
+        <i class="fa fa-wrench bg-blue"></i>
+        <div class="timeline-item">
+            <span class="time"><i class="fa fa-clock-o"></i> {{ data.create_date.time }}</span>
+            <h3 class="timeline-header"><a href="#">SQL申请详情</a></h3>
+            <div class="timeline-body" id="task_body_id">
+                <h4>数据库配置:</h4>
+                    <p>名称: {{ sql_conf.name }}</p>
+                    {% if sql_conf.pub_vip %}<p>公网VIP: {{ sql_conf.pub_vip }} 端口:{{ vip_port }}</p>{% endif %}
+                    {% if sql_conf.local_vip %}<p>内网VIP: {{ sql_conf.local_vip }} 端口:{{ vip_port }}</p>{% endif %}
+                {% if sql_conf.cluster %}
+                <h4>集群配置:</h4>
+                    <p>主节点:{{ sql_conf.master_node }}</p>
+                    <p>从节点:{{ sql_conf.slave_node }}</p>
+                {% else %}
+                <h4>单点配置:</h4>
+                    <p>节点:{{ sql_conf.master_node }}</p>
+                {% endif %}
+                    <p>使用端口:{{ sql_conf.port }}</p>
+                <h4>sql申请内容:</h4>
+                    <p>数据库:{{ df.database }}</p>
+                    {% if df.sql_type == "file" %}
+                    <p>文件名: {{ df.statement }} <a href="{% url 'sql_download' df.file_name %}" class="btn btn-xs btn-info" download="{{ df.statement }}">点击下载文件</a></p>
+                    <p>MD5值: {{ df.md5v }}</p>
+                    {% else %}
+                    <p>语句: {{ df.statement }}</p>
+                    {% endif %}
+            </div>
+        </div>
+    </li>
+<!-- sql任务结束 -->
     {% endif %}
 
 <!--审核任务开始 -->
@@ -240,14 +269,18 @@ p {text-indent: 1cm}
             <h3 class="timeline-header"><a href="#">日志</a></h3>
 
             <div class="timeline-body" id="log_body_id">
+                {% if data.table_name == "sql_apply" %}
+                <h4>内容:</h4>
+                    <pre class="text-success">{{ dflog }}</pre>
+                {% else %}
                 {% for i in  dflog %}
                 <h4>记录时间：</h4>
                     <p>{{ i.create_time }}</p>
                 <h4>内容：</h4>
                     <pre class="text-success">{{ i.log }}</pre>
                 {% endfor %}
+                {% endif %}
             </div>
-
         </div>
     </li>
     {% endif %}

@@ -5,4 +5,4 @@ from .models import white_conf
 class WhiteConfForm(forms.ModelForm):
     class Meta:
         model = white_conf
-        fields = ['name','servers','file_path','is_reload']
+        fields = ['name','servers','file_path','is_reload','exception_ip']

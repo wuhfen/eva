@@ -5,11 +5,12 @@ from django.shortcuts import render
 from gitfabu.models import git_deploy,my_request_task,git_deploy_logs,git_deploy_audit,git_task_audit,git_coderepo,git_ops_configuration,git_code_update
 from business.models import Business,DomainName
 from assets.models import Server
+from audit.models import sql_apply,sql_conf
 from accounts.models import department_Mode
 from gitfabu.forms import git_deploy_audit_from
 # Create your views here.
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_update_public_task
+from gitfabu.tasks import git_fabu_task,git_moneyweb_deploy,git_update_task,git_update_public_task,send_message_task
 from django.contrib.auth.decorators import login_required
 import time
 from api.git_api import Repo
@@ -210,8 +211,7 @@ def conf_add(request,env):
 
     if request.method == 'POST':
         name = request.POST.get('business') #所有发布的项目使用business中的nic_name当作名称
-        gg = git_deploy.objects.filter(name=name,platform=platform,classify=envir,isops=True,islog=True)
-
+        gg = git_deploy.objects.filter(name=name,platform=platform,classify=envir) #除非把已存在的没完成的作废掉,否则不许重发
         if len(gg) > 0:
             errors.append("项目以存在，请联系运维处理")
         business = Business.objects.get(nic_name=name)
@@ -296,7 +296,7 @@ def conf_add(request,env):
             reslut = git_fabu_task.delay(ddata.id,mydata.id)
         else:
             auditor = git_deploy_audit.objects.get(platform=platform,classify=envir,name="发布")
-            task_distributing(mydata.id,auditor.id)
+            send_message_task.delay(mydata.id,auditor.id)
         return HttpResponseRedirect('/allow/welcome/')
     return render(request,'gitfabu/conf_add.html',locals())
 
@@ -329,21 +329,22 @@ def cancel_my_task(request,uuid):
     data = my_request_task.objects.get(id=uuid)
     data.loss_efficacy=True
     data.status="已停止"
+    data.reqt.all().update(loss_efficacy=True) #停止相关的审核任务
+    data.save()  #停止此次申请任务，还应当将锁住的项目解锁
+
     df = eval(data.table_name).objects.get(pk=data.uuid)
     if data.table_name == "git_code_update":
         if df.code_conf: #单个更新任务，删除任务，解锁项目
             df.code_conf.islock = False
             df.code_conf.save()
-        else:
+        else: #集体任务处理
             if "现金网" in df.name: platform = "现金网"
             if "蛮牛" in df.name: platform = "蛮牛"
             if "huidu" in df.name: classify = "huidu"
             if "online" in df.name: classify = "online"
             if "test" in df.name: classify = "test"
             git_deploy.objects.filter(platform=platform,classify=classify,islog=True,usepub=True).update(islock=False)
-    df.delete() #删除任务
-    data.reqt.all().update(loss_efficacy=True) #停止相关的审核任务
-    data.save()  #停止此次申请任务，还应当将锁住的项目解锁
+        df.delete() #只删除更新任务,发布任务和sql申请审核任务不删除
     return JsonResponse({'res':"已经终止申请"},safe=False)
 
 @login_required
@@ -392,7 +393,7 @@ def my_task_details(request,uuid):
             fabu_details = False
             domains = None
             servers = git_ops_configuration.objects.filter(platform=df.platform,classify=df.classify,name=df.name)
-    else:
+    elif data.table_name == "git_code_update":
         classify = "gengxin"
         df = eval(data.table_name).objects.get(pk=data.uuid)
         deploy_data = df.code_conf
@@ -431,6 +432,12 @@ def my_task_details(request,uuid):
             version = df.version
             branch = df.branch
             version_details = df.details
+    elif data.table_name == "sql_apply":
+        classify = "sql"
+        df = eval(data.table_name).objects.get(pk=data.uuid)
+        sql_conf = df.name
+        dflog = df.log
+
     return render(request,'gitfabu/my_task_details.html',locals())
 
 
@@ -477,7 +484,8 @@ def audit_my_task(request,uuid):
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
     print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
     if request.method == 'POST':
-        # if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
+        if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
+        if df.isaudit and df.islog: return JsonResponse({'res':"OK"},safe=False) #防止任务重复执行
         ispass = request.POST.get('ispass')
         if ispass == "yes":
             ok = True
@@ -489,67 +497,117 @@ def audit_my_task(request,uuid):
         data.postil = postil
         data.save()
 
-        user = request.user
-        print "当前审核人：%s"% user.username
-        groups = data.request_task.reqt.filter(auditor=user)
-        for i in groups:
-            check_group_audit(data.request_task.id,user.username,ok,i.audit_group_id,postil) #检测组成员审核情况的函数
-        alldata = data.request_task.reqt.all()
 
-        if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
-            if False not in [i.ispass for i in alldata]: #所有人都通过
-                print "所有审核已通过，开始更新发布"
-                print [i.ispass for i in alldata]
-                data.request_task.status="通过审核，更新中"
-                data.request_task.save()
-                df.isaudit= True
-                df.save()
-                print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
-                if data.request_task.table_name == "git_deploy":
-                    reslut = git_fabu_task.delay(df.id,data.request_task.id)
+        # user = request.user
+        # print "当前审核人：%s"% user.username
+        # groups = data.request_task.reqt.filter(auditor=user)
+        # for i in groups:
+        #     check_group_audit(data.request_task.id,user.username,ok,i.audit_group_id,postil) #检测组成员审核情况的函数
+
+        if data.request_task.reqt.filter(isaudit=True,ispass=False): #已审核人里有人否决了任务
+            data.request_task.status="未通过审核"
+            data.request_task.isend=True
+            data.request_task.save()
+            df.isaudit= True  #更新任务已审核
+            df.islog= True    #更新任务已完成
+            if data.request_task.table_name == "git_deploy":
+                pass
+            elif data.request_task.table_name == "git_code_update":
+                if df.code_conf:
+                    df.code_conf.islock=False
+                    df.code_conf.save()
                 else:
-                    if df.code_conf:
-                        reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
-                    else:
-                        if "现金网" in df.name: platform="现金网"
-                        if "蛮牛" in df.name: platform="蛮牛"
-                        reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
-            else: #有人未通过
-                data.request_task.status="未通过审核"
-                data.request_task.isend=True
-                data.request_task.save()
-                df.isaudit= True  #更新任务已审核
-                df.islog= True    #更新任务已完成
-                if data.request_task.table_name == "git_code_update":
-                    if df.code_conf:
-                        df.code_conf.islock=False
-                        df.code_conf.save()
-                    else:
-                        if "现金网" in df.name: platform="现金网"
-                        if "蛮牛" in df.name: platform="蛮牛"
-                        if "huidu" in df.name: classify="huidu"
-                        if "online" in df.name: classify="online"
-                        git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
-                df.save()
-        else:  #还有人未审核
-            audit_data = data.request_task.reqt.filter(isaudit=True)
-            if False in [i.ispass for i in audit_data]:
-                data.request_task.status="未通过审核"
-                data.request_task.isend=True
-                data.request_task.save()
-                df.isaudit= True  #更新任务已审核
-                df.islog= True    #更新任务已完成
-                if data.request_task.table_name == "git_code_update":
-                    if df.code_conf:
-                        df.code_conf.islock=False
-                        df.code_conf.save()
-                    else:
-                        if "现金网" in df.name: platform="现金网"
-                        if "蛮牛" in df.name: platform="蛮牛"
-                        if "huidu" in df.name: classify="huidu"
-                        if "online" in df.name: classify="online"
-                        git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
-                df.save()
+                    if "现金网" in df.name: platform="现金网"
+                    if "蛮牛" in df.name: platform="蛮牛"
+                    if "huidu" in df.name: classify="huidu"
+                    if "online" in df.name: classify="online"
+                    git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
+            else: #数据库审核
+                pass
+            df.save()
+            return JsonResponse({'res':"OK"},safe=False)
+
+        alldata = data.request_task.reqt.all()
+        groups = list(set([i.audit_group_id for i in alldata]))
+        groups_isaudit = []
+        for i in groups:
+            if data.request_task.reqt.filter(audit_group_id=i,isaudit=True):
+                groups_isaudit.append(True)
+            else:
+                groups_isaudit.append(False)
+        if False not in groups_isaudit: #所有的组都有人已审核
+            df.isaudit= True
+            print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
+            if data.request_task.table_name == "git_deploy":  #发布任务
+                data.request_task.status="通过审核，发布中"
+                reslut = git_fabu_task.delay(df.id,data.request_task.id)
+            elif data.request_task.table_name == "git_code_update": #更新任务
+                data.request_task.status="通过审核，更新中"
+                if df.code_conf:
+                    reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
+                else:
+                    if "现金网" in df.name: platform="现金网"
+                    if "蛮牛" in df.name: platform="蛮牛"
+                    reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
+            else: #数据库审核任务
+                data.request_task.status="通过审核"
+                print "走到这里了"
+            data.request_task.save()
+            df.save()
+        # if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
+        #     if False not in [i.ispass for i in alldata]: #所有人都通过
+        #         print "所有审核已通过，开始更新发布"
+        #         print [i.ispass for i in alldata]
+        #         data.request_task.status="通过审核，更新中"
+        #         data.request_task.save()
+        #         df.isaudit= True
+        #         df.save()
+        #         print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
+        #         if data.request_task.table_name == "git_deploy":
+        #             reslut = git_fabu_task.delay(df.id,data.request_task.id)
+        #         else:
+        #             if df.code_conf:
+        #                 reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
+        #             else:
+        #                 if "现金网" in df.name: platform="现金网"
+        #                 if "蛮牛" in df.name: platform="蛮牛"
+        #                 reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
+        #     else: #有人未通过
+        #         data.request_task.status="未通过审核"
+        #         data.request_task.isend=True
+        #         data.request_task.save()
+        #         df.isaudit= True  #更新任务已审核
+        #         df.islog= True    #更新任务已完成
+        #         if data.request_task.table_name == "git_code_update":
+        #             if df.code_conf:
+        #                 df.code_conf.islock=False
+        #                 df.code_conf.save()
+        #             else:
+        #                 if "现金网" in df.name: platform="现金网"
+        #                 if "蛮牛" in df.name: platform="蛮牛"
+        #                 if "huidu" in df.name: classify="huidu"
+        #                 if "online" in df.name: classify="online"
+        #                 git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
+        #         df.save()
+        # else:  #还有人未审核
+        #     audit_data = data.request_task.reqt.filter(isaudit=True)
+        #     if False in [i.ispass for i in audit_data]:
+        #         data.request_task.status="未通过审核"
+        #         data.request_task.isend=True
+        #         data.request_task.save()
+        #         df.isaudit= True  #更新任务已审核
+        #         df.islog= True    #更新任务已完成
+        #         if data.request_task.table_name == "git_code_update":
+        #             if df.code_conf:
+        #                 df.code_conf.islock=False
+        #                 df.code_conf.save()
+        #             else:
+        #                 if "现金网" in df.name: platform="现金网"
+        #                 if "蛮牛" in df.name: platform="蛮牛"
+        #                 if "huidu" in df.name: classify="huidu"
+        #                 if "online" in df.name: classify="online"
+        #                 git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
+        #         df.save()
         return JsonResponse({'res':"OK"},safe=False)
     return render(request,'gitfabu/audit_my_task.html',locals())
 
@@ -608,7 +666,6 @@ def web_update_code(request,uuid):
     data = git_deploy.objects.get(pk=uuid)
 
     WaitTask = data.deploy_update.filter(islog=False)
-
     if not WaitTask: WaitTask = git_code_update.objects.filter(name__contains=data.platform,islog=False)
 
     if data.old_reversion:
@@ -724,7 +781,7 @@ def web_update_code(request,uuid):
             reslut = git_update_task.delay(updata.id,mydata.id)
         else:
             if data.classify == 'huidu' or data.classify == 'online':
-                task_distributing(mydata.id,auditor.id)
+                send_message_task.delay(mydata.id,auditor.id)
             else:
                 mydata.status="通过审核，更新中"
                 mydata.save()
@@ -810,7 +867,7 @@ def public_update_code(request,env):
             updata.save()
             reslut = git_update_public_task.delay(updata.id,mydata.id,platform=platform)
         else:
-            task_distributing(mydata.id,auditor.id)
+            send_message_task.delay(mydata.id,auditor.id)
         return JsonResponse({'res':"OK"},safe=False)
     return render(request,'gitfabu/public_update_code.html',locals())
 
@@ -872,7 +929,6 @@ def public_branch_change(request):
         base_dir = "/data/manniuweb/" + classify + "/export/"
         platform = "蛮牛"
 
-
     if name == 'php_pc' or name == 'php_mobile' or name == 'js_pc' or name == 'js_mobile':
         path = base_dir + name
     elif name == 'php' or name == 'js' or name == 'config':
@@ -910,7 +966,6 @@ def audit_manage(request,uuid):
     all_group = department_Mode.objects.all()
     select_group = data.group.all()
     unselect_group = [i for i in all_group if i not in select_group]
-
     if request.method == 'POST':
         print request.POST.get('name')
         uf = git_deploy_audit_from(request.POST, instance=data)
@@ -919,7 +974,6 @@ def audit_manage(request,uuid):
             member.save()
             uf.save_m2m()
             return HttpResponseRedirect('/allow/welcome/')
-
     return render(request,'gitfabu/audit_manage.html',locals())
 
 def task_observer(request):
@@ -927,5 +981,4 @@ def task_observer(request):
     #fabu_tasks = my_request_task.objects.filter(table_name="git_deploy")
     fabu_tasks = my_request_task.objects.filter(loss_efficacy=False,isend=False)
     #去除重复的审核人
-
     return render(request,'gitfabu/task_observer.html',locals())

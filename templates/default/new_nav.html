@@ -119,7 +119,8 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{% url 'iptables_list' %}"><i class="fa fa-circle-o"></i> 现金网后台白名单 </a></li>
+            <li><a href="{% url 'iptables_list' %}"><i class="fa fa-circle-o"></i> 现金网后台防火墙白名单 </a></li>
+            <li><a href="{% url 'white_list' 'MONEY-Backend' %}"><i class="fa fa-circle-o"></i> 现金网后台nginx白名单 </a></li>
             <li><a href="{% url 'white_list' 'KG-JDC' %}"><i class="fa fa-circle-o"></i> KG经典彩白名单 </a></li>
             <li><a href="{% url 'white_list' 'DT-GFC' %}"><i class="fa fa-circle-o"></i> 鼎泰官方彩白名单 </a></li>
             <li><a href="{% url 'white_list' 'MN-Backend' %}"><i class="fa fa-circle-o"></i> 蛮牛后台白名单 </a></li>

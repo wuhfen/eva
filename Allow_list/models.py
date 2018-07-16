@@ -80,13 +80,15 @@ class white_conf(models.Model):
     ('KG-JDC',u'KG经典彩白名单'),
     ('MN-Backend',u'蛮牛后台白名单'),
     ('MONEY-Backend',u'现金网后台白名单'),
-    ('MONEY-Black',u'现金网黑名单'),
-    ('MN-Black',u'蛮牛黑名单'),
+    ('MONEY-Black',u'现金网后台黑名单'),
+    ('MN-Black',u'蛮牛后台黑名单'),
     )
     name = models.CharField(_(u'白名单配置'),max_length=25,choices=NAME,unique=True)
     servers = models.TextField(_(u'服务器地址'))
     file_path = models.CharField(_(u'文件绝对路径'),max_length=100)
     is_reload = models.BooleanField(_(u'是否重启'),default=False)
+    exception_ip = models.TextField(_(u'例外IP'),null=True,blank=True) #例外IP,记录后此IP可以随便添加几次,否则只能5次
+
 
 class white_list(models.Model):
     u"""基于NGINX配置文件的白名单实现，allow和deny为key，ip为value,
@@ -96,20 +98,9 @@ class white_list(models.Model):
     ('allow',u'允许'),
     ('deny',u'拒绝'),
     )
-    
     host_key = models.CharField(_(u'白名单key'),max_length=10,choices=KEY)
     host_ip = models.CharField(_(u'白名单value'),max_length=15)
     git_deploy = models.ForeignKey(git_deploy,null=True,blank=True,related_name='white')
     white_conf = models.ForeignKey(white_conf)
     user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     ctime = models.DateTimeField(auto_now_add=True)
-    
-
-
-
-
-
-
-
-
-

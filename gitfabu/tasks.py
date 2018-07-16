@@ -22,6 +22,13 @@ from api.ansible_api import MyTask, MyPlayTask
 from gitfabu.models import git_deploy,my_request_task,git_coderepo,git_ops_configuration,git_deploy_logs,git_code_update,git_deploy_audit
 from business.models import DomainName,Business
 
+
+@shared_task()
+def send_message_task(tid,aid):
+    task_distributing(tid,aid)
+    return "All Message have been send"
+
+
 class git_moneyweb_deploy(object):
     """现金网git调用类"""
     def __init__(self,uuid,method="gengxin"):
@@ -667,7 +674,6 @@ def git_update_task(uuid,myid):
     fo.write("locked")
     fo.close()
     logs.append("创建锁文件：%s"% lock_file)
-
 
     MyWeb = git_moneyweb_deploy(data.id)
     print "更新方式为：%s"% updata.method

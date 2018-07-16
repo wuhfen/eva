@@ -30,20 +30,22 @@ def business_list(request):
 
 
 def business_delete(request,uuid):
-    business_data = Business.objects.get(pk=uuid)
-    business_data.delete()
+    data = Business.objects.get(pk=uuid)
+    data.delete()
+    business_data = Business.objects.all()
     return render(request,'business/business_list.html',locals())
-
 
 
 def business_add(request):
     bf = BusinessForm()
     if request.method == 'POST':
         bf = BusinessForm(request.POST)
+        nic_name = request.POST.get('nic_name')
+        if Business.objects.filter(nic_name=nic_name):
+            return HttpResponseRedirect('/allow/welcome/')
         if bf.is_valid():
             bf_data = bf.save()
             siteid = bf_data.nic_name
-
             #需要创建测试环境和灰度环境的域名,傻啊，都不分现金网和蛮牛吗？
             if bf_data.platform == "现金网":
                 test_f = DomainName(name=siteid+".test.s1118.com",use=0,business=bf_data,classify="test",state=0,supplier="工程")
@@ -57,7 +59,6 @@ def business_add(request):
                 huidu_a = DomainName(name="ag"+siteid+".kg-44.com",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a.save()
                 huidu_f.save()
-
             return HttpResponseRedirect('/allow/welcome/')
     return render(request,'business/business_add.html',locals())
 

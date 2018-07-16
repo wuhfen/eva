@@ -6,7 +6,7 @@
 {% endblock %}
 
 
-{% block assistant-header %} <h3>白名单列表</h3>
+{% block assistant-header %} <h3>{{ which }}白名单列表</h3>
 <ol class="breadcrumb">
     <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
     <li><a href="#">白名单列表</a></li>
@@ -25,6 +25,8 @@
               <div class="input-group-btn">
                 <a href="javascript:;" class="btn btn-default" id="id_btn_search"><i class="fa fa-search"></i></a>
                 <a href="javascript:;" class="btn btn-default" id="id_btn_plus"><i class="fa fa-plus"></i></a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_minus">批量删除</a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_vip" data-toggle="tooltip" title="可添加超过5次">特权IP</a>
               </div>
             </div>
           </div>
@@ -48,12 +50,14 @@
         </div>
         <div class="box-body">
             <table class="table">
-              <thead> <th>类型</th> <th>网站</th> <th>IP</th>  <th>添加人</th> <th>时间</th> <th>操作</th> </thead>
+              <thead> <th class="text-center"><input type="checkbox" id="select_all"></th> <th>类型</th> <th>网站</th> <th>方式</th> <th>IP</th>  <th>添加人</th> <th>时间</th> <th>操作</th> </thead>
               <tbody id="tbody">
                 {% for i in data %}
                 <tr class="daemon">
+                <td class="text-center"><input type="checkbox" name="selected" value="{{ i.id }}"></td>
                 <td>{% if i.white_conf.name ==  "KG-JDC" %}KG经典彩{% elif i.white_conf.name == "MN-Backend" %}蛮牛后台{% elif i.white_conf.name == "MN-JDC" %}蛮牛经典彩{% elif i.white_conf.name == "MN-GFC" %}蛮牛官方彩{% elif i.white_conf.name == "DT-GFC" %}鼎泰官方彩{% else %}现金网后台{% endif %}</td>
                 <td>{{ i.git_deploy.name }}</td>
+                <td>{{ i.host_key }}</td>
                 <td>{{ i.host_ip }}</td>
                 <td>{{ i.user }}</td>
                 <td>{{ i.ctime|date:"Y-m-d H:i:s" }}</td>
@@ -82,7 +86,7 @@
           if (data.res=="OK") {
             $(".daemon").remove();
             for (var key in data.info) { 
-                var option = $('<tr class="daemon"><td>'+data.info[key].classify+'</td><td>'+data.info[key].siteid+'</td><td>'+data.info[key].ip+'</td><td>'+data.info[key].user+'</td><td>'+data.info[key].date+'</td><td><a href="/allow/white/delete/'+data.info[key].uuid+'" class="btn btn-danger btn-xs delete-ip"><span class="glyphicon glyphicon-remove"></span></a></td></tr>');
+                var option = $('<tr class="daemon"><td class="text-center"><input type="checkbox" name="selected" value="'+data.info[key].uuid+'"></td><td>'+data.info[key].classify+'</td><td>'+data.info[key].siteid+'</td><td>'+data.info[key].method+'</td><td>'+data.info[key].ip+'</td><td>'+data.info[key].user+'</td><td>'+data.info[key].date+'</td><td><a href="/allow/white/delete/'+data.info[key].uuid+'" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a></td></tr>');
                 $("#tbody").append(option);
             };
           } else { layer.msg("没有可用信息！") }
@@ -91,6 +95,64 @@
     }
   });
 
+
+$("input").keydown(function (e) {//当按下按键时
+    if (e.which == 13) {//.which属性判断按下的是哪个键，回车键的键位序号为13
+        $('#id_btn_search').trigger("click");//触发搜索按钮的点击事件
+    }
+});
+
+
+$('#id_btn_minus').on("click",function(evevnt){
+  var checkboxValues = "";
+  $('input:checkbox[name=selected]').map(function() 
+  {
+    if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
+  });
+  var myJsonString = JSON.stringify(checkboxValues);
+  
+  if ( checkboxValues=="" ) { alert("请勾选想要删除的行!") } else { 
+    $.ajax({
+      url: "{% url 'batch_delete_vpn' %}",
+      type: "GET",
+      data: {
+        'vpns': checkboxValues,
+        'project': "{{ which }}",
+      },
+      success: function(data){
+        if (data.status == "OK") {
+          var gg = data.info;
+
+          layer.alert(gg, {
+              skin: 'layui-layer-lan'
+              ,closeBtn: 0
+              ,anim: 4 //动画类型
+            });
+
+        } else { layer.msg(data.info,{time: 7000}) }
+      }
+    });
+  }
+
+});
+
+
+
+
+
+$('#select_all').click(function(event) {
+  if(this.checked) {
+      // Iterate each checkbox
+      $(':checkbox').each(function() {
+          this.checked = true;
+      });
+  }
+  else {
+    $(':checkbox').each(function() {
+          this.checked = false;
+      });
+  }
+});
 
 $("#id_btn_plus").on('click',function(event) {
   var url = "{% url 'white_add' uuid %}";
@@ -107,21 +169,35 @@ $("#id_btn_plus").on('click',function(event) {
   });
 });
 
+$("#id_btn_vip").on('click',function(event) {
+  var url = "{% url 'white_vip' uuid %}";
+  var height = $(window).height();
+  layer.open({
+    type: 2,
+    title: '管理特权IP',
+    maxmin: false,
+    shade: 0.5,
+    shadeClose: false,
+    area: ['450px','600px'],
+    content: url,
+    end : function() {location.reload();},
+  });
+});
 
 
-$(".delete-ip").on("click", function(event){
-      var url= $(this).attr('href');
-      layer.alert("确定删除吗？",{
-          skin: 'layui-layer-molv',
-          closeBtn: 2,
-          shift: 4,
-      },function(index){
-          layer.close(index);
-          $.get(url).done(function(data) {
-              window.location.reload();
-          });
+$("#tbody").on('click','.delete-ip',function(event){
+  var url= $(this).attr('href');
+  layer.alert("确定删除吗？",{
+      skin: 'layui-layer-molv',
+      closeBtn: 2,
+      shift: 4,
+  },function(index){
+      layer.close(index);
+      $.get(url).done(function(data) {
+          window.location.reload();
       });
-      event.preventDefault();
+  });
+  event.preventDefault();
 });
 
 </script>

@@ -1,0 +1,43 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} Plus Audit Users {% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>添加sqlconf</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'sql_conf_list' %}"> SQL conf list </a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="box box-info">
+    <div class="box-body">
+    <form class="form-horizontal" action="" id="tools_add"  method="post" name="horizontal" role="form" autocomplete="off">{% csrf_token %}
+        <div class="col-md-10">
+            {{ tf.name|bootstrap_horizontal }}
+            {{ tf.pub_vip|bootstrap_horizontal }}
+            {{ tf.local_vip|bootstrap_horizontal }}
+            {{ tf.vip_port|bootstrap_horizontal }}
+            {{ tf.cluster|bootstrap_horizontal }}
+            {{ tf.master_node|bootstrap_horizontal }}
+            {{ tf.slave_node|bootstrap_horizontal }}
+            {{ tf.user|bootstrap_horizontal }}
+            {{ tf.port|bootstrap_horizontal }}
+            {{ tf.password|bootstrap_horizontal }}
+            {{ tf.group|bootstrap_horizontal }}
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <hr>
+                    <button class="btn btn-success" type="submit"> 提交 </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    </div>
+</div>
+
+{% endblock %}

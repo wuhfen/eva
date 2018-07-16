@@ -21,24 +21,24 @@
         </div>
         <div class="box-body">
 
-        <div class="col-md-4 col-xs-4">
-            <h4 class="bg-info">前台域名</h4>
-            {% for i in f_domains %}
-            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
-            {% endfor %}
-        </div>
-        <div class="col-md-4 col-xs-4">
-            <h4 class="bg-info">代理域名</h4>
-            {% for i in a_domains %}
-            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
-            {% endfor %}
-        </div>
-        <div class="col-md-4 col-xs-4">
-            <h4 class="bg-info">后台域名</h4>
-            {% for i in b_domains %}
-            <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
-            {% endfor %}
-        </div>
+            <div class="col-md-4 col-xs-4">
+                <h4 class="bg-info">前台域名</h4>
+                {% for i in f_domains %}
+                <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+                {% endfor %}
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <h4 class="bg-info">代理域名</h4>
+                {% for i in a_domains %}
+                <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+                {% endfor %}
+            </div>
+            <div class="col-md-4 col-xs-4">
+                <h4 class="bg-info">后台域名</h4>
+                {% for i in b_domains %}
+                <p><a href="http://{{ i.name }}" target="_blank"><b>{{ i.name }}</b></a>--{{ i.supplier }}</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

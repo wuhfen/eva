@@ -3,6 +3,7 @@
 
 from django.conf.urls import patterns, include, url
 from assets import views
+from assets import server_api as api_views
 from assets.project_asset import views as pviews
 # from assets.idc_asset import views as idcviews
 from assets.system_opt import views as sviews
@@ -123,7 +124,7 @@ urlpatterns = [
 
 #"""api"""
     url(r'^api/modify/password/$', views.modify_password,name="modify_password"),
-
+    url(r'^server_info/$',api_views.get_server,name="api_get_server"),
 #test
     url(r'^vps/list$', views.vps_list,name="vps_list"),
     url(r'^get/data/$', views.group_tree,name="group_tree"),

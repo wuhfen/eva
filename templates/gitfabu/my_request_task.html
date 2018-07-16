@@ -39,16 +39,19 @@
                     <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                     <td>{{ v.name }}</td>
                     <td>
-                        {% for i in v.reqt.all|auditor_uniq %}
-                        {% if i.isaudit %}
-                            <span class="bg-green">{{ i.auditor }}</span>
-                        {% else %}
-                            <span class="bg-orange">{{ i.auditor }}</span>
-                        {% endif %}
+                        {% for i in v.reqt.all|audit_group %}
+                        <a href="#" class="btn bg-gray disabled color-palette">
+                            <span class="text-success">{% name_group i %}</span>|
+                            {% for j in i|audit_users %}
+                                {% autoescape off %}
+                                {% is_audit i j v.reqt.all %}
+                                {% endautoescape %}
+                            {% endfor %}
+                        </a>
                         {% endfor %}
                     </td>
                     <td>{{ v.status }}</td>
-                    <td>{% if v.isend %}{% else %}<a href="{% url 'cancel_my_task' v.id %}" class="btn btn-xs btn-danger cancel">作废</a>{% endif %}/<a href="{% url 'my_task_details' v.id %}" target="_blank" class="btn btn-xs btn-primary">详情</a></td>
+                    <td>{% if v.isend %}{% else %}{% if v.types == "fbconfirm" %}{% else %}<a href="{% url 'cancel_my_task' v.id %}" class="btn btn-xs btn-danger cancel">作废</a>{% endif %}{% endif %}/<a href="{% url 'my_task_details' v.id %}" target="_blank" class="btn btn-xs btn-primary">详情</a></td>
                 </tr>
             {% endfor %}
             </tbody>

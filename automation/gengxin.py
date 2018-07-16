@@ -12,8 +12,8 @@ import time
 from .tasks import gengxin_update_task,fabu_update_task,fabu_nginxconf_task
 
 from accounts.models import CustomUser
-from audit.models import task_audit
 from automation.gengxin_deploy import website_deploy
+from business.models import Business
 
 @login_required
 def gengxin_code_list(request):
@@ -40,8 +40,52 @@ def gengxin_code_add(request):
             fabu = fabu_update_task.delay(tf_data.uuid)
             configurate = fabu_nginxconf_task.delay(tf_data.uuid)
             return HttpResponseRedirect('/deploy/gengxin_code_list/')
-
     return render(request, 'automation/gengxin_code_add.html', locals())
+
+@login_required
+def git_gengxin_code_add(request):
+    Users = CustomUser.objects.all()
+    tf = gengxin_codeForm()
+    data = Business.objects.all()
+    # if request.method == 'POST':
+    #     tf = gengxin_codeForm(request.POST)
+    #     mergedir = request.POST.get('mergedir')
+    #     classify = request.POST.get('classify')
+    #     if gengxin_code.objects.filter(classify=classify).filter(name=request.POST.get('name')):
+    #         errors = "已有此名称，不能重复！"
+    #         return render(request, 'automation/gengxin_code_add.html', locals())
+    #     if gengxin_code.objects.filter(classify=classify).filter(business=request.POST.get('business')):
+    #         errors = "已有发布关联到此业务，不能重复！"
+    #         return render(request, 'automation/gengxin_code_add.html', locals())
+    #     if tf.is_valid():
+    #         tf_data = tf.save()
+    #         print "tf_data="+tf_data.remoteip
+    #         fabu = fabu_update_task.delay(tf_data.uuid)
+    #         configurate = fabu_nginxconf_task.delay(tf_data.uuid)
+    #         return HttpResponseRedirect('/deploy/gengxin_code_list/')
+    return render(request, 'automation/git_gengxin_code_add.html', locals())
+
+def git_return_deploy_info(request,uuid):
+    index = uuid.split('_')[-1]
+    env = uuid.split('_')[0]
+    data = Business.objects.get(pk=index)
+    if uuid.split('_')[0] == 'huidu':
+        webd = [data.nic_name+".s1119.com"]
+        agd = ["ag"+data.nic_name+".s1119.com"]
+    else:
+        webd = [x.name for x in data.domain.filter(use='0')]
+        agd = [ x.name for x in data.domain.filter(use='1')]
+    ds168d = [x.name for x in data.domain.filter(use='2')]
+    webnum = len(webd)
+    webtext = "\r\n".join(webd)
+    agnum = len(agd)
+    agtext = "\r\n".join(agd)
+    ds168num = len(ds168d)
+    ds168text = "\r\n".join(ds168d)
+    if request.method == 'POST':
+        
+        return HttpResponse("OK")
+    return render(request, 'automation/git_return_deploy_info.html', locals())
 
 
 def gengxin_code_edit(request, uuid):
@@ -195,8 +239,6 @@ def create_audit_data(name,audit_memo,user,classify,obj):
     audit_data = AUser.objects.get(name=classify)
     for i in audit_data.user.all(): #给紧急审核人发任务
         audit_list.append({"user":i.username,"isaudit":False,"ispass":False})
-        audit_task_data = task_audit(name=name,initiator=user,auditor=i,memo=audit_memo,gengxin=obj)
-        audit_task_data.save()
     return audit_list
 
 def gengxin_create_deploy(request,uuid):

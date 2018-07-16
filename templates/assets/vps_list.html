@@ -134,6 +134,11 @@
       }
    });
 
+$("input").keydown(function (e) {//当按下按键时
+    if (e.which == 13) {//.which属性判断按下的是哪个键，回车键的键位序号为13
+        $('#id_btn_search').trigger("click");//触发搜索按钮的点击事件
+    }
+});
 
    $("#tbody").on('click','.lookpasswd',function(event){
        var url= $(this).attr("href");

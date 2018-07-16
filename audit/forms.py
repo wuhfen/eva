@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 #coding:utf8
-from audit import models
-from automation.models import AUser
-from django import forms
+from audit.models import ops_command_log,sql_conf
 from django.forms import ModelForm
 
 class RecordOPSForm(ModelForm):
     class Meta:
-        model = models.ops_command_log
+        model = ops_command_log
         fields = ['start_time','end_time','command']
 
-class audituserForm(ModelForm):
+class SqlConfForm(ModelForm):
     class Meta:
-        model = AUser
-        fields = ['name','user']
+        model = sql_conf
+        fields = '__all__'

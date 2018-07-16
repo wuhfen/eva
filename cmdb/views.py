@@ -26,6 +26,7 @@ from accounts.models import CustomUser
 from business.models import Business,DomainName
 
 from api.common_api import isValidIp
+
 def helpp(message):
     text = ('/help - 查看帮助\n'
             '/shell - 执行shell命令，格式: host@command\n'
@@ -204,8 +205,6 @@ def audit(message):
 
     try:
         data = git_task_audit.objects.get(id=uuid)
-        print data.request_task.table_name
-        print data.request_task.uuid
     except:
         text="没有找到此任务，ID：%s"% uuid
         bot.sendMessage(chat_id=message.chat.id, text=text)
@@ -215,13 +214,11 @@ def audit(message):
             df = git_deploy.objects.get(id=data.request_task.uuid)
         else:
             df = git_code_update.objects.get(id=data.request_task.uuid)
-        print df.name
         if df.islog:
             bot.sendMessage(chat_id=message.chat.id, text="任务已完成，检测到重复审核！")
             return True
     except:
         text="没有找%s项目"% data.request_task.table_name
-        print text
         bot.sendMessage(chat_id=message.chat.id, text=text)
         return 9
     if go:
@@ -238,6 +235,7 @@ def audit(message):
         data.postil = postil
         data.save()
         check_group_audit(data.request_task.id,username,ok,data.audit_group_id,postil)
+
     if not ok:
         bot.sendMessage(chat_id=message.chat.id, text=postil)
         return 2
@@ -269,39 +267,23 @@ def audit(message):
                 reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
                 text = postil + df.name
             print text
-        #try:
-        #    reslut.wait(timeout=600)
-        #except:
-        #    bot.sendMessage(chat_id=message.chat.id, text="ID: %s 任务超时，可能失败了！"% uuid)
-        #    return 7
-        #if reslut.successful():
-        #    if data.request_task.table_name == "git_deploy":
-        #        dflog = df.deploy_logs.filter(name=name,update=df.id)
-        #    else:
-        #        deploy_data = df.code_conf
-        #        dflog = deploy_data.deploy_logs.filter(name=name,update=df.id)
-        #    if dflog:
-        #        for i in dflog:
-        #            text = "".join(i.log)
-        #    else:
-        #        text=""
     else:
         text="你已审核，等待其他人审核！"
     bot.sendMessage(chat_id=message.chat.id, text=text)
-    #num = len(text)/4096
-    #if num == 0:
-    #    bot.sendMessage(chat_id=message.chat.id, text=text)
-    #else:
-    #    start = 0
-    #    for i in num:
-    #        end = start + 4096
-    #        bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
-    #        start += 4096
-    #    if len(text)%4096 == 0:
-    #        pass
-    #    else:
-    #        end = start + len(text)%4096
-    #        bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
+    # num = len(text)/4096
+    # if num == 0:
+    #     bot.sendMessage(chat_id=message.chat.id, text=text)
+    # else:
+    #     start = 0
+    #     for i in num:
+    #         end = start + 4096
+    #         bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
+    #         start += 4096
+    #     if len(text)%4096 == 0:
+    #         pass
+    #     else:
+    #         end = start + len(text)%4096
+    #         bot.sendMessage(chat_id=message.chat.id, text=text[start:end])
 
 def handle_message(message):
     print message
@@ -321,7 +303,6 @@ def handle_message(message):
             elif '/help' in text:
                 helpp(message)
             elif '/audit' in text:
-                #return True
                 audit(message)
             elif '/get_host' in text:
                 get_host(message)
@@ -331,8 +312,8 @@ def handle_message(message):
             pass
     elif message.chat.type == 'group':
         return True
-        #text = '%s说：%s'% (message.first_name,message.text)
-        #bot.sendMessage(chat_id=message.chat.id, text=text)
+        # text = '%s说：%s'% (message.first_name,message.text)
+        # bot.sendMessage(chat_id=message.chat.id, text=text)
 
 
 
