@@ -20,11 +20,12 @@
     <div class="box box-info">
         <div class="box-header">
           <div class="col-md-6">
-            <div class="input-group input-group-sm pull-left" style="width: 300px;">
+            <div class="input-group input-group-sm pull-left" style="width: 500px;">
               <input type="text" name="table_search" id="id_table_search" class="form-control" placeholder="Search">
               <div class="input-group-btn">
                 <a href="javascript:;" class="btn btn-default" id="id_btn_search"><i class="fa fa-search"></i></a>
                 <a href="javascript:;" class="btn btn-default" id="id_btn_plus"><i class="fa fa-plus"></i></a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_add">批量添加</a>
                 <a href="javascript:;" class="btn btn-default" id="id_btn_minus">批量删除</a>
                 <a href="javascript:;" class="btn btn-default" id="id_btn_vip" data-toggle="tooltip" title="可添加超过5次">特权IP</a>
               </div>
@@ -168,6 +169,22 @@ $("#id_btn_plus").on('click',function(event) {
     end : function() {location.reload();},
   });
 });
+
+$("#id_btn_add").on('click',function(event) {
+  var url = "{% url 'white_batch_add' uuid %}";
+  var height = $(window).height();
+  layer.open({
+    type: 2,
+    title: '批量添加白名单',
+    maxmin: false,
+    shade: 0.5,
+    shadeClose: false,
+    area: ['800px','600px'],
+    content: url,
+    end : function() {location.reload();},
+  });
+});
+
 
 $("#id_btn_vip").on('click',function(event) {
   var url = "{% url 'white_vip' uuid %}";

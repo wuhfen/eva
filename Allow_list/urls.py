@@ -27,6 +27,7 @@ urlpatterns = [
     #白名单
     url(r'^white/list/(?P<which>[^/]+)/$',views.white_list_fun,name='white_list'),
     url(r'^white/add/(?P<uuid>[^/]+)/$',views.white_add,name='white_add'),
+    url(r'^white/batch/add/(?P<uuid>[^/]+)/$',views.white_batch_add,name='white_batch_add'),
     url(r'^white/vip/(?P<uuid>[^/]+)/$',views.white_vip,name='white_vip'), #特权vip,可添加超过5次限制
     url(r'^white/delete/(?P<uuid>[^/]+)/$',views.white_delete,name='white_delete'),
     url(r'^white/search/$',views.white_list_search,name='white_list_search'),

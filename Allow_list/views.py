@@ -340,6 +340,69 @@ def white_vip(request,uuid):
         return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
     return render(request,'allow_list/white_vip.html',locals())
 
+
+def white_batch_add(request,uuid):
+    conf = white_conf.objects.get(pk=uuid)
+    if conf.name == "KG-JDC" or conf.name == "MONEY-Backend" or conf.name == "DT-GFC" or conf.name == "MONEY-Black":
+        data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True) #根据线上的siteid来添加
+    elif conf.name == "MN-JDC" or conf.name == "MN-Backend" or conf.name == "MN-GFC" or conf.name == "MN-Black":
+        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True) #根据灰度的siteid来添加
+    else:
+        data = git_deploy.objects.filter(classify="online",islog=True)
+    if request.method == 'POST':
+        ips = request.POST.get('ipaddr').strip()
+        method = request.POST.get('method').strip()
+        classify = conf.name
+        uuid = request.POST.get('uuid')
+        deploy = git_deploy.objects.get(id=uuid)
+        if not conf.servers: return JsonResponse({"res": "falid","info": "项目没有配置服务器"},safe=False)
+        for i in conf.servers.split('\r\n'):
+            if Server.objects.filter(ssh_host=i).count() != 1: return JsonResponse({"res": "falid","info": "请检查CMDB中服务器配置是否正确！"},safe=False)
+
+        for ip in ips.split('\r\n'):
+            if not isValidIp(ip): return JsonResponse({"res": "falid","info": "IP格式错误: %s"% ip},safe=False)
+            if ip not in conf.exception_ip:
+                if white_list.objects.filter(white_conf=conf,host_ip=ip).count() >= 5: return JsonResponse({"res": "falid","info": "此IP已绑定超过5个网站"},safe=False)
+            obj,created = white_list.objects.get_or_create(host_ip=ip,git_deploy=deploy,white_conf=conf,defaults={'host_key':method,'user':request.user})
+        ips = ""
+        if classify == "KG-JDC" or classify == "MN-JDC" or classify == "DT-GFC" or classify == "MN-GFC":
+            template_file="kg_jdc_white.conf"
+            for i in white_list.objects.filter(white_conf=conf):
+                ips += i.host_key+" "+i.host_ip+"; #"+i.git_deploy.name+" \n"
+            print "添加%s"% classify
+            job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
+        elif classify == "MN-Backend" or classify == "MN-Black":
+            platform = "蛮牛"
+            template_file="mn_backend.conf"
+            file_path = conf.file_path+"/"+deploy.name+".conf"
+            huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",isops=True,islog=True)
+            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",isops=True,islog=True)
+            if huidu_deploy:
+                for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
+                    ips += i.host_key+" "+i.host_ip+";\n    "
+            #print "找到灰度后台白名单：\n%s"% ips
+            if online_deploy:
+                for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+                    ips += i.host_key+" "+i.host_ip+";\n    "
+            #print "所有后台白名单：\n%s"% ips
+            business = Business.objects.get(nic_name=deploy.name,platform=platform) #蛮牛项目
+            front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+            if not front_data:
+                front_data = business.domain.filter(use=2,classify="huidu")
+            front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
+            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+        else:
+            platform = "现金网" #现金网后台反代节点nginx配置文件不统一,没法做文件模板覆盖
+            template_file="kg_jdc_white.conf"
+            file_path = conf.file_path+"/"+deploy.name+"_white_list"
+            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",isops=True,islog=True)
+            for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+                ips += i.host_key+" "+i.host_ip+";\n"
+            print "所有现金网后台白名单：\n%s"% ips
+            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload)
+        return JsonResponse({"res": "OK","info": "已添加成功"},safe=False)
+    return render(request,'allow_list/white_batch_add.html',locals())
+
 def white_add(request,uuid):
     conf = white_conf.objects.get(pk=uuid)
     if conf.name == "KG-JDC" or conf.name == "MONEY-Backend" or conf.name == "DT-GFC" or conf.name == "MONEY-Black":
