@@ -355,14 +355,19 @@ def white_batch_add(request,uuid):
         classify = conf.name
         uuid = request.POST.get('uuid')
         deploy = git_deploy.objects.get(id=uuid)
+        if conf.exception_ip: 
+            exception = conf.exception_ip
+        else:
+            exception = ""
         if not conf.servers: return JsonResponse({"res": "falid","info": "项目没有配置服务器"},safe=False)
         for i in conf.servers.split('\r\n'):
             if Server.objects.filter(ssh_host=i).count() != 1: return JsonResponse({"res": "falid","info": "请检查CMDB中服务器配置是否正确！"},safe=False)
 
         for ip in ips.split('\r\n'):
             if not isValidIp(ip): return JsonResponse({"res": "falid","info": "IP格式错误: %s"% ip},safe=False)
-            if ip not in conf.exception_ip:
-                if white_list.objects.filter(white_conf=conf,host_ip=ip).count() >= 5: return JsonResponse({"res": "falid","info": "此IP已绑定超过5个网站"},safe=False)
+            if ip not in exception:
+                if white_list.objects.filter(white_conf=conf,host_ip=ip).count() >= 5: return JsonResponse({"res": "falid","info": "此IP: %s已绑定超过5个网站"% ip},safe=False)
+        for ip in ips.split('\r\n'):
             obj,created = white_list.objects.get_or_create(host_ip=ip,git_deploy=deploy,white_conf=conf,defaults={'host_key':method,'user':request.user})
         ips = ""
         if classify == "KG-JDC" or classify == "MN-JDC" or classify == "DT-GFC" or classify == "MN-GFC":
@@ -417,13 +422,16 @@ def white_add(request,uuid):
         classify = conf.name
         uuid = request.POST.get('uuid')
         deploy = git_deploy.objects.get(id=uuid)
-
+        if conf.exception_ip: 
+            exception = conf.exception_ip
+        else:
+            exception = ""
         if not isValidIp(ip): return JsonResponse({"res": "falid","info": "IP格式错误"},safe=False)
         if not conf.servers: return JsonResponse({"res": "falid","info": "项目没有配置服务器"},safe=False)
         for i in conf.servers.split('\r\n'):
             if Server.objects.filter(ssh_host=i).count() != 1: return JsonResponse({"res": "falid","info": "请检查CMDB中服务器配置是否正确！"},safe=False)
         #判断该IP是否添加了5次,如果是特赦IP则不进行判断
-        if ip not in conf.exception_ip:
+        if ip not in exception:
             if white_list.objects.filter(white_conf=conf,host_ip=ip).count() >= 5: return JsonResponse({"res": "falid","info": "此IP已绑定超过5个网站"},safe=False)
 
         obj,created = white_list.objects.get_or_create(host_ip=ip,git_deploy=deploy,white_conf=conf,defaults={'host_key':method,'user':request.user})
