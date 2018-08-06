@@ -643,6 +643,7 @@ def git_fabu_task(uuid,myid):
     logdata.save()
     data = git_deploy.objects.get(pk=uuid)
     data.islog = True  #判断是否上线成功的字段
+    data.isaudit = True
     if data.classify == "test": data.isops=True
     data.save()
     #创建复核任务
@@ -731,6 +732,7 @@ def git_update_task(uuid,myid):
     else:
         updata.islog = True
     updata.last_version = data.now_reversion #记住上一次版本信息
+    updata.isaudit = True
     updata.save()
     return "celery GENGXIN task is end"
 
@@ -858,6 +860,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
     logdata = git_deploy_logs(name="更新",log="\r\n".join(logs),update=updata.id)
     logdata.save()
     updata.islog = True
+    updata.isaudit = True
     updata.save()
     return "celery GENGXIN-PUBLIC task is end"
 

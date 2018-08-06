@@ -37,11 +37,20 @@ def audit_users(objs):
 
 @register.simple_tag
 def is_audit(group_id,user,objs):
-    obj = objs.filter(auditor=user,audit_group_id=group_id)[0]
-    if obj.isaudit:
-        if obj.ispass:
-            return '<span class="text-blue">%s已通过 </span>'% user
+    obj = objs.filter(auditor=user)
+    if obj:
+        gobj = objs.filter(auditor=user,audit_group_id=group_id)
+        if gobj:
+            right_g_member=gobj[0]
+            if right_g_member.isaudit:
+                if right_g_member.ispass:
+                    return '<span class="text-blue">%s已通过 </span>'% user
+                else:
+                    return '<span class="text-red">%s未通过 </span>'% user
+            else:
+                return '<span class="text-default">%s未审核 </span>'% user
         else:
-            return '<span class="text-red">%s未通过 </span>'% user
+            return '<span class="text-red">组内新添%s </span>'% user
     else:
-        return mark_safe('<span class="text-black">%s未审核 </span>'% user)
+        #组内新用户可能没有接收到这个任务,排除之以免出错
+        pass

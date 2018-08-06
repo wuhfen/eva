@@ -27,7 +27,10 @@ def mytasknums(request):
         mdata = 0
     nums['myrequesttasks']=mdata
     try:
-        odata = len(git_task_audit.objects.filter(auditor=request.user,isaudit=False,loss_efficacy=False))
+        #odata = len(git_task_audit.objects.filter(auditor=request.user,isaudit=False,loss_efficacy=False))
+        data = git_task_audit.objects.filter(auditor=request.user,isaudit=False,loss_efficacy=False)
+        data = [i for i in data if not i.request_task.isend]
+        odata = len([i for i in data if not i.request_task.loss_efficacy])
     except:
         odata = 0
     nums['myaudittasks']=odata
@@ -482,10 +485,8 @@ def audit_my_task(request,uuid):
     """审核任务，分发布与更新的审核后续处理"""
     data = git_task_audit.objects.get(pk=uuid)
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
-    print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
+    print "项目id：%s,项目审核:%s,项目通过:%s,任务id：%s"% (df.id,df.isaudit,df.islog,data.request_task.id)
     if request.method == 'POST':
-        if data.isaudit: return JsonResponse({'res':"OK"},safe=False) #防止重复审核
-        if df.isaudit and df.islog: return JsonResponse({'res':"OK"},safe=False) #防止任务重复执行
         ispass = request.POST.get('ispass')
         if ispass == "yes":
             ok = True
@@ -496,7 +497,9 @@ def audit_my_task(request,uuid):
         data.ispass = ok 
         data.postil = postil
         data.save()
-
+        if df.isaudit and df.islog: 
+            print "防止重复更新或发布"
+            return JsonResponse({'res':"OK"},safe=False) #防止任务重复执行
 
         # user = request.user
         # print "当前审核人：%s"% user.username
@@ -527,16 +530,22 @@ def audit_my_task(request,uuid):
             df.save()
             return JsonResponse({'res':"OK"},safe=False)
 
-        alldata = data.request_task.reqt.all()
+        #alldata = data.request_task.reqt.all()
+        mytaskid=data.request_task.id
+        my_task_data = my_request_task.objects.get(pk=mytaskid)
+        alldata = my_task_data.reqt.all()
         groups = list(set([i.audit_group_id for i in alldata]))
+        print "审核组有: %s"% ",".join(groups)
         groups_isaudit = []
         for i in groups:
-            if data.request_task.reqt.filter(audit_group_id=i,isaudit=True):
+            if my_task_data.reqt.filter(audit_group_id=i,isaudit=True):
                 groups_isaudit.append(True)
             else:
                 groups_isaudit.append(False)
         if False not in groups_isaudit: #所有的组都有人已审核
+            print "所有的组都有人已审核"
             df.isaudit= True
+            df.save()
             print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
             if data.request_task.table_name == "git_deploy":  #发布任务
                 data.request_task.status="通过审核，发布中"
@@ -553,7 +562,6 @@ def audit_my_task(request,uuid):
                 data.request_task.status="通过审核"
                 print "走到这里了"
             data.request_task.save()
-            df.save()
         # if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
         #     if False not in [i.ispass for i in alldata]: #所有人都通过
         #         print "所有审核已通过，开始更新发布"
