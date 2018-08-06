@@ -16,6 +16,7 @@ import time
 from api.git_api import Repo
 from gitfabu.audit_api import task_distributing,check_group_audit,onekey_access
 import telegram
+import pdb
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
 
 
@@ -781,14 +782,10 @@ def web_update_code(request,uuid):
         mydata = my_request_task(name=name,table_name="git_code_update",uuid=updata.id,memo=memo,initiator=request.user,status="审核中")
         mydata.save()
         #创建审核，测试环境不需要审核
-        if data.name == "1029": #现金网1029特例
-            mydata.status="通过审核，更新中"
-            mydata.save()
-            updata.isaudit = True
-            updata.save()
-            reslut = git_update_task.delay(updata.id,mydata.id)
-        else:
-            if data.classify == 'huidu' or data.classify == 'online':
+        # pdb.set_trace()
+        if data.platform == "单个项目":
+        #单个项目的审核是靠ischeck关键字控制,现金网什么是判断是否为test环境,最好都修改为ischeck来控制
+            if auditor.ischeck:
                 send_message_task.delay(mydata.id,auditor.id)
             else:
                 mydata.status="通过审核，更新中"
@@ -796,6 +793,22 @@ def web_update_code(request,uuid):
                 updata.isaudit = True
                 updata.save()
                 reslut = git_update_task.delay(updata.id,mydata.id)
+        else:
+            if data.name == "1029": #现金网1029特例
+                mydata.status="通过审核，更新中"
+                mydata.save()
+                updata.isaudit = True
+                updata.save()
+                reslut = git_update_task.delay(updata.id,mydata.id)
+            else:
+                if data.classify == 'huidu' or data.classify == 'online':
+                    send_message_task.delay(mydata.id,auditor.id)
+                else:
+                    mydata.status="通过审核，更新中"
+                    mydata.save()
+                    updata.isaudit = True
+                    updata.save()
+                    reslut = git_update_task.delay(updata.id,mydata.id)
         return JsonResponse({'res':"OK"},safe=False)
 
     return render(request,'gitfabu/web_update_code.html',locals())
