@@ -75,7 +75,11 @@
           {% else %}
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {% if request.user.username == "pongpong" %}
+              <img src="/static/admin-test/dist/img/pongpong.jpg" class="user-image" alt="User Image">
+            {% else %}
               <img src="/static/admin-test/dist/img/wuxiubo.jpg" class="user-image" alt="User Image">
+            {% endif %}
               <span class="hidden-xs">{{request.user}}</span>
             </a>
             <ul class="dropdown-menu">

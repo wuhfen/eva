@@ -15,7 +15,11 @@
       {% else %}
       <div class="user-panel">
         <div class="pull-left image">
+        {% if request.user.username == "pongpong" %}
+          <img src="/static/admin-test/dist/img/pongpong.jpg" class="img-circle" alt="User Image">
+        {% else %}
           <img src="/static/admin-test/dist/img/wuxiubo.jpg" class="img-circle" alt="User Image">
+        {% endif %}
         </div>
         <div class="pull-left info">
           <p>{{request.user}}</p>
