@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^version/list/(?P<uuid>[^/]+)/$', views.version_list, name="version_list"),
 
     url(r'^manniu/list/$', views.manniu_list, name="manniu_list"),
+    url(r'^vue_manniu/list/$', views.vue_manniu_list, name="vue_manniu_list"),
     url(r'^audit/list/$', views.audit_list, name="audit_list"),
     url(r'^audit/manage/(?P<uuid>[^/]+)/$', views.audit_manage, name="audit_manage"),
 

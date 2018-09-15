@@ -6,14 +6,14 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth.decorators import login_required, permission_required
-# from forms import BusinessForm, BugsForm
-from models import Business,Bugs,DomainName,Domain_ip_pool,DomainInfo
+# from forms import BusinessForm
+from models import Business,DomainName,Domain_ip_pool,DomainInfo
 from forms import BusinessForm, DomainNameForm,IPpoolForm
 from api.ansible_api import ansiblex_domain
 from api.ssh_api import ssh_cmd
 
 from Allow_list.models import Iptables
-from assets.models import Server
+from assets.models import Server,Project
 import time
 import json
 from tempfile import NamedTemporaryFile
@@ -54,7 +54,7 @@ def business_add(request):
                 huidu_a = DomainName(name="ag"+siteid+".s1119.com",use=1,business=bf_data,classify="huidu",state=0,supplier="运维")
                 huidu_a.save()
                 huidu_f.save()
-            elif bf_data.platform == "蛮牛":
+            elif bf_data.platform == "蛮牛" or "VUE蛮牛":
                 huidu_f = DomainName(name=siteid+".kg-44.com",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a = DomainName(name="ag"+siteid+".kg-44.com",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a.save()
@@ -517,7 +517,64 @@ def domain_manage_business_list(request):
 #         os.remove(inventory)
 #     return HttpResponse("SUCCESS")
 
-def domain_monitor(request,uuid):
-    return 0
+def domain_monitor(request):
+    pass
 
+from models import accelerated_server_manager
+def acceleration_node_add(request):
+    try:
+        pro = Project.objects.get(project_name="加速服务器")
+        servers = pro.project_servers.all()
+        available_servers =[ i for i in servers if i.asset.status == 'on']
+    except:
+        available_servers = None
+    if request.method == "POST":
+        name = request.POST.get('name')
+        host = request.POST.get('ip')
+        domains = request.POST.get('domain')
+        purchase_date = request.POST.get('purchase_date')
+        stop_date = request.POST.get('stop_date')
+        remark = request.POST.get('remark')
+        if not purchase_date:
+            purchase_date = None
+        if not stop_date:
+            stop_date = None
+        data = accelerated_server_manager(name=name,host=host,domains=domains,purchase_date=purchase_date,stop_date=stop_date,remark=remark)
+        data.save()
+        return JsonResponse({'res':"OK"},safe=False)
+    return render(request,'business/acceleration_node_add.html',locals())
 
+def acceleration_node_list(request):
+    data = accelerated_server_manager.objects.all()
+    return render(request,'business/acceleration_node_list.html',locals())
+
+def acceleration_node_delete(request,uuid):
+    data = accelerated_server_manager.objects.get(pk=uuid)
+    data.delete()
+    result = {"status":"success","info":"Deleted"}
+    return JsonResponse(result)
+
+def acceleration_node_modify(request,uuid):
+    data = accelerated_server_manager.objects.get(pk=uuid)
+
+    if request.method == "POST":
+        name = request.POST.get('name')
+        host = request.POST.get('ip')
+        domains = request.POST.get('domain')
+        purchase_date = request.POST.get('purchase_date')
+        stop_date = request.POST.get('stop_date')
+        remark = request.POST.get('remark')
+        if not purchase_date:
+            purchase_date = None
+        if not stop_date:
+            stop_date = None
+        data.name = name
+        data.host = host
+        data.domains = domains
+        data.purchase_date = purchase_date
+        data.stop_date = stop_date
+        data.remark = remark
+        data.save()
+        result = {"res":"OK","status":"success","info":"Modify"}
+        return JsonResponse(result)
+    return render(request,'business/acceleration_node_modify.html',locals())

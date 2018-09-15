@@ -1,0 +1,73 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 添加信息{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">添加信息</h3></div>
+        <hr>
+        <div class="box-body">
+        <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
+            {% if available_servers %}
+            {% for i in available_servers %}<p>i.ssh_host</p>{% endfor %}
+            {% else %}<p>没有可用服务器</p>
+            {% endif %}
+            <div class="form-group col-md-12">
+                <label id=for_name>项目名称：</label>
+                <input class="form-control" type="text" name="name" id="id_name">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_ip>服务器IP：</label>
+                {% if available_servers %}
+                <select id="id_ip" name="ip" class="form-control">
+                    {% for i in available_servers %}<option value="{{ i.ssh_host }}">{{ i.ssh_host }}</option>{% endfor %}
+                </select>
+                {% else %}
+                <input class="form-control" type="ip" name="ip" id="id_ip">
+                {% endif %}
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_domain>域名：</label>
+                <textarea class="form-control" rows=5 name="domain" id="id_domain"></textarea>
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_purchase_date>购买日期：</label>
+                <input class="form-control" type="date" name="purchase_date" id="id_purchase_date">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_stop_date>停用日期：</label>
+                <input class="form-control" type="date" name="stop_date" id="id_stop_date">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_remark>备注：</label>
+                <textarea class="form-control" rows='3' name="remark" id="id_remark"></textarea>
+            </div>
+        </form>
+        </div>
+        <div class="box-footer">
+            <a href="javascript:;" class="btn btn-info" id="id_submit">提交</a>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        $.ajax({
+            url: "{% url 'jiasu_add' %}",
+            dataType: 'json',
+            type: 'POST',
+            data: $('.form-horizontal').serialize(),
+            success: function(result) { 
+                if (result.res == "OK") { parent.layer.closeAll();}
+            },
+        });
+    });
+</script>
+
+
+{% endblock  %}

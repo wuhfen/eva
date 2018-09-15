@@ -31,10 +31,13 @@
                                 <option value="php_mobile">PHP手机端更新</option>
                                 <option value="js_pc">JS电脑端更新</option>
                                 <option value="js_mobile">JS手机端更新</option>
-                            {% else %}
+                            {% elif platform == "蛮牛" %}
                                 <option value="php">PHP-Pub更新</option>
                                 <option value="js">前端-Pub更新</option>
                                 <option value="config">PHP-Config更新</option>
+                            {% else %}
+                                <option value="vue_php">PHP更新</option>
+                                <option value="vue_config">PHP配置文件更新</option>
                             {% endif %}
                             </select>
                             <div class="help-block"></div>

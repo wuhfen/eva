@@ -192,6 +192,9 @@ def conf_add(request,env):
     elif "java" in env:
         platform = "JAVA项目"
         conf_domain = False
+    elif "vue" in env:
+        platform="VUE蛮牛"
+        conf_domain = True
     else:
         platform = "单个项目"
         conf_domain = False
@@ -222,17 +225,19 @@ def conf_add(request,env):
 
         #配置服务器地址，没有配置会报错，所以使用try
         try:
-            if platform == "现金网" or platform == "蛮牛":
-                server = git_ops_configuration.objects.get(name="源站",platform=platform,classify=envir)
+            if platform == "现金网":
+                server = git_ops_configuration.objects.get(name="源站",platform="现金网",classify=envir)
+            elif platform == "VUE蛮牛" or platform == "蛮牛":
+                    server = git_ops_configuration.objects.get(name="源站",platform="蛮牛",classify=envir)
             else:
                 server = git_ops_configuration.objects.get(name=name,platform=platform,classify=envir)
-        except IndexError:
+        except:
             errors.append("没有配置-%s-%s-%s-服务器地址"% (platform,business.name,envir))
 
         #检测域名正确性，测试环境不会检查ag与backend域名,发布Huidu的时候需要填写后台域名，发布线上的时候需要填写前台与ag域名
         #蛮牛现金网副网不检测域名后台
         #C网
-        if platform == "现金网" or platform == "蛮牛":
+        if platform == "现金网" or platform == "蛮牛" or platform == "VUE蛮牛":
             f_domainname = DomainName.objects.filter(use=0,business=business,classify=envir)
             a_domainname = DomainName.objects.filter(use=1,business=business,classify=envir)
             b_domainname = DomainName.objects.filter(use=2,business=business,classify=envir)
@@ -240,7 +245,7 @@ def conf_add(request,env):
                 f_domainname = [i.name for i in f_domainname]
             else:
                 errors.append("没有给出前端域名,请联系产品添加域名")
-            if envir != "test":
+            if envir != "test" and platform != "VUE蛮牛":
                 if a_domainname:
                     a_domainname = [i.name for i in a_domainname]
                 else:
@@ -274,7 +279,17 @@ def conf_add(request,env):
             jsobj,jsrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_js",defaults={'address':money_git+"jack/mn-web-public.git",'user':username,'passwd':password})
             phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_php",defaults={'address':php_repo,'user':username,'passwd':password})
             configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
-
+        elif platform == "VUE蛮牛":
+            if envir == "huidu":
+                php_repo = money_git+"harrisdt15f/huidu-wcphpsec.git"
+            else:
+                php_repo = money_git+"harrisdt15f/wcphpsec.git"
+            pc_addr = money_git+"jack/"+name.replace("vue","-vue-pc.git")
+            wap_addr = money_git+"jack/"+name.replace("vue","-vue-wap.git")
+            vuepc,pcrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_mn_pc",defaults={'address':pc_addr,'user':username,'passwd':password},)
+            vuewap,waprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_mn_wap",defaults={'address':wap_addr,'user':username,'passwd':password})
+            phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="vue_mn_php",defaults={'address':php_repo,'user':username,'passwd':password})
+            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="vue_mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
 
         ddata,created = git_deploy.objects.get_or_create(name=name,platform=platform,classify=envir,business=business,defaults={'conf_domain':conf_domain,'server':server,'usepub':conf_domain,'isdev':True},)
 
@@ -299,7 +314,10 @@ def conf_add(request,env):
             mydata.save()
             reslut = git_fabu_task.delay(ddata.id,mydata.id)
         else:
-            auditor = git_deploy_audit.objects.get(platform=platform,classify=envir,name="发布")
+            if platform=="VUE蛮牛":
+                auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=envir,name="发布")
+            else:
+                auditor = git_deploy_audit.objects.get(platform=platform,classify=envir,name="发布")
             send_message_task.delay(mydata.id,auditor.id)
         return HttpResponseRedirect('/allow/welcome/')
     return render(request,'gitfabu/conf_add.html',locals())
@@ -341,14 +359,15 @@ def cancel_my_task(request,uuid):
         if df.code_conf: #单个更新任务，删除任务，解锁项目
             df.code_conf.islock = False
             df.code_conf.save()
-        else: #集体任务处理
+        else: #集体更新任务处理
             if "现金网" in df.name: platform = "现金网"
             if "蛮牛" in df.name: platform = "蛮牛"
+            if "VUE" in df.name: platform = "VUE蛮牛"
             if "huidu" in df.name: classify = "huidu"
             if "online" in df.name: classify = "online"
             if "test" in df.name: classify = "test"
             git_deploy.objects.filter(platform=platform,classify=classify,islog=True,usepub=True).update(islock=False)
-        df.delete() #只删除更新任务,发布任务和sql申请审核任务不删除
+    df.delete() #只删除更新任务,发布任务和sql申请审核任务不删除
     return JsonResponse({'res':"已经终止申请"},safe=False)
 
 @login_required
@@ -383,16 +402,20 @@ def my_task_details(request,uuid):
         except:
             return render(request,'gitfabu/my_task_details.html',locals())
         dflog = df.deploy_logs.filter(name="发布")
-        gitprivate = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=False,title=df.name)
-        
         auditors = git_deploy_audit.objects.filter(platform=df.platform,classify=df.classify,name="发布")
-        if df.platform == "现金网" or df.platform == "蛮牛":
+        gitprivate = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=False,title=df.name)
+        if df.platform == "现金网" or df.platform == "蛮牛" or df.platform == "VUE蛮牛":
             fabu_details = True
-            domains = df.business.domain.filter(classify=df.classify,use=0)
-            ag_domains = df.business.domain.filter(classify=df.classify,use=1)
-            backend_domains = df.business.domain.filter(classify=df.classify,use=2)
+            domains = df.business.domain.filter(classify=df.classify,use=0).order_by('name')
+            ag_domains = df.business.domain.filter(classify=df.classify,use=1).order_by('name')
+            backend_domains = df.business.domain.filter(classify=df.classify,use=2).order_by('name')
             gitpublic = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=True)
-            servers = git_ops_configuration.objects.filter(platform=df.platform,classify=df.classify,name="源站")
+            if df.platform == "VUE蛮牛":
+                auditors = git_deploy_audit.objects.filter(platform="蛮牛",classify=df.classify,name="发布")
+                gitprivate = git_coderepo.objects.filter(platform=df.platform,classify=df.classify,ispublic=False,title__contains=df.name)
+                servers = git_ops_configuration.objects.filter(platform="蛮牛",classify=df.classify,name="源站")
+            else:
+                servers = git_ops_configuration.objects.filter(platform=df.platform,classify=df.classify,name="源站")
         else:
             fabu_details = False
             domains = None
@@ -403,13 +426,23 @@ def my_task_details(request,uuid):
         deploy_data = df.code_conf
         if deploy_data: #如果有项目外键
             dflog = deploy_data.deploy_logs.filter(name="更新",update=df.id)
-            auditors = git_deploy_audit.objects.filter(platform=deploy_data.platform,classify=deploy_data.classify,name="更新",isurgent=df.isurgent)
+            if deploy_data.platform == "VUE蛮牛":
+                auditors = git_deploy_audit.objects.filter(platform="蛮牛",classify=deploy_data.classify,name="更新",isurgent=df.isurgent)
+            else:
+                auditors = git_deploy_audit.objects.filter(platform=deploy_data.platform,classify=deploy_data.classify,name="更新",isurgent=df.isurgent)
             if df.method == "php_pc" or df.method == "php_mobile" or df.method == "js_pc" or df.method == "js_mobile":
                 name = "%s-电脑端更新"% df.method
                 repo = git_coderepo.objects.get(platform="现金网",classify=deploy_data.classify,title=df.method,ispublic=True).address
             elif df.method == "php" or df.method == "config" or df.method == "js":
                 name = "蛮牛%s-公共代码更新"% df.method
                 repo = git_coderepo.objects.get(platform="蛮牛",classify=deploy_data.classify,title="mn_"+df.method,ispublic=True).address
+            elif df.method == "vue_php" or df.method == "vue_config":
+                name = "VUE蛮牛%s-代码更新"% df.method
+                repo = git_coderepo.objects.get(platform="VUE蛮牛",classify=deploy_data.classify,title=df.method.replace("vue","vue_mn"),ispublic=True).address
+            elif df.method == "vue_pc" or df.method == "vue_wap":
+                name = "VUE蛮牛%s-代码更新"% df.method
+                print deploy_data.name+df.method.replace("vue","_mn")
+                repo = git_coderepo.objects.get(platform="VUE蛮牛",classify=deploy_data.classify,title=deploy_data.name+df.method.replace("vue","_mn"),ispublic=False).address
             else:
                 name = "%s-更新"% deploy_data.name
                 repo = git_coderepo.objects.get(platform=deploy_data.platform,classify=deploy_data.classify,ispublic=False,title=deploy_data.name).address
@@ -423,16 +456,23 @@ def my_task_details(request,uuid):
             if "test" in df.name: env= "test"
             if "现金网" in df.name: platform = "现金网"
             if "蛮牛" in df.name: platform = "蛮牛"
+            if "VUE" in df.name: platform = "VUE蛮牛"
             if env == "test":
                 auditors = None
             else:
-                auditors = git_deploy_audit.objects.filter(platform=platform,classify=env,name="更新",isurgent=df.isurgent)
+                if platform == "VUE蛮牛":
+                    auditors = git_deploy_audit.objects.filter(platform="蛮牛",classify=env,name="更新",isurgent=df.isurgent)
+                else:
+                    auditors = git_deploy_audit.objects.filter(platform=platform,classify=env,name="更新",isurgent=df.isurgent)
             if df.method == "php_pc" or df.method == "php_mobile" or df.method == "js_pc" or df.method == "js_mobile":
                 repo = git_coderepo.objects.get(platform=platform,classify=env,title=df.method,ispublic=True).address
                 name = "%s-电脑端更新"% df.method
             elif df.method == "php" or df.method == "config" or df.method == "js":
                 repo = git_coderepo.objects.get(platform=platform,classify=env,title="mn_"+df.method,ispublic=True).address
                 name = "蛮牛%s-公共代码更新"% df.method
+            elif df.method == "vue_php" or df.method == "vue_config":
+                name = "VUE蛮牛%s-代码更新"% df.method
+                repo = git_coderepo.objects.get(platform=platform,classify=env,title=df.method.replace("vue","vue_mn"),ispublic=True).address
             version = df.version
             branch = df.branch
             version_details = df.details
@@ -450,9 +490,9 @@ def confirm_mytask(request,uuid):
     mytask = git_task_audit.objects.get(pk=uuid)
     task = mytask.request_task
     df = eval(task.table_name).objects.get(pk=task.uuid)
-    f_domains = df.business.domain.filter(classify=df.classify,use=0) #use=0前端域名，1为ag域名，2为后台域名
-    a_domains = df.business.domain.filter(classify=df.classify,use=1)
-    b_domains = df.business.domain.filter(classify=df.classify,use=2)
+    f_domains = df.business.domain.filter(classify=df.classify,use=0).order_by('name') #use=0前端域名，1为ag域名，2为后台域名
+    a_domains = df.business.domain.filter(classify=df.classify,use=1).order_by('name')
+    b_domains = df.business.domain.filter(classify=df.classify,use=2).order_by('name')
     if request.method == "POST":
         #重置网站状态
         ok = request.POST.get('isok')
@@ -486,7 +526,7 @@ def audit_my_task(request,uuid):
     """审核任务，分发布与更新的审核后续处理"""
     data = git_task_audit.objects.get(pk=uuid)
     df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
-    print "项目id：%s,项目审核:%s,项目通过:%s,任务id：%s"% (df.id,df.isaudit,df.islog,data.request_task.id)
+    print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
     if request.method == 'POST':
         ispass = request.POST.get('ispass')
         if ispass == "yes":
@@ -498,15 +538,7 @@ def audit_my_task(request,uuid):
         data.ispass = ok 
         data.postil = postil
         data.save()
-        if df.isaudit and df.islog: 
-            print "防止重复更新或发布"
-            return JsonResponse({'res':"OK"},safe=False) #防止任务重复执行
-
-        # user = request.user
-        # print "当前审核人：%s"% user.username
-        # groups = data.request_task.reqt.filter(auditor=user)
-        # for i in groups:
-        #     check_group_audit(data.request_task.id,user.username,ok,i.audit_group_id,postil) #检测组成员审核情况的函数
+        if df.isaudit and df.islog: return JsonResponse({'res':"OK"},safe=False) #防止任务重复执行
 
         if data.request_task.reqt.filter(isaudit=True,ispass=False): #已审核人里有人否决了任务
             data.request_task.status="未通过审核"
@@ -523,6 +555,7 @@ def audit_my_task(request,uuid):
                 else:
                     if "现金网" in df.name: platform="现金网"
                     if "蛮牛" in df.name: platform="蛮牛"
+                    if "VUE" in df.name: platform = "VUE蛮牛"
                     if "huidu" in df.name: classify="huidu"
                     if "online" in df.name: classify="online"
                     git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
@@ -530,8 +563,7 @@ def audit_my_task(request,uuid):
                 pass
             df.save()
             return JsonResponse({'res':"OK"},safe=False)
-
-        #alldata = data.request_task.reqt.all()
+        # alldata = data.request_task.reqt.all()
         mytaskid=data.request_task.id
         my_task_data = my_request_task.objects.get(pk=mytaskid)
         alldata = my_task_data.reqt.all()
@@ -544,79 +576,27 @@ def audit_my_task(request,uuid):
             else:
                 groups_isaudit.append(False)
         if False not in groups_isaudit: #所有的组都有人已审核
-            print "所有的组都有人已审核"
             df.isaudit= True
             df.save()
             print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
             if data.request_task.table_name == "git_deploy":  #发布任务
                 data.request_task.status="通过审核，发布中"
+                data.request_task.save()
                 reslut = git_fabu_task.delay(df.id,data.request_task.id)
             elif data.request_task.table_name == "git_code_update": #更新任务
                 data.request_task.status="通过审核，更新中"
+                data.request_task.save()
                 if df.code_conf:
                     reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
                 else:
                     if "现金网" in df.name: platform="现金网"
                     if "蛮牛" in df.name: platform="蛮牛"
+                    if "VUE" in df.name: platform = "VUE蛮牛"
                     reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
             else: #数据库审核任务
                 data.request_task.status="通过审核"
                 print "走到这里了"
-            data.request_task.save()
-        # if False not in [i.isaudit for i in alldata]: #所有人都审核完毕
-        #     if False not in [i.ispass for i in alldata]: #所有人都通过
-        #         print "所有审核已通过，开始更新发布"
-        #         print [i.ispass for i in alldata]
-        #         data.request_task.status="通过审核，更新中"
-        #         data.request_task.save()
-        #         df.isaudit= True
-        #         df.save()
-        #         print "项目id：%s任务id：%s"% (df.id,data.request_task.id)
-        #         if data.request_task.table_name == "git_deploy":
-        #             reslut = git_fabu_task.delay(df.id,data.request_task.id)
-        #         else:
-        #             if df.code_conf:
-        #                 reslut = git_update_task.delay(data.request_task.uuid,data.request_task.id)
-        #             else:
-        #                 if "现金网" in df.name: platform="现金网"
-        #                 if "蛮牛" in df.name: platform="蛮牛"
-        #                 reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
-        #     else: #有人未通过
-        #         data.request_task.status="未通过审核"
-        #         data.request_task.isend=True
-        #         data.request_task.save()
-        #         df.isaudit= True  #更新任务已审核
-        #         df.islog= True    #更新任务已完成
-        #         if data.request_task.table_name == "git_code_update":
-        #             if df.code_conf:
-        #                 df.code_conf.islock=False
-        #                 df.code_conf.save()
-        #             else:
-        #                 if "现金网" in df.name: platform="现金网"
-        #                 if "蛮牛" in df.name: platform="蛮牛"
-        #                 if "huidu" in df.name: classify="huidu"
-        #                 if "online" in df.name: classify="online"
-        #                 git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
-        #         df.save()
-        # else:  #还有人未审核
-        #     audit_data = data.request_task.reqt.filter(isaudit=True)
-        #     if False in [i.ispass for i in audit_data]:
-        #         data.request_task.status="未通过审核"
-        #         data.request_task.isend=True
-        #         data.request_task.save()
-        #         df.isaudit= True  #更新任务已审核
-        #         df.islog= True    #更新任务已完成
-        #         if data.request_task.table_name == "git_code_update":
-        #             if df.code_conf:
-        #                 df.code_conf.islock=False
-        #                 df.code_conf.save()
-        #             else:
-        #                 if "现金网" in df.name: platform="现金网"
-        #                 if "蛮牛" in df.name: platform="蛮牛"
-        #                 if "huidu" in df.name: classify="huidu"
-        #                 if "online" in df.name: classify="online"
-        #                 git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
-        #         df.save()
+                data.request_task.save()
         return JsonResponse({'res':"OK"},safe=False)
     return render(request,'gitfabu/audit_my_task.html',locals())
 
@@ -650,6 +630,7 @@ def one_key_task(request,uuid):
                 else:
                     if "现金网" in df.name: platform="现金网"
                     if "蛮牛" in df.name: platform="蛮牛"
+                    if "VUE" in df.name: platform = "VUE蛮牛"
                     reslut = git_update_public_task.delay(data.request_task.uuid,data.request_task.id,platform=platform)
         else:
             df.isaudit= True
@@ -661,6 +642,7 @@ def one_key_task(request,uuid):
                 else:
                     if "现金网" in df.name: platform="现金网"
                     if "蛮牛" in df.name: platform="蛮牛"
+                    if "VUE" in df.name: platform = "VUE蛮牛"
                     if "huidu" in df.name: classify="huidu"
                     if "online" in df.name: classify="online"
                     git_deploy.objects.filter(platform=platform,classify=classify,islock=True).update(islock=False)
@@ -683,7 +665,7 @@ def web_update_code(request,uuid):
         old_reversion = []
 
     if request.method == 'GET':
-        if data.platform == "现金网" or data.platform == "蛮牛":
+        if data.platform == "现金网" or data.platform == "蛮牛" or data.platform == "VUE蛮牛":
             all_branch = ['master']
             web_commits = []
         else:
@@ -713,27 +695,33 @@ def web_update_code(request,uuid):
         if method == 'web':
             web_release = release[0:7]
             web_branches = branch
-        elif method == "php_pc" or method == "php":
+        elif method == "php_pc" or method == "php" or method == "vue_php":
             php_pc_release = release[0:7]
             php_pc_branches = branch
         elif method == "php_mobile":
             php_moblie_release = release[0:7]
             php_mobile_branches = branch
-        elif method == "js_pc" or method == "js":
+        elif method == "js_pc" or method == "js" or method == "vue_pc":
             js_pc_release = release[0:7]
             js_pc_branches = branch
-        elif method == "js_mobile":
+        elif method == "js_mobile" or method == "vue_wap":
             js_mobile_release = release[0:7]
             js_mobile_branches = branch
         else:
             config_branches = branch
             config_release = release[0:7]
         #判断是否紧急
-        if data.platform == "现金网" or data.platform == "蛮牛":
+        
+        if data.platform == "现金网" or data.platform == "蛮牛" or  data.platform == "VUE蛮牛":
             if data.classify == 'huidu' or data.classify == 'online':
-                normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新") #正常审核人
-                php_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
-                urgent_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=True,name="更新") #紧急审核人
+                if data.platform == "VUE蛮牛":
+                    normal_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=data.classify,isurgent=False,name="更新") #正常审核人
+                    php_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
+                    urgent_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=data.classify,isurgent=True,name="更新") #紧急审核人
+                else:
+                    normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新") #正常审核人
+                    php_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
+                    urgent_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=True,name="更新") #紧急审核人
                 c = int(normal_auditor.start_time.replace(":",""))
                 d = int(normal_auditor.end_time.replace(":",""))
                 now = time.strftime('%H:%M',time.localtime(time.time()))
@@ -741,7 +729,7 @@ def web_update_code(request,uuid):
                 if data.classify == 'online':
                     if c <= e and d >= e:
                         print("normal不紧急")
-                        if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
+                        if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
                             auditor = php_auditor
                         else:
                             auditor = normal_auditor
@@ -754,7 +742,7 @@ def web_update_code(request,uuid):
                         isurgent = True
                         name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-紧急更新"
                 else:
-                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
+                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
                         auditor = php_auditor
                     else:
                         auditor = normal_auditor
@@ -821,14 +809,16 @@ def public_update_code(request,env):
         classify = "huidu"
     elif "test" in env:
         classify = "test"
-
+    print env
     if "money" in env:
         base_export_dir = "/data/moneyweb/" + classify + "/export/php_pc"
         platform = "现金网"
     elif "manniu" in env:
         base_export_dir = "/data/manniuweb/" + classify + "/export/mn_php"
         platform = "蛮牛"
-
+    elif "vue" in env:
+        base_export_dir = "/data/manniuvue/" + classify + "/export/mn_php"
+        platform = "VUE蛮牛"
     gitrepo = Repo(base_export_dir)
     all_branch = gitrepo.git_all_branch()
     commit = gitrepo.show_commit()
@@ -842,16 +832,21 @@ def public_update_code(request,env):
 
         #判断是否紧急,huidu没有紧急
         if classify == 'huidu' or classify == 'online':
-            normal_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="更新") #正常审核人
-            php_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="php更新") #PHP代码正常审核人
-            urgent_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=True,name="更新") #紧急审核人
+            if platform == "VUE蛮牛":
+                normal_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=False,name="更新") #正常审核人
+                php_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=False,name="php更新") #PHP代码正常审核人
+                urgent_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=True,name="更新") #紧急审核人
+            else:
+                normal_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="更新") #正常审核人
+                php_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="php更新") #PHP代码正常审核人
+                urgent_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=True,name="更新") #紧急审核人
             c = int(normal_auditor.start_time.replace(":",""))
             d = int(normal_auditor.end_time.replace(":",""))
             now = time.strftime('%H:%M',time.localtime(time.time()))
             e = int(now.replace(":",""))
             if classify == 'online':
                 if c <= e and d >= e:
-                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
+                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
                         auditor = php_auditor
                     else:
                         auditor = normal_auditor
@@ -863,7 +858,7 @@ def public_update_code(request,env):
                     isurgent = True
                     name = platform +"-"+classify+"-公共代码-"+method+"-紧急更新"
             else:
-                if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config":
+                if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
                     auditor = php_auditor
                 else:
                     auditor = normal_auditor
@@ -935,6 +930,7 @@ def public_branch_change(request):
     name = request.GET.get('name')
     env = request.GET.get('env')
     branch = request.GET.get('branch')
+    print env
 
     if "online" in env:
         classify = "online"
@@ -949,12 +945,18 @@ def public_branch_change(request):
     elif "manniu" in env:
         base_dir = "/data/manniuweb/" + classify + "/export/"
         platform = "蛮牛"
+    else:
+        base_dir = "/data/manniuvue/" + classify + "/export/"
+        platform = "VUE蛮牛"
 
     if name == 'php_pc' or name == 'php_mobile' or name == 'js_pc' or name == 'js_mobile':
         path = base_dir + name
     elif name == 'php' or name == 'js' or name == 'config':
         path = base_dir + "mn_"+name
-
+    elif name == 'vue_php':
+        path = base_dir + "mn_php"
+    elif name == 'vue_config':
+        path = base_dir + "mn_config"
     gitrepo = Repo(path)
     if branch:
         gitrepo.git_checkout(branch)
@@ -1003,3 +1005,9 @@ def task_observer(request):
     fabu_tasks = my_request_task.objects.filter(loss_efficacy=False,isend=False)
     #去除重复的审核人
     return render(request,'gitfabu/task_observer.html',locals())
+
+@login_required
+def vue_manniu_list(request):
+    data_huidu = git_deploy.objects.filter(platform="VUE蛮牛",classify="huidu",isops=True,islog=True)
+    data_online = git_deploy.objects.filter(platform="VUE蛮牛",classify="online",isops=True,islog=True)
+    return render(request,'gitfabu/vue_manniu_list.html',locals())

@@ -1,0 +1,133 @@
+{% extends "default/base.html" %}
+{% block title %}加速节点{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+
+ {% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 加速服务器管理 <small>Acceleration</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/business/acceleration/list/">加速信息列表</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+
+    <div class="box box-info">
+        <div class="box-header with-border"><a href="/business/acceleration/add/" class="btn btn-xs btn-info pull-data">添加业务</a>
+        </div>
+        <form id="asset_form">
+            <div class="box-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                <tr>
+                    <th>站点名称</th>
+                    <th>加速服务器</th>
+                    <th>加速域名</th>
+                    <th>购买日期</th>
+                    <th>停用日期</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for v in data %}
+                    <tr>
+                        <td>{{ v.name }}</td>
+                        <td>{{ v.host }}</td>
+                        <td>{{ v.domains }}</td>
+                        <td>{{ v.purchase_date|date:"Y-m-d" }}</td>
+                        <td>{{ v.stop_date|date:"Y-m-d" }}</td>
+                        <td>{{ v.remark }}</td>
+                        <td>
+                            <a href="{% url 'jiasu_modify' v.id %}" class="btn btn-xs btn-primary business-edit">修改</a>
+                            <a href="{% url 'jiasu_delete' v.id %}" class="btn btn-xs btn-danger business-delete">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </form>
+        <div class="box-footer">
+            
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(".pull-data").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1150px' , '900px'],
+                end : function () {
+                  layer.msg("Bye!");
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+</script>
+<script>
+  $(function () {
+    $("#example1").DataTable();
+  });
+</script>
+
+<script type="text/javascript">
+
+    $(".business-edit").on("click", function(event){
+         var url= $(this).attr("href");
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: '修改信息',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['800px' , (height - 50) + 'px'],
+                end : function () {
+                  location.reload();
+              },
+                content: url
+            });
+         event.preventDefault();
+    });
+
+
+    $(".business-delete").on("click",function(de){
+        var url= $(this).attr("href");
+        layer.alert("确定删除吗？",{
+            skin: 'layui-layer-molv',
+            closeBtn: 2,
+            shift: 4,
+        },function(index){
+            layer.close(index);
+            $.get(url).done(function(data) {
+                window.location.reload();
+            });
+        });
+        de.preventDefault();
+    });
+
+
+</script>
+{% endblock %}

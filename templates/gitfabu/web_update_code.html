@@ -63,6 +63,18 @@
                                 </select>
                                 <div class="help-block"></div>
                             </div>
+                        {% elif data.platform == "VUE蛮牛" %}
+                            <div class="form-group ">
+                                <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+                                <select class="form-control n-invalid" id="id_command" name="command" aria-required="true">
+                                    <option value="">---SELECT---</option>
+                                    <option value="vue_pc">PC更新</option>
+                                    <option value="vue_wap">WAP更新</option>
+                                    <option value="vue_php">PHP更新</option>
+                                    <option value="vue_config">PHP配置更新</option>
+                                </select>
+                                <div class="help-block"></div>
+                            </div>
                         {% else %}
                             <div class="form-group " hidden="hidden">
                                 <label class="text-right bolder" for="id_command">更新类型<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>

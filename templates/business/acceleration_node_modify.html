@@ -1,0 +1,63 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 修改信息{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">修改信息</h3></div>
+        <hr>
+        <div class="box-body">
+        <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
+            <div class="form-group col-md-12">
+                <label id=for_name>项目名称：</label>
+                <input class="form-control" type="text" name="name" id="id_name" value="{{ data.name }}">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_ip>服务器IP：</label>
+                <input class="form-control" type="ip" name="ip" id="id_ip" value="{{ data.host }}">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_domain>域名：</label>
+                <textarea class="form-control" rows=5 name="domain" id="id_domain" value="{{ data.domains }}">{{ data.domains }}</textarea>
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_purchase_date>购买日期：</label>
+                <input class="form-control" type="date" name="purchase_date" id="id_purchase_date" value="{{ data.purchase_date|date:'Y-m-d' }}">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_stop_date>停用日期：</label>
+                <input class="form-control" type="date" name="stop_date" id="id_stop_date" value="{{ data.stop_date|date:'Y-m-d' }}">
+            </div>
+            <div class="form-group col-md-12">
+                <label id=for_remark>备注：</label>
+                <textarea class="form-control" rows='3' name="remark" id="id_remark" value="{{ data.remark }}">{{ data.remark }}</textarea>
+            </div>
+        </form>
+        </div>
+        <div class="box-footer">
+            <a href="javascript:;" class="btn btn-info" id="id_submit">提交</a>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        $.ajax({
+            url: "{% url 'jiasu_modify' data.id %}",
+            dataType: 'json',
+            type: 'POST',
+            data: $('.form-horizontal').serialize(),
+            success: function(result) { 
+                if (result.res == "OK") { parent.layer.closeAll();}
+            },
+        });
+    });
+</script>
+
+
+{% endblock  %}

@@ -45,6 +45,8 @@ class git_moneyweb_deploy(object):
         try:
             if self.platform == "现金网" or self.platform == "蛮牛":
                 server_data = git_ops_configuration.objects.get(platform=data.platform,classify=data.classify,name="源站")
+            elif self.platform == "VUE蛮牛":
+                 server_data = git_ops_configuration.objects.get(platform="蛮牛",classify=data.classify,name="源站")
             else:
                 server_data = git_ops_configuration.objects.get(platform=data.platform,classify=data.classify,name=data.name)
             self.remoteip = server_data.remoteip
@@ -81,6 +83,13 @@ class git_moneyweb_deploy(object):
             self.php_dir = self.base_export_dir + self.siteid + "_mn_php" #公共php代码pc端检出地址
             self.js_dir = self.base_export_dir + self.siteid + "_mn_js" #公共js代码pc端检出地址
             self.config_dir = self.base_export_dir + self.siteid + "_mn_config" #公共config
+        elif self.platform == "VUE蛮牛":
+            self.base_export_dir = "/data/manniuvue/" + self.env + "/export/"
+            self.merge_dir = "/data/manniuvue/" + self.env + "/merge/" + self.siteid
+            self.pc_dir = self.base_export_dir + self.siteid+"_pc"  #私有仓库检出地址
+            self.wap_dir = self.base_export_dir + self.siteid+"_wap"  #私有仓库检出地址
+            self.php_dir = self.base_export_dir + self.siteid + "_mn_php" #公共php代码pc端检出地址
+            self.config_dir = self.base_export_dir + self.siteid + "_mn_config" #公共config
         elif self.platform == "单个项目":
             self.base_export_dir = "/data/onlyproject/" + self.env + "/export/"
             self.merge_dir = "/data/onlyproject/" + self.env + "/merge/" + self.siteid
@@ -115,6 +124,17 @@ class git_moneyweb_deploy(object):
             self.ansible_rsync_web()
             if data.conf_domain:
                 self.web_front_domain()
+        elif self.method == "vue_manniu_fabu":
+            print "发布VUE蛮牛项目"
+            self.export_git(what='vue_pc')
+            self.export_git(what='vue_wap')
+            self.export_git(what='vue_php')
+            self.export_git(what='vue_config')
+            self.update_release()
+            self.merge_git()
+            self.ansible_rsync_web()
+            if data.conf_domain:
+                self.web_front_domain()
         elif self.method == "op_fabu":
             self.export_git(what='only')
             self.update_release()
@@ -143,6 +163,14 @@ class git_moneyweb_deploy(object):
             repo = Repo(self.base_export_dir+ "mn_js/")
         elif what == 'config':
             repo = Repo(self.base_export_dir+ "mn_config/")
+        elif what == 'vue_pc':
+            repo = Repo(self.pc_dir)
+        elif what == 'vue_wap':
+            repo = Repo(self.wap_dir)
+        elif what == 'vue_php':
+            repo = Repo(self.php_dir)
+        elif what == 'vue_config':
+            repo = Repo(self.config_dir)
         else:
             repo = Repo(self.web_dir)
         repo.git_checkout("master")
@@ -164,6 +192,14 @@ class git_moneyweb_deploy(object):
             repo = Repo(self.base_export_dir+ "mn_js/")
         elif what == 'config':
             repo = Repo(self.base_export_dir+ "mn_config/")
+        elif what == 'vue_pc':
+            repo = Repo(self.pc_dir)
+        elif what == 'vue_wap':
+            repo = Repo(self.wap_dir)
+        elif what == 'vue_php':
+            repo = Repo(self.php_dir)
+        elif what == 'vue_config':
+            repo = Repo(self.config_dir)
         else:
             repo = Repo(self.web_dir)
         if branch:
@@ -220,6 +256,33 @@ class git_moneyweb_deploy(object):
             log_repo = data.address
             repo = Repo(clone_dir)
             data_repo =data
+        elif what == 'vue_php' or what == 'vue_pc' or what == 'vue_wap' or what == 'vue_config':
+            if what == 'vue_php': 
+                clone_dir=self.php_dir
+                title = 'vue_mn_php'
+            if what == 'vue_config': 
+                clone_dir=self.config_dir
+                title = 'vue_mn_config'
+            if what == 'vue_pc': 
+                clone_dir=self.pc_dir
+                title = self.siteid+'_mn_pc'
+            if what == 'vue_wap': 
+                clone_dir=self.wap_dir
+                title = self.siteid+'_mn_wap'
+            try:
+                data = git_coderepo.objects.get(platform=self.platform,classify=self.env,title=title)
+                auth = "//"+data.user+":"+data.passwd+"@"
+                self.repo = auth.join(data.address.split("//"))
+            except:
+                self.results.append("没有找到%s-%s-%s的git配置,停止发布！"% (self.platform,self.env,what))
+                print "没有找到%s-%s-%s的git配置,停止发布！"% (self.platform,self.env,what)
+                return self.results
+            self.results.append("开始检出VUE蛮牛%s代码"% what)
+            print "开始检出VUE蛮牛%s代码"% what
+            grepo = self.repo
+            log_repo = data.address
+            repo = Repo(clone_dir)
+            data_repo =data
         else:
             clone_dir = self.web_dir
             try:
@@ -237,6 +300,7 @@ class git_moneyweb_deploy(object):
             repo = Repo(clone_dir)  #检出目录
             data_repo = data
 
+        print "检出地址:%s"% clone_dir
         if reversion:  #如果提供了版本则拉最新代码后检出到版本
             try:
                 if branch != "master":
@@ -247,7 +311,6 @@ class git_moneyweb_deploy(object):
                     print "新分支，拉取最新代码完成"
                 print "bug定位--检出过程切换分支%s"% branch
                 dingwei = repo.git_checkout(branch)
-                print dingwei
                 repo.git_pull()
                 print "bug定位--检出过程切换到版本号：%s"% reversion
                 res = repo.git_checkout(reversion)
@@ -295,6 +358,15 @@ class git_moneyweb_deploy(object):
             php_mobile_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="php_mobile",ispublic=True).branch
             js_pc_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="js_pc",ispublic=True).branch
             js_mobile_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="js_mobile",ispublic=True).branch
+        elif self.method == "vue_manniu_fabu":
+            pc_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name+"_mn_pc",ispublic=False).reversion
+            wap_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name+"_mn_wap",ispublic=False).reversion
+            php_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="vue_mn_php",ispublic=True).reversion
+            config_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="vue_mn_config",ispublic=True).reversion
+            pc_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name+"_mn_pc",ispublic=False).branch
+            wap_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name+"_mn_wap",ispublic=False).branch
+            php_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="vue_mn_php",ispublic=True).branch
+            config_branch = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="vue_mn_config",ispublic=True).branch
         elif self.method == "manniu_fabu":
             private_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title=datas.name,ispublic=False).reversion
             php_data = git_coderepo.objects.get(platform=datas.platform,classify=datas.classify,title="mn_php",ispublic=True).reversion
@@ -318,7 +390,6 @@ class git_moneyweb_deploy(object):
             else:
                 print "未发现未完成版本，取当前版本为有效版本"
                 new_data = git_code_update.objects.get(code_conf=datas,islog=True,isuse=True)
-
             #所有更新都要使用的数据
             private_data = new_data.web_release
             web_branch = new_data.web_branches
@@ -338,6 +409,15 @@ class git_moneyweb_deploy(object):
             js_branch = new_data.js_pc_branches
             php_data = new_data.php_pc_release
             js_data = new_data.js_pc_release
+            #VUE蛮牛使用的数据
+            config_data = new_data.config_release
+            config_branch = new_data.config_branches
+            php_branch = new_data.php_pc_branches
+            php_data = new_data.php_pc_release
+            pc_data = new_data.js_pc_release
+            pc_branch = new_data.js_pc_branches
+            wap_data = new_data.js_mobile_release
+            wap_branch = new_data.js_mobile_branches
 
         if self.platform == "现金网":
             datas.usepub = True
@@ -346,6 +426,9 @@ class git_moneyweb_deploy(object):
         elif self.platform == "蛮牛":
             datas.usepub = True
             last_commit = "日期：%s WEB(%s)：%s PHP-Pub代码(%s)：%s 前端-Pub代码(%s)：%s PHP-Config代码(%s)：%s"% (self.now_time,web_branch,private_data,php_branch,php_data,js_branch,js_data,config_branch,config_data)
+        elif self.platform == "VUE蛮牛":
+            datas.usepub = True
+            last_commit = "日期：%s PC(%s)：%s WAP(%s): %s PHP(%s)：%s PHP配置文件(%s)：%s"% (self.now_time,pc_branch,pc_data,wap_branch,wap_data,php_branch,php_data,config_branch,config_data)
         else:
             datas.usepub = False
             last_commit = "日期：%s 分支：%s 版本号：%s"% (self.now_time,web_branch,private_data)
@@ -368,6 +451,11 @@ class git_moneyweb_deploy(object):
         elif self.method == "manniu_fabu":
             updata = git_code_update(name=name,code_conf=datas,web_branches=web_branch,php_pc_branches=php_branch,js_pc_branches=js_branch,config_branches=config_branch,
                 web_release=private_data,php_pc_release=php_data,js_pc_release=js_data,config_release=config_data,memo=name,
+                isaudit=True,islog=True,isuse=True,last_version=last_commit)
+            updata.save()
+        elif self.method == "vue_manniu_fabu":
+            updata = git_code_update(name=name,code_conf=datas,php_pc_branches=php_branch,js_pc_branches=pc_branch,js_mobile_branches=wap_branch,config_branches=config_branch,
+                php_pc_release=php_data,js_pc_release=pc_data,js_mobile_release=wap_data,config_release=config_data,memo=name,
                 isaudit=True,islog=True,isuse=True,last_version=last_commit)
             updata.save()
         elif self.method == "op_fabu" or self.method == "java_fabu":
@@ -393,6 +481,9 @@ class git_moneyweb_deploy(object):
         elif self.platform == "蛮牛":
             cmd = '''\cp -ar %s/* %s && \cp -ar %s/* %s &&  \cp -ar %s/* %s/public/ && \cp -ar %s/wcphpsec/config.php %s/m/php/ && echo "合并完成" || echo "合并失败，有错误！"
                 '''% (self.web_dir,self.merge_dir,self.php_dir,self.merge_dir,self.js_dir,self.merge_dir,self.config_dir,self.merge_dir)
+        elif self.platform == "VUE蛮牛":
+            cmd = '''\cp -ar %s/* %s && \cp -ar %s/* %s &&  \cp -ar %s/* %s && \cp -ar %s/wcphpsec/config.php %s/m/php/ && echo "合并完成" || echo "合并失败，有错误！"
+            '''% (self.pc_dir,self.merge_dir,self.wap_dir,self.merge_dir,self.php_dir,self.merge_dir,self.config_dir,self.merge_dir)
         else:
             cmd = '''\cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"'''% (self.web_dir,self.merge_dir)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -405,7 +496,7 @@ class git_moneyweb_deploy(object):
 
     def ansible_rsync_web(self):
         self.results.append("开始推送代码至服务器")
-        if self.platform == "现金网" or self.platform == "蛮牛":
+        if self.platform == "现金网" or self.platform == "蛮牛" or self.platform == "VUE蛮牛":
             remotedir = self.remotedir +"/"+ self.siteid  #线上目录是在ops里面设置的目录加上siteid
         else:
             remotedir = self.remotedir
@@ -444,7 +535,7 @@ class git_moneyweb_deploy(object):
                 last_command_res = ssh_cmd(i,self.last_command)
                 self.results.append("同步代码后要执行的命令：%s，执行结果：%s"% (self.last_command,last_command_res))
             #如果不是现金网的发布，此处应该省略
-            if self.method == "money_fabu" or self.method == "manniu_fabu":
+            if self.method == "money_fabu" or self.method == "manniu_fabu" or self.method == "vue_manniu_fabu":
                 Logs_res = ssh_cmd(i,"mkdir -p %s/Logs && mkdir -p %s/m/Logs"% (remotedir,remotedir)) #第一次发布时创建Logs目录
             if self.env == 'online' and self.platform == "现金网":
                 command_lock = ssh_cmd(i,lock)
@@ -458,7 +549,10 @@ class git_moneyweb_deploy(object):
         self.results.append("开始配置%s域名"% name)
         print "开始配置%s域名"% name
         try:
-            remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=name).remoteip
+            if self.platform=="VUE蛮牛":
+                remoteips = git_ops_configuration.objects.get(platform="蛮牛",classify=self.env,name=name).remoteip
+            else:
+                remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=name).remoteip
             resource = gen_resource([Server.objects.get(ssh_host=i) for i in remoteips.split('\r\n')])
             playtask = MyPlayTask(resource)
             res = playtask.rsync_nginx_conf(localfile,remotedir,remotefile,siteid,domains)
@@ -482,6 +576,7 @@ class git_moneyweb_deploy(object):
         remote_dir = "/usr/local/nginx/conf/vhost/" #此处前期写死了，后期应该从business里面娶
         siteid = self.siteid.replace('f','')
         siteid = siteid.replace('c','')
+        siteid = siteid.replace('vue','')
         print "当前siteid%s"% siteid
         #先找到域名
         business = Business.objects.get(nic_name=self.siteid,platform=self.platform) #某个项目的某个ID
@@ -545,6 +640,30 @@ class git_moneyweb_deploy(object):
                     local_nginx_file = "front_proxy.conf"
                     remotefile = siteid+".s1119.conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
+
+
+        if self.platform == "VUE蛮牛":
+            name = "源站"
+            domains = "-"
+            remotefile = self.siteid+".conf"
+            local_nginx_file = "vue_mn_source.conf"
+            port = siteid
+            self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
+
+            #同步蛮牛源站反代域名
+            if self.env != "test":
+                name = "源站反代"
+                domains = front_domain
+                if self.env == "huidu":
+                    local_nginx_file = "vue_mn_huidu_front_proxy.conf"
+                    remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
+                    remotefile = "huidu"+self.siteid+".conf"
+                elif self.env == "online":
+                    local_nginx_file = "vue_mn_online_front_proxy.conf"
+                    remote_dir = "/usr/local/nginx/conf/vhost/"
+                    remotefile = self.siteid+".conf"
+
+                self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
 
 
         if self.platform == "蛮牛":
@@ -622,6 +741,8 @@ def git_fabu_task(uuid,myid):
             MyWeb = git_moneyweb_deploy(uuid,method="money_fabu")
         elif data.platform == "蛮牛":
             MyWeb = git_moneyweb_deploy(uuid,method="manniu_fabu")
+        elif data.platform == "VUE蛮牛":
+            MyWeb = git_moneyweb_deploy(uuid,method="vue_manniu_fabu")
         elif data.platform == "JAVA项目":
             MyWeb = git_moneyweb_deploy(uuid,method="java_fabu")
         else:
@@ -642,12 +763,12 @@ def git_fabu_task(uuid,myid):
     logdata = git_deploy_logs(name="发布",log="\r\n".join(logs),git_deploy=data)
     logdata.save()
     data = git_deploy.objects.get(pk=uuid)
-    data.islog = True  #判断是否上线成功的字段
     data.isaudit = True
+    data.islog = True  #判断是否上线成功的字段
     if data.classify == "test": data.isops=True
     data.save()
     #创建复核任务
-    if data.platform == "现金网" or data.platform == "蛮牛":
+    if data.platform == "现金网" or data.platform == "蛮牛" or data.platform == "VUE蛮牛":
         try:
             auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,name="发布复核")
             confirm = my_request_task(name=mydata.name,types='fbconfirm',table_name="git_deploy",uuid=mydata.uuid,memo=mydata.memo,initiator=mydata.initiator,status="等待复核")
@@ -679,9 +800,10 @@ def git_update_task(uuid,myid):
     MyWeb = git_moneyweb_deploy(data.id)
     print "更新方式为：%s"% updata.method
 
-    if updata.method != 'web':
-        print "非web更新，需要执行web代码"
-        MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+    if data.platform == "现金网" or data.platform == "蛮牛":
+        if updata.method != 'web':
+            print "非web更新，需要执行web代码"
+            MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version)
     # if data.platform == "现金网":  #cmdb迁移之后要使用下面代码，以保证存在的站更新不会错乱
     #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
@@ -789,13 +911,13 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         elif updata.method == "js_mobile":
             js_mobile_release = updata.version
             js_mobile_branches = updata.branch
-        elif updata.method == "php":
+        elif updata.method == "php" or updata.method == "vue_php":
             php_pc_release = updata.version
             php_pc_branches = updata.branch
         elif updata.method == "js":
             js_pc_release = updata.version
             js_pc_branches = updata.branch
-        elif updata.method == "config":
+        elif updata.method == "config" or updata.method == "vue_config":
             config_branches = updata.branch
             config_release = updata.version
 
@@ -808,7 +930,11 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         #开始更新
         MyWeb = git_moneyweb_deploy(data.id)
         #MyWeb.export_config(branch="master")
-        MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
+        if platform=="现金网" or platform=="蛮牛":
+            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #如果查看分支后版本会错乱,所以取上个版本的web版本号
+        print updata.method
+        print updata.branch
+        print updata.version
         export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
         # if data.platform == "现金网":
         #     MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号

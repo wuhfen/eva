@@ -61,6 +61,7 @@
             {% endif %}
             {% if manniu_gengxin %}
             <li><a href="{% url 'manniu_list' %}"><i class="fa fa-circle-o"></i> 蛮牛</a></li>
+            <li><a href="{% url 'vue_manniu_list' %}"><i class="fa fa-circle-o"></i> VUE蛮牛</a></li>
             {% endif %}
             <li><a href="{% url 'my_request_task_list' %}"><i class="fa fa-circle-o"></i> 我的申请<span class="pull-right-container">
               <small class="label pull-right bg-red">{{ myrequesttasks }}</small>
@@ -123,7 +124,6 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li><a href="{% url 'iptables_list' %}"><i class="fa fa-circle-o"></i> 现金网后台防火墙白名单 </a></li>
             <li><a href="{% url 'white_list' 'MONEY-Backend' %}"><i class="fa fa-circle-o"></i> 现金网后台nginx白名单 </a></li>
             <li><a href="{% url 'white_list' 'KG-JDC' %}"><i class="fa fa-circle-o"></i> KG经典彩白名单 </a></li>
             <li><a href="{% url 'white_list' 'DT-GFC' %}"><i class="fa fa-circle-o"></i> 鼎泰官方彩白名单 </a></li>
@@ -131,6 +131,7 @@
             <li><a href="{% url 'white_list' 'MN-JDC' %}"><i class="fa fa-circle-o"></i> 蛮牛经典彩白名单 </a></li>
             <li><a href="{% url 'white_list' 'MN-GFC' %}"><i class="fa fa-circle-o"></i> 蛮牛官方彩白名单 </a></li>
             <li><a href="{% url 'backend_status' %}"><i class="fa fa-circle-o"></i> 现金网备用后台</a></li>
+            <li><a href="{% url 'jiasu_list' %}"><i class="fa fa-circle-o"></i> 加速服务器</a></li>
         </ul>
         </li>
         {% endif %}

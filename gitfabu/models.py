@@ -15,7 +15,7 @@ CLASSIFY_CHOICE = (
 )
 alone = [i.nic_name for i in Business.objects.filter(platform="单个项目")]+[u"源站",u"AG",u"后台",u"源站反代",u"AG反代"]
 SERVER_TYPE = [(i, i) for i in tuple(alone)]
-TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目")]
+TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目",u"VUE蛮牛")]
 NAME_CHOICE = [(i, i) for i in (u"发布",u"更新",u"php更新","发布复核")]
 
 # Create your models here.

@@ -50,11 +50,7 @@ urlpatterns = [
     url(r'^domain/monitor_restart/',views.restart_all_monitor,name="restart_all_monitor"),
 
 
-##白名单
-##API
-    # url(r'^platform_api/$', platfapi.get_platform_data),
-
-##域名管理
+##DNS管理
     url(r'^domain/manage/user/list/$', dnsviews.dnsuser_list, name="dnsuser_list"),
     url(r'^domain/manage/user/add/$',dnsviews.dnsuser_add,name="dnsuser_add"),
     url(r'^domain/manage/user/delete/(?P<id>[^/]+)/$',dnsviews.dnsuser_delete,name="dnsuser_delete"),
@@ -86,6 +82,11 @@ urlpatterns = [
 ##一键转移域名
     url(r'^domain/manage/domain/transfer/(?P<uuid>[^/]+)/$', dnsviews.dnsname_transfer, name="dnsname_transfer"),
 
+##加速服务器管理
+    url(r'acceleration/list/',views.acceleration_node_list,name="jiasu_list"),
+    url(r'acceleration/add/',views.acceleration_node_add,name="jiasu_add"),
+    url(r'acceleration/delete/(?P<uuid>[^/]+)/$',views.acceleration_node_delete,name="jiasu_delete"),
+    url(r'acceleration/modify/(?P<uuid>[^/]+)/$',views.acceleration_node_modify,name="jiasu_modify"),
 
 
 
