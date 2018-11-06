@@ -245,7 +245,7 @@ def conf_add(request,env):
                 f_domainname = [i.name for i in f_domainname]
             else:
                 errors.append("没有给出前端域名,请联系产品添加域名")
-            if envir != "test" and platform != "VUE蛮牛":
+            if platform != "VUE蛮牛":
                 if a_domainname:
                     a_domainname = [i.name for i in a_domainname]
                 else:
@@ -258,38 +258,50 @@ def conf_add(request,env):
         if errors: return render(request,'gitfabu/conf_add.html',locals())
 
         #配置git地址，如果没有找到web/1001.git类似的私有仓库，则创建保存
-        money_git = "http://git.dtops.cc/"
+        online_git = "http://git.dtops.cc/"
         username = "fabu"    #写死的，以后会是一个bug
         password = "DSyunweibu110110"
         if platform == "现金网":  #注意：只有现金网和蛮牛的web项目发布时才会创建git地址，其他的单独项目和JAVA项目应该手动添加git的相关信息
-            web = money_git+"web/%s.git"% name
+            web = online_git+"web/%s.git"% name
             obj,created = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name,defaults={'address':web,'user':username,'passwd':password},)
-            php_pc,php_pc_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="php_pc",defaults={'address':money_git+"php/1000_public_php.git",'user':username,'passwd':password})
-            php_mob,php_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="php_mobile",defaults={'address':money_git+"php/1000m_public_php.git",'user':username,'passwd':password})
-            js_pc,js_pc_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_pc",defaults={'address':money_git+"web/1000_public_js.git",'user':username,'passwd':password})
-            js_mob,js_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_mobile",defaults={'address':money_git+"web/1000m_public_js.git",'user':username,'passwd':password})
-            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_config",defaults={'address':money_git+"config/"+name+".git",'user':username,'passwd':password})
+            php_pc,php_pc_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="php_pc",defaults={'address':online_git+"php/1000_public_php.git",'user':username,'passwd':password})
+            php_mob,php_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="php_mobile",defaults={'address':online_git+"php/1000m_public_php.git",'user':username,'passwd':password})
+            js_pc,js_pc_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_pc",defaults={'address':online_git+"web/1000_public_js.git",'user':username,'passwd':password})
+            js_mob,js_mob_repo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="js_mobile",defaults={'address':online_git+"web/1000m_public_js.git",'user':username,'passwd':password})
+            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_config",defaults={'address':online_git+"config/"+name+".git",'user':username,'passwd':password})
         elif platform == "蛮牛":
             if envir == "huidu":
-                php_repo = money_git+"harrisdt15f/huidu-wcphpsec.git"
+                php_repo = online_git+"harrisdt15f/huidu-wcphpsec.git"
+            elif envir == "test":
+                username = "dtops"
+                php_repo = "http://git.ds.com/harrisdt15f1/neiwang_wcphpsec.git"
             else:
-                php_repo = money_git+"harrisdt15f/wcphpsec.git"
-            web = money_git+"jack/%s.git"% name
+                php_repo = online_git+"harrisdt15f/wcphpsec.git"
+            web = online_git+"jack/%s.git"% name
             obj,created = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name,defaults={'address':web,'user':username,'passwd':password},)
-            jsobj,jsrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_js",defaults={'address':money_git+"jack/mn-web-public.git",'user':username,'passwd':password})
+            jsobj,jsrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_js",defaults={'address':online_git+"jack/mn-web-public.git",'user':username,'passwd':password})
             phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_php",defaults={'address':php_repo,'user':username,'passwd':password})
-            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
+            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="mn_config",defaults={'address':online_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
         elif platform == "VUE蛮牛":
             if envir == "huidu":
-                php_repo = money_git+"harrisdt15f/huidu-wcphpsec.git"
+                php_repo = "http://git.dtops.cc/harrisdt15f/huidu-wcphpsec.git"
+                php_config = "http://git.dtops.cc/harrisdt15f/phpcofig.git"
+            elif envir == "test":
+                username = "dtops"
+                password = "DSyunweibu110110"
+                online_git = "http://git.ds.com/"
+                php_repo = "http://git.ds.com/harrisdt15f1/wcphpsec.git"
+                php_config = "http://git.ds.com/harrisdt15f1/phpcofig.git"
             else:
-                php_repo = money_git+"harrisdt15f/wcphpsec.git"
-            pc_addr = money_git+"jack/"+name.replace("vue","-vue-pc.git")
-            wap_addr = money_git+"jack/"+name.replace("vue","-vue-wap.git")
+                php_repo = "http://git.dtops.cc/harrisdt15f/wcphpsec.git"
+                php_config = "http://git.dtops.cc/harrisdt15f/phpcofig.git"
+            pc_addr=online_git+"dt-vue-group/pc/"+name.replace("vue",".git")
+            wap_addr=online_git+"dt-vue-group/m/"+name.replace("vue",".git")
+
             vuepc,pcrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_mn_pc",defaults={'address':pc_addr,'user':username,'passwd':password},)
             vuewap,waprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=False,title=name+"_mn_wap",defaults={'address':wap_addr,'user':username,'passwd':password})
             phpobj,phprepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="vue_mn_php",defaults={'address':php_repo,'user':username,'passwd':password})
-            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="vue_mn_config",defaults={'address':money_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
+            configobj,configrepo = git_coderepo.objects.get_or_create(platform=platform,classify=envir,ispublic=True,title="vue_mn_config",defaults={'address':online_git+"harrisdt15f/phpcofig.git",'user':username,'passwd':password})
 
         ddata,created = git_deploy.objects.get_or_create(name=name,platform=platform,classify=envir,business=business,defaults={'conf_domain':conf_domain,'server':server,'usepub':conf_domain,'isdev':True},)
 
@@ -340,10 +352,10 @@ def others_request_task_list(request):
         # for i in sdata:
         #     for j in i.reqt.all():
         #         data.append(j)
-        data = git_task_audit.objects.filter(loss_efficacy=False)[0:100]
+        data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
     else:
         data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:50]
-    #data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
+    data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
     return render(request,'gitfabu/others_request_task.html',locals())
 
 @login_required
@@ -976,6 +988,7 @@ def manniu_list(request):
     data = git_deploy.objects.filter(platform="JAVA项目",classify="online",isops=True,islog=True) #蛮牛java组件项目
     data_huidu = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True)
     data_online = git_deploy.objects.filter(platform="蛮牛",classify="online",isops=True,islog=True)
+    data_test = git_deploy.objects.filter(platform="蛮牛",classify="test",isops=True,islog=True)
     return render(request,'gitfabu/manniu_list.html',locals())
 
 @login_required
@@ -1010,4 +1023,5 @@ def task_observer(request):
 def vue_manniu_list(request):
     data_huidu = git_deploy.objects.filter(platform="VUE蛮牛",classify="huidu",isops=True,islog=True)
     data_online = git_deploy.objects.filter(platform="VUE蛮牛",classify="online",isops=True,islog=True)
+    data_test = git_deploy.objects.filter(platform="VUE蛮牛",classify="test",isops=True,islog=True)
     return render(request,'gitfabu/vue_manniu_list.html',locals())
