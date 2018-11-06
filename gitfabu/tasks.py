@@ -46,7 +46,7 @@ class git_moneyweb_deploy(object):
             if self.platform == "现金网" or self.platform == "蛮牛":
                 server_data = git_ops_configuration.objects.get(platform=data.platform,classify=data.classify,name="源站")
             elif self.platform == "VUE蛮牛":
-                 server_data = git_ops_configuration.objects.get(platform="蛮牛",classify=data.classify,name="源站")
+                server_data = git_ops_configuration.objects.get(platform="蛮牛",classify=data.classify,name="源站")
             else:
                 server_data = git_ops_configuration.objects.get(platform=data.platform,classify=data.classify,name=data.name)
             self.remoteip = server_data.remoteip

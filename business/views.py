@@ -54,9 +54,14 @@ def business_add(request):
                 huidu_a = DomainName(name="ag"+siteid+".s1119.com",use=1,business=bf_data,classify="huidu",state=0,supplier="运维")
                 huidu_a.save()
                 huidu_f.save()
-            elif bf_data.platform == "蛮牛" or "VUE蛮牛":
+            elif bf_data.platform == "蛮牛":
                 huidu_f = DomainName(name=siteid+".kg-44.com",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a = DomainName(name="ag"+siteid+".kg-44.com",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
+                huidu_a.save()
+                huidu_f.save()
+            elif bf_data.platform == "VUE蛮牛":
+                huidu_f = DomainName(name=siteid.replace("vue","")+".kg-8.me",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
+                huidu_a = DomainName(name="ag"+siteid+".kg-8.me",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a.save()
                 huidu_f.save()
             return HttpResponseRedirect('/allow/welcome/')
