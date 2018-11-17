@@ -158,6 +158,9 @@ class git_code_update(models.Model):
         ('js_mobile', u'手机端js代码更新'),
         ('php', u'PHP-Pub代码更新'),
         ('js', u'JS-Pub代码更新'),
+        ('vue_php', u'VUE-PHP更新'),
+        ('vue_wap', u'VUE-手机更新'),
+        ('vue_pc', u'VUE-电脑更新'),
         ('config', u'PHP-Config更新'),
     )
     method = models.CharField(max_length=20,null=True,blank=True,choices=METHOD_CHOICE)

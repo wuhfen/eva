@@ -52,7 +52,7 @@ $(function () {
 
 <script type="text/javascript">
     $('#id_submit').on("click",function(){
-        var urls= "{% url 'vue_wap_batch_update' env %}";
+        var urls= "{% url 'vue_pc_batch_update' env %}";
         $.ajax({
             url:urls,
             dataType: 'json',

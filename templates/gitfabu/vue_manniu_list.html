@@ -54,7 +54,7 @@
                   </div>
                   <div class="col-lg-3">{% if data_huidu %}<a href="{% url 'vue_wap_batch_update' 'vue_huidu' %}" class="btn btn-warning update-java"><i class="glyphicon glyphicon-phone"></i> WAP批量更新</a>
                   <hr>{% endif %}</div>
-                  <div class="col-lg-3">{% if data_huidu %}<a href="#" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
+                  <div class="col-lg-3">{% if data_huidu %}<a href="{% url 'vue_pc_batch_update' 'vue_huidu' %}" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
                   <hr>{% endif %}</div>
                   <div class="col-lg-3">{% if data_huidu %}<a href="{% url 'public_update_code' 'vue_huidu' %}" class="btn btn-warning update-java"><link rel="shortcut icon" href="/static/images/ico/php.ico"/> PHP全站更新</a>
                   <hr>{% endif %}</div>
@@ -73,7 +73,11 @@
                   <a href="{% url 'conf_add' 'vue_online' %}" class="btn btn-primary">申请生产发布</a>
                   <hr>
                   </div>
-                  <div class="col-lg-6">{% if data_online %}<a href="{% url 'public_update_code' 'vue_online' %}" class="btn btn-warning update-java">公共代码全站更新</a>
+                  <div class="col-lg-3">{% if data_online %}<a href="{% url 'vue_wap_batch_update' 'vue_online' %}" class="btn btn-warning update-java"><i class="glyphicon glyphicon-phone"></i> WAP批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-3">{% if data_online %}<a href="{% url 'vue_pc_batch_update' 'vue_online' %}" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-6">{% if data_online %}<a href="{% url 'public_update_code' 'vue_online' %}" class="btn btn-warning update-java">PHP全站更新</a>
                   <hr>{% endif %}</div>
                   <div class="col-lg-12">
                     {% for i in data_online %}
@@ -92,6 +96,7 @@
 <script type="text/javascript">
     $(".update-java").on("click", function(event){ //一般更新
          var url= $(this).attr('href');
+         var height = $(window).height();
          // layer.msg('Hello layer');
             layer.open({
                 type: 2,
@@ -100,7 +105,7 @@
                 maxmin: false,
                 shade: 0.5,
                 shadeClose: true, //点击遮罩关闭层
-                area : ['1100px' , '800px'],
+                area : ['1150px',(height - 50) + 'px'],
                 end : function () {
                   // location.reload();
                   layer.msg('OK');

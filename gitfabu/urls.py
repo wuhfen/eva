@@ -32,5 +32,6 @@ urlpatterns = [
     url(r'^conf/domains/$', views.deploy_domains, name="deploy_domains"),
 
     url(r'^vue/wap/(?P<env>[^/]+)/$', views.vue_wap_batch_update, name="vue_wap_batch_update"),
+    url(r'^vue/pc/(?P<env>[^/]+)/$', views.vue_pc_batch_update, name="vue_pc_batch_update"),
 
 ]

@@ -387,6 +387,7 @@ class git_moneyweb_deploy(object):
                 git_code_update.objects.filter(code_conf=datas,islog=False,isuse=False).update(islog=True)
             elif len(total_data) == 1:
                 new_data = git_code_update.objects.get(code_conf=datas,islog=False,isuse=False)
+                print "最新版本为:%s,uuid=%s,版本号:%s"% (new_data.name,new_data.id,new_data.version)
             else:
                 print "未发现未完成版本，取当前版本为有效版本"
                 new_data = git_code_update.objects.get(code_conf=datas,islog=True,isuse=True)
@@ -1062,10 +1063,10 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
             logs.append("%s版本检出错误，请查看本地代码仓库是否存在"% updata.method)
             end = "任务已失败：%s"% updata.name
             status = "更新任务失败"
+            data.islock=False
+            data.save()
         updata.islog = True
         updata.save()
-        data.islock = False
-        data.save()
         logs.append(end)
         print end
 

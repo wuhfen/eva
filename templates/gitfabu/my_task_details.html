@@ -290,25 +290,27 @@ p {text-indent: 1cm}
 
 <!-- 日志开始 -->
     {% if classify == "batch" %}
-    <li class="time-label">
-        <span class="bg-green">
-            {{ data.end_date.date }}
-        </span>
-    </li>
-    <li>
-        <!-- timeline icon -->
-        <i class="fa fa-file-text-o bg-purple"></i>
-        <div class="timeline-item">
-            <span class="time"><i class="fa fa-clock-o"></i> {{ data.end_date.time }}</span>
+        {% if dflog %}
+        <li class="time-label">
+            <span class="bg-green">
+                {{ data.end_date.date }}
+            </span>
+        </li>
+        <li>
+            <!-- timeline icon -->
+            <i class="fa fa-file-text-o bg-purple"></i>
+            <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> {{ data.end_date.time }}</span>
 
-            <h3 class="timeline-header"><a href="#">日志</a></h3>
+                <h3 class="timeline-header"><a href="#">日志</a></h3>
 
-            <div class="timeline-body" id="log_body_id">
-                <h4>内容:</h4>
-                    <pre class="text-success">{{ dflog.log }}</pre>
+                <div class="timeline-body" id="log_body_id">
+                    <h4>内容:</h4>
+                        <pre class="text-success">{{ dflog.log }}</pre>
+                </div>
             </div>
-        </div>
-    </li>
+        </li>
+        {% endif %}
     {% else %}
         {% if df.islog %}
         <li class="time-label">

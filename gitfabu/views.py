@@ -1039,6 +1039,52 @@ def vue_manniu_list(request):
     return render(request,'gitfabu/vue_manniu_list.html',locals())
 
 @login_required
+def vue_pc_batch_update(request,env):
+    if "online" in env:
+        classify = "online"
+    elif "huidu" in env:
+        classify = "huidu"
+    elif "test" in env:
+        classify = "test"
+
+    base_export_dir = "/data/manniuvue/" + classify + "/export/"
+    platform = "VUE蛮牛"
+    data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True)
+    cmd = "git log origin/master -n 1 --oneline"
+    siteid_version={}
+    for x in data:
+        if x.islock:
+            siteid_version[x.name]="Locked"
+        else:
+            path = base_export_dir+x.name+"_pc"
+            child = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
+            out,error = [i.decode("utf-8") for i in child.communicate()]
+            siteid_version[x.name]=out
+
+
+    if request.method == 'POST':
+        check_list = request.POST.getlist('check_list')
+        if not check_list: return JsonResponse({'res':"Faild"},safe=False)
+        name = platform+"_"+classify+"_PC_批量更新"
+        memo={}
+        for i in check_list:
+            memo[i.split()[0]] = i.split()[1]
+        print memo
+        #设计一下types,非常有用(平台-环境-方式-方法),此字段限制64字符
+        types='%s-%s-batch-vue_pc'% (platform,classify)
+        mydata = my_request_task(name=name,types=types,table_name="git_code_update",uuid=uuid.uuid4(),memo=memo,initiator=request.user,status="审核中")
+        mydata.save()
+        auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=False,name="更新")
+        if classify == "test":
+            mydata.status="通过审核，更新中"
+            mydata.save()
+            reslut = git_batch_update_task.delay(mydata.id,platform=platform,memos=memo)
+        else:
+            send_message_task.delay(mydata.id,auditor.id)
+        return JsonResponse({'res':"OK"},safe=False)
+    return render(request,'gitfabu/vue_pc_batch_update.html',locals())
+
+@login_required
 def vue_wap_batch_update(request,env):
     if "online" in env:
         classify = "online"
@@ -1072,7 +1118,7 @@ def vue_wap_batch_update(request,env):
         print memo
         #设计一下types,非常有用(平台-环境-方式-方法),此字段限制64字符
         types='%s-%s-batch-vue_wap'% (platform,classify)
-        mydata = my_request_task(name=name,types=types,table_name="git_code_update",uuid=uuid.uuid4,memo=memo,initiator=request.user,status="审核中")
+        mydata = my_request_task(name=name,types=types,table_name="git_code_update",uuid=uuid.uuid4(),memo=memo,initiator=request.user,status="审核中")
         mydata.save()
         auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=False,name="更新")
         if classify == "test":
