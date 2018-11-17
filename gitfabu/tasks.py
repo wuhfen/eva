@@ -776,7 +776,7 @@ def git_fabu_task(uuid,myid):
     #创建复核任务
     if data.platform == "现金网" or data.platform == "蛮牛" or data.platform == "VUE蛮牛":
         try:
-            auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,name="发布复核")
+            auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=data.classify,name="发布复核")
             confirm = my_request_task(name=mydata.name,types='fbconfirm',table_name="git_deploy",uuid=mydata.uuid,memo=mydata.memo,initiator=mydata.initiator,status="等待复核")
             confirm.save()
             task_distributing(confirm.id,auditor.id)

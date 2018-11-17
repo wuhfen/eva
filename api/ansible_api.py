@@ -282,8 +282,11 @@ class MyPlayTask(MyPlaybook):
     def initialization_system(self):
         return self.run_playbook(['/etc/ansible/init_sys.yml'])   #系统初始化任务
 
-    def rsync_nginx_conf(self,localfile,remotedir,remotefile,siteid,domains):
-        result = self.run_playbook(['/etc/ansible/domainname_rsync.yml'], local=localfile,path=remotedir,file=remotefile,siteid=siteid,server_names=domains)
+    def rsync_nginx_conf(self,localfile,remotedir,remotefile,siteid,domains,pcdomains=None,mdomains=None):
+        if pcdomains:
+            result = self.run_playbook(['/etc/ansible/domainname_rsync.yml'], local=localfile,path=remotedir,file=remotefile,siteid=siteid,server_names=domains,pc_names=pcdomains,m_domains=mdomains)
+        else:
+            result = self.run_playbook(['/etc/ansible/domainname_rsync.yml'], local=localfile,path=remotedir,file=remotefile,siteid=siteid,server_names=domains)
         return result
 
     def rsync_nginx_white_conf(self,localfile,remotefile,ips,isreload,server_name=None,siteid=None):
