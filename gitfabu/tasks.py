@@ -12,7 +12,7 @@ from celery import shared_task,current_task
 from api.git_api import Repo
 from api.ssh_api import ssh_cmd,ssh_check
 from api.common_api import genxin_code_dir,genxin_exclude_file,gen_resource
-from gitfabu.audit_api import task_distributing
+from gitfabu.audit_api import task_distributing,change_version_old_to_new
 import time
 import os
 from time import sleep
@@ -545,7 +545,7 @@ class git_moneyweb_deploy(object):
                 self.results.append("添加属主：%s \n"% owner)
         return self.results
 
-    def ansible_rsync_api(self,name,localfile,remotedir,remotefile,siteid,domains):
+    def ansible_rsync_api(self,name,localfile,remotedir,remotefile,siteid,domains,pcdomains=None,mdomains=None):
         self.results.append("开始配置%s域名"% name)
         print "开始配置%s域名"% name
         try:
@@ -555,7 +555,7 @@ class git_moneyweb_deploy(object):
                 remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=name).remoteip
             resource = gen_resource([Server.objects.get(ssh_host=i) for i in remoteips.split('\r\n')])
             playtask = MyPlayTask(resource)
-            res = playtask.rsync_nginx_conf(localfile,remotedir,remotefile,siteid,domains)
+            res = playtask.rsync_nginx_conf(localfile,remotedir,remotefile,siteid,domains,pcdomains=pcdomains,mdomains=mdomains)
             self.results.append("源站：%s 目录：%s,文件名：%s"% (remoteips,remotedir,remotefile))
             self.results.append("域名：%s"% domains)
             if res == 0:
@@ -581,6 +581,8 @@ class git_moneyweb_deploy(object):
         #先找到域名
         business = Business.objects.get(nic_name=self.siteid,platform=self.platform) #某个项目的某个ID
         front_data = business.domain.filter(use=0,classify=self.env)
+        vue_pc_domains = " ".join([i.name for i in front_data if "pc." in i.name])
+        vue_m_domains = " ".join([i.name for i in front_data if "m." in i.name])
         front_domain = " ".join([i.name for i in front_data if i]) #组合所有的前端域名
         ag_data = business.domain.filter(use=1,classify=self.env)
         ag_domain = " ".join([i.name for i in ag_data if i])            #组合所有的ag域名
@@ -646,8 +648,13 @@ class git_moneyweb_deploy(object):
             name = "源站"
             domains = "-"
             remotefile = self.siteid+".conf"
-            local_nginx_file = "vue_mn_source.conf"
             port = siteid
+            if self.env == "huidu":
+                local_nginx_file = "vue_mn_huidu_source.conf"
+            elif self.env == "online":
+                local_nginx_file = "vue_mn_online_source.conf"
+            else:
+                local_nginx_file = "vue_mn_test_source.conf"
             self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
 
             #同步蛮牛源站反代域名
@@ -658,13 +665,12 @@ class git_moneyweb_deploy(object):
                     local_nginx_file = "vue_mn_huidu_front_proxy.conf"
                     remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
                     remotefile = "huidu"+self.siteid+".conf"
+                    self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
                 elif self.env == "online":
                     local_nginx_file = "vue_mn_online_front_proxy.conf"
                     remote_dir = "/usr/local/nginx/conf/vhost/"
                     remotefile = self.siteid+".conf"
-
-                self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-
+                    self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains,pcdomains=vue_pc_domains,mdomains=vue_m_domains)
 
         if self.platform == "蛮牛":
             #同步蛮牛源站
@@ -1015,3 +1021,62 @@ def commit_details_task(uuid,env=None,platform=None):
     updata.save()
     return "Commit_Details task is end"
 
+@shared_task()
+def git_batch_update_task(myid,platform="现金网",memos=None):
+    mydata = my_request_task.objects.get(pk=myid)
+    types = mydata.types.split("-")
+    platform = types[0]
+    classify = types[1]
+    batch = types[2]
+    method = types[3]
+
+    logs=[]
+    start = "开始%s\n"% mydata.name
+    logs.append(start)
+    print start
+
+    lock_file = "/tmp/"+platform+"_"+classify+".lock"
+    while os.path.isfile(lock_file):
+        sleep(1)
+    fo = open(lock_file,"wb")
+    fo.write("locked")
+    fo.close()
+    logs.append("创建锁文件：%s"% lock_file)
+
+    if not memos: memos = eval(mydata.memo)
+    for key,value in memos.items():
+        updata = change_version_old_to_new(key,platform,classify,method,value)
+        data = git_deploy.objects.get(name=key,platform=platform,classify=classify,isops=True,islog=True)
+        MyWeb = git_moneyweb_deploy(data.id)
+        export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value) #需要判断是不是vue蛮牛或者现金网,pc和手机都要更新,但是这里先不处理
+        if export_reslut:
+            MyWeb.update_release()
+            MyWeb.merge_git()
+            MyWeb.ansible_rsync_web()
+            logs = logs+MyWeb.results
+            end = "已完成%s"% updata.name
+            status = "已完成"
+            data.deploy_update.filter(isuse=True).update(isuse=False)
+            updata.isuse = True
+        else:
+            logs.append("%s版本检出错误，请查看本地代码仓库是否存在"% updata.method)
+            end = "任务已失败：%s"% updata.name
+            status = "更新任务失败"
+        updata.islog = True
+        updata.save()
+        data.islock = False
+        data.save()
+        logs.append(end)
+        print end
+
+    os.remove(lock_file)
+    logs.append("删除锁文件：%s"% lock_file)
+    #更新任务isend
+
+    mydata.status = status
+    mydata.isend = True
+    mydata.save()
+    #记录日志
+    logdata = git_deploy_logs(name="更新",log="\r\n".join(logs),git_deploy=data,update=mydata.uuid)
+    logdata.save()
+    return "celery Batch_gengxin_task is end"

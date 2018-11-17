@@ -31,4 +31,6 @@ urlpatterns = [
     url(r'^task/confirm/(?P<uuid>[^/]+)/$', views.confirm_mytask, name="confirm_mytask"),
     url(r'^conf/domains/$', views.deploy_domains, name="deploy_domains"),
 
+    url(r'^vue/wap/(?P<env>[^/]+)/$', views.vue_wap_batch_update, name="vue_wap_batch_update"),
+
 ]
