@@ -19,6 +19,7 @@ from gitfabu.audit_api import task_distributing,check_group_audit,onekey_access,
 import telegram
 import pdb
 import uuid
+from collections import OrderedDict #引入有序字典
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
 
 
@@ -1051,7 +1052,7 @@ def vue_pc_batch_update(request,env):
     platform = "VUE蛮牛"
     data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True)
     cmd = "git log origin/master -n 1 --oneline"
-    siteid_version={}
+    siteid_version=OrderedDict()
     for x in data:
         if x.islock:
             siteid_version[x.name]="Locked"
@@ -1060,8 +1061,6 @@ def vue_pc_batch_update(request,env):
             child = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
             out,error = [i.decode("utf-8") for i in child.communicate()]
             siteid_version[x.name]=out
-
-
     if request.method == 'POST':
         check_list = request.POST.getlist('check_list')
         if not check_list: return JsonResponse({'res':"Faild"},safe=False)
@@ -1095,9 +1094,9 @@ def vue_wap_batch_update(request,env):
 
     base_export_dir = "/data/manniuvue/" + classify + "/export/"
     platform = "VUE蛮牛"
-    data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True)
+    data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True).order_by('name')
     cmd = "git log origin/master -n 1 --oneline"
-    siteid_version={}
+    siteid_version=OrderedDict()
     for x in data:
         if x.islock:
             siteid_version[x.name]="Locked"
@@ -1106,7 +1105,6 @@ def vue_wap_batch_update(request,env):
             child = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
             out,error = [i.decode("utf-8") for i in child.communicate()]
             siteid_version[x.name]=out
-
 
     if request.method == 'POST':
         check_list = request.POST.getlist('check_list')
