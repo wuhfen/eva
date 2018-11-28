@@ -344,7 +344,7 @@ def my_request_task_list(request):
     if request.user.username == "wuhf":
         data = my_request_task.objects.filter(isend=False,loss_efficacy=False).order_by('-create_date')
     else:
-        data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
+        data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
     # data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=True).order_by('-create_date')[0:100]
     return render(request,'gitfabu/my_request_task.html',locals())
 
@@ -359,8 +359,8 @@ def others_request_task_list(request):
         #         data.append(j)
         data = git_task_audit.objects.filter(isaudit=False,loss_efficacy=False)
     else:
-        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:50]
-    data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:50]
+        data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:100]
+    # data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
     return render(request,'gitfabu/others_request_task.html',locals())
 
 @login_required
