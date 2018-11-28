@@ -587,7 +587,10 @@ class git_moneyweb_deploy(object):
 
     def web_front_domain(self):
         remote_dir = "/usr/local/nginx/conf/vhost/" #此处前期写死了，后期应该从business里面娶
-        siteid = filter(str.isdigit,self.siteid) #只保留字符串中的数字
+        try:
+            siteid = filter(str.isdigit,self.siteid) #只保留字符串中的数字
+        except TypeError:
+            siteid = filter(unicode.isdigit,self.siteid)
         print "当前siteid%s"% siteid
         #先找到域名
         business = Business.objects.get(nic_name=self.siteid,platform=self.platform) #某个项目的某个ID
