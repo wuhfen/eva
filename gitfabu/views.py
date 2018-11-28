@@ -1058,6 +1058,8 @@ def vue_pc_batch_update(request,env):
             siteid_version[x.name]="Locked"
         else:
             path = base_export_dir+x.name+"_pc"
+            pull = subprocess.Popen(["git","pull","origin","master"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
+            pull.wait()
             child = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
             out,error = [i.decode("utf-8") for i in child.communicate()]
             siteid_version[x.name]=out
@@ -1102,6 +1104,8 @@ def vue_wap_batch_update(request,env):
             siteid_version[x.name]="Locked"
         else:
             path = base_export_dir+x.name+"_wap"
+            pull = subprocess.Popen(["git","pull","origin","master"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
+            pull.wait()
             child = subprocess.Popen(cmd.split(),stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=path)
             out,error = [i.decode("utf-8") for i in child.communicate()]
             siteid_version[x.name]=out

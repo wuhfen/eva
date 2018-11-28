@@ -346,7 +346,7 @@ def white_batch_add(request,uuid):
     if conf.name == "KG-JDC" or conf.name == "MONEY-Backend" or conf.name == "DT-GFC" or conf.name == "MONEY-Black":
         data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True) #根据线上的siteid来添加
     elif conf.name == "MN-JDC" or conf.name == "MN-Backend" or conf.name == "MN-GFC" or conf.name == "MN-Black":
-        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True) #根据灰度的siteid来添加
+        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",islog=True) #根据灰度的siteid来添加
     else:
         data = git_deploy.objects.filter(classify="online",islog=True)
     if request.method == 'POST':
@@ -380,8 +380,8 @@ def white_batch_add(request,uuid):
             platform = "蛮牛"
             template_file="mn_backend.conf"
             file_path = conf.file_path+"/"+deploy.name+".conf"
-            huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",isops=True,islog=True)
-            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",isops=True,islog=True)
+            huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
+            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
                     ips += i.host_key+" "+i.host_ip+";\n    "
@@ -413,7 +413,7 @@ def white_add(request,uuid):
     if conf.name == "KG-JDC" or conf.name == "MONEY-Backend" or conf.name == "DT-GFC" or conf.name == "MONEY-Black":
         data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True) #根据线上的siteid来添加
     elif conf.name == "MN-JDC" or conf.name == "MN-Backend" or conf.name == "MN-GFC" or conf.name == "MN-Black":
-        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",isops=True,islog=True) #根据灰度的siteid来添加
+        data = git_deploy.objects.filter(platform="蛮牛",classify="huidu",islog=True) #根据灰度的siteid来添加
     else:
         data = git_deploy.objects.filter(classify="online",islog=True)
     if request.method == 'POST':
@@ -448,8 +448,8 @@ def white_add(request,uuid):
             platform = "蛮牛"
             template_file="mn_backend.conf"
             file_path = conf.file_path+"/"+deploy.name+".conf"
-            huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",isops=True,islog=True)
-            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",isops=True,islog=True)
+            huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
+            online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
                     ips += i.host_key+" "+i.host_ip+";\n    "
@@ -505,8 +505,8 @@ def white_delete(request,uuid):
     elif name == "MN-Backend":
         template_file="mn_backend.conf"
         file_path = conf.file_path+"/"+deploy.name+".conf"
-        huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",isops=True,islog=True)
-        online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",isops=True,islog=True)
+        huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",islog=True)
+        online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",islog=True)
 
         if huidu_deploy:
             for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
@@ -573,8 +573,8 @@ def batch_delete_vpn(request):
         new_deploys = list(set(deploys))
         if len(new_deploys) == 1:
             file_path = conf.file_path+"/"+deploy.name+".conf"
-            huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",isops=True,islog=True)
-            online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",isops=True,islog=True)
+            huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",islog=True)
+            online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
                     ips += i.host_key+" "+i.host_ip+";\n    "
@@ -594,8 +594,8 @@ def batch_delete_vpn(request):
                 if not front_data: front_data = business.domain.filter(use=2,classify="huidu")
                 front_domain = " ".join([j.name for j in front_data if j])
                 file_path = conf.file_path+"/"+i.name+".conf"
-                huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="huidu",isops=True,islog=True)
-                online_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="online",isops=True,islog=True)
+                huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="huidu",islog=True)
+                online_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="online",islog=True)
                 if huidu_deploy:
                     for j in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
                         ips += j.host_key+" "+j.host_ip+";\n    "

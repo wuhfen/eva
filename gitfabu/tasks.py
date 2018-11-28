@@ -15,6 +15,7 @@ from api.common_api import genxin_code_dir,genxin_exclude_file,gen_resource
 from gitfabu.audit_api import task_distributing,change_version_old_to_new
 import time
 import os
+import re
 from time import sleep
 import subprocess
 from assets.models import Server
@@ -100,19 +101,21 @@ class git_moneyweb_deploy(object):
             self.web_dir = self.base_export_dir + self.siteid  #私有仓库检出地址
 
         if self.method == "money_fabu":
-            self.export_git(what='web')
-            if self.usepub:
-                self.export_git(what='php_pc')
-                self.export_git(what='js_pc')
-                self.export_git(what='php_mobile')
-                self.export_git(what='js_mobile')
-                if not self.env == "test":
-                    self.export_config(branch="master")
-            self.update_release()
-            self.merge_git()
-            self.ansible_rsync_web()
-            if data.conf_domain:
-                self.web_front_domain()
+            if not self.env == "test":
+                ggsimida = self.export_config(branch="master")
+            else:
+                ggsimida = "yes"
+            if ggsimida: a = self.export_git(what='web')
+            if a: b = self.export_git(what='php_pc')
+            if b: c = self.export_git(what='js_pc')
+            if c: d = self.export_git(what='php_mobile')
+            if d: e = self.export_git(what='js_mobile')
+            if e:
+                self.update_release()
+                self.merge_git()
+                self.ansible_rsync_web()
+                if data.conf_domain:
+                    self.web_front_domain()
         elif self.method == "manniu_fabu":
             print "发布蛮牛web项目"
             self.export_git(what='web')
@@ -126,15 +129,16 @@ class git_moneyweb_deploy(object):
                 self.web_front_domain()
         elif self.method == "vue_manniu_fabu":
             print "发布VUE蛮牛项目"
-            self.export_git(what='vue_pc')
-            self.export_git(what='vue_wap')
-            self.export_git(what='vue_php')
-            self.export_git(what='vue_config')
-            self.update_release()
-            self.merge_git()
-            self.ansible_rsync_web()
-            if data.conf_domain:
-                self.web_front_domain()
+            a = self.export_git(what='vue_pc')
+            if a: b = self.export_git(what='vue_wap')
+            if b: c = self.export_git(what='vue_php')
+            if c: d = self.export_git(what='vue_config')
+            if d:
+                self.update_release()
+                self.merge_git()
+                self.ansible_rsync_web()
+                if data.conf_domain:
+                    self.web_front_domain()
         elif self.method == "op_fabu":
             self.export_git(what='only')
             self.update_release()
@@ -214,8 +218,12 @@ class git_moneyweb_deploy(object):
         url = "http://fabu:DSyunweibu110110@git.dtops.cc/config/"+ self.siteid +".git"
         genxin_code_dir(self.config_dir)
         repo = Repo(self.config_dir)
-        res = repo.git_clone(url,self.config_dir)
-        self.results.append("检出%s配置文件"% self.siteid)
+        try:
+            res = repo.git_clone(url,self.config_dir)
+            self.results.append("检出%s配置文件"% self.siteid)
+        except:
+            self.results.append("检出%s配置文件出错,没有该项目地址"% self.siteid)
+            return None
         return self.results
 
     def export_git(self,what='web',branch="master",reversion=None):
@@ -314,33 +322,37 @@ class git_moneyweb_deploy(object):
                 repo.git_pull()
                 print "bug定位--检出过程切换到版本号：%s"% reversion
                 res = repo.git_checkout(reversion)
-                res1 = "切换分支%s,切换版本号%s"% (branch,reversion)
+                self.results.append("切换分支%s,切换版本号%s"% (branch,reversion))
             except:
                 res = "版本检出错误，请查看本地代码仓库是否存在"
-                res1 = "bug定位--检出过程版本错误：退出任务！"
+                self.results.append("bug定位--检出过程版本错误：退出任务！")
                 return False
             last_commit = reversion
         else:  #没有提供版本号则clone
             if data_repo.isexist == False:  #如果仓库在本地已存在export目录中则检出，否则clone
                 genxin_code_dir(clone_dir)
-                res1 = "清空检出目录: %s,clone代码到本地"% clone_dir
+                self.results.append("清空检出目录: %s,clone代码到本地"% clone_dir)
                 res = repo.git_clone(grepo,clone_dir)
-                last_commit = repo.show_commit()[0]
             else: #此条件只有公用public代码发布时才会用到
                 if what is not "web":
                     genxin_code_dir(clone_dir)
                     res = repo.git_clone(grepo,clone_dir)
-                    res1 = "清空检出目录: %s,clone代码到本地"% clone_dir
+                    self.results.append("清空检出目录: %s,clone代码到本地"% clone_dir)
                 else:
                     repo.git_checkout(branch)
-                    res1 = "切换到分支: %s"% branch
+                    self.results.append("切换到分支: %s"% branch)
                     res = repo.git_pull() 
-                last_commit = repo.show_commit()[0]
+
+            try:
+                get_log = repo.git_log(identifier="--oneline")
+                last_commit = get_log.strip()
+            except:
+                self.results.append("git仓库:%s 为空,没有代码,停止发布"% grepo)
+                return False
         data_repo.reversion = last_commit[0:7]
         data_repo.branch = branch
         data_repo.isexist = True  #发布完成后应该更新此为真，公共代码会检查此项以避免重复clone代码
         data_repo.save()  #保存当前版本,将更新的版本号保存到git仓库中
-        self.results.append(res1) #记录检出分支日志
         self.results.append("检出版本号：%s"% last_commit) #记录检出版本号
         self.results.append(res) #记录检出过程
         return self.results
@@ -575,9 +587,7 @@ class git_moneyweb_deploy(object):
 
     def web_front_domain(self):
         remote_dir = "/usr/local/nginx/conf/vhost/" #此处前期写死了，后期应该从business里面娶
-        siteid = self.siteid.replace('f','')
-        siteid = siteid.replace('c','')
-        siteid = siteid.replace('vue','')
+        siteid = filter(str.isdigit,self.siteid) #只保留字符串中的数字
         print "当前siteid%s"% siteid
         #先找到域名
         business = Business.objects.get(nic_name=self.siteid,platform=self.platform) #某个项目的某个ID
@@ -597,23 +607,14 @@ class git_moneyweb_deploy(object):
             name = "源站"
             domains = front_domain
             remotefile = self.siteid+".conf"
+            port = siteid
+
             if self.env == "test":
                 local_nginx_file = "front_test.conf"
                 port = self.siteid
             else:
-                print "siteid: %s"%siteid
-                print "self_siteid:%s"% self.siteid
-                port = siteid
-                if "f" == self.siteid[-1]: #1058f
-                    print "副站域名文件开始同步"
-                    local_nginx_file = "front_fu.conf"
-                elif "c" == self.siteid[-1]: #1058c
-                    print "C网域名文件开始同步"
-                    local_nginx_file = "front_c.conf"
-                else: #1058
-                    print "主站域名文件开始同步"
-                    local_nginx_file = "front_zhu.conf"
-            print port
+                local_nginx_file = "money_front_"+self.siteid[-1]+"_source.conf"
+
             self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
             #现金网同步AG域名
             if self.env != "test":
@@ -624,19 +625,16 @@ class git_moneyweb_deploy(object):
                 remotefile = self.siteid+"_"+self.env+".conf"
                 self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
 
-            #同步后台域名,灰度环境同步就够了，副网和C网都不用重复配置
+            #创建主A网灰度的时候创建线上后台nginx文件与灰度反代nginx文件
             if self.env == "huidu":
-                if "f" not in self.siteid and "c" not in self.siteid: 
+                if self.siteid[-1] not in ['b','c','d']: 
                     name = "后台"
                     domains = backend_domain
                     port = siteid
                     remotefile = self.siteid+".conf"
                     local_nginx_file = "backend.conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
-
-            #同步现金网灰度源站反代域名
-            if self.env == "huidu":
-                if "f" not in self.siteid and "c" not in self.siteid:
+                    #同步现金网灰度源站反代域名
                     name = "源站反代"
                     domains = front_domain
                     port = siteid
@@ -661,7 +659,10 @@ class git_moneyweb_deploy(object):
             #同步蛮牛源站反代域名
             if self.env != "test":
                 name = "源站反代"
-                domains = front_domain
+                domains = []
+                for i in front_domain:
+                    if not re.match("pc\.|m\.",i): #将pc和m开头的排除在外
+                        domains.append(i)
                 if self.env == "huidu":
                     local_nginx_file = "vue_mn_huidu_front_proxy.conf"
                     remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
@@ -763,7 +764,7 @@ def git_fabu_task(uuid,myid):
 
     #更新任务isend
     mydata = my_request_task.objects.get(pk=myid)
-    mydata.status = "已完成"
+    mydata.status = "已完成" #即使发布不成功也会显示已完成,发布过程是黑箱无法获取结果
     mydata.isend = True
     mydata.save()
     #记录日志
