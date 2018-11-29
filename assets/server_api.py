@@ -25,6 +25,14 @@ def get_server_by_key(key):
     else:
         return False
 
+def get_password_by_host(host):
+    try:
+        data = Server.objects.get(ssh_host=host)
+        res = {"status":"1","password":data.ssh_password}
+    except:
+        res={"status":"0"}
+    return res
+
 @csrf_exempt
 def get_server(request):
     token = "Hi!MyNameIsTokenBoy"
@@ -36,4 +44,13 @@ def get_server(request):
             if data: return JsonResponse({'result':True,'data':data})
     return JsonResponse({'result':False,'data':{}},safe=False)
 
-
+@csrf_exempt
+def get_password(request):
+    token = "Hi!MyNameIsTokenBoy"
+    if request.method == 'POST':
+        req_token = request.POST.get('token')
+        key = request.POST.get('host')
+        if token == req_token:
+            data = get_password_by_host(key)
+            return JsonResponse(data)
+    return JsonResponse({'status':"0"},safe=False)

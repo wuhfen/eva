@@ -125,6 +125,7 @@ urlpatterns = [
 #"""api"""
     url(r'^api/modify/password/$', views.modify_password,name="modify_password"),
     url(r'^server_info/$',api_views.get_server,name="api_get_server"),
+    url(r'^server_password/$',api_views.get_password,name="api_get_password"),
 #test
     url(r'^vps/list$', views.vps_list,name="vps_list"),
     url(r'^get/data/$', views.group_tree,name="group_tree"),
