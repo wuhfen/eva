@@ -1051,7 +1051,7 @@ def vue_pc_batch_update(request,env):
     base_export_dir = "/data/manniuvue/" + classify + "/export/"
     platform = "VUE蛮牛"
     data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True)
-    cmd = "git log origin/master -n 1 --oneline"
+    cmd = "git log -n 1 --oneline"
     siteid_version=OrderedDict()
     for x in data:
         if x.islock:
@@ -1097,7 +1097,7 @@ def vue_wap_batch_update(request,env):
     base_export_dir = "/data/manniuvue/" + classify + "/export/"
     platform = "VUE蛮牛"
     data = git_deploy.objects.filter(platform=platform,classify=classify,isops=True,islog=True).order_by('name')
-    cmd = "git log origin/master -n 1 --oneline"
+    cmd = "git log -n 1 --oneline"
     siteid_version=OrderedDict()
     for x in data:
         if x.islock:
