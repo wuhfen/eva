@@ -815,6 +815,11 @@ def git_update_task(uuid,myid):
         if updata.method != 'web':
             print "非web更新，需要执行web代码"
             MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+    if data.platform == "VUE蛮牛":
+        if updata.method != 'vue_pc':
+            MyWeb.export_git(what='vue_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+        if updata.method != 'vue_wap':
+            MyWeb.export_git(what='vue_wap',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version)
     # if data.platform == "现金网":  #cmdb迁移之后要使用下面代码，以保证存在的站更新不会错乱
     #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
@@ -943,9 +948,9 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         #MyWeb.export_config(branch="master")
         if platform=="现金网" or platform=="蛮牛":
             MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #如果查看分支后版本会错乱,所以取上个版本的web版本号
-        print updata.method
-        print updata.branch
-        print updata.version
+        if data.platform == "VUE蛮牛":
+            MyWeb.export_git(what='vue_pc',branch=latest_update.js_pc_branches,reversion=latest_update.js_pc_release)
+            MyWeb.export_git(what='vue_wap',branch=latest_update.js_mobile_branches,reversion=latest_update.js_mobile_release)
         export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #取更新的公共代码版本号
         # if data.platform == "现金网":
         #     MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #取上个版本的web版本号
