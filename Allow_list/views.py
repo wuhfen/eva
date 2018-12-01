@@ -283,7 +283,7 @@ def black_list_fun(request):
     return render(request,'allow_list/black_list.html',locals())
 
 def black_add(request):
-
+    #添加现金网后台黑名单
     if request.method == 'POST':
         ip = request.POST.get('ipaddr').strip()
         if not isValidIp(ip): return JsonResponse({"res": "falid","info": "IP格式错误"},safe=False)
@@ -378,24 +378,36 @@ def white_batch_add(request,uuid):
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
         elif classify == "MN-Backend" or classify == "MN-Black":
             platform = "蛮牛"
-            template_file="mn_backend.conf"
-            file_path = conf.file_path+"/"+deploy.name+".conf"
+            template_file="kg_jdc_white.conf"
+            file_path = conf.file_path+"/"+deploy.name+"_white_list"
             huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
             online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
+                    ips += i.host_key+" "+i.host_ip+";\n"
             #print "找到灰度后台白名单：\n%s"% ips
             if online_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
-            #print "所有后台白名单：\n%s"% ips
-            business = Business.objects.get(nic_name=deploy.name,platform=platform) #蛮牛项目
-            front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
-            if not front_data:
-                front_data = business.domain.filter(use=2,classify="huidu")
-            front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
-            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+                    ips += i.host_key+" "+i.host_ip+";\n"
+            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload)
+            # template_file="mn_backend.conf"
+            # file_path = conf.file_path+"/"+deploy.name+".conf"
+            # huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
+            # online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
+            # if huidu_deploy:
+            #     for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
+            #         ips += i.host_key+" "+i.host_ip+";\n    "
+            # #print "找到灰度后台白名单：\n%s"% ips
+            # if online_deploy:
+            #     for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+            #         ips += i.host_key+" "+i.host_ip+";\n    "
+            # #print "所有后台白名单：\n%s"% ips
+            # business = Business.objects.get(nic_name=deploy.name,platform=platform) #蛮牛项目
+            # front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+            # if not front_data:
+            #     front_data = business.domain.filter(use=2,classify="huidu")
+            # front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
+            # job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
         else:
             platform = "现金网" #现金网后台反代节点nginx配置文件不统一,没法做文件模板覆盖
             template_file="kg_jdc_white.conf"
@@ -446,24 +458,36 @@ def white_add(request,uuid):
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
         elif classify == "MN-Backend" or classify == "MN-Black":
             platform = "蛮牛"
-            template_file="mn_backend.conf"
-            file_path = conf.file_path+"/"+deploy.name+".conf"
+            template_file="kg_jdc_white.conf"
+            file_path = conf.file_path+"/"+deploy.name+"_white_list"
             huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
             online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
+                    ips += i.host_key+" "+i.host_ip+";\n"
             #print "找到灰度后台白名单：\n%s"% ips
             if online_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
-            #print "所有后台白名单：\n%s"% ips
-            business = Business.objects.get(nic_name=deploy.name,platform=platform) #蛮牛项目
-            front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
-            if not front_data:
-                front_data = business.domain.filter(use=2,classify="huidu")
-            front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
-            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+                    ips += i.host_key+" "+i.host_ip+";\n"
+            job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload)
+            # template_file="mn_backend.conf"
+            # file_path = conf.file_path+"/"+deploy.name+".conf"
+            # huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
+            # online_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="online",islog=True)
+            # if huidu_deploy:
+            #     for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
+            #         ips += i.host_key+" "+i.host_ip+";\n    "
+            # #print "找到灰度后台白名单：\n%s"% ips
+            # if online_deploy:
+            #     for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+            #         ips += i.host_key+" "+i.host_ip+";\n    "
+            # #print "所有后台白名单：\n%s"% ips
+            # business = Business.objects.get(nic_name=deploy.name,platform=platform) #蛮牛项目
+            # front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+            # if not front_data:
+            #     front_data = business.domain.filter(use=2,classify="huidu")
+            # front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
+            # job = nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
         else:
             platform = "现金网" #现金网后台反代节点nginx配置文件不统一,没法做文件模板覆盖
             template_file="kg_jdc_white.conf"
@@ -483,7 +507,6 @@ def white_delete(request,uuid):
     name = data.white_conf.name
     conf = white_conf.objects.get(name=name)
     print name
-
     if white_list.objects.filter(host_ip=ipaddr,git_deploy=deploy,white_conf=conf).count() > 1:
         print "找到多条,删除一条"
         data.delete()
@@ -503,25 +526,36 @@ def white_delete(request,uuid):
             ips += i.host_key+" "+i.host_ip+";\n"
         nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload) #重新同步配置文件
     elif name == "MN-Backend":
-        template_file="mn_backend.conf"
-        file_path = conf.file_path+"/"+deploy.name+".conf"
+        template_file="kg_jdc_white.conf"
+        file_path = conf.file_path+"/"+deploy.name+"_white_list"
         huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",islog=True)
         online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",islog=True)
-
         if huidu_deploy:
             for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
-                ips += i.host_key+" "+i.host_ip+";\n    "
+                ips += i.host_key+" "+i.host_ip+";\n"
                 print "找到灰度后台白名单：%s"% ips
         if online_deploy:
             for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
-                ips += i.host_key+" "+i.host_ip+";\n    "
-        print "所有后台白名单：%s"% ips
-        business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
-        front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
-        if not front_data:
-                front_data = business.domain.filter(use=2,classify="huidu")
-        front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
-        nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+                ips += i.host_key+" "+i.host_ip+";\n"
+        nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload) #重新同步配置文件
+        # template_file="mn_backend.conf"
+        # file_path = conf.file_path+"/"+deploy.name+".conf"
+        # huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",islog=True)
+        # online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",islog=True)
+        # if huidu_deploy:
+        #     for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
+        #         ips += i.host_key+" "+i.host_ip+";\n    "
+        #         print "找到灰度后台白名单：%s"% ips
+        # if online_deploy:
+        #     for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
+        #         ips += i.host_key+" "+i.host_ip+";\n    "
+        # print "所有后台白名单：%s"% ips
+        # business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
+        # front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+        # if not front_data:
+        #         front_data = business.domain.filter(use=2,classify="huidu")
+        # front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
+        # nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
     return HttpResponseRedirect('/allow/welcome/')
 
 def batch_delete_vpn(request):
@@ -562,7 +596,8 @@ def batch_delete_vpn(request):
                     ips += j.host_key+" "+j.host_ip+";\n"
                 nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload) 
     elif name == "MN-Backend":
-        template_file="mn_backend.conf"
+        # template_file="mn_backend.conf"
+        template_file="kg_jdc_white.conf"
         deploys = []
         for i in id_list:
             if i:
@@ -572,20 +607,22 @@ def batch_delete_vpn(request):
                 data.delete()
         new_deploys = list(set(deploys))
         if len(new_deploys) == 1:
-            file_path = conf.file_path+"/"+deploy.name+".conf"
+            # file_path = conf.file_path+"/"+deploy.name+".conf"
+            file_path = conf.file_path+"/"+deploy.name+"_white_list"
             huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="huidu",islog=True)
             online_deploy = git_deploy.objects.filter(platform="蛮牛",name=deploy.name,classify="online",islog=True)
             if huidu_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
+                    ips += i.host_key+" "+i.host_ip+";\n"
             if online_deploy:
                 for i in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
-                    ips += i.host_key+" "+i.host_ip+";\n    "
-            business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
-            front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
-            if not front_data: front_data = business.domain.filter(use=2,classify="huidu")
-            front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
-            nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
+                    ips += i.host_key+" "+i.host_ip+";\n"
+            nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload)
+            # business = Business.objects.get(nic_name=deploy.name,platform=u"蛮牛") #蛮牛项目
+            # front_data = business.domain.filter(use=2,classify="online") #蛮牛线上在用的后台域名对象
+            # if not front_data: front_data = business.domain.filter(use=2,classify="huidu")
+            # front_domain = " ".join([i.name for i in front_data if i]) #提取域名组成列表
+            # nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=deploy.name)
         else:
             for i in new_deploys:
                 ips = ""
@@ -593,16 +630,18 @@ def batch_delete_vpn(request):
                 front_data = business.domain.filter(use=2,classify="online")
                 if not front_data: front_data = business.domain.filter(use=2,classify="huidu")
                 front_domain = " ".join([j.name for j in front_data if j])
-                file_path = conf.file_path+"/"+i.name+".conf"
+                # file_path = conf.file_path+"/"+i.name+".conf"
+                file_path = conf.file_path+"/"+i.name+"_white_list"
                 huidu_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="huidu",islog=True)
                 online_deploy = git_deploy.objects.filter(platform="蛮牛",name=i.name,classify="online",islog=True)
                 if huidu_deploy:
                     for j in white_list.objects.filter(white_conf=conf,git_deploy=huidu_deploy[0]):
-                        ips += j.host_key+" "+j.host_ip+";\n    "
+                        ips += j.host_key+" "+j.host_ip+";\n"
                 if online_deploy:
                     for j in white_list.objects.filter(white_conf=conf,git_deploy=online_deploy[0]):
-                        ips += j.host_key+" "+j.host_ip+";\n    "
-                nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=i.name)
+                        ips += j.host_key+" "+j.host_ip+";\n"
+                # nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload,server_name=front_domain,siteid=i.name)
+                nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload)
 
     return JsonResponse({"status":"OK","info":"批量删除已完成!"})
 
