@@ -51,7 +51,7 @@
         </div>
         <div class="box-body">
             <table class="table">
-              <thead> <th class="text-center"><input type="checkbox" id="select_all"></th> <th>类型</th> <th>网站</th> <th>方式</th> <th>IP</th>  <th>添加人</th> <th>时间</th> <th>操作</th> </thead>
+              <thead> <th class="text-center"><input type="checkbox" id="select_all"></th> <th>类型</th> <th>网站</th> <th>方式</th> <th>IP</th>  <th>添加人</th> <th>时间</th><th>备注</th> <th>操作</th> </thead>
               <tbody id="tbody">
                 {% for i in data %}
                 <tr class="daemon">
@@ -62,6 +62,7 @@
                 <td>{{ i.host_ip }}</td>
                 <td>{{ i.user }}</td>
                 <td>{{ i.ctime|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ i.memo }}</td>
                 <td><a href="{% url 'white_delete' i.id %}" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a></td>
                 </tr>
                 {% endfor %}
@@ -164,7 +165,7 @@ $("#id_btn_plus").on('click',function(event) {
     maxmin: false,
     shade: 0.5,
     shadeClose: false,
-    area: ['800px','350px'],
+    area: ['800px','400px'],
     content: url,
     end : function() {location.reload();},
   });

@@ -308,6 +308,7 @@ class git_moneyweb_deploy(object):
             repo = Repo(clone_dir)  #检出目录
             data_repo = data
 
+
         print "检出地址:%s"% clone_dir
         if reversion:  #如果提供了版本则拉最新代码后检出到版本
             try:
@@ -323,7 +324,8 @@ class git_moneyweb_deploy(object):
                 print "bug定位--检出过程切换到版本号：%s"% reversion
                 res = repo.git_checkout(reversion)
                 self.results.append("切换分支%s,切换版本号%s"% (branch,reversion))
-            except:
+            except Exception as e: 
+                print e
                 res = "版本检出错误，请查看本地代码仓库是否存在"
                 self.results.append("bug定位--检出过程版本错误：退出任务！")
                 return False
@@ -676,6 +678,33 @@ class git_moneyweb_deploy(object):
                     remote_dir = "/usr/local/nginx/conf/vhost/"
                     remotefile = self.siteid+".conf"
                     self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains,pcdomains=vue_pc_domains,mdomains=vue_m_domains)
+
+            #同步后台域名
+            if self.env == "huidu":
+                name = "后台"
+                port = siteid
+                domains = backend_domain
+                local_nginx_file = "mn_backend.conf"
+                remotefile = self.siteid+".conf"
+                self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
+
+            #同步AG和AG反代域名
+            if self.env != "test": 
+                name1 = "AG"
+                name2 = "AG反代"
+
+                local_nginx_file1 = "mn_agent.conf"
+                local_nginx_file2 = "mn_agent_proxy.conf"
+
+                remotefile1 = "ag_"+self.siteid+".conf"
+                remotefile2 = "ag"+self.siteid+".conf"
+
+                port = self.siteid
+                domains = ag_domain
+
+                self.ansible_rsync_api(name1,local_nginx_file1,remote_dir,remotefile1,port,domains)
+                self.ansible_rsync_api(name2,local_nginx_file2,remote_dir,remotefile2,port,domains)
+
 
         if self.platform == "蛮牛":
             #同步蛮牛源站

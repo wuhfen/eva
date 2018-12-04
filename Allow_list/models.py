@@ -104,3 +104,4 @@ class white_list(models.Model):
     white_conf = models.ForeignKey(white_conf)
     user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     ctime = models.DateTimeField(auto_now_add=True)
+    memo = models.TextField(_(u'备注'),default='')

@@ -736,7 +736,8 @@ def web_update_code(request,uuid):
             config_branches = branch
             config_release = release[0:7]
         #判断是否紧急
-        
+        isurgent = False
+        tail_name = "正常更新"
         if data.platform == "现金网" or data.platform == "蛮牛" or  data.platform == "VUE蛮牛":
             if data.classify == 'huidu' or data.classify == 'online':
                 if data.platform == "VUE蛮牛":
@@ -747,36 +748,31 @@ def web_update_code(request,uuid):
                     normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新") #正常审核人
                     php_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="php更新") #PHP代码正常审核人
                     urgent_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=True,name="更新") #紧急审核人
+
+                php_list = ["php_pc","php_mobile","php","config","vue_php","vue_config"]
+                if method in php_list:
+                    auditor = php_auditor #php审核
+                else:
+                    auditor = normal_auditor #前端审核
+
+            if data.classify == 'online':
                 c = int(normal_auditor.start_time.replace(":",""))
                 d = int(normal_auditor.end_time.replace(":",""))
                 now = time.strftime('%H:%M',time.localtime(time.time()))
+                wday = time.localtime(time.time()).tm_wday #0-6代表周一到周日7天,周三为2
                 e = int(now.replace(":",""))
-                if data.classify == 'online':
-                    if c <= e and d >= e:
-                        print("normal不紧急")
-                        if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
-                            auditor = php_auditor
-                        else:
-                            auditor = normal_auditor
-                        print auditor.name
-                        isurgent = False
-                        name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
-                    else:
-                        print("urgent紧急更新")
-                        auditor = urgent_auditor
-                        isurgent = True
-                        name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-紧急更新"
+                if wday == 2: 
+                    c=500
+                    d=1700
+                if c <= e and d >= e:
+                    print "正常更新"
                 else:
-                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
-                        auditor = php_auditor
-                    else:
-                        auditor = normal_auditor
-                    print auditor.name
-                    isurgent = False
-                    name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
-            else:
-                isurgent = False
-                name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-更新"
+                    print "紧急更新"
+                    auditor = urgent_auditor
+                    isurgent = True
+                    tail_name = "紧急更新"
+            name = data.platform+"-"+data.classify+"-"+data.name+"-"+method+"-"+tail_name
+            print name
         else:
             name = data.platform+"-"+data.classify+"-"+data.name+"-更新"
             normal_auditor = git_deploy_audit.objects.get(platform=data.platform,classify=data.classify,isurgent=False,name="更新")
@@ -823,7 +819,6 @@ def web_update_code(request,uuid):
                     updata.save()
                     reslut = git_update_task.delay(updata.id,mydata.id)
         return JsonResponse({'res':"OK"},safe=False)
-
     return render(request,'gitfabu/web_update_code.html',locals())
 
 def public_update_code(request,env):
@@ -856,6 +851,8 @@ def public_update_code(request,env):
         branch = request.POST.get('branch')
 
         #判断是否紧急,huidu没有紧急
+        isurgent = False
+        tail_name = "正常更新"
         if classify == 'huidu' or classify == 'online':
             if platform == "VUE蛮牛":
                 normal_auditor = git_deploy_audit.objects.get(platform="蛮牛",classify=classify,isurgent=False,name="更新") #正常审核人
@@ -865,34 +862,31 @@ def public_update_code(request,env):
                 normal_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="更新") #正常审核人
                 php_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=False,name="php更新") #PHP代码正常审核人
                 urgent_auditor = git_deploy_audit.objects.get(platform=platform,classify=classify,isurgent=True,name="更新") #紧急审核人
+
+            php_list = ["php_pc","php_mobile","php","config","vue_php","vue_config"]
+            if method in php_list:
+                auditor = php_auditor #php审核
+            else:
+                auditor = normal_auditor #前端审核
+
+        if data.classify == 'online':
             c = int(normal_auditor.start_time.replace(":",""))
             d = int(normal_auditor.end_time.replace(":",""))
             now = time.strftime('%H:%M',time.localtime(time.time()))
+            wday = time.localtime(time.time()).tm_wday #0-6代表周一到周日7天,周三为2
             e = int(now.replace(":",""))
-            if classify == 'online':
-                if c <= e and d >= e:
-                    if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
-                        auditor = php_auditor
-                    else:
-                        auditor = normal_auditor
-                    print auditor.name
-                    isurgent = False
-                    name = platform +"-"+classify+"-公共代码-"+method+"-更新"
-                else:
-                    auditor = urgent_auditor
-                    isurgent = True
-                    name = platform +"-"+classify+"-公共代码-"+method+"-紧急更新"
+            if wday == 2: 
+                c=500
+                d=1700
+            if c <= e and d >= e:
+                print "正常更新"
             else:
-                if method == "php_pc" or method == "php_mobile" or method == "php" or method == "config" or method == "vue_php" or method == "vue_config":
-                    auditor = php_auditor
-                else:
-                    auditor = normal_auditor
-                print auditor.name
-                isurgent = False
-                name = platform +"-"+classify+"-公共代码-"+method+"-更新"
-        else:
-            isurgent = False
-            name = platform +"-"+classify+"-公共代码-"+method+"-更新"
+                print "紧急更新"
+                auditor = urgent_auditor
+                isurgent = True
+                tail_name = "紧急更新"
+        name = platform+"-"+classify+"-"+"-公共代码-"+"-"+method+"-"+tail_name
+        print name
         #保存更新任务
         updata = git_code_update(name=name,method=method,version=release[0:7],branch=branch,memo=memo,details=release,isurgent=isurgent)
         updata.save()
