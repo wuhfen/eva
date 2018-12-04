@@ -377,7 +377,11 @@ def white_batch_add(request,uuid):
         elif classify in ["MONEY-Black","MONEY-Backend","MN-Backend"]:
             # platform = "蛮牛"
             template_file="kg_jdc_white.conf"
-            file_path = conf.file_path+"/"+deploy.name+"_white_list"
+            try:
+                filename = filter(str.isdigit,deploy.name)
+            except:
+                filename = filter(unicode.isdigit,deploy.name)
+            file_path = conf.file_path+"/"+filename+"_white_list"
             for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
                 ips += i.host_key+" "+i.host_ip+";\n"
             # huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",islog=True)
@@ -458,9 +462,14 @@ def white_add(request,uuid):
             job = nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
         elif classify in ["MONEY-Black","MONEY-Backend","MN-Backend"]:
             template_file="kg_jdc_white.conf"
-            file_path = conf.file_path+"/"+deploy.name+"_white_list"
+            try:
+                filename = filter(str.isdigit,deploy.name)
+            except:
+                filename = filter(unicode.isdigit,deploy.name)
+            file_path = conf.file_path+"/"+filename+"_white_list"
             for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
                 ips += i.host_key+" "+i.host_ip+";\n"
+
             # platform = "VUE蛮牛"
             # huidu_deploy = git_deploy.objects.filter(platform=platform,name=deploy.name,classify="huidu",isops=True,islog=True)
             # if huidu_deploy:
@@ -519,7 +528,11 @@ def white_delete(request,uuid):
         nginx_white_copy.delay(conf.servers,template_file,conf.file_path,ips,conf.is_reload)
     elif name in ["MONEY-Black","MONEY-Backend","MN-Backend"]:
         template_file="kg_jdc_white.conf"
-        file_path = conf.file_path+"/"+deploy.name+"_white_list"
+        try:
+            filename = filter(str.isdigit,deploy.name)
+        except:
+            filename = filter(unicode.isdigit,deploy.name)
+        file_path = conf.file_path+"/"+filename+"_white_list"
         for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
             ips += i.host_key+" "+i.host_ip+";\n"
         nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload) #重新同步配置文件
@@ -582,13 +595,21 @@ def batch_delete_vpn(request):
                 data.delete()
         new_deploys = list(set(deploys))
         if len(new_deploys) == 1:
-            file_path = conf.file_path+"/"+deploy.name+"_white_list"
+            try:
+                filename = filter(str.isdigit,deploy.name)
+            except:
+                filename = filter(unicode.isdigit,deploy.name)
+            file_path = conf.file_path+"/"+filename+"_white_list"
             for i in white_list.objects.filter(white_conf=conf,git_deploy=deploy):
                 ips += i.host_key+" "+i.host_ip+";\n"
             nginx_white_copy.delay(conf.servers,template_file,file_path,ips,conf.is_reload) #重新同步配置文件
         else:
             for i in new_deploys:
-                file_path = conf.file_path+"/"+i.name+"_white_list"
+                try:
+                    filename = filter(str.isdigit,i.name)
+                except:
+                    filename = filter(unicode.isdigit,i.name)
+                file_path = conf.file_path+"/"+filename+"_white_list"
                 ips = ""
                 for j in white_list.objects.filter(white_conf=conf,git_deploy=i):
                     ips += j.host_key+" "+j.host_ip+";\n"
@@ -648,7 +669,7 @@ def white_list_search(request):
     uuid = request.GET.get('uuid','')
     conf = white_conf.objects.get(pk=uuid)
     comment = comment.strip()
-
+    print comment
     result = {}
     comment_res = []
     ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment,white_conf=conf) if i]
