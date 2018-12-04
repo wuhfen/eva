@@ -672,7 +672,9 @@ def white_list_search(request):
     print comment
     result = {}
     comment_res = []
-    ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment,white_conf=conf) if i]
+    host_res = [i for i in white_list.objects.filter(host_ip__contains=comment,white_conf=conf) if i]
+    memo_res = [i for i in white_list.objects.filter(memo__contains=comment,white_conf=conf) if i]
+    ip_res = host_res+memo_res
 
     huidu_obj = git_deploy.objects.filter(name__contains=comment,classify="huidu")
     if huidu_obj:
@@ -685,6 +687,9 @@ def white_list_search(request):
         for obj in online_obj:
             for i in obj.white.filter(white_conf=conf):
                 comment_res.append(i)
+
+
+
 
     res = list(set(ip_res).union(set(comment_res)))
     if res:
@@ -702,7 +707,7 @@ def white_list_search(request):
                 classify = '鼎泰官方彩'
             else:
                 classify = "现金网后台"
-            fff.append({"classify":classify,"siteid":i.git_deploy.name,"ip":i.host_ip,"method":i.host_key,"user":i.user.first_name,"date":i.ctime.strftime('%Y-%m-%d %H:%M:%S'),"uuid":i.id})
+            fff.append({"classify":classify,"siteid":i.git_deploy.name,"memo":i.memo,"ip":i.host_ip,"method":i.host_key,"user":i.user.first_name,"date":i.ctime.strftime('%Y-%m-%d %H:%M:%S'),"uuid":i.id})
         result["res"] = "OK"
         result["info"] = fff
     else:

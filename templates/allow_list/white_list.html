@@ -88,7 +88,7 @@
           if (data.res=="OK") {
             $(".daemon").remove();
             for (var key in data.info) { 
-                var option = $('<tr class="daemon"><td class="text-center"><input type="checkbox" name="selected" value="'+data.info[key].uuid+'"></td><td>'+data.info[key].classify+'</td><td>'+data.info[key].siteid+'</td><td>'+data.info[key].method+'</td><td>'+data.info[key].ip+'</td><td>'+data.info[key].user+'</td><td>'+data.info[key].date+'</td><td><a href="/allow/white/delete/'+data.info[key].uuid+'" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a></td></tr>');
+                var option = $('<tr class="daemon"><td class="text-center"><input type="checkbox" name="selected" value="'+data.info[key].uuid+'"></td><td>'+data.info[key].classify+'</td><td>'+data.info[key].siteid+'</td><td>'+data.info[key].method+'</td><td>'+data.info[key].ip+'</td><td>'+data.info[key].user+'</td><td>'+data.info[key].date+'</td><td>'+data.info[key].memo+'</td><td><a href="/allow/white/delete/'+data.info[key].uuid+'" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a></td></tr>');
                 $("#tbody").append(option);
             };
           } else { layer.msg("没有可用信息！") }
