@@ -648,20 +648,22 @@ def white_list_search(request):
     uuid = request.GET.get('uuid','')
     conf = white_conf.objects.get(pk=uuid)
     comment = comment.strip()
-    print comment
+
     result = {}
     comment_res = []
     ip_res = [i for i in white_list.objects.filter(host_ip__contains=comment,white_conf=conf) if i]
 
-    huidu_obj = git_deploy.objects.filter(name=comment,classify="huidu")
+    huidu_obj = git_deploy.objects.filter(name__contains=comment,classify="huidu")
     if huidu_obj:
-        for i in huidu_obj[0].white.filter(white_conf=conf):
-            comment_res.append(i)
+        for obj in huidu_obj:
+            for i in obj.white.filter(white_conf=conf):
+                comment_res.append(i)
 
-    online_obj = git_deploy.objects.filter(name=comment,classify="online")
+    online_obj = git_deploy.objects.filter(name__contains=comment,classify="online")
     if online_obj:
-        for i in online_obj[0].white.filter(white_conf=conf):
-            comment_res.append(i)
+        for obj in online_obj:
+            for i in obj.white.filter(white_conf=conf):
+                comment_res.append(i)
 
     res = list(set(ip_res).union(set(comment_res)))
     if res:
