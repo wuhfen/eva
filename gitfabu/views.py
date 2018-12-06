@@ -869,7 +869,7 @@ def public_update_code(request,env):
             else:
                 auditor = normal_auditor #前端审核
 
-        if data.classify == 'online':
+        if classify == 'online':
             c = int(normal_auditor.start_time.replace(":",""))
             d = int(normal_auditor.end_time.replace(":",""))
             now = time.strftime('%H:%M',time.localtime(time.time()))
