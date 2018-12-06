@@ -46,6 +46,8 @@ def business_add(request):
         if bf.is_valid():
             bf_data = bf.save()
             siteid = bf_data.nic_name
+            if "new" in siteid:
+                siteid=siteid.replace("new","")
             #需要创建测试环境和灰度环境的域名,傻啊，都不分现金网和蛮牛吗？
             if bf_data.platform == "现金网":
                 test_f = DomainName(name=siteid+".test.s1118.com",use=0,business=bf_data,classify="test",state=0,supplier="工程")
