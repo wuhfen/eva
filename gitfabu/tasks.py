@@ -685,19 +685,20 @@ class git_moneyweb_deploy(object):
                 port = siteid
                 domains = backend_domain
                 local_nginx_file = "mn_backend.conf"
-                remotefile = self.siteid+".conf"
+                remotefile = siteid+".conf"
+                remote_dir = "/usr/local/nginx/conf/vhost/"
                 self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
 
             #同步AG和AG反代域名
             if self.env != "test": 
                 name1 = "AG"
                 name2 = "AG反代"
-
+                remote_dir = "/usr/local/nginx/conf/vhost/"
                 local_nginx_file1 = "mn_agent.conf"
                 local_nginx_file2 = "mn_agent_proxy.conf"
 
-                remotefile1 = "ag_"+self.siteid+".conf"
-                remotefile2 = "ag"+self.siteid+".conf"
+                remotefile1 = "ag_"+siteid+".conf"
+                remotefile2 = "ag"+siteid+".conf"
 
                 port = self.siteid
                 domains = ag_domain
