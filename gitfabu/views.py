@@ -373,13 +373,13 @@ def my_request_task_filter(request):
         end_line=limit
     else:
         start_line=int(page)*int(limit)-int(limit)
-        endline=int(page)*int(limit)
+        end_line=int(page)*int(limit)
 
     if not task_filter:
         if request.user.is_superuser:
-            data = my_request_task.objects.filter(loss_efficacy=False).order_by('-create_date')[start_line:endline]
+            data = my_request_task.objects.filter(loss_efficacy=False).order_by('-create_date')[start_line:end_line]
         else:
-            data = my_request_task.objects.filter(initiator=request.user, loss_efficacy=False).order_by('-create_date')[start_line:endline]
+            data = my_request_task.objects.filter(initiator=request.user, loss_efficacy=False).order_by('-create_date')[start_line:end_line]
         task_data={"code":0,"msg":"","count":150,"data":[]}
         
         for task in data:
@@ -492,12 +492,12 @@ def others_request_task_filter(request):
         end_line=limit
     else:
         start_line=int(page)*int(limit)-int(limit)
-        endline=int(page)*int(limit)
+        end_line=int(page)*int(limit)
     if not task_filter:
         if request.user.is_superuser:
-            data = git_task_audit.objects.filter(isaudit=False)[start_line:endline]
+            data = git_task_audit.objects.filter(isaudit=False)[start_line:end_line]
         else:
-            data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[start_line:endline]
+            data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[start_line:end_line]
         task_data={"code":0,"msg":"","count":150,"data":[]}
         for task in data:
             showbtn=False
