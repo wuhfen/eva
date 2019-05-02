@@ -88,11 +88,15 @@
               <!-- /.tab-pane -->
               <div class="tab-pane" id="tab_3-2">
                 <div class="row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">
                   <a href="{% url 'conf_add' 'money_online' %}" class="btn btn-primary">申请发布生产</a>
                   <hr>
                   </div>
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">{% if data_online %}<a href="{% url 'money_wap_batch_update' 'money_online' %}" class="btn btn-warning update-java"><i class="glyphicon glyphicon-phone"></i> WAP批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-3">{% if data_online %}<a href="{% url 'vue_pc_batch_update' 'vue_online' %}" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-3">
                   {% if data_online %}
                   <a href="{% url 'public_update_code' 'money_online' %}" class="btn btn-warning pull-data">更新全部站点</a>
                   <hr>
