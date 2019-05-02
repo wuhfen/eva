@@ -435,9 +435,9 @@ def my_request_task_filter(request):
             filter_string=platform+"_"+env
             types='fabu'
         if request.user.is_superuser:
-            data = my_request_task.objects.filter(isend=isend, loss_efficacy=loss,name__contains=filter_string).order_by('-create_date')[start_line:endline]
+            data = my_request_task.objects.filter(isend=isend, loss_efficacy=loss,name__contains=filter_string).order_by('-create_date')[start_line:end_line]
         else:
-            data = my_request_task.objects.filter(initiator=request.user,isend=isend, loss_efficacy=loss,name__contains=filter_string).order_by('-create_date')[start_line:endline]
+            data = my_request_task.objects.filter(initiator=request.user,isend=isend, loss_efficacy=loss,name__contains=filter_string).order_by('-create_date')[start_line:end_line]
         task_data={"code":0,"msg":"","count":counts,"data":[]}
         for task in data:
             others_task=task.reqt.all()
@@ -538,9 +538,9 @@ def others_request_task_filter(request):
             filter_string=platform+"_"+env
             types='fabu'
         if request.user.is_superuser:
-            data = git_task_audit.objects.filter(loss_efficacy=False,isaudit=isend)[start_line:endline]
+            data = git_task_audit.objects.filter(loss_efficacy=False,isaudit=isend)[start_line:end_line]
         else:
-            data = git_task_audit.objects.filter(loss_efficacy=False,auditor=request.user).order_by('-create_date')[start_line:endline]
+            data = git_task_audit.objects.filter(loss_efficacy=False,auditor=request.user).order_by('-create_date')[start_line:end_line]
         data = [i for i in data if i.request_task.isend == isend]
         task_data={"code":0,"msg":"","count":150,"data":[]}
         for task in [obj for obj in data if filter_string in obj.request_task.name]:
