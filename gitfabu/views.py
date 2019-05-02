@@ -485,6 +485,8 @@ def others_request_task_filter(request):
     task_filter=request.GET.get('task_filter')
     page=request.GET.get('page')
     limit=request.GET.get('limit')
+    if not page:page=1
+    if not limit:limit=200
     if page==1:
         start_line=0
         end_line=limit
