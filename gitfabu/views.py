@@ -474,7 +474,7 @@ def others_request_task_list(request):
         # for i in sdata:
         #     for j in i.reqt.all():
         #         data.append(j)
-        data = git_task_audit.objects.filter(isaudit=False, loss_efficacy=False)
+        data = git_task_audit.objects.filter(isaudit=False, loss_efficacy=False)[0:100]
     else:
         data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[0:100]
     # data = git_task_audit.objects.filter(auditor=request.user,loss_efficacy=False).order_by('-create_date')[0:100]
