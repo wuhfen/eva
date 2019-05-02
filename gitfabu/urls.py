@@ -6,12 +6,23 @@ from gitfabu import views
 
 urlpatterns = [
     url(r'^conf/list/$', views.conf_list, name="conf_list"),
+    url(r'^conf/admin/$', views.conf_admin, name="conf_admin"),
+    url(r'^conf/server/(?P<id>[^/]+)/$', views.deploy_servers, name="deploy_servers"),
+    url(r'^conf/gitrepo/(?P<id>[^/]+)/$', views.deploy_gitrepo, name="deploy_gitrepo"),
+    url(r'^conf/edit/(?P<id>[^/]+)/$', views.deploy_edit, name="deploy_edit"),
+    url(r'^conf/del/(?P<id>[^/]+)/$', views.deploy_del, name="deploy_del"),
+
+
+
     url(r'^conf/add/(?P<env>[^/]+)/$', views.conf_add, name="conf_add"),
     url(r'^conf/add_alone/$', views.conf_add_alone_project, name="conf_add_alone_project"),
     url(r'^conf/add_java/$', views.conf_add_java_project, name="conf_add_java_project"),
     url(r'^mytask/$', views.my_request_task_list, name="my_request_task_list"),
+    url(r'^mytask/filter/$', views.my_request_task_filter, name="my_request_task_filter"),
     url(r'^observer/$', views.task_observer, name="task_observer"),
+
     url(r'^otherstask/$', views.others_request_task_list, name="others_request_task_list"),
+    url(r'^otherstask/filter/$', views.others_request_task_filter, name="others_request_task_filter"),
     url(r'^cancel/task/(?P<uuid>[^/]+)/$', views.cancel_my_task, name="cancel_my_task"),
     url(r'^task/details/(?P<uuid>[^/]+)/$', views.my_task_details, name="my_task_details"),
     url(r'^task/audit/(?P<uuid>[^/]+)/$', views.audit_my_task, name="audit_my_task"),
@@ -33,5 +44,6 @@ urlpatterns = [
 
     url(r'^vue/wap/(?P<env>[^/]+)/$', views.vue_wap_batch_update, name="vue_wap_batch_update"),
     url(r'^vue/pc/(?P<env>[^/]+)/$', views.vue_pc_batch_update, name="vue_pc_batch_update"),
-
+    url(r'^money/wap/(?P<env>[^/]+)/$', views.money_wap_batch_update, name="money_wap_batch_update"),
+    url(r'^money/pc/(?P<env>[^/]+)/$', views.money_pc_batch_update, name="money_pc_batch_update"),
 ]

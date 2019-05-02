@@ -25,9 +25,9 @@ class DomainInfo(re_models.Model):
 class Business(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     full_name = models.CharField(max_length=128,blank=True, verbose_name=u"业务全名")
-    name = models.CharField(max_length=64, blank=True,verbose_name=u"业务简称")
-    nic_name = models.CharField(max_length=64,blank=True, verbose_name=u"发布代号")
-    TOOL_TYPE = [(i, i) for i in (u"现金网",u"蛮牛",u"单个项目",u"JAVA项目",u"VUE蛮牛")]
+    name = models.CharField(max_length=64, blank=True,verbose_name=u"显示名称")
+    nic_name = models.CharField(max_length=64,blank=True, verbose_name=u"SiteID")
+    TOOL_TYPE = [(i, i) for i in (u"现金网",u"单个项目",u"VUE蛮牛")]
     platform = models.CharField(verbose_name=u'项目类型',max_length=32,blank=True, null=True,choices=TOOL_TYPE)
     initsite_data = models.CharField(max_length=64,blank=True,verbose_name=u"建站时间")
     ip_info = models.TextField(blank=True, null=True, verbose_name=u"服务器信息")
@@ -37,7 +37,7 @@ class Business(models.Model):
     ('2', u"迁移过渡"),
     ('3', u"停止运转"),
     )
-    status = models.CharField(max_length=100,blank=True,choices=SITE_STATUS_CHOICES,verbose_name=u"业务状态")
+    status = models.CharField(max_length=100,blank=True,choices=SITE_STATUS_CHOICES,verbose_name=u"业务状态",default='0')
     status_update_date = models.CharField(max_length=64,blank=True,verbose_name=u"状态变更时间")
     ##网站前端源站nginx配置
     front_station = models.TextField(blank=True, null=True, verbose_name=u"前端源站")
@@ -89,7 +89,12 @@ class DomainName(models.Model):
     )
     use = models.CharField(max_length=64,blank=True, verbose_name=u"用途",choices=DOMAIN_USE_CHOICES)
     business = models.ForeignKey(Business,blank=True,null=True,on_delete=models.SET_NULL, related_name=u"domain")
-    classify = models.CharField(max_length=32,blank=True, verbose_name=u"环境",default="online")
+    DOMAIN_CLASSIFY = (
+        ('test',u"测试"),
+        ('huidu',u"灰度"),
+        ('online',u"线上"),
+    )
+    classify = models.CharField(max_length=32,blank=True, verbose_name=u"环境",choices=DOMAIN_CLASSIFY)
     DOMAIN_STATUS_CHOICES = (
     ('0', u"在用"),
     ('1', u"备用"),
@@ -98,7 +103,8 @@ class DomainName(models.Model):
     state = models.CharField(max_length=64,blank=True, verbose_name=u"域名状态",choices=DOMAIN_STATUS_CHOICES)
     monitor_status = models.BooleanField(default=False,verbose_name=u"是否监控")
     address = models.ForeignKey('Domain_ip_pool',blank=True,null=True,on_delete=models.SET_NULL, verbose_name=u"解析到")
-    supplier = models.CharField(max_length=32,blank=True, verbose_name=u"管理者")
+    WHO_MANAGER = [(i, i) for i in (u"运维", u"工程", u"网站", u"其他")]
+    supplier = models.CharField(max_length=32,blank=True, verbose_name=u"管理者",choices=WHO_MANAGER)
     description = models.TextField(blank=True, null=True, verbose_name=u'备注')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(blank=True,null=True, auto_now=True)

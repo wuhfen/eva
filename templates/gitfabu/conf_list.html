@@ -32,17 +32,21 @@
             <div class="tab-content">
               <div class="tab-pane" id="tab_1-1">
                 <div class="row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">
                   <a href="{% url 'conf_add' 'money_huidu' %}" class="btn btn-primary">申请发布灰度</a>
                   <hr>
                   </div>
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">{% if data_huidu %}<a href="{% url 'money_wap_batch_update' 'money_huidu' %}" class="btn btn-warning update-java"><i class="glyphicon glyphicon-phone"></i> WAP批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-3">{% if data_huidu %}<a href="{% url 'vue_pc_batch_update' 'vue_huidu' %}" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
+                  <hr>{% endif %}</div>
+                  <div class="col-lg-3">
                   {% if data_huidu %}
-                  <a href="{% url 'public_update_code' 'money_huidu' %}" class="btn btn-warning pull-data">更新全部站点</a>
+                  <a href="{% url 'public_update_code' 'money_huidu' %}" class="btn btn-warning pull-data">PHP全站更新</a>
                   <hr>
                   {% endif %}
                   </div>
-                    
+
                   {% for i in data_huidu %}
                       {% if i.islog %}
                       <div class="col-md-2">
@@ -55,13 +59,19 @@
               <!-- /.tab-pane -->
               <div class="tab-pane active" id="tab_2-2">
                 <div class="row">
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">
                   <a href="{% url 'conf_add' 'money_test' %}" class="btn btn-primary">申请发布测试</a>
                   <hr>
                   </div>
-                  <div class="col-lg-6">
+                  <div class="col-lg-3">{% if data_test %}<a href="{% url 'money_wap_batch_update' 'money_test' %}" class="btn btn-warning update-java"><i class="glyphicon glyphicon-phone"></i> WAP批量更新</a>
+                  <hr>{% endif %}</div>
+
+                  <div class="col-lg-3">{% if data_test %}<a href="{% url 'money_pc_batch_update' 'money_test' %}" class="btn btn-warning update-java"><i class="fa fa-desktop"></i> PC批量更新</a>
+                  <hr>{% endif %}</div>
+
+                  <div class="col-lg-3">
                   {% if data_test %}
-                  <a href="{% url 'public_update_code' 'money_test' %}" class="btn btn-warning pull-data">更新全部站点</a>
+                  <a href="{% url 'public_update_code' 'money_test' %}" class="btn btn-warning pull-data">PHP全站更新</a>
                   <hr>
                   {% endif %}
                   </div>
@@ -140,6 +150,31 @@
                   layer.msg("ok")
               },
                 content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    $(".update-java").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         var height = $(window).height();
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: true,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1150px',(height - 50) + 'px'],
+                end : function () {
+                  // location.reload();
+                  layer.msg('OK');
+              },
+                content: [url,'yes']
             });
          event.preventDefault();
     });

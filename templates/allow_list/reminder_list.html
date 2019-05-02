@@ -1,0 +1,221 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+{% block title %} 过期信息 {% endblock %}
+
+{% block head %}
+{% endblock %}
+
+
+{% block assistant-header %} <h3>{{ which }}消息提醒信息</h3>
+<ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+    <li><a href="#">提醒列表</a></li>
+</ol>
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+<div class="col-lg-12">
+    <div class="box box-info">
+        <div class="box-header">
+          <div class="col-md-6">
+            <div class="input-group input-group-sm pull-left" style="width: 500px;">
+              <input type="text" name="table_search" id="id_table_search" class="form-control" placeholder="Search">
+              <div class="input-group-btn">
+                <a href="javascript:;" class="btn btn-default" id="id_btn_search"><i class="fa fa-search"></i></a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_plus"><i class="fa fa-plus"></i></a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_add">批量添加</a>
+                <a href="javascript:;" class="btn btn-default" id="id_btn_minus">批量删除</a>
+              </div>
+            </div>
+          </div>
+          <div class="box-tools col-md-6">
+            <ul class="pagination pagination-sm no-margin pull-right">
+            {% if data.has_previous %}
+              <li><a class='paginator' title='上一页' href='?page={{ data.previous_page_number }}'>«</a></li>
+            {% endif %}
+            {% for page in data.paginator.page_range_ext %}
+              {% if page == data.number %}
+                <li><a class='paginator_current' title='当前页:{{ page }}'><span>{{ page }}</span></a></li>
+              {% else %}
+                <li><a class='paginator' href='?page={{ page }}' title='{{ page }}'><span>{{ page }}</span></a></li>
+              {% endif %}
+            {% endfor %}
+            {% if data.has_next %}
+              <li><a class='paginator' title='下一页' href='?page={{ data.next_page_number }}'>»</a></li>
+            {% endif %}
+            </ul>
+          </div>
+        </div>
+        <div class="box-body">
+            <table class="table">
+              <thead> <th class="text-center"><input type="checkbox" id="select_all"></th> <th>类型</th> <th>内容</th> <th>状态</th> <th>到期时间</th> <th>操作</th> </thead>
+              <tbody id="tbody">
+                {% for i in data %}
+                <tr class="daemon">
+                <td class="text-center"><input type="checkbox" name="selected" value="{{ i.id }}"></td>
+                <td>{% if i.classify ==  "domain" %}域名{% elif i.classify == "certificate" %}证书{% elif i.classify == "server" %}服务器{% endif %}</td>
+                <td>{{ i.text }}</td>
+                <td>{% if i.isalert %}报警中{% else %}正常{% endif %}</td>
+                <td>{{ i.expiration_date|date:'Y-m-d' }}</td>
+                <td>
+                  {% if i.isalert %}<a href="#" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>确认</a>{% endif %}
+                  <a href="#" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a>
+                </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+<script type="text/javascript">
+  $("#id_btn_search").on('click',function(event) {
+    var search_comment = $('#id_table_search').val()
+    if (search_comment) {
+      $.ajax({
+        url: "{% url 'white_list_search' %}",
+        type: "GET",
+        data: {
+          "comment": search_comment,
+          "uuid": "{{ uuid }}"
+        },
+        success: function(data) {
+          if (data.res=="OK") {
+            $(".daemon").remove();
+            for (var key in data.info) { 
+                var option = $('<tr class="daemon"><td class="text-center"><input type="checkbox" name="selected" value="'+data.info[key].uuid+'"></td><td>'+data.info[key].classify+'</td><td>'+data.info[key].siteid+'</td><td>'+data.info[key].method+'</td><td>'+data.info[key].ip+'</td><td>'+data.info[key].user+'</td><td>'+data.info[key].date+'</td><td><a href="/allow/white/delete/'+data.info[key].uuid+'" class="btn btn-xs btn-info delete-ip"><span class="fa fa-delete"></span>Delete</a></td></tr>');
+                $("#tbody").append(option);
+            };
+          } else { layer.msg("没有可用信息！") }
+        },
+      })
+    }
+  });
+
+
+$("input").keydown(function (e) {//当按下按键时
+    if (e.which == 13) {//.which属性判断按下的是哪个键，回车键的键位序号为13
+        $('#id_btn_search').trigger("click");//触发搜索按钮的点击事件
+    }
+});
+
+
+$('#id_btn_minus').on("click",function(evevnt){
+  var checkboxValues = "";
+  $('input:checkbox[name=selected]').map(function() 
+  {
+    if($(this).is(':checked')) { checkboxValues = checkboxValues + "," + $(this).val() }
+  });
+  var myJsonString = JSON.stringify(checkboxValues);
+  
+  if ( checkboxValues=="" ) { alert("请勾选想要删除的行!") } else { 
+    $.ajax({
+      url: "{% url 'batch_delete_vpn' %}",
+      type: "GET",
+      data: {
+        'vpns': checkboxValues,
+        'project': "{{ which }}",
+      },
+      success: function(data){
+        if (data.status == "OK") {
+          var gg = data.info;
+
+          layer.alert(gg, {
+              skin: 'layui-layer-lan'
+              ,closeBtn: 0
+              ,anim: 4 //动画类型
+            });
+
+        } else { layer.msg(data.info,{time: 7000}) }
+      }
+    });
+  }
+
+});
+
+
+
+
+
+$('#select_all').click(function(event) {
+  if(this.checked) {
+      // Iterate each checkbox
+      $(':checkbox').each(function() {
+          this.checked = true;
+      });
+  }
+  else {
+    $(':checkbox').each(function() {
+          this.checked = false;
+      });
+  }
+});
+
+$("#id_btn_plus").on('click',function(event) {
+  var url = "{% url 'reminder_add' %}";
+  var height = $(window).height();
+  layer.open({
+    type: 2,
+    title: '添加信息',
+    maxmin: false,
+    shade: 0.5,
+    shadeClose: false,
+    area: ['800px','350px'],
+    content: url,
+    end : function() {location.reload();},
+  });
+});
+
+$("#id_btn_add").on('click',function(event) {
+  var url = "#";
+  var height = $(window).height();
+  layer.open({
+    type: 2,
+    title: '批量添加白名单',
+    maxmin: false,
+    shade: 0.5,
+    shadeClose: false,
+    area: ['800px','600px'],
+    content: url,
+    end : function() {location.reload();},
+  });
+});
+
+
+$("#id_btn_vip").on('click',function(event) {
+  var url = "#";
+  var height = $(window).height();
+  layer.open({
+    type: 2,
+    title: '管理特权IP',
+    maxmin: false,
+    shade: 0.5,
+    shadeClose: false,
+    area: ['450px','600px'],
+    content: url,
+    end : function() {location.reload();},
+  });
+});
+
+
+$("#tbody").on('click','.delete-ip',function(event){
+  var url= $(this).attr('href');
+  layer.alert("确定删除吗？",{
+      skin: 'layui-layer-molv',
+      closeBtn: 2,
+      shift: 4,
+  },function(index){
+      layer.close(index);
+      $.get(url).done(function(data) {
+          window.location.reload();
+      });
+  });
+  event.preventDefault();
+});
+
+</script>
+{% endblock %}

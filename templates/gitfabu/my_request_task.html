@@ -4,9 +4,7 @@
 {% block title %} 我的申请|ADD NEW WEBSITE {% endblock %}
 
 {% block head %} 
-<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
-<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
 {% endblock %}
 
 
@@ -22,8 +20,81 @@
 {% block content %}
 
 <div class="box box-info">
+    <div class="box-header">
+        <form class="form-horizontal">
+            <div class="form-group col-md-2">
+                <label class="col-sm-4 control-label">平台:
+                </label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="id_platform">
+                        <option value="现金网" selected="true">现金网</option>
+                        <option value="VUE蛮牛">VUE蛮牛</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label class="col-sm-4 control-label">环境:
+                </label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="id_classify">
+                        <option value="online" selected="true">线上</option>
+                        <option value="huidu">灰度</option>
+                        <option value="test">测试</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label class="col-sm-4 control-label">类型:
+                </label>
+                <div class="col-sm-8">
+                    <select class="form-control " id="id_type">
+                        <option value="更新" selected="true">更新</option>
+                        <option value="发布">发布</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label class="col-sm-4 control-label">状态:
+                </label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="id_status">
+                        <option value="preparing" selected="true">未完成</option>
+                        <option value="done">已完成</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <label class="col-sm-4 control-label">作废:
+                </label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="id_loss_efficacy">
+                        <option value="no" selected="true">否</option>
+                        <option value="yes">是</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <div class="col-sm-8">
+                    <select class="form-control" id="id_limit">
+                        <option value='10' selected="true">10条</option>
+                        <option value='20'>20条</option>
+                        <option value='50'>50条</option>
+                        <option value='100'>100条</option>
+                        <option value='200'>200条</option>
+                        <option value='300'>300条</option>
+                        <option value='500'>500条</option>
+                        <option value='1000'>1000条</option>
+                        <option value='all'>all</option>
+                    </select>
+                </div>
+                <button class="btn btn-info col-sm-4" type="button" id="id_search_submit" >搜索</button>
+            </div>
+        </form>
+    </div>
     <div class="box-body">
-        <table id="example1" class="table table-bordered table-striped">
+        <table id="task_table" class="layui-table" lay-filter="test"></table>
+<!--         <table class="table table-bordered table-striped">
             <thead>
             <tr>
                 <th>创建时间</th>
@@ -33,7 +104,7 @@
                 <th>操作</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody id="t_body">
             {% for v in data %}
                 <tr class="info">
                     <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
@@ -55,31 +126,158 @@
                 </tr>
             {% endfor %}
             </tbody>
-        </table>
+        </table> -->
     </div>
 </div>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="detail">详情</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">作废</a>
+</script>
+<script type="text/html" id="group_audit">
+    
+    <a href="#" class="btn bg-gray disabled color-palette"><span class="text-success">111</span>| </a>
+
+</script>
+<script src="/static/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript">
+
+function GroupFormat(g) {
+    var option="";
+    for (const [key,value] of Object.entries(g)) {
+        var user_color="",
+            length = value.length;
+        for (var i = 0; i < length; i++) {
+            user_dict=value[i];
+            for (const [username,isaudit] of Object.entries(user_dict)) {
+                if (isaudit === "yes") {
+                    user_color=user_color+'<span class="text-blue">'+username+'已通过 </span>'
+                } else if ( isaudit === "no" ) {
+                    user_color=user_color+'<span class="text-red">'+username+'未通过 </span>'
+                } else {
+                     user_color=user_color+'<span class="text-default">'+username+'未审核 </span>'
+                }
+            }
+        }
+
+        option=option+'<a href="#" class="btn bg-gray disabled color-palette"><span class="text-success">'+key+'</span>| '+user_color+'</a>'
+    }
+    return option
+}
+
+layui.use('table',function(){
+    var t = layui.table;
+    var laytpl = layui.laytpl;
+    var tableIns = t.render({
+    elem: '#task_table'
+    ,id: 'idDemoTest'
+    ,skin: 'line'
+    ,page: {
+        layout: ['limit', 'count', 'prev', 'page', 'next', 'skip']
+        ,groups: 1
+        ,first: false
+        ,last: false
+    }
+    ,limit: 10
+    ,url:'{% url "my_request_task_filter" %}'
+    ,cols: [[
+      {field:'id', width:80, title: 'ID',hide: true}
+      ,{field:'datetime', width:220, title: '时间', sort: true}
+      ,{field:'taskname', width:350, title: '任务名称', sort: true}
+      ,{field:'audit', title: '组审核', minWidth: 400,templet: '<div>{% verbatim %}{{ GroupFormat(d.audit) }}{% endverbatim%}</div>'}
+      ,{field:'status', width:100, title: '状态'}
+      ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:150}
+    ]]
+
+    });
+    $("#id_search_submit").on('click',function(){
+        tableIns.reload({
+            where: {
+                counts: $("#id_limit").val()
+                ,loss_efficacy: $("#id_loss_efficacy").val()
+                ,status: $("#id_status").val()
+                ,wtype: $("#id_type").val()
+                ,classify: $("#id_classify").val()
+                ,platform: $("#id_platform").val()
+                ,task_filter: true
+            }
+            ,page: {curr:1}
+        });
+    });
+    t.on('tool(test)', function(obj){
+        var data = obj.data;
+        if(obj.event === 'detail'){
+            var urls='/fabu/task/details/'+data.id;
+            layer.open({
+                type: 2
+                ,area: ['1000px', '900px']
+                ,skin: 'layui-layer-rim' //加上边框
+                ,content: [urls, 'yes']
+            });
+        } else if(obj.event === 'del'){
+            if (data.ttype==="fbconfirm") {
+                layer.msg("发布进入复核阶段,无法作废!");
+            } else {
+                if (data.isend===true) {
+                    layer.msg("任务已完成,不能作废!");
+                } else {
+                    layer.confirm('真的作废吗?', function(index){
+                        urls="/fabu/cancel/task/"+data.id;
+                        $.get(urls);
+                        obj.del();
+                        layer.close(index);
+                    });
+                }
+            }
+
+        } else if(obj.event === 'edit'){
+          layer.alert('编辑行：<br>'+ JSON.stringify(data))
+        }
+    });
+
+
+});
+
+
+
+</script>
+
 
 <script>
-  $(function () {
-    $("#example1").DataTable(
-        {"order":[[0,'desc']]}
-    );
-  });
+  // $(function () {
+  //   $("#example1").DataTable(
+  //       {"order":[[0,'desc']]}
+  //   );
+  // });
 
+// $("#id_search_submit").on('click',function(event){
+    // var limit=$("#id_limit").val();
+    // var loss_efficacy=$("#id_loss_efficacy").val();
+    // var status=$("#id_status").val();
+    // var wtype=$("#id_type").val();
+    // var classify=$("#id_classify").val();
+    // var platform=$("#id_platform").val();
+    // var url="{% url 'my_request_task_filter' %}";
+    // $.get(url).done(function(data) {
+    //     $("#example1").clear()
+    // });
+//     $("#t_body").empty("");
 
-    $(".cancel").on("click",function(de){
-        var url= $(this).attr("href");
-        layer.alert("确定作废吗？",{
-            skin: 'layui-layer-molv',
-            closeBtn: 2,
-            shift: 4,
-        },function(index){
-            layer.close(index);
-            $.get(url).done(function(data) {
-                window.location.reload();
-            });
-        });
-        de.preventDefault();
-    });
+//     event.preventDefault();
+// })
+
+    // $(".cancel").on("click",function(de){
+    //     var url= $(this).attr("href");
+    //     layer.alert("确定作废吗？",{
+    //         skin: 'layui-layer-molv',
+    //         closeBtn: 2,
+    //         shift: 4,
+    //     },function(index){
+    //         layer.close(index);
+    //         $.get(url).done(function(data) {
+    //             window.location.reload();
+    //         });
+    //     });
+    //     de.preventDefault();
+    // });
 </script>
 {% endblock %}

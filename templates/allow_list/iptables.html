@@ -17,19 +17,15 @@
 <div class="col-lg-12">
 <div class="box box-info">
   <div class="box-header with-border">
-    <h4 class="text-primary">添加vpn线路|ADD VPN IP</h4>
+    <h4 class="text-primary">在172.25.8.38和172.25.8.39上添加防火墙</h4>
   </div>
   <div class="box-body">
     <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
       <dir class="form-group col-lg-12">
         <p><label>请输入vpn_ip:</label></p>
           <input class=" form-control" id="id_ipaddr" maxlength="15" name="ipaddr" type="text" placeholder="0.0.0.0">
-        <p><label>请选择站点名称:</label></p>
-          <select class=" form-control" id="id_customer" name="customer">
-            {% for i in choice_data %}
-              <option value="{{ i.name }}">{{ i.name }}</option>
-            {% endfor %}
-          </select>
+        <p><label>备注:</label></p>
+          <input class=" form-control" id="id_memo" name="memo" type="text">
       </dir>
 
       <dir class="form-group col-lg-12">

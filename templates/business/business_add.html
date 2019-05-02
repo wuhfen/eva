@@ -38,7 +38,11 @@
                             <form class="form-horizontal" action="" id="business_add"  method="post" name="horizontal" role="form" autocomplete="off">
                                 {% csrf_token %}
                             <table data-toggle="table" id="table-style" data-row-style="rowStyle" class="table table-hover table-bordered">
-                                {{ bf|bootstrap_horizontal }}
+                                {{ bf.nic_name|bootstrap_horizontal }}
+                                {{ bf.name|bootstrap_horizontal }}
+                                {{ bf.platform|bootstrap_horizontal }}
+                                {{ bf.description|bootstrap_horizontal }}
+
                             </table>
                                 <div class="form-group">
                                     <div class="col-sm-4 col-sm-offset-5">

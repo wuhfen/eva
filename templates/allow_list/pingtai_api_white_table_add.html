@@ -1,0 +1,65 @@
+{% extends "default/base_layer.html" %}
+
+
+{% block assistant-header %} White List Plus {% endblock %}
+{% load bootstrap %}
+
+{% block head %}
+<!-- <link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script> -->
+
+ {% endblock %}
+
+
+{% block content %}
+
+<div class="col-lg-12">
+<div class="box box-info">
+  <div class="box-body">
+    <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
+
+      <div class="form-group col-md-6">
+        <label>选择方式：</label>
+        <select class="form-control select" id="id_key" name="key">
+          <option value="allow">白名单</option>
+          <option value="deny">黑名单</option>
+        </select>
+      </div>
+      <dir class="form-group col-md-6">
+        <label>请输入vpn_ip:</label>
+          <input class=" form-control" id="id_host" maxlength="15" name="host" type="text" placeholder="0.0.0.0">
+      </dir>
+      <dir class="form-group col-md-6">
+        <label>备注:</label>
+          <input class=" form-control" id="id_memo" maxlength="15" name="memo" type="text" >
+      </dir>
+      <dir class="form-group col-md-6">
+        <a href="javascript:;" name="okk" class="btn btn-info pull-center" id="testid">
+          <span class="glyphicon glyphicon-ok"></span> 提交
+        </a>
+        </dir>
+      </form>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+  $("#testid").on('click',function(event) {
+    // layer.msg("hello world!")
+    var url = "{% url 'api_white_table_add' id %}";
+    $.ajax({
+      url: url,
+      data: $('.form-horizontal').serialize(),
+      type: "POST",
+      dataType: "Json",
+      success: function(res) {
+        if (res.status=="Failed") {
+          layer.msg(res.info);
+        } else { parent.layer.closeAll(); }
+      },
+    });
+  });
+</script>
+
+
+{% endblock %}

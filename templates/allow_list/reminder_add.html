@@ -1,0 +1,102 @@
+{% extends "default/base_layer.html" %}
+
+
+{% block assistant-header %} Message ADD {% endblock %}
+{% load bootstrap %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
+
+ {% endblock %}
+
+
+{% block content %}
+
+<div class="col-lg-12">
+<div class="box box-info">
+  <div class="box-body">
+    <form role="form" action="" method="post" id="virtual_add" class="form-horizontal">{% csrf_token %}
+
+      <div class="form-group col-md-6">
+        <label>请选择类型：</label>
+        <select class="form-control select" id="id_leixing" name="leixing">
+          {% for i in classify %}
+          <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <dir class="form-group col-md-6">
+        <label>内容:</label>
+          <input class=" form-control" id="id_text" maxlength="15" name="text" type="text">
+      </dir>
+      <dir class="form-group col-md-6">
+        <label>日期:</label>
+          <input class=" form-control" id="id_riqi" name="riqi" type="date">
+      </dir>
+      <dir class="form-group col-md-6">
+        <a href="javascript:;" name="okk" class="btn btn-info pull-center" id="testid">
+          <span class="glyphicon glyphicon-ok"></span> 提交
+        </a>
+        </dir>
+      </form>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+  $("#testid").on('click',function(event) {
+    // layer.msg("hello world!")
+    var url = "{% url 'reminder_add' %}";
+    $.ajax({
+      url: url,
+      data: $('.form-horizontal').serialize(),
+      type: "POST",
+      dataType: "Json",
+      success: function(data) {
+        if (data.res=="falid") {
+          layer.msg(data.info);
+        } else { parent.layer.closeAll(); }
+      },
+    });
+  });
+</script>
+
+<script type="text/javascript">
+
+    window.$ && $(function(){
+    //验证初始化
+        $('#virtual_add').validator({
+            //stopOnError:true,
+            //timely: 2,
+            theme: "yellow_top",
+            showOk: "",
+            //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+            rules: {
+                check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+                check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+                check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+            },
+        fields: {
+            "text":{
+                rule: "required;",
+                tip: "输入内容",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "riqi":{
+                rule: "required;",
+                tip: "输入日期",
+                ok:"",
+                msg:{required: "必须填写!"}
+            }
+        },
+        valid: function(form) {
+            ("#testid").on('click');
+        }
+    });
+    });
+
+</script>
+{% endblock %}

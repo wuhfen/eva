@@ -19,20 +19,41 @@
 {% endblock %}
 
 {% block content %}
-<div class="box box-info">
-    <div class="box-body">
+<div class="row">
+
     <div class="col-md-12">
-        {% for i in data %}
-        <div class="col-md-3">
-        <a href="{% url 'domain_list_select' i.uuid %}" target="_blank" class="btn btn-info" id="{{ i.nic_name }}"><span class="badge bg-purple">{{ i.nic_name }}</span>{{ i.name }}</a>
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs pull-right">
+                <li ><a href="#tab_1-1" data-toggle="tab">现金网域名</a></li>
+                <li class="active"><a href="#tab_2-2" data-toggle="tab">蛮牛域名</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane" id="tab_1-1">
+                    <div class="row">
+                    {% for i in data %}
+                    {% if i.platform == "现金网" %}
+                    <div class="col-md-3">
+                    <a href="{% url 'domain_list_select' i.uuid %}" target="_blank" class="btn btn-info" id="{{ i.nic_name }}"><span class="badge bg-purple">{{ i.nic_name }}</span>{{ i.name }}</a>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane active" id="tab_2-2">
+                    <div class="row">
+                    {% for i in data %}
+                    {% if i.platform == "VUE蛮牛" %}
+                    <div class="col-md-3">
+                    <a href="{% url 'domain_list_select' i.uuid %}" target="_blank" class="btn btn-info" id="{{ i.nic_name }}"><span class="badge bg-purple">{{ i.nic_name }}</span>{{ i.name }}</a>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-    </div>
-    <div class="col-md-6"></div>
-    
-    </div>
-    <div class="box-footer">
-        <hr>
+
     </div>
 </div>
 

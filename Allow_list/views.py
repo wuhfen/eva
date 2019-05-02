@@ -4,7 +4,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required
-from .models import Iptables,oldsite_line,white_conf,white_list
+from .models import Iptables,oldsite_line,white_conf,white_list,expiration_reminder
 from gitfabu.models import git_deploy
 from assets.models import Server
 
@@ -344,6 +344,11 @@ def white_batch_add(request,uuid):
     conf = white_conf.objects.get(pk=uuid)
     if conf.name in ["KG-JDC","MONEY-Backend","DT-GFC","MONEY-Black"]:
         data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True) #根据线上的siteid来添加
+        newAsiteid=[i for i in data if "a" in i.name ]
+        for i in data:
+            if i.name[-1] not in ['a','b','c','d','f']:
+                newAsiteid.append(i)
+        data = newAsiteid
     elif conf.name in ["MN-JDC","MN-Backend","MN-GFC","MN-Black"]:
         data = git_deploy.objects.filter(platform="VUE蛮牛",classify="huidu",isops=True,islog=True) #根据灰度的siteid来添加
 
@@ -428,6 +433,11 @@ def white_add(request,uuid):
     conf = white_conf.objects.get(pk=uuid)
     if conf.name in ["KG-JDC","MONEY-Backend","DT-GFC","MONEY-Black"]:
         data = git_deploy.objects.filter(platform="现金网",classify="online",isops=True,islog=True) #根据线上的siteid来添加
+        newAsiteid=[i for i in data if "a" in i.name ]
+        for i in data:
+            if i.name[-1] not in ['a','b','c','d','f']:
+                newAsiteid.append(i)
+        data = newAsiteid
     elif conf.name in ["MN-JDC","MN-Backend","MN-GFC","MN-Black"]:
         data = git_deploy.objects.filter(platform="VUE蛮牛",classify="huidu",isops=True,islog=True) #根据灰度的siteid来添加
 
@@ -714,3 +724,38 @@ def white_list_search(request):
         result["res"] = "Faild"
 
     return JsonResponse(result,safe=False)
+
+def reminder_list(request):
+    data = expiration_reminder.objects.all().order_by('-expiration_date')
+    try:
+        page = int(request.GET.get("page",1))
+        if page < 1:
+            page = 1
+    except ValueError:
+        page = 1
+    #data = expiration_reminder.objects.all()
+    paginator = JuncheePaginator(data, 15) #每页15条
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+        data = paginator.page(1)
+    except EmptyPage:
+        data = paginator.page(paginator.num_pages)
+    return render(request,'allow_list/reminder_list.html',locals())
+
+def reminder_add(request):
+    classify = ['域名','证书','服务器']
+    if request.method == "POST":
+        text = request.POST.get('text')
+        leixing = request.POST.get('leixing')
+        riqi = request.POST.get('riqi')
+        if leixing == '域名':
+            classify = 'domain'
+        elif leixing == '证书':
+            classify = 'certificate'
+        else:
+            classify = 'server'
+        data = expiration_reminder(classify=classify,text=text,expiration_date=riqi)
+        data.save()
+        return JsonResponse({"res":"OK"})
+    return render(request,'allow_list/reminder_add.html',locals())

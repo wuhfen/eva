@@ -1,0 +1,272 @@
+{% extends 'default/base.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布配置管理 {% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
+{% endblock %}
+
+
+{% block assistant-header %} 
+    <h4>发布配置管理</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'conf_admin' %}">配置管理</a></li>
+    </ol>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+        <div class="col-md-12">
+          <!-- Custom Tabs (Pulled to the right) -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs pull-right">
+              <li class="active"><a href="#tab_1-2" data-toggle="tab">现金网</a></li>
+              <li><a href="#tab_2-2" data-toggle="tab">蛮牛</a></li>
+              <li><a href="#tab_3-2" data-toggle="tab">其他</a></li>
+              <li class="pull-left header"><i class="fa fa-th"></i> 发布配置管理</li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab_1-2">
+                <table class="table table-striped" id="example2">
+                  <thead>
+                  <td>名称</td>
+                  <td>环境</td>
+                  <td>完成发布</td>
+                  <td>锁状态</td>
+                  <td>服务器</td>
+                  <td>代码</td>
+                  <td>操作</td>
+                  </thead>
+                  <tbody>
+                    {% for i in money_data %}
+                      <tr id="tr_{{ i.id }}">
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.classify }}</td>
+                        <td>
+                          {% if i.islog %}
+                            <span class="fa fa-circle fa-lg text-success"></span>
+                          {% else %}
+                            <span class="fa fa-circle fa-lg text-danger"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if i.islock %}
+                            <span class="fa fa-lock fa-lg text-danger"></span>
+                          {% else %}
+                            <span class="fa fa-unlock fa-lg text-success"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_servers' i.id %}" class="btn btn-xs btn-info ggsmd">{{ i.platform }}-{{ i.classify }}-{{ i.server.name }}</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
+                            <a href="{% url 'deploy_del' i.id %}" class="btn btn-xs btn-danger btn-del" id="del_{{ i.id }}">删除</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.tab-pane -->
+              <div class="tab-pane" id="tab_2-2">
+                <table class="table table-striped" id="example2">
+                  <thead>
+                  <td>名称</td>
+                  <td>环境</td>
+                  <td>完成发布</td>
+                  <td>锁状态</td>
+                  <td>服务器</td>
+                  <td>代码</td>
+                  <td>操作</td>
+                  </thead>
+                  <tbody>
+                    {% for i in vue_data %}
+                      <tr>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.classify }}</td>
+                        <td>
+                          {% if i.islog %}
+                            <span class="fa fa-circle fa-lg text-success"></span>
+                          {% else %}
+                            <span class="fa fa-circle fa-lg text-danger"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if i.islock %}
+                            <span class="fa fa-lock fa-lg text-danger"></span>
+                          {% else %}
+                            <span class="fa fa-unlock fa-lg text-success"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_servers' i.id %}" class="btn btn-xs btn-info ggsmd">{{ i.platform }}-{{ i.classify }}-{{ i.server.name }}</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
+                            <a href="{% url 'deploy_del' i.id %}" class="btn btn-xs btn-danger btn-del">删除</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.tab-pane -->
+              <div class="tab-pane" id="tab_3-2">
+                <table class="table table-striped" id="example1">
+                  <thead>
+                  <td>名称</td>
+                  <td>环境</td>
+                  <td>完成发布</td>
+                  <td>锁状态</td>
+                  <td>服务器</td>
+                  <td>代码</td>
+                  <td>操作</td>
+                  </thead>
+                  <tbody>
+                    {% for i in only_data %}
+                      <tr>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.classify }}</td>
+                        <td>
+                          {% if i.islog %}
+                            <span class="fa fa-circle fa-lg text-success"></span>
+                          {% else %}
+                            <span class="fa fa-circle fa-lg text-danger"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if i.islock %}
+                            <span class="fa fa-lock fa-lg text-danger"></span>
+                          {% else %}
+                            <span class="fa fa-unlock fa-lg text-success"></span>
+                          {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_servers' i.id %}" class="btn btn-xs btn-info ggsmd">{{ i.platform }}-{{ i.classify }}-{{ i.server.name }}</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
+                            <a href="{% url 'deploy_del' i.id %}" class="btn btn-xs btn-danger btn-del">删除</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.tab-pane -->
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- nav-tabs-custom -->
+        </div>
+</div>
+
+<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    $(".ggsmd").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1100px' , '800px'],
+                end : function () {
+                  // location.reload();
+                  layer.msg('OK');
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+    $(".seegit").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['700px' , '400px'],
+                end : function () {
+                  // location.reload();
+                  layer.msg('OK');
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+</script>
+
+<script>
+  $(function () {
+    $("#example1").DataTable();
+    $("#example2").DataTable();
+    $('#example3').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  $(".btn-edit").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['700px' , '400px'],
+                end : function () {
+                  // location.reload();
+                  layer.msg('OK');
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
+
+    $(".btn-del").on("click", function(event){ //一般更新
+
+          var delid=$(this).attr('id');
+          var id = delid.replace("del_","");
+          var urls=$(this).attr('href');
+          // layer.msg(id);
+          layer.confirm('确定删除么?', function(index){
+              jQuery.get(urls,function(){
+                  layer.msg("已删除!");
+              });
+              $("#tr_"+id).remove();
+              layer.close(index);
+          });
+         event.preventDefault();
+    });
+</script>
+{% endblock %}

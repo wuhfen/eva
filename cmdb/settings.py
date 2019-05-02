@@ -170,6 +170,7 @@ STATICFILES_DIRS = [
     ('images', os.path.join(STATIC_ROOT, 'images').replace('\\', '/')),
     ('bootstrap', os.path.join(STATIC_ROOT, 'bootstrap').replace('\\', '/')),
     ('layer-v2.4', os.path.join(STATIC_ROOT, 'layer-v2.4').replace('\\', '/')),
+    ('layui', os.path.join(STATIC_ROOT, 'layui').replace('\\', '/')),
     ('valodate', os.path.join(STATIC_ROOT, 'valodate').replace('\\', '/')),
     ('pagedown', os.path.join(STATIC_ROOT, 'pagedown').replace('\\', '/')),
     ('pagedown-extra', os.path.join(STATIC_ROOT, 'pagedown-extra').replace('\\', '/')),

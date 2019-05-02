@@ -105,3 +105,34 @@ class white_list(models.Model):
     user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     ctime = models.DateTimeField(auto_now_add=True)
     memo = models.TextField(_(u'备注'),default='')
+
+class expiration_reminder(models.Model):
+    """过期资产提醒,分为域名,证书,和服务器三个类别"""
+    """到期前1个月提醒,alert为真,人工确认后alert为真,confirm为真,更新过期时间后重置判断条件"""
+    ASSERT = (
+    ('domain',u'域名'),
+    ('certificate',u'证书'),
+    ('server',u'服务器'),
+    )
+    classify = models.CharField(_(u'类型'),max_length=12,choices=ASSERT)
+    text = models.TextField(_(u'内容'))
+    is_alert = models.BooleanField(_(u'是否报警'),default=False)
+    is_confirm = models.BooleanField(_(u'是否确认'),default=False)
+    ctime = models.DateTimeField(auto_now_add=True)
+    expiration_date = models.DateField(_(u'过期时间'))
+
+class api_access_authorized_conf(models.Model):
+    u'''平台外接授权配置,服务器相关信息,nginx白名单路径,默认规则'''
+    name=models.CharField(max_length=68)
+    servers = models.TextField(_(u'服务器地址'))
+    file_path = models.CharField(_(u'文件绝对路径'),max_length=100)
+    default_ip = models.TextField(_(u'默认规则'))
+
+class api_access_authorized_table(models.Model):
+    u'''平台外接授权表,ip\解析信息\外键\备注'''
+    host_key = models.CharField(_(u'白名单key'),max_length=10,default='allow')
+    host_ip = models.CharField(_(u'白名单ip'),max_length=15)
+    apiConf = models.ForeignKey(api_access_authorized_conf)
+    user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+    ctime = models.DateTimeField(auto_now_add=True)
+    memo = models.TextField(_(u'备注'))

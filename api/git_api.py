@@ -64,7 +64,7 @@ class Repo(object):
         """Run a git command in path and return the result. Throws on error."""
         if not path:
             path = '.'
-        proc = Popen(["git"] + list(args), stdout=PIPE, stderr=PIPE, cwd=path)
+        proc = Popen(["git"] + list(args), stdout=PIPE, stderr=PIPE, cwd=path.encode('utf-8'))
 
         out, err = [x.decode("utf-8") for x in  proc.communicate()]
 
@@ -103,7 +103,6 @@ class Repo(object):
             cmd.append('-b')
         cmd.append(str(reference))
         res = self.git_command(*cmd)
-        print(res)
         return res
 
     def git_change_branch(self, branch):
@@ -250,7 +249,6 @@ class Repo(object):
     def git_pull(self):
         """Pull changes to this repo."""
         res = self.git_command("pull","--all","-p")
-        print(res)
         return res
 
     def git_fetch(self, source=None):

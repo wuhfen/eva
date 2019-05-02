@@ -1,0 +1,93 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 全站更新{% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/iCheck/all.css">
+
+{% endblock %}
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="row text-center">
+        <form role="form" action="" method="post" id="post_form" class="form-horizontal">{% csrf_token %}
+            <div class="col-lg-12 col-md-12 form-group">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" onclick="opcheckboxed('check_list', 'checkall')">全选</button>
+                <button type="button" class="btn btn-primary" onclick="opcheckboxed('check_list', 'uncheckall')">取消全选</button>
+                <button type="button" class="btn btn-primary" onclick="opcheckboxed('check_list', 'reversecheck')">反选</button>
+                <a href="javascript:;" class="btn btn-primary" id="id_submit"> 提交 </a>
+            </div><hr>
+            </div><hr>
+            <div class="col-lg-12 col-md-12 form-group">
+                {% for k,v in siteid_version.items %}
+                <div class="col-md-3">
+                    {% if v == "Locked" %}
+                    <label><input type="checkbox" class="flat-red" disabled> <i class="btn btn-default">{{ k }}</i> 有未完成更新 {{ v }}</label>
+                    {% else %}
+                    <label><input type="checkbox" class="flat-red" name="check_list" value="{{ k }} {{ v }}"> <i class="btn btn-success">{{ k }}</i> {{ v }}</label>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+        </div>
+        </div>
+    </div>
+
+</div>
+<script src="/static/admin-test/plugins/iCheck/icheck.min.js"></script>
+<script type="text/javascript">
+$(function () {
+        //Flat red color scheme for iCheck
+    $('input[type="checkbox"].flat-red').iCheck({
+      checkboxClass: 'icheckbox_flat-green'
+    });
+});
+</script>
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        var urls= "{% url 'money_wap_batch_update' env %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: $('.form-horizontal').serialize(),
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                } else {
+                    layer.msg("你没有选择更新项目")
+                }
+                },
+        });
+    });
+</script>
+<script type="text/javascript">
+function opcheckboxed(objName, type){
+  var objNameList=document.getElementsByName(objName);
+  if(null!=objNameList){
+    for(var i=0;i<objNameList.length;i++){  
+      if(objNameList[i].checked==true)
+      {
+        if(type != 'checkall') {  // 非全选
+          objNameList[i].checked=false;
+          $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
+        }
+        
+      } else {
+        if(type != 'uncheckall') {  // 非取消全选
+          objNameList[i].checked=true;
+          $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
+        }
+      }
+    }  
+  }
+}
+</script>
+{% endblock %}

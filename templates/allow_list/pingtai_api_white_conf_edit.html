@@ -1,0 +1,79 @@
+{% extends 'default/base_layer.html' %}
+
+{% block title %} 平台外接API白名单配置{% endblock %}
+
+
+
+{% block content %}
+<div class="col-lg-12">
+    <div class="box box-info">
+        <div class="box-body" style="padding-top: 10px">
+            <div class="col-md-12">
+            <form role="form" class="form-horizontal" action="" method="post" id="post_form">{% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">名称</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="name" id="id_name" value="{{ data.name }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">服务器</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="id_servers" name="servers" rows="3" placeholder="172.16.13.1 172.16.13.2" >{{ data.servers }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">白名单文件路径</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="id_file_path" name="file_path" placeholder="/usr/local/nginx/conf/white/example" value="{{ data.file_path }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">默认放行的IP</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" id="id_default_ip" rows="3" name="default_ip" placeholder="IP1 IP2">{{ data.default_ip }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <a href="javascript:;" class="btn btn-primary pull-right" id="id_submit">确定</a>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$('#id_submit').on("click",function(){
+    var name=$('#id_name').val()
+        ,servers=$('#id_servers').val()
+        ,file_path=$('#id_file_path').val()
+
+    if (name=="") {
+        layer.msg("名称不能为空!");
+    } else if (servers=="") {
+        layer.msg("服务器不能为空!");
+    } else if (file_path=="") {
+        layer.msg("文件路径不能为空!");
+    } else {
+        jQuery.ajax({
+            url: "{% url 'pingtai_access_conf_edit' id %}",                  // 提交的页面
+            data: $('.form-horizontal').serialize(), // 从表单中获取数据
+            type: "POST",                       // 设置请求类型为"POST"，默认为"GET"
+            dataType:'json',
+            success: function(res){
+                if (res.status=="OK") {
+                    parent.layer.closeAll();
+                } else {
+                    layer.msg(res.info)
+                };
+                
+            }
+        });
+    };
+});
+</script>
+
+
+{% endblock  %}

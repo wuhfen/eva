@@ -28,7 +28,7 @@ def get_server_by_key(key):
 def get_password_by_host(host):
     try:
         data = Server.objects.get(ssh_host=host)
-        res = {"status":"1","password":data.ssh_password}
+        res = {"status":"1","password":data.ssh_password,"port":data.ssh_port,"user":data.ssh_user}
     except:
         res={"status":"0"}
     return res

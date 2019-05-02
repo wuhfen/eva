@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import patterns, include, url
-from Allow_list import views
+from Allow_list import views,pingtai
 
 
 urlpatterns = [
@@ -36,7 +36,17 @@ urlpatterns = [
     url(r'^black/list/$',views.black_list_fun,name='black_list'),
     url(r'^black/add/$',views.black_add,name='black_add'),
 
+    #过期提醒
+    url(r'^reminder/list/$',views.reminder_list,name='reminder_list'),
+    url(r'^reminder/add/$',views.reminder_add,name='reminder_add'),
 
+    #平台外接api白名单
+    url(r'^pingtaiconf/$',pingtai.api_white_conf_list,name='pingtai_access_conf_list'),
+    url(r'^pingtaiconf/add/$',pingtai.api_white_conf_add,name='pingtai_access_conf_add'),
+    url(r'^pingtaiconf/delete/(?P<id>[^/]+)/$',pingtai.api_white_conf_delete,name='pingtai_access_conf_del'),
+    url(r'^pingtaiconf/edit/(?P<id>[^/]+)/$',pingtai.api_white_conf_edit,name='pingtai_access_conf_edit'),
 
+    url(r'^pingtaitab/(?P<id>[^/]+)/$',pingtai.api_white_table_list,name='api_white_table_list'),
+    url(r'^pingtaitab/add/(?P<id>[^/]+)/$',pingtai.api_white_table_add,name='api_white_table_add'),
 
 ]

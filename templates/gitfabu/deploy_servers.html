@@ -1,0 +1,116 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 网站详情{% endblock %}
+
+{% block head %} 
+<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+
+            <h4 class="text-center">{{ obj.platform }}-{{ obj.classify }}-{{ obj.name }}</h4>
+            <hr>
+                <form role="form" action="" method="post" id="post_form">{% csrf_token %}
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_hosts">服务器:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <textarea class="form-control" rows=6 id="id_hosts" name="hosts">{{ obj.remoteip }}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_work_path">线上目录:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input class="form-control" value="{{ obj.remotedir }}" name="work_path" id="id_work_path">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_owner">代码属主:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input class="form-control" value="{{ obj.owner }}" name="owner" id="id_owner">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_rsync_exclude">同步排除:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input class="form-control" value="{{ obj.exclude }}" name="rsync_exclude" id="id_rsync_exclude">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_rsync_command">推送前命令:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <textarea class="form-control" id="id_rsync_command" name="rsync_command">{{ obj.rsync_command }}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_last_command">生效前命令:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <textarea class="form-control" id="id_last_command" name="last_command">{{ obj.last_command }}</textarea>
+                        </div>
+                    </div>
+
+                        <div class="form-group">
+                            <a href="javascript:;" class="btn btn-success btn-lg" id="id_submit"> 提交 </a>
+                        </div>
+
+                </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        var hosts = $('#id_hosts').val();
+        var work_path= $('#id_work_path').val();
+        var owner = $('#id_owner').val();
+        var rsync_exclude = $("#id_rsync_exclude").val();
+        var rsync_command = $("#id_rsync_command").val();
+        var last_command = $("#id_last_command").val();
+        var urls= "{% url 'deploy_servers' data.id %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: {  
+                'hosts': hosts, 
+                'work_path': work_path, 
+                'owner': owner, 
+                'rsync_exclude': rsync_exclude, 
+                'rsync_command': rsync_command, 
+                'last_command': last_command, 
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+                },
+        });
+    });
+</script>
+
+
+
+{% endblock  %}

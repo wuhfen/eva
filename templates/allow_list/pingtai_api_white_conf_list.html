@@ -1,0 +1,98 @@
+{% extends "default/base.html" %}
+{% block title %}white{% endblock %}
+
+{% block assistant-header %} 白名单
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="#">自动化管理</a></li>
+        <li><a href="#">后台白名单</a></li>
+    </ol>
+
+{% endblock %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="box box-info" >
+    <div class="box-header">
+        <div class="col-md-6"><h4>平台外接API白名单配置</h4></div>
+        <div class="col-md-6"><a class="btn btn-info pull-right" href="javascript:;" id="conf_add"><span class="fa fa-plus"></span>  添加配置</a></div>
+    
+    </div>
+    <div class="box-body" >
+        <table class="table">
+            <thead>
+                <th>名称</th>
+                <th>服务器</th>
+                <th>文件绝对路径</th>
+                <th>默认规则</th>
+                <th>操作</th>
+            </thead>
+            <tbody>
+                {% for i in data %}
+                <tr>
+                    <td><a href="{% url 'api_white_table_list' i.id %}" class="btn btn-default">{{ i.name }}</a></td>
+                    <td>{{ i.servers }}</td>
+                    <td>{{ i.file_path }}</td>
+                    <td>{{ i.default_ip }}</td>
+                    <td>
+                        <a href="{% url 'pingtai_access_conf_edit' i.id %}" class="btn btn-xs btn-info" id="id_edit">Edit</a>
+                        <a href="{% url 'pingtai_access_conf_del' i.id %}" class="btn btn-xs btn-danger" id="id_del">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+$('#conf_add').on('click',function(event){
+    layer.open({
+            type: 2,
+            title: '平台外接API白名单配置',
+            maxmin: true,
+            shade: 0.5,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['900px' , '400px'],
+            end : function () {
+              location.reload();
+          },
+            content: "{% url 'pingtai_access_conf_add' %}"
+        });
+    event.preventDefault();
+});
+
+$('#id_edit').on('click',function(event){
+    var urls=$(this).attr('href');
+    layer.open({
+            type: 2,
+            title: '平台外接API白名单配置修改',
+            maxmin: true,
+            shade: 0.5,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['900px' , '400px'],
+            end : function () {
+              location.reload();
+          },
+            content: urls
+        });
+    event.preventDefault();
+});
+
+$('#id_del').on('click',function(event){
+    var urls=$(this).attr('href');
+
+    layer.confirm('确定删除吗?',{
+        btn: ["确定","取消"]
+        },function() {
+            $.get(urls,function(res) {
+                layer.msg(res.info);
+            })
+        }
+    );
+    event.preventDefault();
+});
+</script>
+
+{% endblock %}

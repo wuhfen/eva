@@ -449,7 +449,8 @@ class git_moneyweb_deploy(object):
             last_commit = "日期：%s 分支：%s 版本号：%s"% (self.now_time,web_branch,private_data)
         datas.now_reversion = last_commit
         if datas.old_reversion:
-            old_commits = last_commit + '\r\n' + datas.old_reversion 
+            old_reversion = "\r\n".join(datas.old_reversion.split('\r\n')[0:30]) #保留一个月的更新记录,防止无限增长
+            old_commits = last_commit + '\r\n' + old_reversion 
         else:
             old_commits = last_commit
         datas.old_reversion = old_commits
@@ -517,6 +518,11 @@ class git_moneyweb_deploy(object):
             remotedir = self.remotedir
 
         exclude = genxin_exclude_file(self.exclude)
+
+        if '\r\n' not in self.remoteip and '\n' in self.remoteip:
+            self.remoteip = self.remoteip.replace('\n','\r\n')
+        self.remoteip = self.remoteip.replace(' ','\r\n')
+
         print self.remoteip.split('\r\n')
         for i in self.remoteip.split('\r\n'):
             try:
@@ -568,6 +574,9 @@ class git_moneyweb_deploy(object):
                 remoteips = git_ops_configuration.objects.get(platform="蛮牛",classify=self.env,name=name).remoteip
             else:
                 remoteips = git_ops_configuration.objects.get(platform=self.platform,classify=self.env,name=name).remoteip
+            if '\r\n' not in remoteips and '\n' in remoteips:
+                remoteips = remoteips.replace('\n','\r\n')
+            remoteips = remoteips.replace(' ','\r\n')
             resource = gen_resource([Server.objects.get(ssh_host=i) for i in remoteips.split('\r\n')])
             playtask = MyPlayTask(resource)
             res = playtask.rsync_nginx_conf(localfile,remotedir,remotefile,siteid,domains,pcdomains=pcdomains,mdomains=mdomains)
@@ -665,9 +674,10 @@ class git_moneyweb_deploy(object):
             if self.env != "test":
                 name = "源站反代"
                 domains = []
-                for i in front_domain:
+                for i in front_domain.split():
                     if not re.match("pc\.|m\.",i): #将pc和m开头的排除在外
                         domains.append(i)
+                domains=" ".join(domains)
                 if self.env == "huidu":
                     local_nginx_file = "vue_mn_huidu_front_proxy.conf"
                     remote_dir = "/usr/local/nginx/conf/vhost/huidu/"
@@ -716,7 +726,7 @@ class git_moneyweb_deploy(object):
             port = self.siteid
             self.ansible_rsync_api(name,local_nginx_file,remote_dir,remotefile,port,domains)
             #同步AG和AG反代域名
-            if self.env != "test": 
+            if self.env != "test":
                 name1 = "AG"
                 name2 = "AG反代"
 

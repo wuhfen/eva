@@ -46,6 +46,8 @@ def get_auth_obj(request):
     valid_json_auth_info = json.dumps(auth_info_and_server)
     return HttpResponse(valid_json_auth_info)
 
+
+
 @permission_required('assets.add_asset', login_url='/auth_error/')
 def access_server(request,uuid):
     """web方式登录remote主机"""

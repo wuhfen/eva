@@ -40,19 +40,8 @@
                     <th>业务名称</th>
                     <th>代号</th>
                     <th>业务平台</th>
-
                     <th>业务状态</th>
                     <th>状态变更时间</th>
-                    <th>前端域名</th>
-                    <th>ag域名</th>
-                    <th>后台域名</th>
-                    <th>彩票域名</th>
-                    <th>导航网域名</th>
-                    <th>其他域名</th>
-
-
-
-                    <th>后台白名单</th>
 
                     <th>操作</th>
                 </tr>
@@ -63,54 +52,9 @@
                         <td class="text-center"><input type="checkbox" name="selected" value="{{ v.uuid }}"></td>
                         <td>{{ v.name }}</td>
                         <td>{{ v.nic_name }}</td>
-
-                        <td>{% if v.site_type == 'old_site' %}老平台{% else %}新平台{% endif %}</td>
-
+                        <td>{{ v.platform }}</td>
                         <td>{% if v.status == '0' %}正常运转{% elif v.status == '1' %}维护升级{% elif v.status == '2' %}迁移过渡{% else %}停止运转{% endif %}</td>
                         <td>{{ v.status_update_date }}</td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '0' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '1' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '2' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '3' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '4' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for s in v.domainname_set.all %}
-                                {% if s.use == '5' %}
-                                <a href="{% url 'domain_detail' s.uuid %}" class="btn btn-xs btn-success">{{ s.name }}</a>
-                                {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>{{ v.backend_allow_list }}</td>
 
                         <td>
                             <a href="{% url 'business_detail' v.uuid %}" class="btn btn-xs btn-info">详情</a>

@@ -45,6 +45,9 @@ def business_add(request):
             return HttpResponseRedirect('/allow/welcome/')
         if bf.is_valid():
             bf_data = bf.save()
+            bf_data.full_name=bf_data.name
+            bf_data.status='0'
+            bf_data.save()
             siteid = bf_data.nic_name
             if "new" in siteid:
                 siteid=siteid.replace("new","")
@@ -56,17 +59,12 @@ def business_add(request):
                 huidu_a = DomainName(name="ag"+siteid+".s1119.com",use=1,business=bf_data,classify="huidu",state=0,supplier="运维")
                 huidu_a.save()
                 huidu_f.save()
-            elif bf_data.platform == "蛮牛":
-                huidu_f = DomainName(name=siteid+".kg-44.com",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
-                huidu_a = DomainName(name="ag"+siteid+".kg-44.com",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
-                huidu_a.save()
-                huidu_f.save()
             elif bf_data.platform == "VUE蛮牛":
                 huidu_f = DomainName(name=siteid.replace("vue","")+".kg-8.me",use=0,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a = DomainName(name="ag"+siteid+".kg-8.me",use=1,business=bf_data,classify="huidu",state=0,supplier="工程")
                 huidu_a.save()
                 huidu_f.save()
-            return HttpResponseRedirect('/allow/welcome/')
+            return HttpResponseRedirect('/business/business_list/')
     return render(request,'business/business_add.html',locals())
 
 
@@ -238,7 +236,7 @@ def restart_all_monitor(request):
     return JsonResponse(data,safe=False)
 
 
-##域名增删查改
+##现金网和蛮牛的域名在线管理系统
 def domain_list_select(request,siteid):
     business = Business.objects.get(pk=siteid)
     domain_data = DomainName.objects.filter(business=business)
@@ -272,7 +270,7 @@ def domain_add_select(request,siteid):
                 if i.strip() in [x.name for x in DomainName.objects.filter(business=business,classify=classify,state='0',use=use)]:
                     errors.append("域名：%s 已存在"% i.strip())
         if errors:
-            return render(request,'business/domain_add_select.html',locals())
+            return JsonResponse({'res':"Failed","info":errors})
         # if use == '2':
         #     pool = Domain_ip_pool.objects.get(name="新站后台反代")
         # elif use == '1':
@@ -282,6 +280,7 @@ def domain_add_select(request,siteid):
         for i in domainname.split('\r\n'):
             save_data = DomainName(name=i.strip(),use=use,business=business,state='0',classify=classify,supplier=supplier,monitor_status=False)
             save_data.save()
+        return JsonResponse({'res':"OK"})
     return render(request,'business/domain_add_select.html',locals())
 
 
@@ -289,11 +288,16 @@ def domain_add_select(request,siteid):
 def domain_edit(request,uuid):
     domainname = get_object_or_404(DomainName, uuid=uuid)
     df = DomainNameForm(instance=domainname)
+    business=domainname.business
     if request.method == 'POST':
         df = DomainNameForm(request.POST,instance=domainname)
         if df.is_valid():
             df_data = df.save()
-            return HttpResponseRedirect('/allow/welcome/')
+            df_data.business=business
+            df_data.save()
+            return JsonResponse({'res':"OK"})
+        else:
+            return JsonResponse({'res':"Failed","info":"提交数据有错误!"})
     return render(request,'business/domain_edit.html',locals())
 
 

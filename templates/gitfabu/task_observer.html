@@ -40,13 +40,16 @@
                     <td>{{ v.create_date|date:"Y-m-d H:i:s" }}</td>
                     <td>{{ v.name }}</td>
                     <td>
-                    {% for i in v.reqt.all|auditor_uniq %}
-                        {% if i.isaudit %}
-                            <span class="bg-green">{{ i.auditor }}</span>
-                        {% else %}
-                            <span class="bg-orange">{{ i.auditor }}</span>
-                        {% endif %}
-                    {% endfor %}
+                        {% for i in v.reqt.all|audit_group %}
+                        <a href="#" class="btn bg-gray disabled color-palette">
+                            <span class="text-success">{% name_group i %}</span>|
+                            {% for j in i|audit_users %}
+                                {% autoescape off %}
+                                {% is_audit i j v.reqt.all %}
+                                {% endautoescape %}
+                            {% endfor %}
+                        </a>
+                        {% endfor %}
                     </td>
                     <td>{{ v.status }}</td>
                     <td><a href="{% url 'my_task_details' v.id %}" class="btn btn-xs btn-primary">详情</a></td>

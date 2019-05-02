@@ -92,8 +92,6 @@ class git_task_audit(models.Model):
         verbose_name_plural = verbose_name
 
 
-
-
 class git_ops_configuration(models.Model):
     """服务器配置模型"""
     name = models.CharField(_(u'名称'),max_length=45,choices=SERVER_TYPE)

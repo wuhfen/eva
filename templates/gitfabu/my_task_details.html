@@ -1,4 +1,4 @@
-{% extends 'default/base.html' %}
+{% extends 'default/base_layer.html' %}
 {% load bootstrap %}
 
 {% block title %} 任务详情 {% endblock %}
@@ -7,7 +7,14 @@
 <style type="text/css">
 p {text-indent: 1cm}
 </style>
-<script src="/static/js/readmore.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/static/admin-test/dist/css/AdminLTE.min.css">
+
+  <link rel="stylesheet" href="/static/admin-test/dist/css/skins/_all-skins.min.css">
 
 {% endblock %}
 
@@ -24,7 +31,7 @@ p {text-indent: 1cm}
 
 {% block content %}
 <div class="row">
-
+<div class="col-md-12">
 <ul class="timeline">
 
     <!-- timeline time label -->
@@ -355,6 +362,8 @@ p {text-indent: 1cm}
 
 
 </div>
+</div>
+  <script src="/static/js/readmore.min.js"></script>
 <script type="text/javascript">
     function mouseOver(id) {
         var comment = $("#text_"+id).text();

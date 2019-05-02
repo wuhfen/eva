@@ -1,0 +1,132 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %} 发布项目更改状态{% endblock %}
+
+{% block head %} 
+<link rel="stylesheet" href="/static/admin-test/plugins/iCheck/all.css">
+{% endblock %}
+
+
+
+{% block content %}
+<div class="row col-lg-12">
+    <div class="box">
+        <div class="box-body">
+        <div class="col-lg-12">
+
+            <h4 class="text-center">{{ data.platform }}-{{ data.classify }}-{{ data.name }}</h4>
+            <hr>
+                <form role="form" action="" method="post" id="post_form" class="sidebar-form">{% csrf_token %}
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_hosts">项目发布状态:</label>
+                        </div>
+                        <div class="col-md-10">
+                        {% if data.islog %}
+                            <label>
+                                发布完成
+                              <input type="radio" name="is_log" class="flat-red" value="yes" checked>
+                            </label>
+                            <label>
+                                发布未完成
+                              <input type="radio" name="is_log" class="flat-red" value="no">
+                            </label>
+                        {% else %}
+                            <label>
+                                发布完成
+                              <input type="radio" name="is_log" class="flat-red" value="yes" >
+                            </label>
+                            <label>
+                                发布未完成
+                              <input type="radio" name="is_log" class="flat-red" value="no" checked>
+                            </label>
+                        {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="text-right bolder" for="id_work_path">项目锁状态:</label>
+                        </div>
+                        <div class="col-md-10">
+                            {% if data.islock %}
+                            <label>
+                                锁定状态不可更新代码
+                              <input type="radio" name="is_lock" class="flat-red" value="yes" checked>
+                            </label>
+                            <label>
+                                解锁状态可更新代码
+                              <input type="radio" name="is_lock" class="flat-red" value="no">
+                            </label>
+                        {% else %}
+                            <label>
+                                锁定状态不可更新代码
+                              <input type="radio" name="is_lock" class="flat-red" value="yes" >
+                            </label>
+                            <label>
+                                解锁状态可更新代码
+                              <input type="radio" name="is_lock" class="flat-red" value="no" checked>
+                            </label>
+                        {% endif %}
+                        </div>
+                    </div>
+
+                        <div class="form-group">
+                            <a href="javascript:;" class="btn btn-success pull-right" id="id_submit"> 提交 </a>
+                        </div>
+
+                </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $('#id_submit').on("click",function(){
+        var is_log = $("input[name='is_log']:checked").val();
+        var is_lock = $("input[name='is_lock']:checked").val();
+
+        var urls= "{% url 'deploy_edit' data.id %}";
+        $.ajax({
+            url:urls,
+            dataType: 'json',
+            type: 'POST',
+            data: {  
+                'is_log': is_log, 
+                'is_lock': is_lock, 
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function(data) { 
+                if (data.res == "OK") {
+                    parent.layer.closeAll();
+                }
+                },
+        });
+    });
+</script>
+<script src="/static/admin-test/plugins/iCheck/icheck.min.js"></script>
+
+<script>
+  $(function () {
+
+    //iCheck for checkbox and radio inputs
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass: 'iradio_minimal-blue'
+    });
+    //Red color scheme for iCheck
+    $('input[type="checkbox"].minimal-red, input[type="radio"].minimal-red').iCheck({
+      checkboxClass: 'icheckbox_minimal-red',
+      radioClass: 'iradio_minimal-red'
+    });
+    //Flat red color scheme for iCheck
+    $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+      checkboxClass: 'icheckbox_flat-green',
+      radioClass: 'iradio_flat-green'
+    });
+
+  });
+</script>
+
+{% endblock  %}
