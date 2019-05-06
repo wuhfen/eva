@@ -44,6 +44,6 @@ urlpatterns = [
 
     url(r'^vue/wap/(?P<env>[^/]+)/$', views.vue_wap_batch_update, name="vue_wap_batch_update"),
     url(r'^vue/pc/(?P<env>[^/]+)/$', views.vue_pc_batch_update, name="vue_pc_batch_update"),
-    url(r'^money/wap/(?P<env>[^/]+)/$', views.money_wap_batch_update, name="money_wap_batch_update"),
+    url(r'^money/web/(?P<env>[^/]+)/$', views.money_web_batch_update, name="money_web_batch_update"),
     url(r'^money/pc/(?P<env>[^/]+)/$', views.money_pc_batch_update, name="money_pc_batch_update"),
 ]
