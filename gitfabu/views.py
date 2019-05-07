@@ -1407,7 +1407,7 @@ def money_web_batch_update(request, env):
             send_message_task.delay(mydata.id,auditor.id)
         return JsonResponse({'res':"OK"},safe=False)
     data = git_deploy.objects.filter(platform=platform, classify=classify, isops=True, islog=True).order_by('name')
-    cmd = "git log -n 1 --oneline"
+    cmd = "git log -n 5 --oneline"
     siteid_version = OrderedDict()
     for x in data:
         if x.islock:
@@ -1418,6 +1418,7 @@ def money_web_batch_update(request, env):
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]
+            out=out.split('\n')
             siteid_version[x.name] = out
     return render(request, 'gitfabu/money_web_batch_update.html', locals())
 
@@ -1455,7 +1456,7 @@ def money_pc_batch_update(request, env):
         return JsonResponse({'res':"OK"},safe=False)
 
     data = git_deploy.objects.filter(platform=platform, classify=classify, isops=True, islog=True).order_by('name')
-    cmd = "git log -n 1 --oneline"
+    cmd = "git log -n 5 --oneline"
     siteid_version = OrderedDict()
     for x in data:
         if x.islock:
@@ -1466,10 +1467,8 @@ def money_pc_batch_update(request, env):
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]
+            out=out.split('\n')
             siteid_version[x.name] = out
-
-
-
     return render(request, 'gitfabu/money_pc_batch_update.html', locals())
 
 @login_required

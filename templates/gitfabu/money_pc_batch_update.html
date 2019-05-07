@@ -29,7 +29,15 @@
                     {% if v == "Locked" %}
                     <label><input type="checkbox" class="flat-red" disabled> <i class="btn btn-default">{{ k }}</i> 有未完成更新 {{ v }}</label>
                     {% else %}
-                    <label><input type="checkbox" class="flat-red" name="check_list" value="{{ k }} {{ v }}"> <i class="btn btn-success">{{ k }}</i> {{ v }}</label>
+                    <label>
+                        <input type="checkbox" class="flat-red" name="check_list" id="id_{{ k }}" value="{{ k }} {{ v|first }}"> 
+                        <i class="btn btn-success">{{ k }}</i> 
+                        <select class="form-control vselect" id="s_{{ k }}">
+                            {% for version in v %}
+                            <option>{{ version }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
                     {% endif %}
                 </div>
                 {% endfor %}
@@ -51,6 +59,18 @@ $(function () {
 </script>
 
 <script type="text/javascript">
+    $(".vselect").change(function(){
+        version=$(this).val();
+        version=version.substr(0,7);
+        id=$(this).attr('id').replace("s_","");
+        c_value=id+" "+version;
+        $("#id_"+id).val(c_value);
+        layer.msg(c_value);
+    });
+</script>
+
+
+<script type="text/javascript">
     $('#id_submit').on("click",function(){
         var urls= "{% url 'money_pc_batch_update' env %}";
         $.ajax({
@@ -69,25 +89,25 @@ $(function () {
     });
 </script>
 <script type="text/javascript">
-function opcheckboxed(objName, type){
-  var objNameList=document.getElementsByName(objName);
-  if(null!=objNameList){
-    for(var i=0;i<objNameList.length;i++){  
-      if(objNameList[i].checked==true)
-      {
-        if(type != 'checkall') {  // 非全选
-          objNameList[i].checked=false;
-          $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
-        }
-        
-      } else {
-        if(type != 'uncheckall') {  // 非取消全选
-          objNameList[i].checked=true;
-          $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
-        }
+    function opcheckboxed(objName, type){
+      var objNameList=document.getElementsByName(objName);
+      if(null!=objNameList){
+        for(var i=0;i<objNameList.length;i++){  
+          if(objNameList[i].checked==true)
+          {
+            if(type != 'checkall') {  // 非全选
+              objNameList[i].checked=false;
+              $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
+            }
+            
+          } else {
+            if(type != 'uncheckall') {  // 非取消全选
+              objNameList[i].checked=true;
+              $('input[type="checkbox"].flat-red').iCheck({checkboxClass: 'icheckbox_flat-green'});
+            }
+          }
+        }  
       }
-    }  
-  }
-}
+    }
 </script>
 {% endblock %}
