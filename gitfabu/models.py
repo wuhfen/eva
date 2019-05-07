@@ -114,7 +114,7 @@ class git_deploy_logs(models.Model):
     """发布时日志"""
     name = models.CharField(_(u'类型'),max_length=45,choices=NAME_CHOICE)
     log = models.TextField(_(u'日志'),blank=True)
-    update = models.CharField(_(u'类型'),max_length=32,null=True,blank=True)
+    update = models.CharField(_(u'类型'),max_length=64,null=True,blank=True)
     create_time = models.DateTimeField(auto_now_add=True)
     git_deploy = models.ForeignKey('git_deploy',verbose_name=u'发布项目',null=True,blank=True,related_name='deploy_logs')
 
