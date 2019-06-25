@@ -855,6 +855,7 @@ def git_update_task(uuid,myid):
         if updata.method != 'web':
             print "非web更新，需要执行web代码"
             MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
+    if data.platform == "现金网":
         if updata.method != 'js_pc':
             MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
     if data.platform == "VUE蛮牛":

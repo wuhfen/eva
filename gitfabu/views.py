@@ -494,7 +494,7 @@ def others_request_task_filter(request):
         start_line=int(page)*int(limit)-int(limit)
         end_line=int(page)*int(limit)
     if not task_filter:
-        if request.user.is_superuser:
+        if request.user.username == "wuhf":
             data = git_task_audit.objects.filter(isaudit=False)[start_line:end_line]
         else:
             data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[start_line:end_line]
@@ -1038,7 +1038,7 @@ def web_update_code(request, uuid):
                 updata.save()
                 reslut = git_update_task.delay(updata.id, mydata.id)
         else:
-            if data.name == "new1029a":  # 现金网1029特例
+            if "1029" in data.name or "1068" in data.name:  # 现金网1029特例
                 mydata.status = "通过审核，更新中"
                 mydata.save()
                 updata.isaudit = True
