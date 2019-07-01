@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 
 from django.db import models
 from accounts.models import CustomUser
-
+import uuid
 # Create your models here.
 
 class auth_group(models.Model):
     """
     权限组
     """
-    uuid = UUIDField(auto=True, primary_key=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     group_name = models.CharField(max_length=100, verbose_name=u'权限组名称', unique=True)
     group_user = models.ManyToManyField(CustomUser, blank=True, verbose_name=u'所属用户')
     enable = models.BooleanField(default=True, verbose_name=u'是否启用')
@@ -33,7 +33,7 @@ class user_auth_cmdb(models.Model):
     1表示有此权限，0表示无此权限
     所有数据全部外键关联user表，当用户删除时相应权限也随之删除
     """
-    uuid = UUIDField(auto=True, primary_key=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     u"""
     资产管理
     """
@@ -103,7 +103,7 @@ class user_auth_cmdb(models.Model):
 
 
 class AuthSudo(models.Model):
-    uuid = UUIDField(auto=True, primary_key=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     groupname = models.CharField(max_length=64, verbose_name=u"组名", help_text=u"sudo组")
     shell = models.TextField(verbose_name=u'命令')
     datetime = models.DateTimeField(auto_now_add=True)
