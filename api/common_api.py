@@ -4,12 +4,16 @@ import urllib2
 import json
 import ssl
 import re
+import time
 import os
 import shutil
 from IPy import IP
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from assets.models import Server
 from accounts.models import CustomUser
+from django.conf import settings
+from django.utils.timezone import make_aware
+from datetime import datetime
 
 import telegram
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
@@ -119,8 +123,16 @@ def check_file(ifile,regx):
     return res
 
 def isValidIp(ip):
-    if re.match(r"^\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s*$", ip): return True  
+    if re.match(r'^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$', ip): return True  
     return False
+
+def strIp_to_listIp(servers):
+    servers=servers.strip()
+    servers=servers.replace(","," ")
+    servers=servers.replace("\r\n"," ")
+    servers=servers.replace("\r"," ")
+    servers_List=servers.split()
+    return servers_List
 
 def genxin_code_dir(path):
     u'''创建目录，或清空目录'''
@@ -146,3 +158,33 @@ def genxin_exclude_file(files):
         b = ""
     return b
 
+def utc2beijing(strtime,timeStamp=False):
+    """从数据库中取出带UTC时区标志的时间对象，转换成北京时间不带时区的字符串，前端可以直接展示"""
+    if not strtime:return ""
+    if timeStamp:
+        timestamp=int(strtime)
+    else:
+        try:
+            pt=time.strptime(strtime,"%Y-%m-%d %H:%M:%S")
+        except:
+            pt=strtime.timetuple()
+        timestamp = int(time.mktime(pt))
+    local = timestamp+28800
+    beijing = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(local))
+    naive_beijing = datetime.fromtimestamp(local)
+    aware_beijing = make_aware(naive_beijing)
+    return beijing
+
+def beijing2utc(strtime,timeStamp=False):
+    """将不带时区标志的北京时间字符串，转换为带UTC时区标志的时间对象，保存在数据库中"""
+    if not strtime:return ""
+    if timeStamp:
+        timestamp=int(strtime)
+    else:
+        pt=time.strptime(strtime,"%Y-%m-%d %H:%M:%S")
+        timestamp = int(time.mktime(pt))
+    local = timestamp-28800
+    utc = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(local))
+    naive_utc = datetime.fromtimestamp(local)
+    aware_utc = make_aware(naive_utc)
+    return aware_utc

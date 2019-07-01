@@ -1,0 +1,307 @@
+{% extends "default/base.html" %}
+{% block title %}访问控制系统{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+{% endblock %}
+
+
+{% block assistant-header %}
+    <h1> 访问控制系统 <small>nginx acl system</small></h1>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/allow/display/">访问控制系统</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+    <div class="box-body">
+        <form class="layui-form layui-form-pane" lay-filter="myform" action="">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">项目</label>
+                    <div class="layui-input-inline">
+                        <select name="top_select" id="id_top_select" lay-filter="layTop" lay-search>
+                            <option value="">---选择项目---</option>
+                            {% for i in topProject %}
+                            <option value="{{i.id}}">{{i.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <label class="layui-form-label">子项目</label>
+                    <div class="layui-input-inline">
+                        <select name="sub_select" id="id_sub_select" lay-filter="laySub" lay-search>
+                            <option value="">---选择子项目---</option>
+                        </select>
+                    </div>
+                    <label class="layui-form-label">搜索IP</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" type="text" id="id_search" placeholder="IP" lay-filter="laySearch">
+                    </div>
+                    <button style="float: left;" type="button" class="layui-btn" id="id_submit"><i class="layui-icon layui-icon-search"></i>搜索</button>
+
+                </div>
+            </div>
+        </form>
+        <table id="hostTable" class="layui-hide" lay-filter="hostTle"></table>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="IP加入zabbix" lay-event="ruleData">查看限制规则</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="IP加入lsyncd" lay-event="lastData">查看今日添加</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger" lay-event="delData">删除</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="addData">添加</button>
+  </div>
+</script>
+
+<script type="text/html" id="switchTpl">
+    <div class="text-center">
+    {% verbatim %}
+        <input type="checkbox" value="{{d.id}}" lay-skin="switch" lay-text="开启|未启用" lay-filter="sexDemo" {{ d.delTask == 1 ? 'checked' : '' }}>
+    {% endverbatim %}
+  </div>
+</script>
+
+<script type="text/html" id="ctimeTpl">
+    <div>
+    {% verbatim %}
+    {{# 
+        function UTCToBeijing(utcdatetime){
+        timestamp = new Date(Date.parse(utcdatetime));
+        timestamp = timestamp.getTime();
+        timestamp = timestamp/1000;
+        var timestamp = timestamp+8*60*60;
+        var beijing_datetime = new Date(parseInt(timestamp) * 1000).toLocaleString().replace(/年|月/g, "-").replace(/日/g, " ");
+        return beijing_datetime;
+        };
+    }};
+    {{ UTCToBeijing(d.ctime); }}
+
+    {% endverbatim %}
+    </div>
+
+</script>
+
+<script>
+
+layui.use(['table','form','laydate','laytpl','util'], function(){
+    var t=layui.table
+    ,layer = layui.layer
+    ,laydate = layui.laydate
+    ,laytpl = layui.laytpl
+    ,util = layui.util
+    ,form = layui.form;
+    t.render({
+        elem: '#hostTable'
+        ,url: "{% url 'napi' %}"
+        ,where: {action: "get"}
+        ,cellMinWidth: 80 //列自小寬度
+        // ,height: 'full-400'
+        ,toolbar: '#toolbarDemo'
+        ,page: {
+            layout: ['count', 'limit', 'prev', 'page', 'next', 'skip']
+            ,groups: 1
+            ,first: false
+            ,last: false
+        } 
+        ,limit: 15 //最多顯示條數
+        ,limits:[15,30,45,60,75,90,105]
+        ,even: true //隔行背景
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'id', title: 'ID', width:80, hide: true}
+            ,{field:'topproject', title: '所属项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.parentPro.name}}{% endverbatim %}</span></div>'}
+            ,{field:'group', title: '子项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.name}}{% endverbatim %}</span></div>'}
+            ,{field:'host', title: 'IP地址', width:200, sort: true}
+            ,{field:'user', title: '添加人', width:130}
+            ,{field:'ctime', title: '时间', width: 160}
+            ,{field:'delTask', title: '定时删除', width: 100,templet: '#switchTpl'}
+            ,{field:'delDateTime', title: '删除时间', width: 160,event: 'deldate',edit:'text'}
+            ,{field:'remark', title: '备注', minWidth: 380, edit:'text'}
+        ]]
+        ,id: "hostTableId"
+    });
+    t.on('edit(hostTle)', function(obj){
+        var field = obj.field;
+        if (field=='remark') {
+            action="change_remark"
+        } else {action="none"}
+        $.get("{% url 'napi' %}",{"id":obj.data.id,"action":action,"value":obj.value},function(res) {
+            layer.msg(res.msg);
+        });
+    });
+    t.on('toolbar(hostTle)', function(obj){
+        var checkStatus = t.checkStatus(obj.config.id);
+        switch(obj.event){
+            case 'addData':
+                layer.open({
+                    type: 2,
+                    title: false,
+                    skin: 'layui-layer-rim',
+                    maxmin: false,
+                    shade: 0.5,
+                    closeBtn: 0,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['800px' , '700px'],
+                    end : function () {
+                      layer.msg("Bye!");
+                      t.reload('hostTableId',{url: "{% url 'napi' %}",where:{
+                        action: "get"
+                      }});
+                  },
+                    content: ["{% url 'acladd' %}",'yes']
+                });
+            break;
+            case 'delData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                // layer.msg(JSON.stringify(ids)); 
+                layer.confirm('确定删除么?', function(index){
+                  urls="{% url 'napi' %}";
+                  jQuery.get(urls,{id:JSON.stringify(ids),action:"del"},function(res){
+                      layer.msg(res.msg);
+                      t.reload('hostTableId',{url: "{% url 'napi' %}",where: {action: "get"}});
+                  });
+                  layer.close(index);
+                });
+            break;
+            case 'ruleData':
+                layer.open({
+                    type: 2,
+                    title: false,
+                    skin: 'layui-layer-rim',
+                    maxmin: false,
+                    shade: 0.5,
+                    closeBtn: 0,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['800px' , '700px'],
+                    content: ["{% url 'acl_exception_display' %}",'yes']
+                });
+            break;
+            case 'lastData':
+                t.reload('hostTableId',{
+                    url: "{% url 'napi' %}"
+                    ,where: {
+                        'action':"get_today"
+                    }
+                    ,page: {curr: 1}
+                });
+            break;
+        };
+    });
+    t.on('tool(hostTle)',function(obj){
+        var data = obj.data; //获得当前行数据
+        var nid = data.id;
+        var field = $(this).data('field');
+        var new_data = [];
+
+        if (obj.event === 'deldate') {
+            laydate.render({
+                elem: this.firstChild
+                ,type: 'datetime'
+                ,min: 0
+                ,max: 90
+                ,show: true
+                ,closeStop: this
+                ,done: function(value,data) {
+                    new_data[field] = value;
+                    obj.update(new_data);
+                    utc_value = new Date(Date.parse(value));
+                    utc_value = utc_value.getTime();
+                    var utc_value = utc_value-8*60*60*1000;
+                    utc_value = util.toDateString(utc_value);
+                    $.get("{% url 'napi' %}",{"id":nid,"action":"change_delDateTime","value":utc_value},function(res) {
+                        layer.msg(res.msg);
+                    });
+                }
+            });
+        }
+    });
+    form.on('switch(sexDemo)', function(obj){
+        var x=obj.elem.checked;
+        // layer.tips(this.value + ' ' + "状态" + ': '+ obj.elem.checked, obj.othis);
+        if (this.checked) {
+            $.get("{% url 'napi' %}",{"id":this.value,"action":"change_task","value":"True"},function(res){
+                if (res.code==1) {
+                    layer.msg(res.msg);
+                    obj.elem.checked=!x;
+                    form.render();
+                } else {
+                    layer.tips("定时任务开启",obj.othis);
+                };
+            });
+        } else {
+            layer.tips("定时删除关闭",obj.othis);
+            $.get("{% url 'napi' %}",{"id":this.value,"action":"change_task","value":"False"})
+        }
+    });
+    form.on('select(layTop)',function(obj){
+        var tid = obj.value;
+        if (tid==="") {
+            $("#id_sub_select").empty();
+            _option = $("<option>").val("").text("---请选择子项目---");
+            $("#id_sub_select").append(_option);
+            form.render('select','myform');
+        } else {
+            $.get("{% url 'sapi' %}",{'tid':tid,'action':"getAll"},function(res){
+                $("#id_sub_select").empty();
+                _option = $("<option>").val("").text("---请选择子项目---");
+                $("#id_sub_select").append(_option);
+                $.each(res.data,function(index,item){
+                    var _option = $("<option>").val(item.id).text(item.name);
+                    $("#id_sub_select").append(_option);
+                });
+                form.render('select','myform');
+            });
+        };
+        
+    });
+    form.on('select(laySub)',function(obj){
+        var sid = obj.value;
+        if (sid!='') {
+            t.reload('hostTableId',{
+                url: "{% url 'napi' %}"
+                ,where: {
+                    'action':"get",
+                    'sid': sid
+                }
+                ,page: {curr: 1}
+            })
+        }
+    });
+
+    $('#id_submit').on('click', function() {
+        var keyword=$('#id_search').val()
+        ,tid = $('#id_top_select').val()
+        ,sid = $('#id_sub_select').val();
+
+        keyword=keyword.replace(/\s+/g,"");
+        if (keyword!='') {
+            t.reload('hostTableId',{
+                url: "{% url 'napi' %}"
+                ,where: {
+                    'action':"get",
+                    'sid': sid,
+                    'tid': tid,
+                    'keyword': keyword
+                }
+                ,page: {curr: 1}
+            });
+        };
+    });
+});
+</script>
+{% endblock %}

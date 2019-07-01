@@ -1,0 +1,153 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %}sub add{% endblock %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">添加IP名单</h3></div>
+        <hr>
+        <div class="box-body">
+        <form role="form" id="topForm" class="layui-form layui-form-pane" lay-filter="myform"  action="">{% csrf_token %}
+              <div class="layui-form-item">
+                <label class="layui-form-label">项目名称</label>
+                <div class="layui-input-block">
+                  <select name="topproject" id="id_topproject" lay-filter="top" lay-verify="required">
+                      
+                  </select>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">子项目</label>
+                <div class="layui-input-block">
+                  <select name="project" id="id_subproject" lay-filter="sub" lay-verify="required">
+                      <option value="">---选择子项目---</option>
+                  </select>
+                </div>
+              </div>
+              <div class="layui-form-item layui-form-text">
+                  <label class="layui-form-label">IP地址</label>
+                  <div class="layui-input-block">
+                    <textarea name="host" placeholder="请输入ip,每行一个" class="layui-textarea" lay-verify="required|ip"></textarea>
+                  </div>
+              </div>
+              <div class="layui-form-item" pane="">
+                <label class="layui-form-label">定时删除</label>
+                <div class="layui-input-block">
+                  <input type="checkbox" name="delTask" id="id_deltask" lay-skin="switch" lay-filter="switchTest" lay-text="开启|关闭">
+                </div>
+              </div>
+
+              <div class="layui-form-item">
+                <label class="layui-form-label">删除时间</label>
+                <div class="layui-input-block">
+                  <input type="text" name="delDateTime" id="deldate" autocomplete="off" lay-verify="need" class="layui-input">
+                </div>
+              </div>
+
+              <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-block">
+                  <textarea name="remark" class="layui-textarea"></textarea>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <button class="layui-btn" lay-submit="" lay-filter="demo2">确认完成提交</button>
+              </div>
+        </form>
+        </div>
+        <div class="box-footer">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer
+  ,layedit = layui.layedit
+  ,laydate = layui.laydate;
+
+    //初始化top选项
+    $.get("{% url 'tapi' %}",{'action':"getAll"},function(res){
+        $("#id_topproject").append('<option value="">---选择项目---</option>');
+        $.each(res.data,function(index,item){
+            $("#id_topproject").append('<option value="'+item.id+'">'+item.name+'</option>');
+        });
+        form.render('select','myform');
+    });
+
+    form.on('select(top)',function(obj){
+        var tid = obj.value;
+        $.get("{% url 'sapi' %}",{'action':"getAll",'tid':tid},function(res){
+            $("#id_subproject").empty();
+            var _option = $("<option>").val("").text("---请选择子项目---");
+            $("#id_subproject").append(_option);
+            $.each(res.data,function(index,item){
+                var _option = $("<option>").val(item.id).text(item.name);
+                $("#id_subproject").append(_option);
+            });
+            form.render('select','myform');
+        });
+    });
+
+  laydate.render({
+      elem: '#deldate'
+      ,type: 'datetime'
+      ,min: 1
+      ,max: 90
+  });
+
+  //创建一个编辑器
+  var editIndex = layedit.build('LAY_demo_editor');
+ 
+  //自定义验证规则
+  form.verify({
+    ip: function(value){
+      if(value.length < 7){
+        return 'IP格式错误';
+      }
+    }
+    ,need: function(value,item) {
+        if ($("#id_deltask").prop("checked") == true){
+            if (value == ""){
+                return '请选择删除时间';
+            }
+        }
+    }
+  });
+  //监听指定开关
+  form.on('switch(switchTest)', function(data){
+    // layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+    //   offset: '6px'
+    // });
+    layer.tips('开启后请选择删除时间', data.othis)
+  });
+
+    //监听top选择
+
+  //监听提交
+  form.on('submit(demo2)', function(data){
+    url="{% url 'acladd' %}";
+    $.post(url,data.field,function(res){
+        if (res.code==1) {
+            layer.msg(res.msg);
+        } else {
+            parent.layer.closeAll();
+        }
+    });
+    return false;
+  });
+  
+});
+</script>
+
+
+{% endblock  %}

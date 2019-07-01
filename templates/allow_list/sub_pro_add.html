@@ -1,0 +1,119 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %}sub add{% endblock %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">添加子项目</h3></div>
+        <hr>
+        <div class="box-body">
+        <form role="form" id="topForm" class="layui-form layui-form-pane" action="">{% csrf_token %}
+              <div class="layui-form-item">
+                <label class="layui-form-label">项目名称</label>
+                <div class="layui-input-block">
+                  <input type="text" name="name" autocomplete="off" lay-verify="required" placeholder="请输入名称" class="layui-input">
+                </div>
+              </div>
+              <div class="layui-form-item" pane="">
+                <label class="layui-form-label">自定义配置</label>
+                <div class="layui-input-block">
+                  <input type="checkbox" name="useParentConf" lay-skin="switch" lay-filter="switchTest" lay-text="开启|关闭">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">文件路径</label>
+                <div class="layui-input-block">
+                  <input type="text" name="filename" autocomplete="off" placeholder="like: /usr/local/nginx/conf/acl/blocks.conf" class="layui-input">
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <label class="layui-form-label">转化规则</label>
+                <div class="layui-input-block">
+                  <input type="text" name="rule" autocomplete="off" placeholder="如: deny {IP}; 会转化为 deny 172.25.10.10; 写入文件" class="layui-input">
+                </div>
+              </div>
+              <div class="layui-form-item layui-form-text">
+                  <label class="layui-form-label">目标服务器</label>
+                  <div class="layui-input-block">
+                    <textarea name="servers" placeholder="请输入ip,每行一个" class="layui-textarea"></textarea>
+                  </div>
+              </div>
+
+              <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">钩子Hook</label>
+                <div class="layui-input-block">
+                  <textarea name="hook" placeholder="文件同步后会在目标服务器上执行此钩子
+如: nginx -s reload" class="layui-textarea"></textarea>
+                </div>
+              </div>
+              <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-block">
+                  <textarea name="remark" class="layui-textarea"></textarea>
+                </div>
+              </div>
+              <div class="layui-form-item">
+                <button class="layui-btn" lay-submit="" lay-filter="demo2">确认完成提交</button>
+              </div>
+        </form>
+        </div>
+        <div class="box-footer">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+layui.use(['form', 'layedit', 'laydate'], function(){
+  var form = layui.form
+  ,layer = layui.layer
+  ,layedit = layui.layedit
+
+  //创建一个编辑器
+  var editIndex = layedit.build('LAY_demo_editor');
+ 
+  //自定义验证规则
+  form.verify({
+    title: function(value){
+      if(value.length < 5){
+        return '标题至少得5个字符啊';
+      }
+    }
+    ,pass: [
+      /^[\S]{6,12}$/
+      ,'密码必须6到12位，且不能出现空格'
+    ]
+    ,content: function(value){
+      layedit.sync(editIndex);
+    }
+  });
+  //监听指定开关
+  form.on('switch(switchTest)', function(data){
+    // layer.msg('开关checked：'+ (this.checked ? 'true' : 'false'), {
+    //   offset: '6px'
+    // });
+    layer.tips('开启将使用自身配置的:服务器,文件,匹配规则,钩子!,默认使用父项目的配置', data.othis)
+  });
+  //监听提交
+  form.on('submit(demo2)', function(data){
+    url="{% url 'spadd' tid %}";
+    $.post(url,data.field,function(res){
+        if (res.code==1) {
+            layer.msg(res.msg);
+        } else {
+            parent.layer.closeAll();
+        }
+    });
+    return false;
+  });
+  
+});
+</script>
+
+
+{% endblock  %}

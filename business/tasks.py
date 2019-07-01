@@ -7,12 +7,13 @@ from celery import shared_task,current_task
 import httplib
 import dns.resolver
 from time import sleep
-from business.models import DomainName,DomainInfo
+from business.models import DomainName,DomainInfo,accelerated_server_manager
 import socket
 import time
-
-
-
+import re
+from api.ssh_api import run_ftp,run_cmd
+from api.common_api import send_message
+from .platfapi import jiasu_conf_rsync
 
 def dns_resolver_ip(url):
     iplist = []
@@ -49,9 +50,6 @@ def clean_redis_obj(url,info,address='',no_ip='',res_code=0,alert=False):
         Aa.save()
     else:
         print "%s redis存储数据失败"% url
-
-
-
 
 def get_code(url,lxx):
     domain_name = url
@@ -97,9 +95,6 @@ def get_code(url,lxx):
         print info
         clean_redis_obj(domain_name,info,alert=True)
 
-
-
-
 @shared_task()
 def monitor_code():
     data = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -122,12 +117,25 @@ def monitor_code():
             print "domain %s monitor_status %s"% (url,judge)
     return "END.....task"
 
-
 @shared_task()
-def test_code():
-    data = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    print data
-    print "hello"
-    return "datadddddd"
+def jiasu_init_task(host,port,user,password,remark=None):
+    run_ftp(host,port,password,user,'/data/jiasu/scripts/init_jasu_host.sh','/tmp/init_jasu_host.sh')
+    run_cmd(host,port,password,user,"bash /tmp/init_jasu_host.sh")
+    run_ftp(host,port,password,user,'/data/jiasu/wwwroot/checkhttps.html','/data/wwwroot/https.html')
+    jiasu_conf_rsync(method="local")
+    if remark:
+        pres=run_cmd(host,port,password,user,"docker ps && docker rm -f nginx && docker-compose -f /data/docker-compose.yml up -d")
+        print pres
+        num=0
+        while num<300:
+            res=run_cmd(host, port, password, user, "ss -tnl")
+            if re.search("80",res):
+                send_message('manager',remark)
+                break
+            else:
+                num+=5
+                print "wait 5 seconds"
+                time.sleep(5)
+    return "init jiasu server success!"
 
 

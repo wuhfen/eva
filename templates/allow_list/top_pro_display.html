@@ -1,0 +1,221 @@
+{% extends "default/base.html" %}
+{% block title %}nginx ACL TopProConf{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+
+{% endblock %}
+
+
+{% block assistant-header %}
+    <h3>TOP项目配置<small>NGINX黑白名单系统项目</small></h3>
+      <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="/allow/display/">访问控制系统Top项目配置</a></li>
+      </ol>
+{% endblock %}
+
+{% block content %}
+
+<div class="box box-info">
+    <div class="box-header">
+        <div class="input-group">
+            <input type="text" class="form-control" id="id_search" placeholder="名称 / IP">
+            <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i> </span>
+        </div>
+    </div>
+    <div class="box-body">
+        <table id="topTable" class="layui-hide" lay-filter="topTle"></table>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger" lay-event="delData">删除</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="addData">添加</button>
+  </div>
+</script>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="subProject">子项目</a>
+    <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="editServers">目标服务器</a>
+    <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="editException">无限制IP</a>
+</script>
+
+<script>
+
+layui.use('table', function(){
+    var t=layui.table
+    ,layer = layui.layer
+    ,form = layui.form
+    ,laytpl = layui.laytpl;
+    t.render({
+        elem: '#topTable'
+        ,url: "{% url 'tapi' %}"
+        ,where: {action: "get"}
+        ,cellMinWidth: 80 //列自小寬度
+        ,height: 'full-400'
+        ,toolbar: '#toolbarDemo'
+        ,page: {
+            layout: ['count', 'limit', 'prev', 'page', 'next', 'skip']
+            ,groups: 1
+            ,first: false
+            ,last: false
+        }
+        ,limit: 15 //最多顯示條數
+        ,limits:[15,30,45,60,75,90,105]
+        // ,even: true //隔行背景
+        // ,skin: 'line'
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'id', title: 'ID', width:80, hide: true}
+            ,{field:'name', title: '名称', sort: true, edit:'text'}
+            ,{field:'servers', title: '目标服务器', width:140}
+            ,{field:'filename', title: '文件路径', edit:'text'}
+            ,{field:'rule', title: '匹配规则', width: 200, edit:'text'}
+            ,{field:'limit', title: '限制数',width: 80, edit:'text'}
+            ,{field:'exception', width:140, title: '无限制IP'}
+            ,{field:'hook', width:120, title: '钩子',edit:'text'}
+            ,{field:'remark', title: '备注',edit:'text'}
+            ,{fixed: 'right', title: '操作', width:250, align:'center', toolbar: '#barDemo'}
+        ]]
+        ,id: "topTableId"
+    });
+    t.on('edit(topTle)', function(obj){
+        var field = obj.field;
+        if (field=='name') {
+            action="edit_name"
+        } else if (field=='filename') {
+            action="edit_filename"
+        } else if (field=='rule') {
+            action="edit_rule"
+        } else if (field=='limit') {
+            action="edit_limit"
+        } else if (field=='hook') {
+            action="edit_hook"
+        } else if (field=='remark') {
+            action="edit_remark"
+        } else if (field=='servers') {
+            action="edit_servers"
+        } else if (field=='exception') {
+            action="edit_exception"
+        } else {action="none"}
+        $.get("{% url 'tapi' %}",{"id":obj.data.id,"action":action,"value":obj.value},function(res) {
+            layer.msg(res.msg);
+        });
+    });
+    t.on('toolbar(topTle)', function(obj){
+        var checkStatus = t.checkStatus(obj.config.id);
+        switch(obj.event){
+            case 'addData':
+                layer.open({
+                    type: 2,
+                    title: false,
+                    skin: 'layui-layer-rim',
+                    maxmin: false,
+                    shade: 0.5,
+                    closeBtn: 0,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['800px' , '830px'],
+                    end : function () {
+                      t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+                  },
+                    content: ["{% url 'tpadd' %}",'yes']
+                });
+            break;
+            case 'delData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                // layer.msg(JSON.stringify(ids)); 
+                layer.confirm('确定删除么?', function(index){
+                  urls="{% url 'tapi' %}";
+                  jQuery.get(urls,{id:JSON.stringify(ids),"action":"del"},function(res){
+                      layer.msg(res.msg);
+                      t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+                  });
+                  layer.close(index);
+                });
+            break;
+        };
+    });
+    t.on('tool(topTle)',function(obj){
+        var data = obj.data;
+        var layEvent = obj.event;
+        var tr = obj.tr;
+        if (layEvent === 'editServers') {
+            var tid=data.id
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                closeBtn: 0,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '500px'],
+                end : function () {
+                  t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+              },
+                content: ["/allow/tpservers/?tid="+tid,'yes']
+            });
+        } else if (layEvent === 'editException') {
+            var tid=data.id
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                closeBtn: 0,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '500px'],
+                end : function () {
+                  t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+              },
+                content: ["/allow/tpexception/?tid="+tid,'yes']
+            });
+        } else {
+            var tid=data.id;
+            console.log(tid);
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                closeBtn: 0,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1100px' , '900px'],
+                end : function () {
+                  t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+              },
+                content: ["/allow/subproject/display/?tid="+tid,'yes']
+            });
+        }
+    });
+    $('#id_search').on('input', function() {
+        var keyword=$('#id_search').val()
+        ,group = $('#id_search_group').val();
+        keyword=keyword.replace(/\s+/g,"");
+        if (keyword!='') {
+            t.reload('topTableId',{
+                url: "{% url 'tapi' %}"
+                ,where: {
+                    'keyword':keyword,
+                    'action':"get"
+                }
+                ,page: {curr: 1}
+            });
+        };
+    });
+});
+</script>
+{% endblock %}

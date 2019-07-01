@@ -15,8 +15,8 @@ class zabbixtools(object):
             'User-Agent': 'python/pyzabbix',
             'Cache-Control': 'no-cache'
         }
-        self.username = username
-        self.password = password
+        self.username = "大妖怪"
+        self.password = "wuhfwuhf"
         self.authID = self.user_login()
 
     def user_login(self):
@@ -24,8 +24,8 @@ class zabbixtools(object):
             "jsonrpc": "2.0",
             "method": "user.login",
             "params": {
-                "user": "Admin",
-                "password": "JRFnuwVXM45E.ds"
+                "user": self.username,
+                "password": self.password
                 },
             "id": 0
             }
@@ -37,6 +37,7 @@ class zabbixtools(object):
             result = urllib2.urlopen(request)
         except URLError as e:
             print "Auth Failed, Please Check Your Name And Password:",e.code
+            return 0
         else:
             response = json.loads(result.read())
             result.close()
@@ -96,19 +97,26 @@ class zabbixtools(object):
             "jsonrpc": "2.0",
             "method": "host.get",
             "params": {
-                "output":["status","host"],
+                "output":["status","host","name"],
                 },
             "auth": self.authID,
             "id": 1
             })
         res = self.get_data(data)['result']
+        host_dict = {}
         if (res != 0) and (len(res) !=0 ):
             nlist = [i['host'] for i in res if i['status'] == '0']
             unlist = [i['host'] for i in res if i['status'] == '1']
-            count = int(len(nlist)) + int(len(unlist))
-            if nlist: print "\t","\033[1;32;40m%s\033[0m" % u"当前共有 %s 个主机\r\n" % count,'\t',"\033[1;32;40m%s\033[0m" % u"已监控主机：%s" % json.dumps(nlist, encoding="UTF-8", ensure_ascii=False)
-            if unlist: print '\t',"\033[1;32;40m%s\033[0m" % u"未监控主机：%s" % json.dumps(unlist, encoding="UTF-8", ensure_ascii=False)
-
+            #count = int(len(nlist)) + int(len(unlist))
+            #if nlist: print "\t","\033[1;32;40m%s\033[0m" % u"当前共有 %s 个主机\r\n" % count,'\t',"\033[1;32;40m%s\033[0m" % u"已监控主机：%s" % json.dumps(nlist, encoding="UTF-8", ensure_ascii=False)
+            #if unlist: print '\t',"\033[1;32;40m%s\033[0m" % u"未监控主机：%s" % json.dumps(unlist, encoding="UTF-8", ensure_ascii=False)
+            hostlist = [i['host'] for i in res]
+            namelist = [i['name'] for i in res]
+            host_dict['host'] = hostlist
+            host_dict['name'] = namelist
+            return host_dict
+        else:
+            return 0
     def host_create(self,hostip,hostname,hostport,hostgroup):
         #hostid = self.host_get(hostip)
         groupid = self.group_get(hostgroup)
@@ -145,6 +153,37 @@ class zabbixtools(object):
         #     print '\t',"\033[1;31;40m%s\033[0m" % "IP: %s or NAME: %s aleady exists in zabbix!"% (hostip,hostname)
         #     res = 0
         return res
+
+    def jiasu_host_create(self,hostip,hostname):
+        judge = self.show_host()
+        groupid = self.group_get("加速节点")
+        templateid = self.template_get("default_js")
+        data = json.dumps({
+            "jsonrpc": "2.0",
+            "method": "host.create",
+            "params": {
+                "host": hostip,
+                "name": hostname,
+                "interfaces": [
+                    {
+                        "type": 1,
+                        "main": 1,
+                        "useip": 1,
+                        "ip": hostip,
+                        "dns": "",
+                        "port": 10050
+                    }
+                ],
+                "groups": [{"groupid": groupid }],
+                "templates": [{"templateid": templateid }],
+                "inventory_mode": 0,
+            },
+            "auth": self.authID,
+            "id": 1
+            })
+        if hostip not in judge['host'] and hostname not in judge['name']:
+            res = self.get_data(data)
+            return res
 
     def host_delete(self,hostip):
         hostid = host_get(hostip)

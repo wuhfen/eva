@@ -33,7 +33,7 @@
             <li><a class='paginator' title='上一页' href='?page={{ data.previous_page_number }}'>«</a></li>
           {% endif %}
           {% for page in data.paginator.page_range_ext %}
-            {% if page = data.number %}
+            {% if page == data.number %}
               <li><a class='paginator_current' title='当前页:{{ page }}'><span>{{ page }}</span></a></li>
             {% else %}
               <li><a class='paginator' href='?page={{ page }}' title='{{ page }}'><span>{{ page }}</span></a></li>
@@ -85,7 +85,7 @@
           if (data.res=="OK") {
             $(".daemon").remove();
             for (var key in data.info) { 
-                var option = $('<tr class="daemon"><td>'+data.info[key].ip+'</td><td>'+data.info[key].comment+'</td><td>'+data.info[key].date+'</td><td>'+data.info[key].user+'</td><td><a href="/allow/iptables_delete/'+data.info[key].uuid+'" class="btn btn-danger btn-xs delete-ip" name="delete" id='+data.info[key].uuid+'><span class="glyphicon glyphicon-remove"></span></a></td></tr>');
+                var option = $('<tr class="daemon"><td>'+data.info[key].ip+'</td><td>'+data.info[key].comment+'</td><td>'+data.info[key].date+'</td><td>'+data.info[key].user+'</td><td><a href="javascript:;" class="btn btn-danger btn-xs delete-ip" name="delete" id='+data.info[key].uuid+'><span class="glyphicon glyphicon-remove"></span></a></td></tr>');
                 $("#tbody").append(option);
             };
           } else { layer.msg("没有可用信息！") }
@@ -111,7 +111,8 @@ $("#id_btn_plus").on('click',function(event) {
 
 
 $("#tbody").on('click','.delete-ip',function(event){
-      var choice = $(this).attr('id')
+      var choice = $(this).attr('id');
+      alert(choice);
       var url= "/allow/iptables_delete/"+choice+"/";
       layer.alert("确定删除吗？",{
           skin: 'layui-layer-molv',

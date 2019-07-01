@@ -1,0 +1,65 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %}sub add{% endblock %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">IP添加权限控制</h3></div>
+        <hr>
+        <div class="box-body">
+          <table class="table">
+            <thead>
+              <td>项目名称</td>
+              <td>限制添加数</td>
+              <td>特权IP</td>
+            </thead>
+            <tbody>
+              {% for i in topProject %}
+              <tr>
+                <td>{{ i.name }} </td>
+                <td>{{ i.limit }}</td>
+                <td><a href="/allow/tpexception/?tid={{i.id}}" class="btn btn-info btn-xs exception" >查看特权IP</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="box-footer">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+layui.use(['layer','table'], function(){
+    var t=layui.table
+    ,layer = layui.layer;
+    $(".exception").on('click',function(){
+      var url = $(this).attr('href');
+        layer.open({
+            type: 2,
+            title: false,
+            skin: 'layui-layer-rim',
+            maxmin: false,
+            shade: 0.5,
+            closeBtn: 0,
+            shadeClose: true, //点击遮罩关闭层
+            area : ['600px' , '500px'],
+            content: [url,'yes']
+        });
+        return false;
+    });
+
+
+});
+
+
+</script>
+
+
+{% endblock  %}

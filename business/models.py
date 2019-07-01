@@ -186,11 +186,23 @@ class dnsmanage_record(models.Model):
 class accelerated_server_manager(models.Model):
     """加速服务器信息管理"""
     name = models.CharField(max_length=64,null=True,blank=True)
-    host = models.TextField(verbose_name=u'主机',blank=True)
+    platfrom = models.CharField(max_length=64,null=True,blank=True)
+    host_master = models.GenericIPAddressField(verbose_name=u'主IP',default='127.0.0.1')
+    host_slave = models.GenericIPAddressField(verbose_name=u'备IP',default='127.0.0.1')
     domains = models.TextField(verbose_name=u'域名',blank=True,null=True)
-    purchase_date = models.DateField(null=True,blank=True,verbose_name=u'购买日期')
-    stop_date = models.DateField(null=True,blank=True,verbose_name=u'停用日期')
+    username = models.CharField(max_length=64,null=True,blank=True,verbose_name=u'添加人')
+    stop_date = models.DateField(null=True,blank=True,verbose_name=u'到期时间')
     remark = models.TextField(verbose_name=u'备注',blank=True,null=True)
-
+    online = models.BooleanField(default=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     def __unicode__(self):
         return self.name
+
+class accelerated_domains_manager(models.Model):
+    server=models.ForeignKey(accelerated_server_manager,related_name="accelerate_domain")
+    platfrom = models.CharField(max_length=64,null=True,blank=True)
+    siteid = models.CharField(max_length=10,null=True,blank=True) #like 1036a 1036b 1036c
+    https=models.BooleanField(default=False) #liten 443 with ssl
+    ssl_crt_file=models.CharField(max_length=64,blank=True,null=True,verbose_name=u'SSL_CRT文件名')
+    ssl_key_file=models.CharField(max_length=64,blank=True,null=True,verbose_name=u'SSL_KEY文件名')
+    domains=models.TextField(verbose_name=u'域名',blank=True)

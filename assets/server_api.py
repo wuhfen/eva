@@ -40,9 +40,14 @@ def get_server(request):
         req_token = request.POST.get('token')
         key = request.POST.get('key')
         if token == req_token:
-            data = get_server_by_key(key)
+            if key == "AllHost":
+                allserver = Server.objects.all()
+                data = [{'host': i.ssh_host,'user':i.ssh_user,'port':i.ssh_port,'passwd':i.ssh_password} for i in list(set(allserver)) if i.asset.status=="on"]
+            else:
+                data = get_server_by_key(key)
             if data: return JsonResponse({'result':True,'data':data})
     return JsonResponse({'result':False,'data':{}},safe=False)
+
 
 @csrf_exempt
 def get_password(request):

@@ -1,26 +1,27 @@
 #!/usr/bin/env python
 # coding:utf-8
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.shortcuts import get_object_or_404
-
+from django.core import serializers
 from django.contrib.auth.decorators import login_required, permission_required
 # from forms import BusinessForm
-from models import Business,DomainName,Domain_ip_pool,DomainInfo
+from models import Business,DomainName,Domain_ip_pool,DomainInfo,accelerated_server_manager
 from forms import BusinessForm, DomainNameForm,IPpoolForm
 from api.ansible_api import ansiblex_domain
 from api.ssh_api import ssh_cmd
-
+from api.common_api import isValidIp
+from api.zabbix_api import zabbixtools
 from Allow_list.models import Iptables
-from assets.models import Server,Project
+from assets.models import Server,Project,Asset,NIC
 import time
 import json
+import re
 from tempfile import NamedTemporaryFile
 import os
-
-from .tasks import monitor_code
-
+import telegram
+from .tasks import monitor_code,jiasu_init_task
+from .platfapi import jiasu_conf_rsync
 
 ##业务增删查改
 
@@ -531,61 +532,227 @@ def domain_manage_business_list(request):
 def domain_monitor(request):
     pass
 
-from models import accelerated_server_manager
+
+@login_required()
 def acceleration_node_add(request):
-    try:
-        pro = Project.objects.get(project_name="加速服务器")
-        servers = pro.project_servers.all()
-        available_servers =[ i for i in servers if i.asset.status == 'on']
-    except:
-        available_servers = None
+    '''添加加速服务器,实现录入cmdb,实现添加入zabbix监控,实现初始化加速服务器功能'''
     if request.method == "POST":
+        platfrom = request.POST.get('platfrom')
         name = request.POST.get('name')
-        host = request.POST.get('ip')
-        domains = request.POST.get('domain')
-        purchase_date = request.POST.get('purchase_date')
+        host1 = request.POST.get('ip1')
+        host2 = request.POST.get('ip2')
+        username = request.POST.get('user')
+        port = request.POST.get('port')
+        password = request.POST.get('password')
         stop_date = request.POST.get('stop_date')
+        if not stop_date: stop_date = '2029-01-01'
         remark = request.POST.get('remark')
-        if not purchase_date:
-            purchase_date = None
-        if not stop_date:
-            stop_date = None
-        data = accelerated_server_manager(name=name,host=host,domains=domains,purchase_date=purchase_date,stop_date=stop_date,remark=remark)
+        if not remark: remark = "新增加速节点: %s ,IP1: %s IP2: %s"% (name,host1,host2)
+        check_list = request.POST.getlist('checks')
+        if accelerated_server_manager.objects.filter(name=name,online=True):return JsonResponse({'res':"Failed",'info':"名称已存在!"})
+        if accelerated_server_manager.objects.filter(host_master=host1):return JsonResponse({'res':"Failed",'info':"IP1已存在!"})
+        if accelerated_server_manager.objects.filter(host_slave=host2):return JsonResponse({'res':"Failed",'info':"IP2已存在!"})
+        data = accelerated_server_manager(name=name,platfrom=platfrom,host_master=host1,host_slave=host2,username=request.user.username,stop_date=stop_date,remark=remark)
         data.save()
+        if "add_cmdb" in check_list:
+            print "CMDB添加服务器"
+            if not Server.objects.filter(ssh_host=host1):
+                jiasu_pro = Project.objects.get(project_name="加速服务器")
+                Asset_obj = Asset(asset_type="virtual",purpose=name+"加速节点",remarks=remark)
+                Asset_obj.save()
+                Server_obj = Server(asset=Asset_obj,name=name,ssh_user=username,ssh_host=host1,ssh_port=port,ssh_password=password,Disk_total='200',RAM_total='8')
+                Server_obj.save()
+                Server_obj.project.add(jiasu_pro)
+                NIC.objects.get_or_create(asset = Asset_obj,name="eth1",ipaddress=host2)
+        if "init_jiasu" in check_list:
+            print "初始化加速服务器"
+            if 'send_msg' in check_list:
+                reslut = jiasu_init_task.delay(host1,port,username,password,remark)
+            else:
+                reslut = jiasu_init_task.delay(host1,port,username,password)
+        if 'zabbix' in  check_list:
+            print "添加zabbix监控"
+            zbx=zabbixtools("http://180.150.154.122/","zbxuser","zbxpass")
+            if zbx.authID != 0:
+                zbx.jiasu_host_create(host1,"%s-加速-%s"% (name,host1))
+                zbx.jiasu_host_create(host2,"%s-加速-%s"% (name,host2))
+
         return JsonResponse({'res':"OK"},safe=False)
     return render(request,'business/acceleration_node_add.html',locals())
 
+@login_required()
 def acceleration_node_list(request):
-    data = accelerated_server_manager.objects.all()
+    # data = accelerated_server_manager.objects.all()
     return render(request,'business/acceleration_node_list.html',locals())
 
-def acceleration_node_delete(request,uuid):
-    data = accelerated_server_manager.objects.get(pk=uuid)
-    data.delete()
-    result = {"status":"success","info":"Deleted"}
+@login_required()
+def acceleration_nodes_get(request):
+    """
+    action: search 关键字搜素
+    action: null 获取全部数据
+    group: value 组搜索
+    keyword: value 关键字搜索
+    """
+    page = request.GET.get('page')
+    limit = request.GET.get('limit')
+    if page==1:
+        start_line=0
+        end_line=limit
+    else:
+        start_line=int(page)*int(limit)-int(limit)
+        end_line=int(page)*int(limit)
+    keyword = request.GET.get('keyword')
+    group = request.GET.get('group')
+    action = request.GET.get('action')
+    list_data=[]
+    if action == "search":
+        if group!="all":
+            if keyword:
+                n_data = accelerated_server_manager.objects.filter(platfrom=group,name__contains=keyword)
+                hma_data = accelerated_server_manager.objects.filter(platfrom=group,host_master__contains=keyword)
+                hsa_data = accelerated_server_manager.objects.filter(platfrom=group,host_slave__contains=keyword)
+                r_data = accelerated_server_manager.objects.filter(platfrom=group,remark__contains=keyword)
+                data=list(set(n_data)|set(hma_data)|set(hsa_data)|set(r_data))[start_line:end_line]
+            else:
+                data=accelerated_server_manager.objects.filter(platfrom=group)[start_line:end_line]
+        else:
+            if keyword:
+                n_data = accelerated_server_manager.objects.filter(name__contains=keyword)
+                hma_data = accelerated_server_manager.objects.filter(host_master__contains=keyword)
+                hsa_data = accelerated_server_manager.objects.filter(host_slave__contains=keyword)
+                r_data = accelerated_server_manager.objects.filter(remark__contains=keyword)
+                data=list(set(n_data)|set(hma_data)|set(hsa_data)|set(r_data))[start_line:end_line]
+        count=len(data)
+    else:
+        data = accelerated_server_manager.objects.all()[start_line:end_line]
+        count=accelerated_server_manager.objects.count()
+
+    for i in data:
+        list_data.append({'id':i.id,'group':i.platfrom,'name':i.name,'host_master':i.host_master,'host_slave':i.host_slave,'stop_date':i.stop_date,'online':i.online,'username':i.username,'ctime':i.create_date.strftime('%Y-%m-%d %H:%M:%S'),'remark':i.remark})
+    res={'code':0,'msg':"加速服務器所有數據集",'count':count,'data':list_data}
+    return JsonResponse(res)
+
+@login_required()
+def acceleration_api(request):
+    """api参数
+        id: 字段id
+        value: 值
+        action: change_status 修改字段online
+        action: change_name 修改字段name
+        action: change_group 修改字段platfrom
+        action: change_date 修改字段stop_date
+        action: change_remark 修改字段remark
+        action: init 初始化 id为list
+        action: zabbix 监控 id为list
+        action: sync 同步 id为list
+        返回
+        code: 0成功1失败
+        rid: 字段id
+        msg: 信息
+        data: 数据
+        count: 数据统计
+    """
+    action=request.GET.get('action')
+    field_id=request.GET.get('id')
+    value=request.GET.get('value')
+    result={"code":1,"rid":field_id,"msg":"Error"}
+    if action=="change_status":
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        if value=="True":
+            value=True
+        else:
+            value=False
+        data.online=value
+        data.save()
+        jiasu_conf_rsync()  #本地同步配置文件
+        result={"code":0,"rid":field_id,"msg":"状态变更成功"}
+    elif action=="change_group":
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        data.platfrom=value
+        data.save()
+        result={"code":0,"rid":field_id,"msg":"属组变更成功"}
+    elif action=="change_name":
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        data.name=value
+        data.save()
+        result={"code":0,"rid":field_id,"msg":"名称已变更为:%s"% value}
+    elif action=="change_date":
+        try:
+            data = accelerated_server_manager.objects.get(pk=field_id)
+            data.stop_date=value
+            data.save()
+            result={"code":0,"rid":field_id,"msg":"到期时间已变更为:%s"% value}
+        except:
+            result["msg"]="时间格式错误,请遵循: YYYY-MM-DD 格式"
+    elif action=="change_remark":
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        data.remark=value
+        data.save()
+        result={"code":0,"rid":field_id,"msg":"备注已变更"}
+    elif action=="change_master":
+        if not isValidIp(value):
+            result["msg"]="IP格式错误"
+            return JsonResponse(result)
+        if accelerated_server_manager.objects.filter(host_master=value):
+            result["msg"]="IP地址已存在"
+            return JsonResponse(result)
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        data.host_master=value
+        data.save()
+        jiasu_conf_rsync()  #本地同步配置文件
+        result={"code":0,"rid":field_id,"msg":"地址一变更为:%s"% value}
+    elif action=="change_slave":
+        if not isValidIp(value):
+            result["msg"]="IP格式错误"
+            return JsonResponse(result)
+        data = accelerated_server_manager.objects.get(pk=field_id)
+        data.host_slave=value
+        data.save()
+        result={"code":0,"rid":field_id,"msg":"地址二变更为:%s"% value}
+    elif action=="init":
+        ids = eval(field_id)
+        if ids:
+            for i in ids:
+                data = accelerated_server_manager.objects.get(pk=i)
+                try:
+                    host=Server.objects.get(ssh_host=data.host_master)
+                    jiasu_init_task.delay(host.ssh_host,host.ssh_port,host.ssh_user,host.ssh_password)
+                    result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_master}
+                except:
+                    result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_master}
+    elif action=="zabbix":
+        ids = eval(field_id)
+        if ids:
+            zbx=zabbixtools("http://180.150.154.122/","zbxuser","zbxpass")
+            if zbx.authID == 0: return JsonResponse({"code":1,"rid":ids,"msg":"zabbix认证失败!"})
+            for i in ids:
+                data = accelerated_server_manager.objects.get(pk=i)
+                zbx.jiasu_host_create(data.host_master,"%s-加速-%s"% (data.name,data.host_master))
+                zbx.jiasu_host_create(data.host_slave,"%s-加速-%s"% (data.name,data.host_slave))
+            result={"code":0,"rid":ids,"msg":"IP已加入zabbix监控列表"}
+    elif action=="sync":
+        ids = eval(field_id)
+        if ids:
+            for i in ids:
+                data = accelerated_server_manager.objects.get(pk=i)
+                data.online=True
+                data.save()
+            jiasu_conf_rsync()  #本地同步配置文件
+            result={"code":0,"rid":ids,"msg":"IP已加入同步列表"}
+    else:
+        pass
     return JsonResponse(result)
 
-def acceleration_node_modify(request,uuid):
-    data = accelerated_server_manager.objects.get(pk=uuid)
 
-    if request.method == "POST":
-        name = request.POST.get('name')
-        host = request.POST.get('ip')
-        domains = request.POST.get('domain')
-        purchase_date = request.POST.get('purchase_date')
-        stop_date = request.POST.get('stop_date')
-        remark = request.POST.get('remark')
-        if not purchase_date:
-            purchase_date = None
-        if not stop_date:
-            stop_date = None
-        data.name = name
-        data.host = host
-        data.domains = domains
-        data.purchase_date = purchase_date
-        data.stop_date = stop_date
-        data.remark = remark
-        data.save()
-        result = {"res":"OK","status":"success","info":"Modify"}
-        return JsonResponse(result)
-    return render(request,'business/acceleration_node_modify.html',locals())
+@login_required()
+def acceleration_node_delete(request):
+    ids=request.GET.get('ids')
+    ids = eval(ids)
+    result={"code":1,"rid":"","msg":"空值错误"}
+    if ids:
+        for i in ids:
+            data = accelerated_server_manager.objects.get(pk=i)
+            data.delete()
+        jiasu_conf_rsync()  #本地同步配置文件
+        result = {"code":0,"rid":ids,"msg":"数据已删除!"}
+    return JsonResponse(result)

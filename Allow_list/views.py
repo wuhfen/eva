@@ -306,6 +306,7 @@ def black_add(request):
 
     return render(request,'allow_list/black_add.html',locals())
 
+
 # NGINX 白名单 函数
 def white_list_fun(request,which):
     try:

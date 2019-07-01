@@ -1,72 +1,217 @@
 {% extends 'default/base_layer.html' %}
 {% load bootstrap %}
 
-{% block title %} 添加信息{% endblock %}
+{% block title %}添加加速服务器{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
+    <script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
+    <script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script>
 
+{% endblock %}
 {% block content %}
 
 <div class="col-md-12">
     <div class="box box-info">
-        <div class="box-header"><h3 class="text-center text-info">添加信息</h3></div>
+        <div class="box-header"><h3 class="text-center text-info">添加加速服务器</h3></div>
         <hr>
         <div class="box-body">
-        <form role="form" action="" method="post" class="form-horizontal">{% csrf_token %}
-            {% if available_servers %}
-            {% for i in available_servers %}<p>i.ssh_host</p>{% endfor %}
-            {% else %}<p>没有可用服务器</p>
-            {% endif %}
-            <div class="form-group col-md-12">
-                <label id=for_name>项目名称：</label>
-                <input class="form-control" type="text" name="name" id="id_name">
+        <form role="form" id="jiasuForm" action="" method="post" class="form-horizontal">{% csrf_token %}
+            <div>
+                <div class="form-group">
+                    <label id="for_platfrom" class="col-sm-2 col-md-2 control-label">服务器归属: </label>
+                    <div class="col-sm-8 col-md-8">
+                        <select class="form-control" name="platfrom" id="id_platfrom"> 
+                            <option>现金网</option>
+                            <option>蛮牛</option>
+                            <option>蛮牛API</option>
+                            <option>平台经典彩</option>
+                            <option>平台官方彩</option>
+                            <option>蛮牛经典彩</option>
+                            <option>蛮牛官方彩</option>
+                            <option>备用</option>
+                            <option>其他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_name" class="col-sm-2 col-md-2 control-label">加速名称：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="text" name="name" id="id_name" placeholder="1001鸿发">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_ip1" class="col-sm-2 col-md-2 control-label">服务器IP_I：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="text" name="ip1" id="id_ip1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_ip2" class="col-sm-2 col-md-2 control-label">服务器IP_II：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="text" name="ip2" id="id_ip2" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id=for_user class="col-sm-2 col-md-2 control-label">账号：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="text" name="user" id="id_user" value='root'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_port" class="col-sm-2 col-md-2 control-label">端口：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="text" name="port" id="id_port" value='22992'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_password" class="col-sm-2 col-md-2 control-label">密码：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control" type="password" name="password" id="id_password" value="lookback">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label id="for_stop_date" class="col-sm-2 col-md-2 control-label">停用日期：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <input class="form-control layui-input" type="text" name="stop_date" id="id_stop_date" placeholder="yyyy-MM-dd">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="for_remark" class="col-sm-2 col-md-2 control-label">备注：</label>
+                    <div class="col-sm-8 col-md-8">
+                        <textarea class="form-control" rows='3' name="remark" id="id_remark"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2 col-md-2"></div>
+                    <div class="center-block col-sm-8 col-md-8">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox1" name="checks" checked value="add_cmdb"> 录入CMDB资产
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox2" name="checks" checked value="init_jiasu"> 执行初始化
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox3" name="checks" checked value="zabbix"> 添加zabbix监控
+                        </label>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox4" name="checks" checked value="send_msg"> 发送备注给工程
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2 col-md-2"></div>
+                    <div class="center-block col-sm-8 col-md-8">
+                        <button  type="submit" class="btn btn-info btn-block" >提交</button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group col-md-12">
-                <label id=for_ip>服务器IP：</label>
-                {% if available_servers %}
-                <select id="id_ip" name="ip" class="form-control">
-                    {% for i in available_servers %}<option value="{{ i.ssh_host }}">{{ i.ssh_host }}</option>{% endfor %}
-                </select>
-                {% else %}
-                <input class="form-control" type="ip" name="ip" id="id_ip">
-                {% endif %}
-            </div>
-            <div class="form-group col-md-12">
-                <label id=for_domain>域名：</label>
-                <textarea class="form-control" rows=5 name="domain" id="id_domain"></textarea>
-            </div>
-            <div class="form-group col-md-12">
-                <label id=for_purchase_date>购买日期：</label>
-                <input class="form-control" type="date" name="purchase_date" id="id_purchase_date">
-            </div>
-            <div class="form-group col-md-12">
-                <label id=for_stop_date>停用日期：</label>
-                <input class="form-control" type="date" name="stop_date" id="id_stop_date">
-            </div>
-            <div class="form-group col-md-12">
-                <label id=for_remark>备注：</label>
-                <textarea class="form-control" rows='3' name="remark" id="id_remark"></textarea>
-            </div>
+
         </form>
         </div>
         <div class="box-footer">
-            <a href="javascript:;" class="btn btn-info" id="id_submit">提交</a>
+
         </div>
     </div>
 </div>
 
+<!-- InputMask -->
+<!-- <script src="/static/admin-test/plugins/input-mask/jquery.inputmask.js"></script>
+<script src="/static/admin-test/plugins/input-mask/jquery.inputmask.extensions.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $("#id_ip1").inputmask({ alias: "datetime", "clearIncomplete": true });
+    $("#id_ip2").inputmask({alias: "ip","clearIncomplete": true })
+});
+</script> -->
 
+
+<!-- LayuiDate -->
+<script  type="text/javascript" src="/static/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use('laydate', function(){
+      var laydate = layui.laydate;
+
+      //执行一个laydate实例
+      laydate.render({
+        elem: '#id_stop_date' //指定元素
+      });
+    });
+</script>
 
 <script type="text/javascript">
-    $('#id_submit').on("click",function(){
-        $.ajax({
-            url: "{% url 'jiasu_add' %}",
-            dataType: 'json',
-            type: 'POST',
-            data: $('.form-horizontal').serialize(),
-            success: function(result) { 
-                if (result.res == "OK") { parent.layer.closeAll();}
+
+    $('#jiasuForm').validator({
+        //stopOnError:true,
+        //timely: 2,
+        ignore: ':hidden',
+        theme: "yellow_right",
+        showOk: "",
+        //自定义规则（PS：建议尽量在全局配置中定义规则，统一管理）
+        rules: {
+            check_node: [/^(\w)+(\-)*(\w)+$/, '主机名不正确'],
+            check_mac: [/^([0-9A-Fa-f]{2})(-[0-9A-Fa-f]{2}){5}|([0-9A-Fa-f]{2})(:[0-9A-Fa-f]{2}){5}$/, 'MAC不正确'], //验证mac
+            check_ip: [/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/, 'ip不正确']
+        },
+        fields: {
+            "name":{
+                rule: "required;",
+                tip: "输入名称",
+                ok:"",
+                msg:{required: "必须填写!"}
             },
-        });
+            "user":{
+                rule: "required;",
+                tip: "输入用户名",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "port":{
+                rule: "required;",
+                tip: "输入端口",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "ip1":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "ip2":{
+                rule: "required;check_ip",
+                tip: "输入ip地址",
+                ok:"",
+                msg:{required: "必须填写!"}
+            },
+            "password":{
+                rule: "required;",
+                tip: "输入密码",
+                ok:"",
+                msg:{required: "必须填写!"}
+            }
+        },
+        valid: function(form) {
+            // var me = this;
+            // me.holdSubmit();  //禁止重复提交
+            $.ajax({
+                url: "{% url 'jiasu_add' %}",
+                dataType: 'json',
+                type: 'POST',
+                data: $(form).serialize(),
+                success: function(result) { 
+                    if (result.res == "OK") { 
+                        // me.holdSubmit(false);
+                        parent.layer.closeAll();
+                    } else {
+                        layer.msg(result.info);
+                    }
+                },
+            });
+        }
     });
+
 </script>
 
 

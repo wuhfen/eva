@@ -1,26 +1,57 @@
 #!/usr/bin/env python
 # coding:utf-8
-from django.http import HttpResponseRedirect, HttpResponse
-# from models import Platform
+from .models import accelerated_server_manager
+from api.ssh_api import run_ftp,run_cmd
+import subprocess
 
-# import json
-# import urllib
 
-# def get_platform_data(request):
-#     data = {}
-#     if request.GET.get('tag'):
-#         tag = request.GET.get('tag')
-#         print urllib.unquote(tag)
-
-#         plat_data = Platform.objects.get(name=urllib.unquote(tag))
-#         print tag
-#         data['fornt_station'] = {}
-#         data['fornt_station']['hosts'] = []
-#         data['fornt_station']['vars'] = {"ansible_ssh_user":"root"}
-#         data['_meta'] = {}
-#         data['_meta']['hostvars'] = {}
-#         for i in plat_data.front_station.all():
-#             data['fornt_station']['hosts'].append(i.ssh_host)
-#             data['_meta']['hostvars'][i.ssh_host] = {"ansible_ssh_port":i.ssh_port,"ansible_ssh_pass":i.ssh_password}
-
-#         return HttpResponse(json.dumps(data, ensure_ascii=True, indent=4, ))
+def jiasu_conf_rsync(method="local",host=None,port=None,user=None,password=None):
+    data = accelerated_server_manager.objects.filter(online=True)
+    server_list=[ {i.name:i.host_master} for i in data]
+    servers=""
+    cmd='''pgrep lsyncd && pkill lsyncd && lsyncd -log Exec /etc/cmdb_lsyncd.conf && echo "已重启lsyncd服务" || lsyncd -log Exec /etc/cmdb_lsyncd.conf
+    '''
+    for i in data:
+        servers=servers+'    "%s", -- %s\n'% (i.host_master,i.name)
+    comment="""-- this file is sync from cmdb_server
+settings {
+    logfile ="/data/run/lsyncd.log",
+    statusFile ="/data/run/lsyncd.status",
+    inotifyMode = "CloseWrite",
+    maxProcesses = 1,
+    insist = true,
+    }
+servers = {
+    -- "119.160.235.164"
+%s
+}
+for _, server in ipairs(servers) do
+sync {
+    default.rsyncssh,
+    source="/data/jiasu/nginx_conf/conf",
+    host=server,
+    targetdir="/usr/local/nginx/conf",
+    maxDelays=5,
+    delay=0,
+    delete="running",
+    exclude={ ".*", "*.tmp" },
+    rsync = {
+        binary="/usr/bin/rsync",
+        archive = true,
+        compress = true,
+        verbose = true,
+        }
+    }
+end
+    """% servers
+    with open('/etc/cmdb_lsyncd.conf','wb+') as f:
+        f.write(comment)
+    if method=="local":
+        print "restart lsyncd service"
+        p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+        res = p.stdout.read()
+        print res
+    else:
+        port=int(port)
+        run_ftp(host,port,password,user,'/etc/cmdb_lsyncd.conf','/etc/cmdb_lsyncd.conf')
+        run_cmd(host,port,password,user,cmd)

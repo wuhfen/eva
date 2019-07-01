@@ -84,11 +84,10 @@ urlpatterns = [
 
 ##加速服务器管理
     url(r'acceleration/list/',views.acceleration_node_list,name="jiasu_list"),
+    url(r'acceleration/nodes/',views.acceleration_nodes_get,name="jiasu_nodes_get"),
     url(r'acceleration/add/',views.acceleration_node_add,name="jiasu_add"),
-    url(r'acceleration/delete/(?P<uuid>[^/]+)/$',views.acceleration_node_delete,name="jiasu_delete"),
-    url(r'acceleration/modify/(?P<uuid>[^/]+)/$',views.acceleration_node_modify,name="jiasu_modify"),
-
-
+    url(r'acceleration/del/',views.acceleration_node_delete,name="jiasu_delete"),
+    url(r'acceleration/api/',views.acceleration_api,name="acceleration_api"),
 
 
 ]

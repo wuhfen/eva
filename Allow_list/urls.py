@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import include, url
-from Allow_list import views,pingtai
+from Allow_list import views,ngx_acl
 
 
 urlpatterns = [
@@ -40,13 +40,25 @@ urlpatterns = [
     url(r'^reminder/list/$',views.reminder_list,name='reminder_list'),
     url(r'^reminder/add/$',views.reminder_add,name='reminder_add'),
 
-    #平台外接api白名单
-    url(r'^pingtaiconf/$',pingtai.api_white_conf_list,name='pingtai_access_conf_list'),
-    url(r'^pingtaiconf/add/$',pingtai.api_white_conf_add,name='pingtai_access_conf_add'),
-    url(r'^pingtaiconf/delete/(?P<id>[^/]+)/$',pingtai.api_white_conf_delete,name='pingtai_access_conf_del'),
-    url(r'^pingtaiconf/edit/(?P<id>[^/]+)/$',pingtai.api_white_conf_edit,name='pingtai_access_conf_edit'),
 
-    url(r'^pingtaitab/(?P<id>[^/]+)/$',pingtai.api_white_table_list,name='api_white_table_list'),
-    url(r'^pingtaitab/add/(?P<id>[^/]+)/$',pingtai.api_white_table_add,name='api_white_table_add'),
+
+    #访问控制系统top
+    url(r'^display/$',ngx_acl.nginx_acl_display,name="nginx_acl_display"),
+    url(r'^preadd/display/$',ngx_acl.pre_add_display,name="pre_add_display"),
+    url(r'^preadd/detail/',ngx_acl.pre_add_detail,name="predetail"),
+    url(r'^topproject/display/$',ngx_acl.top_pro_display,name="top_pro_display"),
+    url(r'^exception/display/$',ngx_acl.nginx_acl_exception,name="acl_exception_display"),
+    url(r'^subproject/display/',ngx_acl.sub_pro_display,name="sub_pro_display"),
+    url(r'^tapi/$',ngx_acl.top_pro_api,name="tapi"),
+    url(r'^sapi/$',ngx_acl.sub_pro_api,name="sapi"),
+    url(r'^napi/$',ngx_acl.nginx_acl_api,name="napi"),
+    url(r'^papi/$',ngx_acl.pre_add_api,name="papi"),
+    url(r'^tpadd/$',ngx_acl.top_pro_add,name="tpadd"),
+    url(r'^spadd/(?P<tid>[^/]+)/$',ngx_acl.sub_pro_add,name="spadd"),
+    url(r'^preadd/$',ngx_acl.pre_add,name="preadd"),
+    url(r'^acladd/$',ngx_acl.nginx_acl_add,name="acladd"),
+    url(r'^tpservers/',ngx_acl.top_servers_edit,name="tpservers"),
+    url(r'^spservers/',ngx_acl.sub_servers_edit,name="spservers"),
+    url(r'^tpexception/$',ngx_acl.top_exception_edit,name="tpexception"),
 
 ]

@@ -2,11 +2,20 @@
 {% block title %}加速节点{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/admin-test/plugins/datatables/dataTables.bootstrap.css">
-<script src="/static/admin-test/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/admin-test/plugins/datatables/dataTables.bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+<style type="text/css">
 
- {% endblock %}
+    /* 防止下拉框的下拉列表被隐藏---必须设置--- */        
+    .layui-table-cell {            overflow: visible !important;        } 
+    /* 使得下拉框与单元格刚好合适 */       
+    td .layui-form-select{
+        margin-top: -10px;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+</style>
+{% endblock %}
 
 
 {% block assistant-header %}
@@ -18,79 +27,243 @@
 {% endblock %}
 
 {% block content %}
-
-
-<div class="row">
-
-    <div class="box box-info">
-        <div class="box-header with-border"><a href="/business/acceleration/add/" class="btn btn-xs btn-info pull-data">添加业务</a>
-        </div>
-        <form id="asset_form">
-            <div class="box-body">
-              <table id="example1" class="table table-bordered table-striped">
-                <thead>
-                <tr>
-                    <th>站点名称</th>
-                    <th>加速服务器</th>
-                    <th>加速域名</th>
-                    <th>购买日期</th>
-                    <th>停用日期</th>
-                    <th>备注</th>
-                    <th>操作</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for v in data %}
-                    <tr>
-                        <td>{{ v.name }}</td>
-                        <td>{{ v.host }}</td>
-                        <td>{{ v.domains }}</td>
-                        <td>{{ v.purchase_date|date:"Y-m-d" }}</td>
-                        <td>{{ v.stop_date|date:"Y-m-d" }}</td>
-                        <td>{{ v.remark }}</td>
-                        <td>
-                            <a href="{% url 'jiasu_modify' v.id %}" class="btn btn-xs btn-primary business-edit">修改</a>
-                            <a href="{% url 'jiasu_delete' v.id %}" class="btn btn-xs btn-danger business-delete">删除</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-              </table>
+<div class="box box-info">
+    <div class="box-header">
+        <form class="form-inline pull-right" role="form">
+            <div class="form-group">
+                <!-- <label for="name">选择组</label> -->
+                <select class="form-control" id="id_search_group">
+                    <option value="all" >---请选择组---</option>
+                    <option value="现金网" >现金网</option>
+                    <option value="蛮牛" >蛮牛</option>
+                    <option value="蛮牛API" >蛮牛API</option>
+                    <option value="平台经典彩" >平台经典彩</option>
+                    <option value="平台官方彩" >平台官方彩</option>
+                    <option value="蛮牛经典彩" >蛮牛经典彩</option>
+                    <option value="蛮牛官方彩" >蛮牛官方彩</option>
+                    <option value="备用" >备用</option>
+                    <option value="其他" >其他</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="text" class="form-control" id="id_search" placeholder="名称 / IP">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">
+                        搜索
+                    </button>
+                </span>
             </div>
         </form>
-        <div class="box-footer">
-            
-        </div>
+    </div>
+    <div class="box-body">
+        <table id="jiasuTable" class="layui-hide" lay-filter="JaSuTle"></table>
+    </div>
+
+    <div class="box-footer">
+        
     </div>
 </div>
 
-<script type="text/javascript">
-    $(".pull-data").on("click", function(event){ //一般更新
-         var url= $(this).attr('href');
-         // layer.msg('Hello layer');
-            layer.open({
-                type: 2,
-                title: false,
-                skin: 'layui-layer-rim',
-                maxmin: false,
-                shade: 0.5,
-                shadeClose: true, //点击遮罩关闭层
-                area : ['1150px' , '900px'],
-                end : function () {
-                  layer.msg("Bye!");
-              },
-                content: [url,'no']
-            });
-         event.preventDefault();
-    });
-
+<script type="text/html" id="toolbarDemo">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="dcoker,iptables,ssh" lay-event="initData">初始化</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="IP加入zabbix" lay-event="zbxData">加监控</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="IP加入lsyncd" lay-event="syncData">同步文件</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger" lay-event="delData">删除</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="addData">添加加速服务器</button>
+  </div>
 </script>
+
+<script type="text/html" id="switchTpl">
+  {% verbatim %}
+  <input type="checkbox" name="online" value="{{d.id}}" lay-skin="switch" lay-text="在线|下线" lay-filter="sexDemo" {{ d.online == true ? 'checked' : '' }}>
+  {% endverbatim %}
+</script>
+
+<script type="text/html" id="selectTpl">
+    {% verbatim %}
+    <select name="select_{{d.id}}" lay-filter="groupSelect">
+        <option value="现金网" {{ d.group == "现金网" ? 'selected' : '' }}>现金网</option>
+        <option value="蛮牛" {{ d.group == "蛮牛" ? 'selected' : '' }}>蛮牛</option>
+        <option value="蛮牛API" {{ d.group == "蛮牛API" ? 'selected' : '' }}>蛮牛API</option>
+        <option value="平台经典彩" {{ d.group == "平台经典彩" ? 'selected' : '' }}>平台经典彩</option>
+        <option value="平台官方彩" {{ d.group == "平台官方彩" ? 'selected' : '' }}>平台官方彩</option>
+        <option value="蛮牛经典彩" {{ d.group == "蛮牛经典彩" ? 'selected' : '' }}>蛮牛经典彩</option>
+        <option value="蛮牛官方彩" {{ d.group == "蛮牛官方彩" ? 'selected' : '' }}>蛮牛官方彩</option>
+        <option value="备用" {{ d.group == "备用" ? 'selected' : '' }}>备用</option>
+        <option value="其他" {{ d.group == "其他" ? 'selected' : '' }}>其他</option>
+    </select>
+    {% endverbatim %}
+</script>
+
+
 <script>
-  $(function () {
-    $("#example1").DataTable();
-  });
-</script>
 
+layui.use('table', function(){
+    var t=layui.table
+    ,layer = layui.layer
+    ,form = layui.form;
+    t.render({
+        elem: '#jiasuTable'
+        ,url: "{% url 'jiasu_nodes_get' %}"
+        ,cellMinWidth: 80 //列自小寬度
+        ,height: 'full-400'
+        ,toolbar: '#toolbarDemo'
+        ,page: {
+            layout: ['count', 'limit', 'prev', 'page', 'next', 'skip']
+            ,groups: 1
+            ,first: false
+            ,last: false
+        } 
+        ,limit: 15 //最多顯示條數
+        ,limits:[15,30,45,60,75,90,105]
+        ,even: true //隔行背景
+        ,cols: [[
+            {type:'checkbox'}
+            ,{field:'id', title: 'ID', width:80, hide: true}
+            ,{field:'group', title: '所属组',width:160, templet: '#selectTpl',sort:false}
+            ,{field:'name', title: '名称', width:200, sort: true, edit:'text'}
+            ,{field:'host_master', title: '地址一(同步IP)', width:130,edit:'text'}
+            ,{field:'host_slave', title: '地址二', width:130,edit:'text'}
+            ,{field:'stop_date', title: '到期时间', width: 130,sort: true, edit:'text'}
+            ,{field:'remark', title: '备注', minWidth: 380,edit:'text'}
+            ,{field:'online', width:100, title: '状态',templet: '#switchTpl', unresize: true}
+        ]]
+        ,id: "jiasuTableId"
+    });
+    t.on('edit(JaSuTle)', function(obj){
+        var field = obj.field;
+        if (field=='name') {
+            action="change_name"
+        } else if (field=='stop_date') {
+            action="change_date"
+        } else if (field=='remark') {
+            action="change_remark"
+        } else if (field=='host_master') {
+            action="change_master"
+        } else if (field=='host_slave') {
+            action="change_slave"
+        } else {action="none"}
+        $.get("{% url 'acceleration_api' %}",{"id":obj.data.id,"action":action,"value":obj.value},function(res) {
+            layer.msg(res.msg);
+        });
+    });
+    t.on('toolbar(JaSuTle)', function(obj){
+        var checkStatus = t.checkStatus(obj.config.id);
+        switch(obj.event){
+            case 'addData':
+                layer.open({
+                    type: 2,
+                    title: false,
+                    skin: 'layui-layer-rim',
+                    maxmin: false,
+                    shade: 0.5,
+                    closeBtn: 0,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['800px' , '700px'],
+                    end : function () {
+                      layer.msg("Bye!");
+                  },
+                    content: ["{% url 'jiasu_add' %}",'yes']
+                });
+            break;
+            case 'delData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                // layer.msg(JSON.stringify(ids)); 
+                layer.confirm('确定删除么?', function(index){
+                  urls="{% url 'jiasu_delete' %}";
+                  jQuery.get(urls,{ids:JSON.stringify(ids)},function(res){
+                      layer.msg(res.msg);
+                      t.reload('jiasuTableId',{url: "{% url 'jiasu_nodes_get' %}"});
+                  });
+                  layer.close(index);
+                });
+            break;
+            case 'initData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                $.get("{% url 'acceleration_api' %}",{"id":JSON.stringify(ids),"action":"init"},function(res) {
+                    layer.msg(res.msg);
+                });
+            break;
+            case 'zbxData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                $.get("{% url 'acceleration_api' %}",{"id":JSON.stringify(ids),"action":"zabbix"},function(res) {
+                    layer.msg(res.msg);
+                });
+            break;
+            case 'syncData':
+                var data = checkStatus.data;
+                if (+data === 0) {  //判断数组是否为空
+                    layer.msg("请选择数据后再操作!");
+                    break;
+                };
+                var ids = new Array(); 
+                for (i in data) {
+                    ids.push(data[i].id) //添加id到数组ids中
+                };
+                $.get("{% url 'acceleration_api' %}",{"id":JSON.stringify(ids),"action":"sync"},function(res) {
+                    layer.msg(res.msg);
+                });
+            break;
+        };
+    });
+    form.on('select(groupSelect)',function(obj){
+        var id=obj.elem.name.replace("select_",'');
+        layer.msg('属组修改为:'+obj.value);
+        $.get("{% url 'acceleration_api' %}",{"id":id,"action":"change_group","value":obj.value})
+    });
+    form.on('switch(sexDemo)', function(obj){
+        // layer.tips(this.value + ' ' + "状态" + ': '+ obj.elem.checked, obj.othis);
+        if (this.checked) {
+            layer.tips("文件同步开启",obj.othis);
+            $.get("{% url 'acceleration_api' %}",{"id":this.value,"action":"change_status","value":"True"})
+        } else {
+            layer.tips("文件同步关闭",obj.othis);
+            $.get("{% url 'acceleration_api' %}",{"id":this.value,"action":"change_status","value":"False"})
+        }
+    });
+    $('#id_search').on('input', function() {
+        var keyword=$('#id_search').val()
+        ,group = $('#id_search_group').val();
+        keyword=keyword.replace(/\s+/g,"");
+        if (keyword!='') {
+            t.reload('jiasuTableId',{
+                url: "{% url 'jiasu_nodes_get' %}"
+                ,where: {
+                    'keyword':keyword,
+                    'group':group,
+                    'action':"search"
+                }
+                ,page: {curr: 1}
+            });
+        };
+    });
+});
+</script>
 <script type="text/javascript">
 
     $(".business-edit").on("click", function(event){
