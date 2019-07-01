@@ -21,7 +21,7 @@ class Iptables(models.Model):
     ## 链,FORWARD，INPUT，OUTPUT
     i_chain = models.CharField(max_length=20, default='INPUT')
     ## 插入链中的位置
-    i_position = models.CommaSeparatedIntegerField(max_length=30, blank=True,default=3)
+    i_position = models.CharField(max_length=30, blank=True,default='3')
     ## 源ip
     i_source_ip = models.GenericIPAddressField(max_length=15, null=True, default='0.0.0.0')
     ## 目标ip
@@ -31,7 +31,7 @@ class Iptables(models.Model):
     ## 端口指定 --dport --sport --dports --sports
     i_port_method = models.CharField(max_length=30, blank=True,default='--dports')
     ## 端口 80，443，22，25，3306
-    i_ports = models.CommaSeparatedIntegerField(max_length=30, blank=True ,default='80,443')
+    i_ports = models.CharField(max_length=30, blank=True ,default='80,443')
     ## --state NEW
     i_states = models.CharField(max_length=50, blank=True, default='NEW,ESTABLISHED')
     ## 规则接受还是拒绝DORP
