@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='auth_group',
             fields=[
-                ('uuid', uuidfield.fields.UUIDField(blank=True, editable=False, max_length=32, primary_key=True, serialize=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('group_name', models.CharField(max_length=100, unique=True, verbose_name='\u6743\u9650\u7ec4\u540d\u79f0')),
                 ('enable', models.BooleanField(default=True, verbose_name='\u662f\u5426\u542f\u7528')),
                 ('explanation', models.TextField(verbose_name='\u6743\u9650\u7ec4\u63cf\u8ff0')),
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AuthSudo',
             fields=[
-                ('uuid', uuidfield.fields.UUIDField(blank=True, editable=False, max_length=32, primary_key=True, serialize=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('groupname', models.CharField(help_text='sudo\u7ec4', max_length=64, verbose_name='\u7ec4\u540d')),
                 ('shell', models.TextField(verbose_name='\u547d\u4ee4')),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='user_auth_cmdb',
             fields=[
-                ('uuid', uuidfield.fields.UUIDField(blank=True, editable=False, max_length=32, primary_key=True, serialize=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('select_host', models.BooleanField(default=False, verbose_name='\u67e5\u770b\u8d44\u4ea7')),
                 ('edit_host', models.BooleanField(default=False, verbose_name='\u4fee\u6539\u8d44\u4ea7')),
                 ('update_host', models.BooleanField(default=False, verbose_name='\u66f4\u65b0\u8d44\u4ea7')),
