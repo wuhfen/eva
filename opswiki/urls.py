@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from opswiki import views
 from opswiki.forms import ArticleForm
 from django.views.generic import FormView

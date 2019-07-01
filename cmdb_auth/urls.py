@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from cmdb_auth.views import auth_index, group_add, group_edit, group_status, group_delete, group_add_auth, cmdb_group_user
 
 
