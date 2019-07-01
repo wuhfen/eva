@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import uuidfield.fields
+import uuid
 
 
 class Migration(migrations.Migration):
