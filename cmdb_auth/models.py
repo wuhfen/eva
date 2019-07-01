@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from accounts.models import CustomUser
-from uuidfield import UUIDField
+
 # Create your models here.
 
 class auth_group(models.Model):

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import models 
 from accounts.models import CustomUser as User
-from uuidfield import UUIDField
+
 import datetime
 import uuid
 
