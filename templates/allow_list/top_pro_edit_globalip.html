@@ -1,0 +1,92 @@
+{% extends 'default/base_layer.html' %}
+{% load bootstrap %}
+
+{% block title %}默认IP{% endblock %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/static/layui/css/layui.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+{% endblock %}
+{% block content %}
+<div class="col-md-12">
+    <div class="box box-info">
+        <div class="box-header"><h3 class="text-center text-info">全局默认添加IP列表</h3></div>
+        <hr>
+        <div class="box-body">
+          <div class="input-group input-group-sm">
+              <input type="text" name="host" id="id_host" class="form-control">
+              <span class="input-group-btn">
+                  <button class="btn btn-info btn-flat" id="id_submit">添加</button>
+              </span>
+          </div>
+          <table id="hostTable" class="layui-hide" lay-filter="hostTle"></table>
+        </div>
+        <div class="box-footer">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script type="text/javascript">
+layui.use(['form', 'table'], function(){
+    var form = layui.form
+    ,t = layui.table
+    var id="{{tid}}";
+    t.render({
+        elem: '#hostTable'
+        ,url: "{% url 'tapi' %}"
+        ,where: {action: "get_global",'id':id}
+        ,cellMinWidth: 100 //列自小寬度
+        ,page: false
+        // ,even: true //隔行背景
+        ,skin: 'line'
+        ,cols: [[
+            {field:'host', title: '默认IP(可编辑)',align: 'center',edit:'text'}
+            ,{fixed: 'right',title:'操作', width:150, align:'center', toolbar: '#barDemo'} 
+        ]]
+        ,id: "hostTableId"
+    });
+    t.on('tool(hostTle)', function(obj){ 
+        var data = obj.data; //获得当前行数据
+        var layEvent = obj.event; //获得 lay-event 对应的值
+        var tr = obj.tr; //获得当前行 tr 的DOM对象
+        if(layEvent === 'del'){ //删除
+          layer.confirm('真的删除行么', function(index){
+            obj.del();
+            layer.close(index);
+            $.get("{% url 'tapi' %}",{"id":id,"action":"del_global","value":data.host},function(res) {
+                layer.msg(res.msg);
+            });
+          });
+        }
+    });
+    t.on('edit(hostTle)', function(obj){
+        var field = obj.field;
+        var old_value = $(this).prev().text();
+        if (field=='host') {
+            action="edit_global"
+        } else {action="none"}
+        $.get("{% url 'tapi' %}",{"id":id,"action":action,"value":old_value+"@"+obj.value},function(res) {
+            layer.msg(res.msg);
+            // t.reload("hostTableId",{url:"{% url 'tapi' %}",where:{action: "check_servers",'id':id}})
+        });
+    });
+    $("#id_submit").on("click",function(){
+        var host=$("#id_host").val();
+        $.get("{% url 'tapi' %}",{"id":id,"action":"add_global","value":host},function(res){
+            if (res.code==1) {
+              layer.msg(res.msg);
+            } else {
+              t.reload("hostTableId",{url:"{% url 'tapi' %}",where:{action: "get_global",'id':id}})
+            }
+        });
+    });
+
+});
+</script>
+
+{% endblock  %}

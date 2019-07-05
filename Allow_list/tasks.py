@@ -5,7 +5,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import shared_task, current_task
 from api.ansible_api import ansiblex, MyRunner, MyPlayTask
 from api.common_api import gen_resource,isValidIp,strIp_to_listIp
-from assets.models import Server
+from assets.models import Server,Project
 from .models import dsACL_TopProject,dsACL_SubProject,dsACL_ngx
 from api.ssh_api import ssh_check,run_ftp,run_cmd
 # 引入ansibleAPI，编写调用API的函数
@@ -118,6 +118,10 @@ def nginx_acl_task(sid):
         hook = sub_obj.hook
     # 推送文件
     ruleIp = ""
+    if top_obj.globalip:
+        globalip = top_obj.globalip.split('\n')
+        for gip in globalip:
+            ruleIp = ruleIp + rule.replace("{IP}", gip) + '\n'
     for acl_obj in dsACL_ngx.objects.filter(project=sub_obj):
         ruleIp = ruleIp + rule.replace("{IP}", acl_obj.host) + '\n'
     localfile = "/data/nginx_acl_cmdb/aclTmpfile"
@@ -155,6 +159,15 @@ def cashSourceLogFilter(sid):
     
     """
     
+    group = Project.objects.get(project_name="5562")
+    servers = group.project_servers.all()
+    if not servers:
+        print "Don't have servers"
+        return 1
+
+    for server in servers:
+        pass
+
 
 
 

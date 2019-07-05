@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 # Create your views here.
 from .models import dsACL_SubProject,dsACL_TopProject,dsACL_ngx,pre_Add_acl,pre_Add_remark
 from assets.models import Server
-from api.common_api import isValidIp,strIp_to_listIp,utc2beijing,beijing2utc
+from api.common_api import isValidIp,strIp_to_listIp,utc2beijing,beijing2utc,get_ip_zone
 from api.ssh_api import ssh_check,run_ftp
 from .tasks import nginx_acl_scp
 from datetime import date
@@ -193,7 +193,7 @@ def nginx_acl_add(request):
             deltask = True
         for ipaddr in host_list:
             if dsACL_ngx.objects.filter(project=sub_obj,host=ipaddr):return JsonResponse({'code':1,'msg':'IP: %s 已存在 %s'% (ip,sub_obj.name),'count':0})
-            data = dsACL_ngx(host=ipaddr,project=sub_obj,user=request.user,remark=remark,delTask=deltask,delDateTime=delDateTime)
+            data = dsACL_ngx(host=ipaddr,zone=get_ip_zone(ipaddr),project=sub_obj,user=request.user,remark=remark,delTask=deltask,delDateTime=delDateTime)
             data.save()
             if deltask:
                 schedule, _ = ClockedSchedule.objects.get_or_create(
@@ -371,6 +371,7 @@ def top_pro_add(request):
         rule = request.POST.get('rule')
         limit = request.POST.get('limit')
         exception = request.POST.get('exception')
+        globalip = request.POST.get('globalip')
         hook = request.POST.get('hook')
         remark = request.POST.get('remark')
         if dsACL_TopProject.objects.filter(name=name): return JsonResponse({'code':1,'msg':"该项目已存在",'count':1})
@@ -380,8 +381,11 @@ def top_pro_add(request):
         if exception:
             for i in strIp_to_listIp(exception):
                 if not isValidIp(i): return JsonResponse({'code':1,'msg':"无限制IP格式错误",'count':1})
+        if globalip:
+            for i in strIp_to_listIp(globalip):
+                if not isValidIp(i): return JsonResponse({'code':1,'msg':"默认添加IP格式错误",'count':1})
         if not limit: limit=0
-        data=dsACL_TopProject(name=name,servers=hosts,filename=filename,rule=rule,limit=limit,exception=exception,hook=hook,remark=remark)
+        data=dsACL_TopProject(name=name,servers=hosts,filename=filename,rule=rule,limit=limit,exception=exception,globalip=globalip,hook=hook,remark=remark)
         data.save()
         return JsonResponse({'code':0,'msg':"添加成功",'count':1})
     return render(request,'allow_list/top_pro_add.html',locals())
@@ -397,6 +401,11 @@ def top_servers_edit(request):
 def top_exception_edit(request):
     tid=request.GET.get('tid')
     return render(request,'allow_list/top_pro_edit_exception.html',locals())
+
+@login_required()
+def top_global_edit(request):
+    tid=request.GET.get('tid')
+    return render(request,'allow_list/top_pro_edit_globalip.html',locals())
 
 @login_required()
 def top_pro_api(request):
@@ -416,6 +425,10 @@ def top_pro_api(request):
     action: get_exception 获取特权ip
     action: add_exception 添加特权ip
     action: del_exception 删除特权ip
+    action: edit_global 编辑默认IP
+    action: get_global 获取默认ip
+    action: add_global 添加默认ip
+    action: del_global 删除默认ip
     action: edit_hook 编辑钩子
     action: edit_remark 编辑备注
     value: 对应值
@@ -567,6 +580,48 @@ def top_pro_api(request):
         data.exception = exception
         data.save()
         res={'code':0,'msg':"删除特权IP成功",'count':1}
+    elif action == "get_global":
+        data = dsACL_TopProject.objects.get(pk=tid)
+        hosts = data.globalip
+        server_List=[]
+        servers=[]
+        if hosts:
+            servers = strIp_to_listIp(hosts)
+            for i in servers:
+                server_List.append({"host":i})
+        res = {'code':0,'msg':"默认IP查看",'count':len(servers),'data':server_List}
+    elif action == "add_global":
+        if not isValidIp(value): return JsonResponse({'code':1,'msg':"IP格式错误",'count':1})
+        data = dsACL_TopProject.objects.get(pk=tid)
+        hosts=[]
+        if data.globalip: hosts = strIp_to_listIp(data.globalip)
+        if value in hosts: return JsonResponse({'code':1,'msg':"此IP已存在",'count':1})
+        hosts.append(value)
+        globalip = "\n".join(hosts)
+        data.globalip = globalip
+        data.save()
+        res={'code':0,'msg':"添加全局默认IP成功",'count':1}
+    elif action == "del_global":
+        data = dsACL_TopProject.objects.get(pk=tid)
+        hosts = strIp_to_listIp(data.globalip)
+        hosts = [x for x in hosts if x!=value]
+        if hosts:
+            globalip = "\n".join(hosts)
+        else:
+            globalip = ""
+        data.globalip = globalip
+        data.save()
+        res={'code':0,'msg':"删除默认IP成功",'count':1}
+    elif action == "edit_global":
+        value=value.split('@')
+        before_host=value[0]
+        after_host=value[1]
+        if not isValidIp(after_host): return JsonResponse({'code':1,'msg':"IP格式错误",'count':1})
+        data = dsACL_TopProject.objects.get(pk=tid)
+        globalip = "\n".join([after_host if x == before_host else x for x in strIp_to_listIp(data.globalip)])
+        data.globalip = globalip
+        data.save()
+        res={'code':0,'msg':"修改成功",'count':1}
     return JsonResponse(res)
 
 @login_required()

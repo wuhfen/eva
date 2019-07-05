@@ -1,8 +1,5 @@
 # coding:utf-8
-import urllib
-import urllib2
-import json
-import ssl
+import requests
 import re
 import time
 import os
@@ -121,6 +118,21 @@ def check_file(ifile,regx):
         else:
             res = True
     return res
+
+def get_ip_zone(ip):
+    '''查找ip归属地，返回归属地名称或者空，调用:
+    http://curlip.me/?db=ipip&ip=127.0.0.1
+    '''
+    url="http://curlip.me"
+    if isValidIp(ip):
+        data = {"db":"ipip","ip":ip}
+        r = requests.get(url,data)
+        rlist = r.text.split()
+        zone = rlist[2]
+        if zone == "IP": zone = "unknown"
+    else:
+        zone = "unknown"
+    return zone
 
 def isValidIp(ip):
     if re.match(r'^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$', ip): return True  

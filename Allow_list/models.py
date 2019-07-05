@@ -117,6 +117,7 @@ class dsACL_TopProject(BaseModel):
     rule = models.TextField(_(u'匹配规则'))
     limit = models.IntegerField(_(u'相同IP限制条目'),blank=False)
     exception = models.TextField(_(u'无限制IP'),blank=True)
+    globalip = models.TextField(_(u'默认添加IP'),blank=True)
     hook = models.TextField(_(u'钩子'),blank=True)
     remark = models.TextField(_(u'备注'))
 
@@ -140,6 +141,7 @@ class dsACL_SubProject(BaseModel):
 class dsACL_ngx(BaseModel):
     """IP表，依附于子项目的配置"""
     host = models.GenericIPAddressField()
+    zone = models.CharField(_(u'区域'),max_length=64,blank=True)
     project = models.ForeignKey(dsACL_SubProject)
     user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
     ctime = models.DateTimeField(auto_now_add=True)

@@ -119,6 +119,7 @@ layui.use(['table','form','laydate','laytpl','util'], function(){
             ,{field:'topproject', title: '所属项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.parentPro.name}}{% endverbatim %}</span></div>'}
             ,{field:'group', title: '子项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.name}}{% endverbatim %}</span></div>'}
             ,{field:'host', title: 'IP地址', width:200, sort: true}
+            ,{field:'zone', title: '归属地', width:200, sort: true}
             ,{field:'user', title: '添加人', width:130}
             ,{field:'ctime', title: '时间', width: 160}
             ,{field:'delTask', title: '定时删除', width: 100,templet: '#switchTpl'}

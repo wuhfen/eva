@@ -41,6 +41,7 @@
     <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="subProject">子项目</a>
     <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="editServers">目标服务器</a>
     <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="editException">无限制IP</a>
+    <a class="layui-btn layui-btn-xs layui-btn-radius" lay-event="editGlobal">默认添加IP</a>
 </script>
 
 <script>
@@ -70,15 +71,15 @@ layui.use('table', function(){
         ,cols: [[
             {type:'checkbox'}
             ,{field:'id', title: 'ID', width:80, hide: true}
-            ,{field:'name', title: '名称', sort: true, edit:'text'}
-            ,{field:'servers', title: '目标服务器', width:140}
-            ,{field:'filename', title: '文件路径', edit:'text'}
+            ,{field:'name', title: '名称', sort: true,width: 200, edit:'text'}
+            // ,{field:'servers', title: '目标服务器', width:140}
+            ,{field:'filename', title: '文件路径', width: 200,edit:'text'}
             ,{field:'rule', title: '匹配规则', width: 200, edit:'text'}
             ,{field:'limit', title: '限制数',width: 80, edit:'text'}
-            ,{field:'exception', width:140, title: '无限制IP'}
+            // ,{field:'exception', width:140, title: '无限制IP'}
             ,{field:'hook', width:120, title: '钩子',edit:'text'}
             ,{field:'remark', title: '备注',edit:'text'}
-            ,{fixed: 'right', title: '操作', width:250, align:'center', toolbar: '#barDemo'}
+            ,{fixed: 'right', title: '操作', width:320, align:'center', toolbar: '#barDemo'}
         ]]
         ,id: "topTableId"
     });
@@ -181,6 +182,22 @@ layui.use('table', function(){
                   t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
               },
                 content: ["/allow/tpexception/?tid="+tid,'yes']
+            });
+        } else if (layEvent === 'editGlobal') {
+            var tid=data.id
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                closeBtn: 0,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['600px' , '500px'],
+                end : function () {
+                  t.reload('topTableId',{url: "{% url 'tapi' %}",where: {action: "get"}});
+              },
+                content: ["/allow/tpglobal/?tid="+tid,'yes']
             });
         } else {
             var tid=data.id;

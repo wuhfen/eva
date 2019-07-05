@@ -60,5 +60,6 @@ urlpatterns = [
     url(r'^tpservers/',ngx_acl.top_servers_edit,name="tpservers"),
     url(r'^spservers/',ngx_acl.sub_servers_edit,name="spservers"),
     url(r'^tpexception/$',ngx_acl.top_exception_edit,name="tpexception"),
+    url(r'^tpglobal/$',ngx_acl.top_global_edit,name="tpglobal"),
 
 ]
