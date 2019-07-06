@@ -131,20 +131,33 @@ layui.use(['form', 'layedit', 'laydate'], function(){
     layer.tips('开启后请选择删除时间', data.othis)
   });
 
-    //监听top选择
-
-  //监听提交
-  form.on('submit(demo2)', function(data){
-    url="{% url 'acladd' %}";
-    $.post(url,data.field,function(res){
-        if (res.code==1) {
-            layer.msg(res.msg);
-        } else {
-            parent.layer.closeAll();
-        }
+    //定义加载层
+    function ityzl_SHOW_LOAD_LAYER(){
+        return layer.msg('添加中...',{icon:16,shade: [0.3,'#393D49'],time:100000});
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        layer.close(index);
+    }
+    //监听提交
+    form.on('submit(demo2)', function(data){
+        var i = ityzl_SHOW_LOAD_LAYER();
+        url="{% url 'acladd' %}";
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: url,
+            data: data.field,
+            success: function(res) {
+                ityzl_CLOSE_LOAD_LAYER(i);
+                if (res.code==1) {
+                    layer.msg(res.msg);
+                } else {
+                    parent.layer.closeAll();
+                }
+            },
+        });
+        return false;
     });
-    return false;
-  });
   
 });
 </script>

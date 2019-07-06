@@ -209,6 +209,7 @@ def nginx_acl_add(request):
                 )
         # 调用异步任务同步文件
         nginx_acl_scp.delay(sid)
+        return JsonResponse({'code':0,'msg':'IP添加完成'})
     return render(request,'allow_list/nginx_acl_add.html',locals())
 
 
