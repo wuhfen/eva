@@ -677,10 +677,12 @@ def sub_pro_api(request):
             end_line=int(page)*int(limit)
         keyword = request.GET.get('keyword')
         if keyword:
-            data = dsACL_SubProject.objects.filter(parentPro=toppro,name__contains=keyword)[start_line:end_line]
+            data = dsACL_SubProject.objects.filter(parentPro=toppro,name__contains=keyword)
         else:
-            data = dsACL_SubProject.objects.filter(parentPro=toppro)[start_line:end_line]
-        res={'code':0,'msg':"",'count':len(data),'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
+            data = dsACL_SubProject.objects.filter(parentPro=toppro)
+        count = len(data)
+        data = data[start_line:end_line]
+        res={'code':0,'msg':"",'count':count,'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
     elif action == "getAll":
         data = dsACL_SubProject.objects.filter(parentPro=toppro)
         res={'code':0,'msg':"所有sub项目",'count':len(data),'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
