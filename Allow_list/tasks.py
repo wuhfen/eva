@@ -122,8 +122,14 @@ def nginx_acl_task(sid):
         globalip = top_obj.globalip.split('\n')
         for gip in globalip:
             ruleIp = ruleIp + rule.replace("{IP}", gip) + '\n'
-    for acl_obj in dsACL_ngx.objects.filter(project=sub_obj):
-        ruleIp = ruleIp + rule.replace("{IP}", acl_obj.host) + '\n'
+    if sub_obj.useParentConf:
+        sub_list = [sub for sub in dsACL_SubProject.objects.filter(parentPro=top_obj) if sub.useParentConf]
+        for s in sub_list:
+            for i in dsACL_ngx.objects.filter(project=s):
+                ruleIp = ruleIp + rule.replace("{IP}", i.host) + '\n'
+    else:
+        for acl_obj in dsACL_ngx.objects.filter(project=sub_obj):
+            ruleIp = ruleIp + rule.replace("{IP}", acl_obj.host) + '\n'
     localfile = "/data/nginx_acl_cmdb/aclTmpfile"
     with open(localfile, "wb+") as f:
         f.write(ruleIp)
@@ -144,10 +150,10 @@ def nginx_acl_scp(sid):
 
 @shared_task()
 def nginx_acl_del(nid):
-    ip = dsACL_ngx.objects.get(pk=nid)
-    subpro = ip.project
-    ip.delete()
-    nginx_acl_task(subpro.id)
+    data = dsACL_ngx.objects.get(pk=nid)
+    sid = data.project.id
+    data.delete()
+    nginx_acl_task(sid)
     return "nginx acl del task end"
 
 def cashSourceLogFilter(sid):
