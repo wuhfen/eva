@@ -126,7 +126,7 @@ class dsACL_TopProject(BaseModel):
 
 class dsACL_SubProject(BaseModel):
     """子项目，下面设立IP表"""
-    name = models.CharField(_(u'项目名称'),max_length=64,unique=True)
+    name = models.CharField(_(u'项目名称'),max_length=64)
     parentPro = models.ForeignKey(dsACL_TopProject)
     useParentConf = models.BooleanField(default=True)
     servers = models.TextField(_(u'服务器地址'),blank=True)
