@@ -117,14 +117,14 @@ layui.use(['table','form','laydate','laytpl','util'], function(){
             {type:'checkbox'}
             ,{field:'id', title: 'ID', width:80, hide: true}
             ,{field:'topproject', title: '所属项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.parentPro.name}}{% endverbatim %}</span></div>'}
-            ,{field:'group', title: '子项目',width:160,sort:true,templet:'<div><span>{% verbatim %}{{d.project.name}}{% endverbatim %}</span></div>'}
-            ,{field:'host', title: 'IP地址', width:200, sort: true}
+            ,{field:'group', title: '子项目',width:100,sort:true,templet:'<div><span>{% verbatim %}{{d.project.name}}{% endverbatim %}</span></div>'}
+            ,{field:'host', title: 'IP地址', width:160, sort: true}
             ,{field:'zone', title: '归属地', width:200, sort: true}
-            ,{field:'user', title: '添加人', width:130}
+            ,{field:'user', title: '添加人', width:100}
             ,{field:'ctime', title: '时间', width: 160}
             ,{field:'delTask', title: '定时删除', width: 100,templet: '#switchTpl'}
             ,{field:'delDateTime', title: '删除时间', width: 160,event: 'deldate',edit:'text'}
-            ,{field:'remark', title: '备注', minWidth: 380, edit:'text'}
+            ,{field:'remark', title: '备注', minWidth: 180, edit:'text'}
         ]]
         ,id: "hostTableId"
     });
