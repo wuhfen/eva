@@ -65,6 +65,7 @@ def pre_add_api(request):
     action = "effective" 将此IP同步到指定项目（项目无此IP）
     action = "del" 删除
     action = "detail" 详情
+    action = "toBlockList" 加入到黑名单
     """
     action = request.GET.get("action")
     pid = request.GET.get("id")
@@ -136,17 +137,25 @@ def pre_add_api(request):
             data.delete()
         res={'code':0,'msg':"删除成功",'count':1}
     elif action == "toBlockList":
+        msg = ""
         for nid in eval(pid):
             data = pre_Add_acl.objects.get(pk=nid)
+            sid = data.project
             remark = ""
             for i in data.filter_logs.all():
                 remark += i.remark
-            project = dsACL_SubProject.objects.get(pk=data.project)
-            a = dsACL_ngx(host=data.host,project=project,user=request.user,remark=remark)
-            a.save()
+            project = dsACL_SubProject.objects.get(pk=sid)
+            jude = dsACL_ngx.objects.filter(project=project,host=data.host)
+            if not jude:
+                a = dsACL_ngx(host=data.host,zone=get_ip_zone(ipaddr),project=project,user=request.user,remark=remark)
+                a.save()
+                msg = msg + "%s 转移成功\n"% data.host
+                nginx_acl_scp.delay(sid)
+            else:
+                msg = msg + "%s 已存在\n"% data.host
             data.status = False
             data.save()
-            res={'code':0,'msg':"转移成功"}
+        res={'code':0,'msg':msg}
     return JsonResponse(res)
 
 @login_required()
