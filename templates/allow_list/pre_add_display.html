@@ -71,7 +71,7 @@ layui.use(['table','form','laydate','laytpl'], function(){
             ,{field:'host', title: 'IP地址', width:220}
             ,{field:'count', title: '捕获次数', width:150,sort:true}
             ,{field:'project', title: '归属', width:250,sort:true}
-            ,{field:'status', title: '状态', width: 300,templet:'<div>{% verbatim %}{{# if (d.status == 1) { }}尚未加入黑名单{{# } else { }}已加入黑名单{{# } }}{% endverbatim %}</div>'}
+            ,{field:'status', title: '状态', width: 300,templet:'<div>{% verbatim %}{{# if (d.status == 1) { }}<i class="layui-icon layui-icon-tips" style="color: #FF5722"></i>尚未加入黑名单{{# } else { }}<i class="layui-icon layui-icon-vercode" style="color: #5FB878"></i>已加入黑名单{{# } }}{% endverbatim %}</div>'}
             ,{fixed: 'right', title: '操作', Minwidth:350, align:'center', toolbar: '#barDemo'}
         ]]
         ,id: "hostTableId"
