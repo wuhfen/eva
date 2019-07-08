@@ -127,7 +127,7 @@ layui.use('table', function(){
                 // layer.msg(JSON.stringify(ids)); 
                 layer.confirm('确定删除么?', function(index){
                   urls="{% url 'sapi' %}";
-                  jQuery.get(urls,{id:JSON.stringify(ids),"action":"del"},function(res){
+                  jQuery.get(urls,{id:JSON.stringify(ids),"tid":{{tid}},"action":"del"},function(res){
                       layer.msg(res.msg);
                       t.reload('subTableId',{url: "{% url 'sapi' %}",where: {action: "get","tid": {{tid}}}});
                   });
