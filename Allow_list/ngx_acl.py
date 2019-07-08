@@ -147,7 +147,7 @@ def pre_add_api(request):
             project = dsACL_SubProject.objects.get(pk=sid)
             jude = dsACL_ngx.objects.filter(project=project,host=data.host)
             if not jude:
-                a = dsACL_ngx(host=data.host,zone=get_ip_zone(ipaddr),project=project,user=request.user,remark=remark)
+                a = dsACL_ngx(host=data.host,zone=get_ip_zone(data.host),project=project,user=request.user,remark=remark)
                 a.save()
                 msg = msg + "%s 转移成功\n"% data.host
                 nginx_acl_scp.delay(sid)
