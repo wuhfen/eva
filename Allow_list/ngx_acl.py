@@ -713,7 +713,7 @@ def sub_pro_api(request):
         data.save()
         res={'code':0,'msg':"修改成功",'count':1}
     elif action == "del":
-        for delID in eval(tid):
+        for delID in eval(sid):
             data = dsACL_SubProject.objects.get(pk=delID)
             data.delete()
         res={'code':0,'msg':"删除sub项目成功",'count':1}
