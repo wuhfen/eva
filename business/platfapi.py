@@ -15,8 +15,8 @@ def jiasu_conf_rsync(method="local",host=None,port=None,user=None,password=None)
         servers=servers+'    "%s", -- %s\n'% (i.host_master,i.name)
     comment="""-- this file is sync from cmdb_server
 settings {
-    logfile ="/data/run/lsyncd.log",
-    statusFile ="/data/run/lsyncd.status",
+    logfile ="/data/run/jiasu_lsyncd.log",
+    statusFile ="/data/run/jiasu_lsyncd.status",
     inotifyMode = "CloseWrite",
     maxProcesses = 1,
     insist = true,
