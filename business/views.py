@@ -723,7 +723,7 @@ def acceleration_api(request):
     elif action=="zabbix":
         ids = eval(field_id)
         if ids:
-            zbx=zabbixtools("http://180.150.154.122/","zbxuser","zbxpass")
+            zbx=zabbixtools("http://172.25.100.10/","zbxuser","zbxpass")
             if zbx.authID == 0: return JsonResponse({"code":1,"rid":ids,"msg":"zabbix认证失败!"})
             for i in ids:
                 data = accelerated_server_manager.objects.get(pk=i)
