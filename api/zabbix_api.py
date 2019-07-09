@@ -5,6 +5,7 @@ import urllib2
 from urllib2 import URLError
 import sys
 import logging
+import requests
 #from pyzabbix import ZabbixAPI
 
 class zabbixtools(object):
@@ -20,7 +21,7 @@ class zabbixtools(object):
         self.authID = self.user_login()
 
     def user_login(self):
-        aa = {
+        data = {
             "jsonrpc": "2.0",
             "method": "user.login",
             "params": {
@@ -29,21 +30,10 @@ class zabbixtools(object):
                 },
             "id": 0
             }
-        data = json.dumps(aa)
-        request = urllib2.Request(self.url,data)
-        for key in self.header:
-            request.add_header(key,self.header[key])
-        try:
-            result = urllib2.urlopen(request)
-        except URLError as e:
-            print "Auth Failed, Please Check Your Name And Password:",e.code
-            return 0
-        else:
-            response = json.loads(result.read())
-            result.close()
-            authID = response['result']
-            print authID
-            return authID
+        r = requests.post(self.url,json.dumps(data),headers=self.header)
+        response = r.json()
+        authID = response['result']
+        return authID
 
     def get_data(self,data,hostip=""):
         request = urllib2.Request(self.url,data)
@@ -77,19 +67,15 @@ class zabbixtools(object):
             "id": 1
             })
 
-        res = self.get_data(data)['result']
+        r = requests.post(self.url, data, headers=self.header)
+        response = r.json()
+        res=response['result']
         if (res != 0) and (len(res) !=0 ):
             host = res[0]
-            print host['hostid']
+            print('\t', "\033[1;32;40m%s\033[0m" % u"发现主机：%s" % host['host'])
             return host['hostid']
-            # if host['status'] == '1':
-            #     print "\t","\033[1;31;40m%s\033[0m" % "Host_IP:","\033[1;31;40m%s\033[0m" % host['host'].ljust(15),'\t',"\033[1;31;40m%s\033[0m" % "Host_Name:","\033[1;31;40m%s\033[0m" % host['name'].encode('GBK'),'\t',"\033[1;31;40m%s\033[0m" % u'未在监控状态'.encode('GBK')
-            #     return host['hostid']
-            # elif host['status'] == '0':
-            #     print "\t","\033[1;32;40m%s\033[0m" % "Host_IP:","\033[1;32;40m%s\033[0m" % host['ip'].ljust(15),'\t',"\033[1;32;40m%s\033[0m" % "Host_Name:","\033[1;32;40m%s\033[0m" % host['name'].encode('GBK'),'\t',"\033[1;32;40m%s\033[0m" % u'在监控状态'.encode('GBK')
-            #     return host['hostid']
         else:
-            print '\t',"\033[1;31;40m%s\033[0m" % "Get Host Error or cannot find this host,please check !"
+            print('\t',"\033[1;31;40m%s\033[0m" % u"主机在zabbix中不存在！")
             return 0
 
     def show_host(self):
@@ -117,10 +103,35 @@ class zabbixtools(object):
             return host_dict
         else:
             return 0
-    def host_create(self,hostip,hostname,hostport,hostgroup):
+
+    def show_host_name(self):
+        data = json.dumps({
+            "jsonrpc": "2.0",
+            "method": "host.get",
+            "params": {
+                "output":["name","host"],
+                },
+            "auth": self.authID,
+            "id": 1
+            })
+        r = requests.post(self.url, data, headers=self.header)
+        response = r.json()
+        res = response['result']
+        host_dict = {}
+        if (res != 0) and (len(res) !=0 ):
+            hlist = [i['host'] for i in res]
+            nlist = [i['name'] for i in res]
+            host_dict['host'] = hlist
+            host_dict['name'] = nlist
+            return host_dict
+        else:
+            return 0
+
+    def host_create(self,hostip,hostname):
         #hostid = self.host_get(hostip)
-        groupid = self.group_get(hostgroup)
-        templateid = self.template_get("Template OS Linux")
+        judge = self.show_host_name()
+        groupid = self.group_get("加速节点")
+        templateid = self.template_get("default_js")
         data = json.dumps({
             "jsonrpc": "2.0",
             "method": "host.create",
@@ -134,7 +145,7 @@ class zabbixtools(object):
                         "useip": 1,
                         "ip": hostip,
                         "dns": "",
-                        "port": hostport
+                        "port": 10050
                     }
                 ],
                 "groups": [{"groupid": groupid }],
@@ -144,15 +155,17 @@ class zabbixtools(object):
             "auth": self.authID,
             "id": 1
             })
-        #print hostid
-        res = self.get_data(data)
-        # if hostip not in judge['host'] and hostname not in judge['name']:
-        #    res = self.get_data(data)['result']
-        #    print '\t',"\033[1;32;40m%s\033[0m" % "IP：%s 添加成功"% hostip
-        # else:
-        #     print '\t',"\033[1;31;40m%s\033[0m" % "IP: %s or NAME: %s aleady exists in zabbix!"% (hostip,hostname)
-        #     res = 0
+
+        if hostip not in judge['host'] and hostname not in judge['name']:
+            r = requests.post(self.url, data, headers=self.header)
+            response = r.json()
+            res = response['result']
+            print('\t',"\033[1;32;40m%s\033[0m" % "IP：%s 添加成功"% hostip)
+        else:
+            print('\t',"\033[1;31;40m%s\033[0m" % "IP: %s or NAME: %s aleady exists in zabbix!"% (hostip,hostname))
+            res = 0
         return res
+
 
     def jiasu_host_create(self,hostip,hostname):
         judge = self.show_host()
@@ -217,13 +230,16 @@ class zabbixtools(object):
                 "auth": self.authID,
                 "id": 1
             })
-        res = self.get_data(data)['result']
+        r = requests.post(self.url, data, headers=self.header)
+        response = r.json()
+        res = response['result']
         if (res != 0) and (len(res) !=0 ):
 
-            print res[0]['groupid']
+            print('\t',"\033[1;32;40m%s\033[0m" % u"发现主机组：%s" % res[0]['name'])
+
             return res[0]['groupid']
         else:
-            print '\t',"\033[1;31;40m%s\033[0m" % "Cannot find this group in zabbix!"
+            print('\t',"\033[1;31;40m%s\033[0m" % u"Cannot find this group in zabbix!")
             return 0
 
 
@@ -324,13 +340,15 @@ class zabbixtools(object):
                 "auth": self.authID,
                 "id": 1
             })
-        res = self.get_data(data)['result']
+        r = requests.post(self.url, data, headers=self.header)
+        response = r.json()
+        res = response['result']
         if (res != 0) and (len(res) !=0 ):
 
-            print res[0]['templateid']
+            print('\t',"\033[1;32;40m%s\033[0m" % u"发现模板: %s"% templatename)
             return res[0]['templateid']
         else:
-            print '\t',"\033[1;31;40m%s\033[0m" % "Cannot find this Template in zabbix!"
+            print('\t',"\033[1;31;40m%s\033[0m" % u"模板：%s 未发现"% templatename)
             return 0
 
     def list_output(self,gglist,number):
