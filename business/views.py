@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
 from django.shortcuts import get_object_or_404
 from django.core import serializers
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 # from forms import BusinessForm
 from models import Business,DomainName,Domain_ip_pool,DomainInfo,accelerated_server_manager
@@ -572,7 +573,7 @@ def acceleration_node_add(request):
                 reslut = jiasu_init_task.delay(host1,port,username,password)
         if 'zabbix' in  check_list:
             print "添加zabbix监控"
-            zbx=zabbixtools("http://172.25.100.10/","zbxuser","zbxpass")
+            zbx=zabbixtools(settings.ZABBIX_URL,"zbxuser","zbxpass")
             if zbx.authID != 0:
                 zbx.jiasu_host_create(host1,"%s-加速-%s"% (name,host1))
                 zbx.jiasu_host_create(host2,"%s-加速-%s"% (name,host2))
@@ -717,13 +718,13 @@ def acceleration_api(request):
                 try:
                     host=Server.objects.get(ssh_host=data.host_master)
                     jiasu_init_task.delay(host.ssh_host,host.ssh_port,host.ssh_user,host.ssh_password)
-                    result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_master}
+                    result={"code":1,"rid":ids,"msg":"%s 初始化完成!"% data.host_master}
                 except:
                     result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_master}
     elif action=="zabbix":
         ids = eval(field_id)
         if ids:
-            zbx=zabbixtools("http://172.25.100.10/","zbxuser","zbxpass")
+            zbx=zabbixtools(settings.ZABBIX_URL,"zbxuser","zbxpass")
             if zbx.authID == 0: return JsonResponse({"code":1,"rid":ids,"msg":"zabbix认证失败!"})
             for i in ids:
                 data = accelerated_server_manager.objects.get(pk=i)
