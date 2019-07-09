@@ -572,7 +572,7 @@ def acceleration_node_add(request):
                 reslut = jiasu_init_task.delay(host1,port,username,password)
         if 'zabbix' in  check_list:
             print "添加zabbix监控"
-            zbx=zabbixtools("http://180.150.154.122/","zbxuser","zbxpass")
+            zbx=zabbixtools("http://172.25.100.10/","zbxuser","zbxpass")
             if zbx.authID != 0:
                 zbx.jiasu_host_create(host1,"%s-加速-%s"% (name,host1))
                 zbx.jiasu_host_create(host2,"%s-加速-%s"% (name,host2))
