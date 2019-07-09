@@ -9,7 +9,7 @@ def jiasu_conf_rsync(method="local",host=None,port=None,user=None,password=None)
     data = accelerated_server_manager.objects.filter(online=True)
     server_list=[ {i.name:i.host_master} for i in data]
     servers=""
-    cmd='''pgrep lsyncd && pkill lsyncd && lsyncd -log Exec /etc/cmdb_lsyncd.conf && echo "已重启lsyncd服务" || lsyncd -log Exec /etc/cmdb_lsyncd.conf
+    cmd='''pgrep lsyncd && pkill lsyncd && lsyncd -log Exec /etc/lsyncd.conf && lsyncd -log Exec /etc/jiasu_lsyncd.conf && echo "已重启lsyncd服务" || (lsyncd -log Exec /etc/lsyncd.conf && lsyncd -log Exec /etc/jiasu_lsyncd.conf)
     '''
     for i in data:
         servers=servers+'    "%s", -- %s\n'% (i.host_master,i.name)
@@ -44,7 +44,7 @@ sync {
     }
 end
     """% servers
-    with open('/etc/cmdb_lsyncd.conf','wb+') as f:
+    with open('/etc/jiasu_lsyncd.conf','wb+') as f:
         f.write(comment)
     if method=="local":
         print "restart lsyncd service"
@@ -53,5 +53,5 @@ end
         print res
     else:
         port=int(port)
-        run_ftp(host,port,password,user,'/etc/cmdb_lsyncd.conf','/etc/cmdb_lsyncd.conf')
+        run_ftp(host,port,password,user,'/etc/jiasu_lsyncd.conf','/etc/jiasu_lsyncd.conf')
         run_cmd(host,port,password,user,cmd)
