@@ -33,7 +33,7 @@ sync {
     targetdir="/usr/local/nginx/conf",
     maxDelays=5,
     delay=0,
-    delete="running",
+    delete="true",
     exclude={ ".*", "*.tmp" },
     rsync = {
         binary="/usr/bin/rsync",
