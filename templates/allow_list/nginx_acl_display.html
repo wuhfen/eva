@@ -57,6 +57,7 @@
     <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" title="IP加入lsyncd" lay-event="lastData">查看今日添加</button>
     <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger" lay-event="delData">删除</button>
     <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="addData">添加</button>
+    <button class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal" lay-event="addDatas">批量添加</button>
   </div>
 </script>
 
@@ -159,6 +160,21 @@ layui.use(['table','form','laydate','laytpl','util'], function(){
                     content: ["{% url 'acladd' %}",'yes']
                 });
             break;
+
+            case 'addDatas':
+                layer.open({
+                    type:2,
+                    title:false,
+                    skin: 'layui-layer-rim',
+                    maxmin: false,
+                    shade: 0.5,
+                    closeBtn: 0,
+                    shadeClose: true, //点击遮罩关闭层
+                    area : ['800px' , '700px'],
+                    content: ["{% url 'acladds' %}",'yes']
+                })
+             break;
+
             case 'delData':
                 var data = checkStatus.data;
                 if (+data === 0) {  //判断数组是否为空
