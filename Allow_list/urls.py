@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^spadd/(?P<tid>[^/]+)/$',ngx_acl.sub_pro_add,name="spadd"),
     url(r'^preadd/$',ngx_acl.pre_add,name="preadd"),
     url(r'^acladd/$',ngx_acl.nginx_acl_add,name="acladd"),
+    url(r'^acladds/$',ngx_acl.nginx_acl_adds,name="acladds"),
     url(r'^tpservers/',ngx_acl.top_servers_edit,name="tpservers"),
     url(r'^spservers/',ngx_acl.sub_servers_edit,name="spservers"),
     url(r'^tpexception/$',ngx_acl.top_exception_edit,name="tpexception"),

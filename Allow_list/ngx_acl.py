@@ -177,13 +177,15 @@ def nginx_acl_add(request):
         for ip in host_list:
             if not isValidIp(ip): return JsonResponse({'code':1,'msg':'IP格式错误!','count':0})
         tid = request.POST.get('topproject')
-        top_obj = dsACL_TopProject.objects.get(pk=tid)
         sid = request.POST.get('project')
-        sub_obj = dsACL_SubProject.objects.get(pk=sid)
         deltask = request.POST.get('delTask')
         delDateTime = request.POST.get('delDateTime')
         delDateTime = beijing2utc(delDateTime)
         remark = request.POST.get('remark')
+
+        top_obj = dsACL_TopProject.objects.get(pk=tid)
+        sub_obj = dsACL_SubProject.objects.get(pk=sid)
+
         # 判断添加限制,特权IP
         limit = top_obj.limit
         exception = top_obj.exception
@@ -221,6 +223,59 @@ def nginx_acl_add(request):
         return JsonResponse({'code':0,'msg':'IP添加完成'})
     return render(request,'allow_list/nginx_acl_add.html',locals())
 
+
+@login_required()
+def nginx_acl_adds(request):
+    if request.method == 'POST':
+        host=request.POST.get('host')
+        host_list = strIp_to_listIp(host)
+        for ip in host_list:
+            if not isValidIp(ip): return JsonResponse({'code':1,'msg':'IP格式错误!','count':0})
+        tids = request.POST.get('topproject').split("_")
+        name = request.POST.get('project')
+        deltask = request.POST.get('delTask')
+        delDateTime = request.POST.get('delDateTime')
+        delDateTime = beijing2utc(delDateTime)
+        remark = request.POST.get('remark')
+        for tid in tids:
+            top_obj = dsACL_TopProject.objects.get(pk=tid)
+            sub_obj = dsACL_SubProject.objects.filter(parentPro=top_obj).filter(name=name)[0]
+            # 判断添加限制,特权IP
+            limit = top_obj.limit
+            exception = top_obj.exception
+            if limit != 0:
+                subps=dsACL_SubProject.objects.filter(parentPro=top_obj)
+                for ip in host_list:
+                    ipNum = 0
+                    for subpro in subps:
+                        ipNum += dsACL_ngx.objects.filter(project=subpro,host=ip).count()
+                    if ipNum >= limit and ip not in exception:
+                        return JsonResponse({'code':1,'msg':'IP: %s 添加次数大于 %s'% (ip,limit),'count':0})
+            if not deltask:
+                deltask = False
+                delDateTime = None
+            else:
+                deltask = True
+            for ipaddr in host_list:
+                if dsACL_ngx.objects.filter(project=sub_obj,host=ipaddr):continue
+                data = dsACL_ngx(host=ipaddr,zone=get_ip_zone(ipaddr),project=sub_obj,user=request.user,remark=remark,delTask=deltask,delDateTime=delDateTime)
+                data.save()
+                if deltask:
+                    schedule, _ = ClockedSchedule.objects.get_or_create(
+                        clocked_time = data.delDateTime
+                    )
+                    PeriodicTask.objects.create(
+                        name = "acl_delIp_%s"% data.host
+                        ,task = "Allow_list.tasks.nginx_acl_del"
+                        ,clocked = schedule
+                        ,args = json.dumps([data.id])
+                        ,one_off = True
+                        ,enabled = True
+                    )
+            # 调用异步任务同步文件
+            # nginx_acl_scp.delay(sub_obj.id)
+        return JsonResponse({'code':0,'msg':'IP添加完成'})
+    return render(request, 'allow_list/nginx_acl_adds.html', locals())
 
 
 def nginx_acl_api(request):
@@ -672,6 +727,7 @@ def sub_pro_api(request):
     action = request.GET.get('action')
     sid = request.GET.get('id')
     tid = request.GET.get('tid')
+    project_name = request.GET.get('project_name')
     toppro = dsACL_TopProject.objects.get(pk=tid)
     value = request.GET.get('value')
     res={'code':1,'msg':"错误",'count':0}
@@ -694,6 +750,12 @@ def sub_pro_api(request):
         res={'code':0,'msg':"",'count':count,'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
     elif action == "getAll":
         data = dsACL_SubProject.objects.filter(parentPro=toppro)
+        res={'code':0,'msg':"所有sub项目",'count':len(data),'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
+    elif action == "get_All":
+        line_table = {"cache_ips":[],"cow_ips":[],}
+        toppros = dsACL_TopProject.objects.filter(id__in=line_table[project_name])
+        toppros_id = [top.id for top in toppros if top]
+        data = dsACL_SubProject.objects.filter(parentPro__in=toppros_id)
         res={'code':0,'msg':"所有sub项目",'count':len(data),'data':[eval(i.toJSON(),{'true':1,'false':0}) for i in data if i]}
     elif action == "edit_name":
         if dsACL_SubProject.objects.filter(parentPro=toppro,name=value): return JsonResponse({'code':1,'msg':"项目名已存在",'count':1})

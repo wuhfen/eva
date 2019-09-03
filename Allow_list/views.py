@@ -19,8 +19,6 @@ from .tasks import do_ansible,change_backend_task,change_backend_second,nginx_wh
 from celery.result import AsyncResult
 from business.models import Business
 from business.tasks import dns_resolver_ip
-from automation.models import gengxin_code
-from automation.tasks import fabu_nginxconf_task
 
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from api.paginator_api import JuncheePaginator
@@ -128,7 +126,7 @@ def changes(a,b):
    for i in xrange(0,len(a),b):
        yield  a[i:i+b]
 
-@permission_required('Allow_list.change_oldsite_line', login_url='/allow/error/')
+
 def linechange(request):
     """现金网备用后台"""
     data = Business.objects.filter(nic_name__contains="10").order_by('nic_name')
@@ -149,7 +147,6 @@ def linechange(request):
         rules2 = rules[2]
     except:
         rules2 = []
-
 
     return render(request,"allow_list/linechange.html",locals())
 
@@ -176,35 +173,7 @@ def push_data(request,choice):
     select = choice.split('_')[0]
     uuid = choice.split('_')[1]
     business = Business.objects.get(pk=uuid)
-    try:
-        data = gengxin_code.objects.filter(classify="online").get(business=business)
-        if select == "web":
-            print "修改web域名"
-            domainname = data.front_domain
-        elif select == "ag":
-            print "修改代理后台域名"
-            domainname = data.agent_domain
-        else:
-            print "修改ds168后台域名"
-            domainname = data.backend_domain
-    except:
-        data = None
-
-    if request.method == 'POST':
-        domain = request.POST.get('domain')
-        print domain
-        if "web_" in choice:
-            data.front_domain = domain
-            classify = "front"
-        elif "ag_" in choice:
-            data.agent_domain = domain
-            classify = "agent"
-        else:
-            classify = "backend"
-            data.backend_domain = domain
-        data.save()
-        print data.phone_site
-        configurate = fabu_nginxconf_task.delay(data.uuid,choice=classify)
+    pass
     return render(request,'allow_list/push_data.html',locals())
 
 def backend_status(request):
