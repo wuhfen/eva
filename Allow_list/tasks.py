@@ -130,7 +130,7 @@ def nginx_acl_task(sid):
     else:
         for acl_obj in dsACL_ngx.objects.filter(project=sub_obj):
             ruleIp = ruleIp + rule.replace("{IP}", acl_obj.host) + '\n'
-    localfile = "/data/nginx_acl_cmdb/aclTmpfile"
+    localfile = "/data/nginx_acl_cmdb/aclTmpfile_%s_%s"% (sub_obj.name,top_obj.name)
     with open(localfile, "wb+") as f:
         f.write(ruleIp)
     for server in strIp_to_listIp(servers):
