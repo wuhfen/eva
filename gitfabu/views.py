@@ -15,11 +15,13 @@ from gitfabu.tasks import git_fabu_task, git_moneyweb_deploy, git_update_task, g
 from django.contrib.auth.decorators import login_required
 import time
 from api.git_api import Repo
+from api.common_api import utc2beijing,beijing2utc
 from gitfabu.audit_api import task_distributing, check_group_audit, onekey_access, get_the_group_audit_result
 import telegram
 import pdb
 import uuid
 from collections import OrderedDict  # 引入有序字典
+from audit.tasks import sql_execute_task
 bot = telegram.Bot(token='460040810:AAG4NYR9TMwcscrxg0uXLJdsDlP3a6XohJo')
 
 
@@ -352,16 +354,12 @@ def conf_add(request, env):
 
 @login_required
 def my_request_task_list(request):
-
     if request.user.username == "wuhf":
         data = my_request_task.objects.filter(isend=False, loss_efficacy=False).order_by('-create_date')
     else:
         data = my_request_task.objects.filter(initiator=request.user, loss_efficacy=False).order_by('-create_date')[0:100]
     # data = my_request_task.objects.filter(initiator=request.user,loss_efficacy=True).order_by('-create_date')[0:100]
     return render(request, 'gitfabu/my_request_task.html', locals())
-
-
-
 
 @login_required
 def my_request_task_filter(request):
@@ -403,7 +401,7 @@ def my_request_task_filter(request):
                         others_task_dict[GroupName].append({j.auditor.username:"no"})
                 else:
                     others_task_dict[GroupName].append({j.auditor.username:"wait"})
-            task_data["data"].append({"id":task.id,"isend":task.isend,"ttype":task.types,"datetime":task.create_date.strftime('%Y-%m-%d %H:%M:%S'),"taskname":task.name,"status":task.status,"audit":others_task_dict})
+            task_data["data"].append({"id":task.id,"isend":task.isend,"ttype":task.types,"datetime":utc2beijing(task.create_date),"taskname":task.name,"status":task.status,"audit":others_task_dict})
         return JsonResponse(task_data)
     else:
         platform=request.GET.get('platform')
@@ -460,10 +458,8 @@ def my_request_task_filter(request):
                         others_task_dict[GroupName].append({j.auditor.username:"no"})
                 else:
                     others_task_dict[GroupName].append({j.auditor.username:"wait"})
-            task_data["data"].append({"id":task.id,"isend":task.isend,"ttype":task.types,"datetime":task.create_date.strftime('%Y-%m-%d %H:%M:%S'),"taskname":task.name,"status":task.status,"audit":others_task_dict})
+            task_data["data"].append({"id":task.id,"isend":task.isend,"ttype":task.types,"datetime":utc2beijing(task.create_date),"taskname":task.name,"status":task.status,"audit":others_task_dict})
         return JsonResponse(task_data)
-
-
 
 @login_required
 def others_request_task_list(request):
@@ -494,7 +490,7 @@ def others_request_task_filter(request):
         start_line=int(page)*int(limit)-int(limit)
         end_line=int(page)*int(limit)
     if not task_filter:
-        if request.user.username == "wuhf":
+        if request.user.is_superuser:
             data = git_task_audit.objects.filter(isaudit=False)[start_line:end_line]
         else:
             data = git_task_audit.objects.filter(auditor=request.user).order_by('-create_date')[start_line:end_line]
@@ -514,7 +510,7 @@ def others_request_task_filter(request):
                     showbtn=True
             if task.request_task.loss_efficacy:
                 showbtn=False
-            task_data["data"].append({"id":task.id,"rid":task.request_task.id,"showbtn":showbtn,"auditor":task.auditor.username,"tasktypes":task.request_task.types,"audit_status":isaudit,"datetime":task.create_date.strftime('%Y-%m-%d %H:%M:%S'),"isend":task.request_task.isend,"isaudit":task.isaudit,"ispass":task.ispass,"postil":task.postil,"loss_efficacy":task.loss_efficacy,"taskname":task.request_task.name,"status":task.request_task.status,"memo":task.request_task.memo,"initiator":task.request_task.initiator.username})
+            task_data["data"].append({"id":task.id,"rid":task.request_task.id,"showbtn":showbtn,"auditor":task.auditor.username,"tasktypes":task.request_task.types,"audit_status":isaudit,"datetime":utc2beijing(task.create_date),"isend":task.request_task.isend,"isaudit":task.isaudit,"ispass":task.ispass,"postil":task.postil,"loss_efficacy":task.loss_efficacy,"taskname":task.request_task.name,"status":task.request_task.status,"memo":task.request_task.memo,"initiator":task.request_task.initiator.username})
     else:
         platform=request.GET.get('platform')
         classify=request.GET.get('classify')
@@ -558,7 +554,7 @@ def others_request_task_filter(request):
                     showbtn=True
             if task.request_task.loss_efficacy:
                 showbtn=False
-            task_data["data"].append({"id":task.id,"rid":task.request_task.id,"showbtn":showbtn,"auditor":task.auditor.username,"tasktypes":task.request_task.types,"audit_status":isaudit,"datetime":task.create_date.strftime('%Y-%m-%d %H:%M:%S'),"isend":task.request_task.isend,"isaudit":task.isaudit,"ispass":task.ispass,"postil":task.postil,"loss_efficacy":task.loss_efficacy,"taskname":task.request_task.name,"status":task.request_task.status,"memo":task.request_task.memo,"initiator":task.request_task.initiator.username})
+            task_data["data"].append({"id":task.id,"rid":task.request_task.id,"showbtn":showbtn,"auditor":task.auditor.username,"tasktypes":task.request_task.types,"audit_status":isaudit,"datetime":utc2beijing(task.create_date),"isend":task.request_task.isend,"isaudit":task.isaudit,"ispass":task.ispass,"postil":task.postil,"loss_efficacy":task.loss_efficacy,"taskname":task.request_task.name,"status":task.request_task.status,"memo":task.request_task.memo,"initiator":task.request_task.initiator.username})
 
     return JsonResponse(task_data)
 
@@ -632,6 +628,13 @@ def my_task_details(request, uuid):
             dflog = git_deploy_logs.objects.get(update=data.uuid)
         except:
             dflog = None
+    elif data.types == "mysql":
+        classify = "sql"
+        df = eval(data.table_name).objects.get(pk=data.uuid)
+        sql_conf = df.sqlconf
+        dflog = df.log
+        dpath = sql_conf.workdir+"/"+df.savename
+        return render(request,'audit/mysql_details.html',locals())
     else:
         if data.table_name == "git_deploy":
             classify = "fabu"
@@ -723,7 +726,7 @@ def my_task_details(request, uuid):
         elif data.table_name == "sql_apply":
             classify = "sql"
             df = eval(data.table_name).objects.get(pk=data.uuid)
-            sql_conf = df.name
+            sql_conf = df.sqlconf
             dflog = df.log
 
     return render(request, 'gitfabu/my_task_details.html', locals())
@@ -795,6 +798,23 @@ def audit_my_task(request, uuid):
                 data.request_task.status = "通过审核，更新中"
                 data.request_task.save()
                 reslut = git_batch_update_task.delay(data.request_task.id)
+        elif data.request_task.types == "mysql":
+            df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
+            if data.request_task.reqt.filter(isaudit=True, ispass=False):  # 已审核人里有人否决了任务
+                data.request_task.status = "未通过审核"
+                data.request_task.isend = True
+                data.request_task.save()
+                df.review = True  # 更新任务已审核
+                df.save()
+                return JsonResponse({'res': "OK"}, safe=False)
+            if False not in groups_isaudit:
+                df.review = True
+                df.passed = True
+                df.save()
+                data.request_task.status = "通过审核"
+                data.request_task.save()
+                reslut = sql_execute_task.delay(data.request_task.id,data.request_task.uuid)
+                return JsonResponse({'res': "OK"}, safe=False)
         else:  # 其他任务审核,这一个分支太复杂了,要大修改
             df = eval(data.request_task.table_name).objects.get(pk=data.request_task.uuid)
             if data.request_task.reqt.filter(isaudit=True, ispass=False):  # 已审核人里有人否决了任务
@@ -1038,7 +1058,7 @@ def web_update_code(request, uuid):
                 updata.save()
                 reslut = git_update_task.delay(updata.id, mydata.id)
         else:
-            if "1029" in data.name or "1068" in data.name:  # 现金网1029特例
+            if data.name == "new1029a":  # 现金网1029特例
                 mydata.status = "通过审核，更新中"
                 mydata.save()
                 updata.isaudit = True
