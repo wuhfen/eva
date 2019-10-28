@@ -85,7 +85,7 @@ def sql_conf_list(request):
 def sql_conf_button(request):
     data = []
     user = request.user
-    groups = [ g.apply_group for g in sql_conf.objects.all()]
+
     for g in user.group_users.all():
         conf = sql_conf.objects.filter(apply_group=g)
         if conf: data+=conf
