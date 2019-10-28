@@ -16,9 +16,10 @@ urlpatterns = [
     url(r'^sql/conf/add/$',views.sql_conf_add,name='sql_conf_add'),
     url(r'^sql/conf/modify/(?P<uuid>[^/]+)/$',views.sql_conf_modify,name='sql_conf_modify'),
     url(r'^sql/conf/delete/(?P<uuid>[^/]+)/$',views.sql_conf_delete,name='sql_conf_delete'),
+    url(r'^sql/conf/status/(?P<uuid>[^/]+)/$',views.sql_conf_check_status,name='sql_conf_check_status'),
 
     url(r'^sql/statement/add/(?P<uuid>[^/]+)/$',views.sql_apply_add,name='sql_apply_add'),
     url(r'^sql_list/$',views.sql_list,name='sql_list'),
-    url(r'^sql/download/(?P<filename>[^/]+)$',views.sql_file_download,name='sql_download'),
+    url(r'^sql/download/(?P<uuid>[^/]+)$',views.sql_file_download,name='sql_download'),
     
     ]

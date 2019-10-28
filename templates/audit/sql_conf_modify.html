@@ -6,24 +6,22 @@
 
 <div class="box">
     <form class="form-horizontal" action="" id="tools_add"  method="post" name="horizontal" role="form" autocomplete="off">
-        <div class="box-header">
-            <a href="javascript:;" class="btn btn-success btn-block" id="id_submit"> 确认 </a>
-        </div>
         <div class="box-body">
-        <div class="col-lg-12">
-            {% csrf_token %}
-            {{ tf.name|bootstrap_horizontal }}
-            {{ tf.pub_vip|bootstrap_horizontal }}
-            {{ tf.local_vip|bootstrap_horizontal }}
-            {{ tf.vip_port|bootstrap_horizontal }}
-            {{ tf.cluster|bootstrap_horizontal }}
-            {{ tf.master_node|bootstrap_horizontal }}
-            {{ tf.slave_node|bootstrap_horizontal }}
-            {{ tf.user|bootstrap_horizontal }}
-            {{ tf.port|bootstrap_horizontal }}
-            {{ tf.password|bootstrap_horizontal }}
-            {{ tf.group|bootstrap_horizontal }}
-        </div>
+            <div class="col-lg-12">
+                {% csrf_token %}
+                {{ tf.name|bootstrap_horizontal }}
+                {{ tf.host|bootstrap_horizontal }}
+                {{ tf.port|bootstrap_horizontal }}
+                {{ tf.user|bootstrap_horizontal }}
+                {{ tf.password|bootstrap_horizontal }}
+                {{ tf.apply_group|bootstrap_horizontal }}
+                {{ tf.group|bootstrap_horizontal }}
+                {{ tf.group_ops|bootstrap_horizontal }}
+            
+                <div class="box-header">
+                    <a href="javascript:;" class="btn btn-success" id="id_submit"> 确认 </a>
+                </div>
+            </div>
         </div>
     </form>
 </div>

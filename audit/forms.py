@@ -11,4 +11,4 @@ class RecordOPSForm(ModelForm):
 class SqlConfForm(ModelForm):
     class Meta:
         model = sql_conf
-        fields = '__all__'
+        fields = ['name','host','user','port','password','group','apply_group','group_ops']

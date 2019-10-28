@@ -2,81 +2,63 @@
 
 
 {% block content %}
-<div class="box box-info">
+<div class="box">
     <div class="box-header">
-        {% for i in errors %}<p>{{ i }}</p>{% endfor %}
+        <div class="col-sm-12" align="center">
+            <h4>{{ data.name }}  <small>{{ data.host }}:{{ data.port }}</small></h4>
+        </div>
     </div>
     <div class="box-body">
-    <form class="form-horizontal" action=""  method="post" enctype="multipart/form-data" role="form">{% csrf_token %}
-        <div class="col-sm-12" align="center">
-            <h4>{{ data.name }}</h4>
-        </div>
-        <div class="col-sm-12" align="center">
-            {% if data.pub_vip %}<p>{{ data.pub_vip }}:{{ data.vip_port }}</p>
-            {% elif data.local_vip %}<p>{{ data.local_vip }}:{{ data.vip_port }}</p>
-            {% else %}<p>{{ data.master_node }}:{{ data.port }}</p>
-            {% endif %}
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="database">数据库:</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" name="database" id="database">
+        <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="file-upload-form" role="form">{% csrf_token %}
+            
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="file">文件:</label>
+                <div class="col-sm-9">
+                    <input type="file" class="form-control" name="file" id="id_file">
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="sql_type">选择类型:</label>
-            <div class="col-sm-9">
-                <select name="sql_type" id="id_sql_type" class="form-control">
-                    <option value="statement">语句</option>
-                    <option value="file">文件</option>
-                </select>
+            <div class="form-group" id="md5">
+                <label class="col-sm-2 control-label" for="id_md5v">MD5:</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="md5v" id="id_md5v">
+                </div>
             </div>
-        </div>
-        <div class="form-group" id="xzoon">
-            <label class="col-sm-2 control-label" for="statement">语句:</label>
-            <div class="col-sm-9">
-                <textarea class="form-control" name="statement"></textarea>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="memo">备注:</label>
+                <div class="col-sm-9">
+                    <textarea class="form-control" name="memo"></textarea>
+                </div>
             </div>
-        </div>
-        <div class="form-group" id="md5" hidden="hidden">
-            <label class="col-sm-2 control-label" for="id_md5v">MD5:</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" name="md5v" id="id_md5v">
+            <div class="form-group">
+                <div class="col-sm-4 col-sm-offset-5">
+                    <button type="submit" class="btn btn-primary" id='upload-btn'>Upload</button>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label" for="memo">备注:</label>
-            <div class="col-sm-9">
-                <textarea class="form-control" name="memo"></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-4 col-sm-offset-4">
-                <button class="btn btn-success" type="submit"> 提交 </button>
-            </div>
-        </div>
 
-    </form>
+        </form>
     </div>
 </div>
 
 <script type="text/javascript">
-$("#id_sql_type").change(function(){
-    // 先清空
-    $("div #xzoon").empty();
-    // 实际的应用中，这里的option一般都是用循环生成多个了
-    var method = $('#id_sql_type').val();
-
-    if (method == "file") {
-        var label = '<label class="col-sm-2 control-label" for="file">文件:</label><div class="col-sm-9"><input type="file" class="form-control" name="file" id="id_file"></div>';
-        $("#xzoon").append(label);
-        $("#md5").show();
-    } else {
-        var label = '<label class="col-sm-2 control-label" for="statement">语句:</label><div class="col-sm-9"><textarea class="form-control" name="statement"></textarea></div>';
-        $("#xzoon").append(label);
-        $("#md5").hide();
-    };
-
+function uploadFile(event) {
+    event.preventDefault();
+    var data = new FormData($('form').get(0));
+    $.ajax({
+        url:$(this).attr('action'),
+        type: $(this).attr('method'),
+        data: data,
+        cache: false,  //兼容ie8等旧浏览器
+        processData: false,  //不修改数据
+        contentType: false,  //不修改头部信息
+        success: function(res) {
+            if (res.code==1) {
+              layer.msg(res.msg);
+            } else { parent.layer.closeAll(); }
+        },
+    });
+}
+$(function() {
+     $('#file-upload-form').submit(uploadFile);
 });
 </script>
 {% endblock %}

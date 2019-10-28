@@ -3,12 +3,14 @@
 
 {% block title %} SQL申请{% endblock %}
 
-{% block head %} 
-<!-- <link rel="stylesheet" href="/static/css/from_cs/jquery.validator.css">
-<script type="text/javascript" src="/static/js/from_js/jquery.validVal.js"></script>
-<script type="text/javascript" src="/static/js/from_js/zh_CN.js"></script> -->
-{% endblock %}
+{% block assistant-header %} 
+    <h4>我的数据库</h4>
+    <ol class="breadcrumb">
+        <li><a href="/"><i class="fa fa-dashboard"></i> 首页 </a></li>
+        <li><a href="{% url 'sql_conf_list' %}"> mysql </a></li>
+    </ol>
 
+{% endblock %}
 
 
 {% block content %}
@@ -16,13 +18,21 @@
     <div class="box">
         <div class="box-body">
             {% for i in data %}
-                <div class="col-md-3 col-xs-4" id="demo_{{ i.id }}" onmouseover="mouseOver('{{ i.id }}')" onmouseout="mouseOut()">
+                <div class="col-md-2 col-xs-4" id="demo_{{ i.id }}" onmouseover="mouseOver('{{ i.id }}')" onmouseout="mouseOut()">
                     <a href="{% url 'sql_apply_add' i.id %}" class="btn btn-app bg-purple">
-                        {{ i.name }}<br>{% if i.cluster %}{% if i.pub_vip %}IP:{{ i.pub_vip }}{% else %}IP:{{ i.local_vip }}{% endif %}<span class="badge bg-green">{{ i.vip_port }}</span>{% else %}IP:{{ i.master_node }}<span class="badge bg-green">{{ i.port }}</span>{% endif %}
+                        {{ i.name }}
+                        {% if i.status %}
+                            <span class="badge bg-green">可用</span>
+                        {% else %}
+                            <span class="badge bg-red">不可用</span>
+                        {% endif %}
                     </a>
                 </div>
-                <div id="text_{{ i.id }}" hidden="hidden">{% if i.pub_vip %}公网VIP:{{ i.pub_vip }}端口:{{ i.vip_port }}@{% endif %}{% if i.local_vip %}内网VIP:{{ i.local_vip }}端口:{{ i.vip_port }}@{% endif %}{% if i.cluster %}集群节点:{{ i.slave_node }}@主节点:{{ i.master_node }}端口:{{ i.port }}{% else %}主节点:{{ i.master_node }}端口:{{ i.port }}{% endif %}</div>
+                <div id="text_{{ i.id }}" hidden="hidden">
+                真实IP:{{ i.host }}@端口:{{ i.port }}
+                </div>
             {% endfor %}
+
         </div>
     </div>
 </div>
@@ -52,8 +62,9 @@ $('.bg-purple').on("click",function(event){
         title: 'SQL执行申请',
         maxmin: false,
         shade: 0.5,
+        scrollbar: false,
         shadeClose: true, //点击遮罩关闭层
-        area : ['900px' , (height - 50) + 'px'],
+        area : ['900px' , '400px'],
         content: url
     });
     event.preventDefault();

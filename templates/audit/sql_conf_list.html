@@ -28,16 +28,14 @@
                 <thead>
                 <tr>
                     <th>名称</th>
-                    <th>公网VIP</th>
-                    <th>内网VIP</th>
-                    <th>VIP端口</th>
-                    <th>主节点IP</th>
-                    <th>是否集群</th>
-                    <th>从节点IP</th>
-                    <th>用户名</th>
-                    <th>端口</th>
-                    <th>密码</th>
-                    <th>所属组</th>
+                    <th>Host</th>
+                    <th>Port</th>
+                    <th>User</th>
+                    <th>状态</th>
+                    <th>文件存放目录</th>
+                    <th>申请组</th>
+                    <th>审核组</th>
+                    <th>危险语句审核组</th>
                     <th>操作</th>
                 </tr>
                 </thead>
@@ -45,16 +43,17 @@
                 {% for v in data %}
                     <tr>
                         <td>{{ v.name }}</td>
-                        <td>{{ v.pub_vip }}</td>
-                        <td>{{ v.local_vip }}</td>
-                        <td>{{ v.vip_port }}</td>
-                        <td>{{ v.master_node }}</td>
-                        <td>{% if v.cluster %}集群{% else %}单点{% endif %}</td>
-                        <td>{{ v.slave_node }}</td>
-                        <td>{{ v.user }}</td>
+                        <td>{{ v.host }}</td>
                         <td>{{ v.port }}</td>
-                        <td>{{ v.password }}</td>
+                        <td>{{ v.user }}</td>
+                        <td>
+                            {% if v.status %}可用{% else %}不可用{% endif %}
+                            <a class="btn btn-xs btn-primary status" href="{% url 'sql_conf_check_status' v.id %}" title="检测"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+                        </td>
+                        <td>{{ v.workdir }}</td>
+                        <td>{{ v.apply_group }}</td>
                         <td>{{ v.group }}</td>
+                        <td>{{ v.group_ops }}</td>
                         <td>
                             <a href="{% url 'sql_conf_modify' v.id %}" class="btn btn-xs btn-primary tools-edit">修改</a>
                             <a href="{% url 'sql_conf_delete' v.id %}" class="btn btn-xs btn-danger tools-delete">删除</a>
@@ -97,7 +96,7 @@ $(".tools-edit").on("click", function(event){
             maxmin: true,
             shade: 0.5,
             shadeClose: true, //点击遮罩关闭层
-            area : ['900px' , (height - 50) + 'px'],
+            area : ['700px' , '600px'],
             end : function () {
               location.reload();
           },
@@ -106,5 +105,12 @@ $(".tools-edit").on("click", function(event){
      event.preventDefault();
 });
 
+$(".status").on("click",function(event){
+    event.preventDefault();
+    url = $(this).attr('href');
+    $.get(url,function(result){
+        layer.msg(result.msg);
+    })
+});
 </script>
 {% endblock %}
