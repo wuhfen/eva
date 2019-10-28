@@ -1103,7 +1103,7 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
         data = git_deploy.objects.get(name=key,platform=platform,classify=classify,isops=True,islog=True)
         MyWeb = git_moneyweb_deploy(data.id)
         if platform == "现金网":
-            if method = 'web':
+            if method == 'web':
                 export_reslut = MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
                 export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value)
             else:
