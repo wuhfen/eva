@@ -142,7 +142,7 @@ def sql_apply_add(request,uuid):
                 f_list = f.readlines()
             for key in dangerous_key_list:
                 for sentence in f_list:
-                    if key in sentence:
+                    if key in sentence.lower():
                         dangerous = True
                         keyword.append(sentence.rstrip('\n'))
         if keyword:
