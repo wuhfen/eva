@@ -48,6 +48,7 @@ class sql_conf(models.Model):
 class sql_apply(models.Model):
     '''数据库应用:名称,类型(sql文件或语句),文件名,语句,是否审核,是否通过,是否成功,申请人,日志,创建时间,执行时间,备注'''
     sqlconf = models.ForeignKey(sql_conf,null=True,related_name="sqlfile")
+    taskid = models.CharField(max_length=10,blank=True)
     filename = models.TextField(blank=True) #sql文件名
     savename = models.TextField(blank=True) #文件保存名
     md5value = models.CharField(max_length=45,blank=True) #文件的md5值

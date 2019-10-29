@@ -9,6 +9,12 @@
         </div>
     </div>
     <div class="box-body">
+        <div class="col-lg-12">
+            <label class="text-right bolder" for="id_site">最近5条申请记录<small class="text-danger"><i class="fa fa-star" aria-hidden="true"></i></small></label>
+            
+            <pre>{% for i in sql_records %}时间: {{ i.ctime|date:"Y-m-d H:i:s" }} 文件: <a href="{% url 'sql_download' i.id %}" download="{{ i.filename }}">{{ i.filename }}</a> 申请人: {{ i.user }} 状态: {% if i.islog %} 完成{% else %} 未完成{% endif %} 详情: <a href="{% url 'my_task_details' i.taskid %}" target="_blank">查看</a> <br>{% endfor %}</pre>
+                <a href="{% url 'sql_list' data.id %}" target="_blank">点击查看更多</a>
+        </div>
         <form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="file-upload-form" role="form">{% csrf_token %}
             
             <div class="form-group">

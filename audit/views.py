@@ -112,6 +112,7 @@ def md5sum(file):
 
 def sql_apply_add(request,uuid):
     data = sql_conf.objects.get(pk=uuid)
+    sql_records = sql_apply.objects.filter(sqlconf=data).order_by('-ctime')[0:5]
     if request.method == 'POST':
         user = request.user
         if data.apply_group:
@@ -161,6 +162,8 @@ def sql_apply_add(request,uuid):
         task_name = "%s申请数据库操作"% data.name
         mytask = my_request_task(name=task_name,types="mysql",table_name="sql_apply",uuid=create.id,initiator=request.user,memo=memo,status="审核中")
         mytask.save()
+        create.taskid = mytask.id
+        create.save()
         sql_send_message_task.delay(mytask.id,data.group.id)
         if dangerous:
             sql_send_message_task.delay(mytask.id,data.group_ops.id)
@@ -168,10 +171,12 @@ def sql_apply_add(request,uuid):
     if not data.status:return HttpResponse("当前配置连不上数据库！")
     return render(request,'audit/sql_apply_add.html',locals())
 
-def sql_list(request):
+def sql_list(request,uuid):
     """列出主机,端口,库名,时间,申请人,状态,等"""
-    pass
+    data = sql_conf.objects.get(pk=uuid)
+    sql_records = sql_apply.objects.filter(sqlconf=data).order_by('-ctime')[0:200]
     return render(request,'audit/sql_list.html',locals())
+
 
 def sql_file_download(request,uuid):
     def file_iterator(file_name,chunk_size=512):

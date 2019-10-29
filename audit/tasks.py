@@ -29,6 +29,9 @@ def sql_execute_task(tid,uid):
     if res['err']:
         log = log + "执行sql报错：\n"
         log = log + res['err']
+    else:
+        if not res['out']:
+            log = log + "无返回,执行完毕!"
     sql.log = log
     sql.save()
     mytask.isend = True
