@@ -566,6 +566,67 @@ class git_moneyweb_deploy(object):
                 self.results.append("添加属主：%s \n"% owner)
         return self.results
 
+    def ansible_rsync_wwwroot(self):
+        """大量站点更新,一次性执行推送,节约时间,节约服务器资源,避免频繁加锁解锁wwwroot目录"""
+        self.results.append("开始推送代码至服务器")
+
+        exclude = genxin_exclude_file(self.exclude) #同步排除文件队列处理
+        remotedir = "/data/wwwroot/"
+        if self.platform == "现金网":
+            local_merge = "/data/moneyweb/" + self.env + "/merge/"
+        elif self.platform == "VUE蛮牛":
+            local_merge = "/data/manniuvue/" + self.env + "/merge/"
+        elif self.platform == "蛮牛":
+            local_merge = "/data/manniuweb/" + self.env + "/merge/"
+        else:
+            self.results.append("该项目不支持批量更新!")
+            return self.results
+        if '\r\n' not in self.remoteip and '\n' in self.remoteip:
+            self.remoteip = self.remoteip.replace('\n','\r\n')
+        self.remoteip = self.remoteip.replace(' ','\r\n')
+
+        print self.remoteip.split('\r\n')
+        for i in self.remoteip.split('\r\n'):
+            try:
+                obj = Server.objects.get(ssh_host=i)
+            except:
+                self.results.append("CMDB中没有此服务器信息：%s,已跳过！"% i)
+                continue
+            if not ssh_check(i):
+                self.results.append("服务器IP%s无法到达，已跳过！"% i)
+                continue
+            self.results.append("服务器：%s,目录：%s,排除文件：%s"% (i,remotedir,exclude))
+            owner = "chown -R %s %s"% (self.owner,remotedir)
+            unlock = "chattr -R -i /data/wwwroot/"
+            lock = "chown -R %s /data/wwwroot/ && chattr -R +i /data/wwwroot/"% self.owner
+            if self.env == 'online' and self.platform == "现金网":
+                command_unlock = ssh_cmd(i,unlock)
+                self.results.append("解锁目录：%s"% unlock)
+            #执行推送代码前命令
+            if self.rsync_command:
+                rsync_command_res = ssh_cmd(i,self.rsync_command)
+                self.results.append("同步代码前要执行的命令：%s，执行结果：%s"% (self.rsync_command,rsync_command_res))
+            #将代码从CMDB本地目录推送到服务器目录，需要此机器可以公钥访问源站
+            task = MyTask(gen_resource(obj))
+            rsync_res = task.genxin_rsync(local_merge,remotedir,exclude) 
+            if rsync_res["hosts"][i].has_key("msg"):
+                self.results.append("同步代码返回msg：%s"% rsync_res["hosts"][i]["msg"])
+            if rsync_res["hosts"][i].has_key("stdout_lines"):
+                self.results.append("同步代码返回stdout_lines：%s"% rsync_res["hosts"][i]["stdout_lines"])
+            #执行代码推送后命令
+            if self.last_command:
+                last_command_res = ssh_cmd(i,self.last_command)
+                self.results.append("同步代码后要执行的命令：%s，执行结果：%s"% (self.last_command,last_command_res))
+            if self.env == 'online' and self.platform == "现金网":
+                command_lock = ssh_cmd(i,lock)
+                self.results.append("加锁目录：%s \n"% lock)
+            else:
+                command_lock = ssh_cmd(i,owner)
+                self.results.append("添加属主：%s \n"% owner)
+        return self.results
+
+
+
     def ansible_rsync_api(self,name,localfile,remotedir,remotefile,siteid,domains,pcdomains=None,mdomains=None):
         self.results.append("开始配置%s域名"% name)
         print "开始配置%s域名"% name
@@ -1008,7 +1069,6 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         if export_reslut:
             MyWeb.update_release()  #此步骤已经解锁data
             MyWeb.merge_git()
-            MyWeb.ansible_rsync_web()
             logs = logs+MyWeb.results
             end = "已完成：%s \n"% name
             logs.append(end)
@@ -1028,6 +1088,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
             new_data.save()
             logs.append(end)
             continue
+    MyWeb.ansible_rsync_wwwroot()
     print "已完成%s"% updata.name
     if counts:
         failed = " ".join(counts)
@@ -1115,7 +1176,6 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
         if export_reslut:
             MyWeb.update_release()
             MyWeb.merge_git()
-            MyWeb.ansible_rsync_web()
             logs = logs+MyWeb.results
             end = "已完成%s"% updata.name
             status = "已完成"
@@ -1131,7 +1191,7 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
         updata.save()
         logs.append(end)
         print end
-
+    MyWeb.ansible_rsync_wwwroot()
     os.remove(lock_file)
     logs.append("删除锁文件：%s"% lock_file)
     #更新任务isend
