@@ -79,7 +79,7 @@ class git_moneyweb_deploy(object):
             self.config_dir = self.base_export_dir + "Config_" + self.siteid #公共config
         elif self.platform == "蛮牛":
             self.base_export_dir = "/data/manniuweb/" + self.env + "/export/"
-            self.merge_dir = "/data/manniuweb/" + self.env + "/merge/" + self.siteid
+            self.merge_dir = "/data/manniuvue/" + self.env + "/merge/" + self.siteid
             self.web_dir = self.base_export_dir + self.siteid  #私有仓库检出地址
             self.php_dir = self.base_export_dir + self.siteid + "_mn_php" #公共php代码pc端检出地址
             self.js_dir = self.base_export_dir + self.siteid + "_mn_js" #公共js代码pc端检出地址
