@@ -1409,13 +1409,13 @@ def money_web_batch_update(request, env):
     if request.method == 'POST':
         check_list = request.POST.getlist('check_list')
         if not check_list: return JsonResponse({'res':"Faild"},safe=False)
-        name = platform+"-"+classify+"_WEB_批量更新"
+        name = platform+"-"+classify+"_WAP_批量更新"
         memo={}
         for i in check_list:
             memo[i.split()[0]] = i.split()[1]
         print memo
         #设计一下types,非常有用(平台-环境-方式-方法),此字段限制64字符
-        types='%s-%s-batch-web'% (platform,classify)
+        types='%s-%s-batch-js_mobile'% (platform,classify)
         mydata = my_request_task(name=name,types=types,table_name="git_code_update",uuid=uuid.uuid4(),memo=memo,initiator=request.user,status="审核中")
         mydata.save()
         if classify == "test":
@@ -1433,7 +1433,7 @@ def money_web_batch_update(request, env):
         if x.islock:
             siteid_version[x.name] = "Locked"
         else:
-            path = base_export_dir + x.name
+            path = base_export_dir + x.name + "_js_mobile"
             pull = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)

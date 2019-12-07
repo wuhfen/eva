@@ -105,8 +105,7 @@ class git_moneyweb_deploy(object):
                 ggsimida = self.export_config(branch="master")
             else:
                 ggsimida = "yes"
-            if ggsimida: a = self.export_git(what='web')
-            if a: b = self.export_git(what='php_pc')
+            if ggsimida: b = self.export_git(what='php_pc')
             if b: c = self.export_git(what='js_pc')
             if c: d = self.export_git(what='php_mobile')
             if d: e = self.export_git(what='js_mobile')
@@ -158,9 +157,9 @@ class git_moneyweb_deploy(object):
         elif what == 'php_mobile':
             repo = Repo(self.base_export_dir+ "php_mobile/")
         elif what == 'js_pc':
-            repo = Repo(self.base_export_dir+ "js_pc/")
+            repo = Repo(self.js_pc_dir)
         elif what == 'js_mobile':
-            repo = Repo(self.base_export_dir+ "js_mobile/")
+            repo = Repo(self.js_mobile_dir)
         elif what == 'php':
             repo = Repo(self.base_export_dir+ "mn_php/")
         elif what == 'js':
@@ -187,9 +186,9 @@ class git_moneyweb_deploy(object):
         elif what == 'php_mobile':
             repo = Repo(self.base_export_dir+ "php_mobile/")
         elif what == 'js_pc':
-            repo = Repo(self.base_export_dir+ "js_pc/")
+            repo = Repo(self.js_pc_dir)
         elif what == 'js_mobile':
-            repo = Repo(self.base_export_dir+ "js_mobile/")
+            repo = Repo(self.js_mobile_dir)
         elif what == 'php':
             repo = Repo(self.base_export_dir+ "mn_php/")
         elif what == 'js':
@@ -437,7 +436,7 @@ class git_moneyweb_deploy(object):
         if self.platform == "现金网":
             datas.usepub = True
         #记录发布更新的版本日志
-            last_commit = "日期：%s WEB(%s)：%s PHP电脑端(%s)：%s PHP手机端(%s)：%s JS电脑端(%s)：%s JS手机端(%s)：%s"% (self.now_time,web_branch,private_data,php_pc_branch,php_pc_data,php_mobile_branch,php_mobile_data,js_pc_branch,js_pc_data,js_mobile_branch,js_mobile_data)
+            last_commit = "日期：%s PHP电脑端(%s)：%s PHP手机端(%s)：%s VUE电脑端(%s)：%s VUE手机端(%s)：%s"% (self.now_time,php_pc_branch,php_pc_data,php_mobile_branch,php_mobile_data,js_pc_branch,js_pc_data,js_mobile_branch,js_mobile_data)
         elif self.platform == "蛮牛":
             datas.usepub = True
             last_commit = "日期：%s WEB(%s)：%s PHP-Pub代码(%s)：%s 前端-Pub代码(%s)：%s PHP-Config代码(%s)：%s"% (self.now_time,web_branch,private_data,php_branch,php_data,js_branch,js_data,config_branch,config_data)
@@ -487,12 +486,12 @@ class git_moneyweb_deploy(object):
         self.results.append("清空合并目录：%s"% self.merge_dir)
         if self.platform == "现金网":
             if self.env == 'test':
-                cmd = '''\cp -ar %s/*  %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
-                    '''% (self.web_dir,self.merge_dir,self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
+                cmd = '''\cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
+                    '''% (self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
                         self.js_pc_dir,self.merge_dir,self.js_mobile_dir,self.merge_dir)
             else:
-                cmd = '''\cp -ar %s/*  %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
-                    '''% (self.web_dir,self.merge_dir,self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
+                cmd = '''\cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && \cp -ar %s/* %s/ && echo "代码端已合并完成" || echo "合并失败，有错误！"
+                    '''% (self.php_pc_dir,self.merge_dir,self.php_mobile_dir,self.merge_dir,
                         self.js_pc_dir,self.merge_dir,self.js_mobile_dir,self.merge_dir,self.config_dir,self.merge_dir)
         elif self.platform == "蛮牛":
             cmd = '''\cp -ar %s/* %s && \cp -ar %s/* %s &&  \cp -ar %s/* %s/public/ && \cp -ar %s/wcphpsec/config.php %s/m/php/ && echo "合并完成" || echo "合并失败，有错误！"
@@ -912,12 +911,10 @@ def git_update_task(uuid,myid):
     MyWeb = git_moneyweb_deploy(data.id)
     print "更新方式为：%s"% updata.method
 
-    if data.platform == "现金网" or data.platform == "蛮牛":
-        if updata.method != 'web':
-            print "非web更新，需要执行web代码"
-            MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
     if data.platform == "现金网":
-        if updata.method != 'js_pc':
+        if updata.method == 'js_pc':
+            MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
+        elif updata.method == 'js_mobile':
             MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
     if data.platform == "VUE蛮牛":
         if updata.method != 'vue_pc':
@@ -925,21 +922,7 @@ def git_update_task(uuid,myid):
         if updata.method != 'vue_wap':
             MyWeb.export_git(what='vue_wap',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version)
-    # if data.platform == "现金网":  #cmdb迁移之后要使用下面代码，以保证存在的站更新不会错乱
-    #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
-    #     MyWeb.export_git(what='php_pc',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
-    #     MyWeb.export_git(what='php_mobile',branch=updata.php_mobile_branches,reversion=updata.php_moblie_release)
-    #     MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
-    #     MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
-    #     export_reslut = True
-    # elif data.platform == "蛮牛":
-    #     MyWeb.export_git(what='web',branch=updata.web_branches,reversion=updata.web_release)
-    #     MyWeb.export_git(what='php',branch=updata.php_pc_branches,reversion=updata.php_pc_release)
-    #     MyWeb.export_git(what='js',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
-    #     MyWeb.export_git(what='config',branch=updata.config_branches,reversion=updata.config_release)
-    #     export_reslut = True
-    # else:
-    #     export_reslut = MyWeb.export_git(what=updata.method,branch=updata.branch,reversion=updata.version) #必须保证公共代码不会无故更新，必须每个项目都有自己的公共代码目录，查看版本信息不会涉及此目录的代码
+
     if export_reslut:
         MyWeb.update_release()
         MyWeb.merge_git()
@@ -1050,8 +1033,8 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         #开始更新
         MyWeb = git_moneyweb_deploy(data.id)
         #MyWeb.export_config(branch="master")
-        if platform=="现金网" or platform=="蛮牛":
-            MyWeb.export_git(what='web',branch=latest_update.web_branches,reversion=latest_update.web_release) #如果查看分支后版本会错乱,所以取上个版本的web版本号
+        if platform=="现金网":
+            MyWeb.export_git(what='js_mobile',branch=latest_update.js_mobile_branches,reversion=latest_update.js_mobile_release) #如果查看分支后版本会错乱,所以取上个版本的web版本号
             MyWeb.export_git(what="js_pc",branch=latest_update.js_pc_branches,reversion=latest_update.js_pc_release)
         if data.platform == "VUE蛮牛":
             MyWeb.export_git(what='vue_pc',branch=latest_update.js_pc_branches,reversion=latest_update.js_pc_release)
@@ -1164,12 +1147,8 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
         data = git_deploy.objects.get(name=key,platform=platform,classify=classify,isops=True,islog=True)
         MyWeb = git_moneyweb_deploy(data.id)
         if platform == "现金网":
-            if method == 'web':
-                export_reslut = MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
-                export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value)
-            else:
-                export_reslut = MyWeb.export_git(what='web',branch="master",reversion=updata.web_release)
-                export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value)
+            export_reslut = MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
+            export_reslut = MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
         else:
             export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value) #需要判断是不是vue蛮牛或者现金网,pc和手机都要更新,但是这里先不处理
         
