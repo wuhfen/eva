@@ -64,6 +64,7 @@
                         </td>
                         <td>
                             <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                            <a href="{% url 'deploy_version' i.id %}" class="btn btn-xs btn-info version">查看版本</a>
                         </td>
                         <td>
                             <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
@@ -110,6 +111,7 @@
                         </td>
                         <td>
                             <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                            <a href="{% url 'deploy_version' i.id %}" class="btn btn-xs btn-info version">查看版本</a>
                         </td>
                         <td>
                             <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
