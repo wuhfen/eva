@@ -70,25 +70,79 @@
                         {% endif %}
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-md-12">
-                            {{ version_data.method }}
-                            {{ version_data.branch }}
-                            {{ version_data.version }}
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_method">更新方式:</label>
+                            <input class="form-control" id="id_method" name="method" value="{{version_data.method}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_branch">更新分支:</label>
+                            <input class="form-control" id="id_branch" name="branch" value="{{version_data.branch}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_version">更新版本:</label>
+                            <input class="form-control" id="id_version" name="version" value="{{version_data.version}}">
+                        </div>
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_web_branches">web分支:</label>
+                            <input class="form-control" id="id_web_branches" name="web_branches" value="{{version_data.web_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_web_release">web版本:</label>
+                            <input class="form-control" id="id_web_release" name="web_release" value="{{version_data.web_release}}">
+                        </div>
+                    </div>
 
-                            {{ version_data.web_branches }}
-                            {{ version_data.php_pc_branches }}
-                            {{ version_data.php_mobile_branches }}
-                            {{ version_data.js_pc_branches }}
-                            {{ version_data.js_mobile_branches }}
-                            {{ version_data.config_branches }}
-
-                            {{ version_data.web_release }}
-                            {{ version_data.php_pc_release }}
-                            {{ version_data.php_mobile_release }}
-                            {{ version_data.js_pc_release }}
-                            {{ version_data.js_mobile_release }}
-                            {{ version_data.config_release }}
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_php_pc_branches">php电脑分支:</label>
+                            <input class="form-control" id="id_php_pc_branches" name="php_pc_branches" value="{{version_data.php_pc_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_php_pc_release">php电脑版本:</label>
+                            <input class="form-control" id="id_php_pc_release" name="php_pc_release" value="{{version_data.php_pc_release}}">
+                        </div>
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_php_mobile_branches">php手机分支:</label>
+                            <input class="form-control" id="id_php_mobile_branches" name="php_mobile_branches" value="{{version_data.php_mobile_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_php_mobile_release">php手机版本:</label>
+                            <input class="form-control" id="id_php_mobile_release" name="php_mobile_release" value="{{version_data.php_mobile_release}}">
+                        </div>
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_config_branches">php配置分支:</label>
+                            <input class="form-control" id="id_config_branches" name="config_branches" value="{{version_data.config_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_config_release">php配置版本:</label>
+                            <input class="form-control" id="id_config_release" name="config_release" value="{{version_data.config_release}}">
+                        </div>
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_js_pc_branches">VUE电脑分支:</label>
+                            <input class="form-control" id="id_js_pc_branches" name="js_pc_branches" value="{{version_data.js_pc_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_js_pc_release">VUE电脑版本:</label>
+                            <input class="form-control" id="id_js_pc_release" name="js_pc_release" value="{{version_data.js_pc_release}}">
+                        </div>
+                    </div>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_js_mobile_branches">VUE手机分支:</label>
+                            <input class="form-control" id="id_js_mobile_branches" name="js_mobile_branches" value="{{version_data.js_mobile_branches}}">
+                        </div>
+                        <div class="form-group">
+                            <label class="text-right bolder" for="id_js_mobile_release">VUE手机版本:</label>
+                            <input class="form-control" id="id_js_mobile_release" name="js_mobile_release" value="{{version_data.js_mobile_release}}">
                         </div>
                     </div>
 
