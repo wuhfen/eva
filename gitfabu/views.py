@@ -1596,6 +1596,7 @@ def deploy_version_updata_api(request):
     js_mobile_branches = request.GET.get('js_wap_branch')
     js_mobile_release = request.GET.get('js_wap_version')
     data = git_deploy.objects.get(name=siteid,classify=classify)
+    print data.name
     try:
         version_data = git_code_update.objects.get(isuse=True,islog=True,code_conf=data)
     except:
