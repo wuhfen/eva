@@ -180,7 +180,7 @@
         var config_release = $("#id_config_release").val();
 
 
-        var urls= "{% url 'deploy_edit' data.id %}";
+        var urls= "{% url 'deploy_version' data.id %}";
         $.ajax({
             url:urls,
             dataType: 'json',
