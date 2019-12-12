@@ -1587,3 +1587,64 @@ def deploy_del(request,id):
         pass
     data.delete()
     return JsonResponse({'res':"OK"},safe=False)
+
+@login_required
+def deploy_version(request,id):
+    data = git_deploy.objects.get(pk=id)
+    try:
+        version_data = git_code_update.objects.get(isuse=True,islog=True,code_conf=data)
+    except:
+        version_data = git_code_update.objects.filter(islog=True,code_conf=data).first()
+    if request.method == 'POST':
+        method = request.POST.get('method')
+        branch = request.POST.get('branch')
+        version = request.POST.get('version')
+
+        web_branches = request.POST.get('web_branches')
+        php_pc_branches = request.POST.get('php_pc_branches')
+        php_mobile_branches = request.POST.get('php_mobile_branches')
+        js_pc_branches = request.POST.get('js_pc_branches')
+        js_mobile_branches = request.POST.get('js_mobile_branches')
+        config_branches = request.POST.get('config_branches')
+
+        web_release = request.POST.get('web_release')
+        php_pc_release = request.POST.get('php_pc_release')
+        php_moblie_release = request.POST.get('php_moblie_release')
+        js_pc_release = request.POST.get('js_pc_release')
+        js_mobile_release = request.POST.get('js_mobile_release')
+        config_release = request.POST.get('config_release')
+
+        version_data.method = method
+        version_data.branch = branch
+        version_data.version = version
+
+        version_data.web_branches = web_branches
+        version_data.php_pc_branches = php_pc_branches
+        version_data.php_mobile_branches = php_mobile_branches
+        version_data.js_pc_branches = js_pc_branches
+        version_data.js_mobile_branches = js_mobile_branches
+        version_data.config_branches = config_branches
+
+        version_data.web_release = web_release
+        version_data.php_pc_release = php_pc_release
+        version_data.php_moblie_release = php_moblie_release
+        version_data.js_pc_release = js_pc_release
+        version_data.js_mobile_release = js_mobile_release
+        version_data.config_release = config_release
+
+        is_log=request.POST.get('is_log')
+        is_use=request.POST.get('is_use')
+        if is_log == "yes":
+            is_log=True
+        else:
+            is_log=False
+        if is_use == "yes":
+            is_use=True
+        else:
+            is_use=False
+        version_data.islog=is_log
+        version_data.isuse=is_use
+
+        version_data.save()
+        return JsonResponse({'res':"OK"},safe=False)
+    return render(request, 'gitfabu/deploy_version.html', locals())

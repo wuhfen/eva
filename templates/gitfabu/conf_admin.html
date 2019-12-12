@@ -156,6 +156,7 @@
                         </td>
                         <td>
                             <a href="{% url 'deploy_gitrepo' i.id %}" class="btn btn-xs btn-info seegit">查看代码</a>
+                            <a href="{% url 'deploy_version' i.id %}" class="btn btn-xs btn-info version">查看版本</a>
                         </td>
                         <td>
                             <a href="{% url 'deploy_edit' i.id %}" class="btn btn-xs btn-info btn-edit">编辑</a>
@@ -215,6 +216,25 @@
          event.preventDefault();
     });
 
+    $(".version").on("click", function(event){ //一般更新
+         var url= $(this).attr('href');
+         // layer.msg('Hello layer');
+            layer.open({
+                type: 2,
+                title: false,
+                skin: 'layui-layer-rim',
+                maxmin: false,
+                shade: 0.5,
+                shadeClose: true, //点击遮罩关闭层
+                area : ['1000px' , '900px'],
+                end : function () {
+                  // location.reload();
+                  layer.msg('OK');
+              },
+                content: [url,'no']
+            });
+         event.preventDefault();
+    });
 </script>
 
 <script>

@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^conf/gitrepo/(?P<id>[^/]+)/$', views.deploy_gitrepo, name="deploy_gitrepo"),
     url(r'^conf/edit/(?P<id>[^/]+)/$', views.deploy_edit, name="deploy_edit"),
     url(r'^conf/del/(?P<id>[^/]+)/$', views.deploy_del, name="deploy_del"),
+    url(r'^conf/version/(?P<id>[^/]+)/$', views.deploy_version, name="deploy_version"),
 
 
 
