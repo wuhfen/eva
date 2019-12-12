@@ -1606,7 +1606,7 @@ def deploy_version_updata_api(request):
     version_data.js_mobile_release = js_mobile_release
     version_data.isuse=True
     version_data.save()
-    return JsonResponse({'res':"OK"},safe=False)
+    return JsonResponse({'res':"%s updata successfully"% siteid},safe=False)
 
 @login_required
 def deploy_version(request,id):
