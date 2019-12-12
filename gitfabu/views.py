@@ -1600,6 +1600,9 @@ def deploy_version_updata_api(request):
         version_data = git_code_update.objects.get(isuse=True,islog=True,code_conf=data)
     except:
         version_data = git_code_update.objects.filter(islog=True,code_conf=data).first()
+    print "旧版js_pc: %s"% version_data.js_pc_release
+    print "新版js_pc: %s"% js_pc_release
+
     version_data.js_pc_branches = js_pc_branches
     version_data.js_mobile_branches = js_mobile_branches
     version_data.js_pc_release = js_pc_release
