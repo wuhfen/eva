@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^conf/edit/(?P<id>[^/]+)/$', views.deploy_edit, name="deploy_edit"),
     url(r'^conf/del/(?P<id>[^/]+)/$', views.deploy_del, name="deploy_del"),
     url(r'^conf/version/(?P<id>[^/]+)/$', views.deploy_version, name="deploy_version"),
+    url(r'^conf/version/update/$', views.deploy_version_updata_api, name="deploy_version_updata_api"),
 
 
 

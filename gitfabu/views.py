@@ -1588,6 +1588,26 @@ def deploy_del(request,id):
     data.delete()
     return JsonResponse({'res':"OK"},safe=False)
 
+def deploy_version_updata_api(request):
+    siteid = request.GET.get('siteid')
+    classify = request.GET.get('classify')
+    js_pc_branches = request.GET.get('js_pc_branch')
+    js_pc_release = request.GET.get('js_pc_version')
+    js_mobile_branches = request.GET.get('js_wap_branch')
+    js_mobile_release = request.GET.get('js_wap_version')
+    data = git_deploy.objects.get(name=siteid,classify=classify)
+    try:
+        version_data = git_code_update.objects.get(isuse=True,islog=True,code_conf=data)
+    except:
+        version_data = git_code_update.objects.filter(islog=True,code_conf=data).first()
+    version_data.js_pc_branches = js_pc_branches
+    version_data.js_mobile_branches = js_mobile_branches
+    version_data.js_pc_release = js_pc_release
+    version_data.js_mobile_release = js_mobile_release
+    version_data.isuse=True
+    version_data.save()
+    return JsonResponse({'res':"OK"},safe=False)
+
 @login_required
 def deploy_version(request,id):
     data = git_deploy.objects.get(pk=id)
