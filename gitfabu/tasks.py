@@ -226,11 +226,9 @@ class git_moneyweb_deploy(object):
         return self.results
 
     def export_git(self,what='web',branch="master",reversion=None):
-        if what == 'php_pc' or what == 'php_mobile' or what == 'js_pc' or what == 'js_mobile':
+        if what == 'php_pc' or what == 'php_mobile':
             if what == 'php_pc': clone_dir=self.php_pc_dir
             if what == 'php_mobile': clone_dir=self.php_mobile_dir
-            if what == 'js_pc': clone_dir=self.js_pc_dir
-            if what == 'js_mobile': clone_dir=self.js_mobile_dir
             try:
                 data = git_coderepo.objects.get(platform=self.platform,classify=self.env,title=what,ispublic=True)
                 auth = "//"+data.user+":"+data.passwd+"@"
@@ -241,6 +239,27 @@ class git_moneyweb_deploy(object):
                 return self.results
             self.results.append("开始检出现金网%s代码"% what)
             print "开始检出现金网%s代码"% what
+            grepo = self.repo
+            log_repo = data.address
+            repo = Repo(clone_dir)
+            data_repo =data
+        elif what == 'js_pc' or what == 'js_mobile':
+            if what == 'js_pc': 
+                clone_dir=self.js_pc_dir
+                title = self.siteid+"_js_pc"
+            if what == 'js_mobile': 
+                clone_dir=self.js_mobile_dir
+                title = self.siteid+"_js_mobile"
+            try:
+                data = git_coderepo.objects.get(platform=self.platform,classify=self.env,title=title,ispublic=True)
+                auth = "//"+data.user+":"+data.passwd+"@"
+                self.repo = auth.join(data.address.split("//"))
+            except:
+                self.results.append("没有找到%s-%s-%s的git配置,停止发布！"% (self.platform,self.env,what))
+                print "没有找到%s-%s-%s的git配置,停止发布！"% (self.platform,self.env,what)
+                return self.results
+            self.results.append("开始检出现金网%s代码"% what)
+            print "开始检出现金网%s代码"% title
             grepo = self.repo
             log_repo = data.address
             repo = Repo(clone_dir)
