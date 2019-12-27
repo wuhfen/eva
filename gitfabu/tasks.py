@@ -251,7 +251,7 @@ class git_moneyweb_deploy(object):
                 clone_dir=self.js_mobile_dir
                 title = self.siteid+"_js_mobile"
             try:
-                data = git_coderepo.objects.get(platform=self.platform,classify=self.env,title=title,ispublic=True)
+                data = git_coderepo.objects.get(platform=self.platform,classify=self.env,title=title)
                 auth = "//"+data.user+":"+data.passwd+"@"
                 self.repo = auth.join(data.address.split("//"))
             except:
@@ -478,8 +478,8 @@ class git_moneyweb_deploy(object):
         name = self.platform+"-"+datas.classify+"-"+datas.name+"-发布"
 
         if self.method == "money_fabu":
-            updata = git_code_update(name=name,code_conf=datas,web_branches=web_branch,php_pc_branches=php_pc_branch,php_mobile_branches=php_mobile_branch,js_pc_branches=js_pc_branch,
-                js_mobile_branches=js_mobile_branch,web_release=private_data,php_pc_release=php_pc_data,php_moblie_release=php_mobile_data,js_pc_release=js_pc_data,js_mobile_release=js_mobile_data,memo=name,
+            updata = git_code_update(name=name,code_conf=datas,php_pc_branches=php_pc_branch,php_mobile_branches=php_mobile_branch,js_pc_branches=js_pc_branch,
+                js_mobile_branches=js_mobile_branch,php_pc_release=php_pc_data,php_moblie_release=php_mobile_data,js_pc_release=js_pc_data,js_mobile_release=js_mobile_data,memo=name,
                 isaudit=True,islog=True,isuse=True,last_version=last_commit)
             updata.save()
         elif self.method == "manniu_fabu":
