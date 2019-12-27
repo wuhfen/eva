@@ -284,8 +284,8 @@ def conf_add(request, env):
             obj, created = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=False, title=name, defaults={'address': web, 'user': username, 'passwd': password},)
             php_pc, php_pc_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="php_pc", defaults={'address': online_git + "php/1000_public_php.git", 'user': username, 'passwd': password})
             php_mob, php_mob_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="php_mobile", defaults={'address': online_git + "php/1000m_public_php.git", 'user': username, 'passwd': password})
-            js_pc, js_pc_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="js_pc", defaults={'address': online_git + "web/1000_public_js.git", 'user': username, 'passwd': password})
-            js_mob, js_mob_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="js_mobile", defaults={'address': online_git + "web/1000m_public_js.git", 'user': username, 'passwd': password})
+            js_pc, js_pc_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="js_pc", defaults={'address': online_git+"ds-vue-group/pc/"+name+".git", 'user': username, 'passwd': password})
+            js_mob, js_mob_repo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=True, title="js_mobile", defaults={'address':online_git+"ds-vue-group/m/"+name+".git", 'user': username, 'passwd': password})
             configobj, configrepo = git_coderepo.objects.get_or_create(platform=platform, classify=envir, ispublic=False, title=name + "_config", defaults={'address': online_git + "config/" + name + ".git", 'user': username, 'passwd': password})
         elif platform == "蛮牛":
             if envir == "huidu":
