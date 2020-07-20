@@ -42,12 +42,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='accelerated_server_manager',
-            name='host_master',
+            name='host_main',
             field=models.GenericIPAddressField(default='127.0.0.1', verbose_name='\u4e3bIP'),
         ),
         migrations.AddField(
             model_name='accelerated_server_manager',
-            name='host_slave',
+            name='host_subordinate',
             field=models.GenericIPAddressField(default='127.0.0.1', verbose_name='\u5907IP'),
         ),
         migrations.AddField(

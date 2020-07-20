@@ -187,8 +187,8 @@ class accelerated_server_manager(models.Model):
     """加速服务器信息管理"""
     name = models.CharField(max_length=64,null=True,blank=True)
     platfrom = models.CharField(max_length=64,null=True,blank=True)
-    host_master = models.GenericIPAddressField(verbose_name=u'主IP',default='127.0.0.1')
-    host_slave = models.GenericIPAddressField(verbose_name=u'备IP',default='127.0.0.1')
+    host_main = models.GenericIPAddressField(verbose_name=u'主IP',default='127.0.0.1')
+    host_subordinate = models.GenericIPAddressField(verbose_name=u'备IP',default='127.0.0.1')
     domains = models.TextField(verbose_name=u'域名',blank=True,null=True)
     username = models.CharField(max_length=64,null=True,blank=True,verbose_name=u'添加人')
     stop_date = models.DateField(null=True,blank=True,verbose_name=u'到期时间')

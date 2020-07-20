@@ -280,7 +280,7 @@ def deploy_add(request,uuid):
     sit_id = data.business.nic_name
     path = data.localhost_dir
     repo = Repo(path)
-    repo.git_checkout("master")          ##git pull --all之前一定要git checkout master
+    repo.git_checkout("main")          ##git pull --all之前一定要git checkout main
     pull = repo.git_pull(source="all")  ##在分支上先执行pull，更新到最新的仓库数据，相当于git pull --all
     branch = repo.git_all_branch()    ##拉取所有的分支信息，分支下面的commit_id是使用ajax获取
     tags = repo.git_tags()            ##拉取所有的tag信息
@@ -296,7 +296,7 @@ def deploy_add(request,uuid):
             name = request.POST.get('tag_name','')
             tag = request.POST.get('tag','')
             memo = request.POST.get('tag_memo','')
-            branches = "master"
+            branches = "main"
             show = repo.git_show_tag(path,release=tag).split()[1]
             release = show[0:8]
             executive_user = request.user
@@ -330,7 +330,7 @@ def deploy_add(request,uuid):
 @permission_required('automation.add_deploy', login_url='/auth_error/')
 def deploy_branch_select(request):
     """这个函数定义如何获取仓库的commit_id，返回json数据给前端ajax"""
-    branch = request.GET.get('branch','master')
+    branch = request.GET.get('branch','main')
     uuid = request.GET.get('uuid',0)
     data = Confile.objects.get(pk=uuid)
     path = data.localhost_dir
@@ -393,7 +393,7 @@ def deploy_online(request,uuid):
     repo_path = conf_data.localhost_dir      ##这里需要做一个有没有repo clone的判断
     specific_path = conf_data.specific       ## 指定文件需要判断是否存在
     repo = Repo(repo_path)
-    change_branch = repo.git_checkout("master")   ##切换到分支上面
+    change_branch = repo.git_checkout("main")   ##切换到分支上面
     pull = repo.git_pull(source="all")          ##更新所有的分支
     if request.method == 'POST':
         ##step1 切换分支并切换到具体版本
@@ -517,7 +517,7 @@ def deploy_add_svn(request,uuid):
             tag_two = request.POST.get('tag_two','')
             tag_three = request.POST.get('tag_three','')
             memo = request.POST.get('tag_memo','')
-            branches = "master"
+            branches = "main"
             release = tag.split('_')[0]
             release_two = tag_two.split('_')[0]
             release_three = tag_three.split('_')[0]

@@ -7,12 +7,12 @@ import subprocess
 
 def jiasu_conf_rsync(method="local",host=None,port=None,user=None,password=None):
     data = accelerated_server_manager.objects.filter(online=True)
-    server_list=[ {i.name:i.host_master} for i in data]
+    server_list=[ {i.name:i.host_main} for i in data]
     servers=""
     cmd='''pgrep lsyncd && pkill lsyncd && lsyncd -log Exec /etc/lsyncd.conf && lsyncd -log Exec /etc/jiasu_lsyncd.conf && echo "已重启lsyncd服务" || (lsyncd -log Exec /etc/lsyncd.conf && lsyncd -log Exec /etc/jiasu_lsyncd.conf)
     '''
     for i in data:
-        servers=servers+'    "%s", -- %s\n'% (i.host_master,i.name)
+        servers=servers+'    "%s", -- %s\n'% (i.host_main,i.name)
     comment="""-- this file is sync from cmdb_server
 settings {
     logfile ="/data/run/jiasu_lsyncd.log",

@@ -551,9 +551,9 @@ def acceleration_node_add(request):
         if not remark: remark = "新增加速节点: %s ,IP1: %s IP2: %s"% (name,host1,host2)
         check_list = request.POST.getlist('checks')
         if accelerated_server_manager.objects.filter(name=name,online=True):return JsonResponse({'res':"Failed",'info':"名称已存在!"})
-        if accelerated_server_manager.objects.filter(host_master=host1):return JsonResponse({'res':"Failed",'info':"IP1已存在!"})
-        if accelerated_server_manager.objects.filter(host_slave=host2):return JsonResponse({'res':"Failed",'info':"IP2已存在!"})
-        data = accelerated_server_manager(name=name,platfrom=platfrom,host_master=host1,host_slave=host2,username=request.user.username,stop_date=stop_date,remark=remark)
+        if accelerated_server_manager.objects.filter(host_main=host1):return JsonResponse({'res':"Failed",'info':"IP1已存在!"})
+        if accelerated_server_manager.objects.filter(host_subordinate=host2):return JsonResponse({'res':"Failed",'info':"IP2已存在!"})
+        data = accelerated_server_manager(name=name,platfrom=platfrom,host_main=host1,host_subordinate=host2,username=request.user.username,stop_date=stop_date,remark=remark)
         data.save()
         if "add_cmdb" in check_list:
             print "CMDB添加服务器"
@@ -610,8 +610,8 @@ def acceleration_nodes_get(request):
         if group!="all":
             if keyword:
                 n_data = accelerated_server_manager.objects.filter(platfrom=group,name__contains=keyword)
-                hma_data = accelerated_server_manager.objects.filter(platfrom=group,host_master__contains=keyword)
-                hsa_data = accelerated_server_manager.objects.filter(platfrom=group,host_slave__contains=keyword)
+                hma_data = accelerated_server_manager.objects.filter(platfrom=group,host_main__contains=keyword)
+                hsa_data = accelerated_server_manager.objects.filter(platfrom=group,host_subordinate__contains=keyword)
                 r_data = accelerated_server_manager.objects.filter(platfrom=group,remark__contains=keyword)
                 data=list(set(n_data)|set(hma_data)|set(hsa_data)|set(r_data))[start_line:end_line]
             else:
@@ -619,8 +619,8 @@ def acceleration_nodes_get(request):
         else:
             if keyword:
                 n_data = accelerated_server_manager.objects.filter(name__contains=keyword)
-                hma_data = accelerated_server_manager.objects.filter(host_master__contains=keyword)
-                hsa_data = accelerated_server_manager.objects.filter(host_slave__contains=keyword)
+                hma_data = accelerated_server_manager.objects.filter(host_main__contains=keyword)
+                hsa_data = accelerated_server_manager.objects.filter(host_subordinate__contains=keyword)
                 r_data = accelerated_server_manager.objects.filter(remark__contains=keyword)
                 data=list(set(n_data)|set(hma_data)|set(hsa_data)|set(r_data))[start_line:end_line]
         count=len(data)
@@ -629,7 +629,7 @@ def acceleration_nodes_get(request):
         count=accelerated_server_manager.objects.count()
 
     for i in data:
-        list_data.append({'id':i.id,'group':i.platfrom,'name':i.name,'host_master':i.host_master,'host_slave':i.host_slave,'stop_date':i.stop_date,'online':i.online,'username':i.username,'ctime':i.create_date.strftime('%Y-%m-%d %H:%M:%S'),'remark':i.remark})
+        list_data.append({'id':i.id,'group':i.platfrom,'name':i.name,'host_main':i.host_main,'host_subordinate':i.host_subordinate,'stop_date':i.stop_date,'online':i.online,'username':i.username,'ctime':i.create_date.strftime('%Y-%m-%d %H:%M:%S'),'remark':i.remark})
     res={'code':0,'msg':"加速服務器所有數據集",'count':count,'data':list_data}
     return JsonResponse(res)
 
@@ -690,24 +690,24 @@ def acceleration_api(request):
         data.remark=value
         data.save()
         result={"code":0,"rid":field_id,"msg":"备注已变更"}
-    elif action=="change_master":
+    elif action=="change_main":
         if not isValidIp(value):
             result["msg"]="IP格式错误"
             return JsonResponse(result)
-        if accelerated_server_manager.objects.filter(host_master=value):
+        if accelerated_server_manager.objects.filter(host_main=value):
             result["msg"]="IP地址已存在"
             return JsonResponse(result)
         data = accelerated_server_manager.objects.get(pk=field_id)
-        data.host_master=value
+        data.host_main=value
         data.save()
         jiasu_conf_rsync()  #本地同步配置文件
         result={"code":0,"rid":field_id,"msg":"地址一变更为:%s"% value}
-    elif action=="change_slave":
+    elif action=="change_subordinate":
         if not isValidIp(value):
             result["msg"]="IP格式错误"
             return JsonResponse(result)
         data = accelerated_server_manager.objects.get(pk=field_id)
-        data.host_slave=value
+        data.host_subordinate=value
         data.save()
         result={"code":0,"rid":field_id,"msg":"地址二变更为:%s"% value}
     elif action=="init":
@@ -716,11 +716,11 @@ def acceleration_api(request):
             for i in ids:
                 data = accelerated_server_manager.objects.get(pk=i)
                 try:
-                    host=Server.objects.get(ssh_host=data.host_master)
+                    host=Server.objects.get(ssh_host=data.host_main)
                     jiasu_init_task.delay(host.ssh_host,host.ssh_port,host.ssh_user,host.ssh_password)
-                    result={"code":1,"rid":ids,"msg":"%s 初始化完成!"% data.host_master}
+                    result={"code":1,"rid":ids,"msg":"%s 初始化完成!"% data.host_main}
                 except:
-                    result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_master}
+                    result={"code":1,"rid":ids,"msg":"%s 没有在CMDB中发现,停止初始化!"% data.host_main}
     elif action=="zabbix":
         ids = eval(field_id)
         if ids:
@@ -728,8 +728,8 @@ def acceleration_api(request):
             if zbx.authID == 0: return JsonResponse({"code":1,"rid":ids,"msg":"zabbix认证失败!"})
             for i in ids:
                 data = accelerated_server_manager.objects.get(pk=i)
-                zbx.jiasu_host_create(data.host_master,"%s-加速-%s"% (data.name,data.host_master))
-                zbx.jiasu_host_create(data.host_slave,"%s-加速-%s"% (data.name,data.host_slave))
+                zbx.jiasu_host_create(data.host_main,"%s-加速-%s"% (data.name,data.host_main))
+                zbx.jiasu_host_create(data.host_subordinate,"%s-加速-%s"% (data.name,data.host_subordinate))
             result={"code":0,"rid":ids,"msg":"IP已加入zabbix监控列表"}
     elif action=="sync":
         ids = eval(field_id)
