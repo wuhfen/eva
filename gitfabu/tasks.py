@@ -102,7 +102,7 @@ class git_moneyweb_deploy(object):
 
         if self.method == "money_fabu":
             if not self.env == "test":
-                ggsimida = self.export_config(branch="master")
+                ggsimida = self.export_config(branch="main")
             else:
                 ggsimida = "yes"
             if ggsimida: b = self.export_git(what='php_pc')
@@ -176,7 +176,7 @@ class git_moneyweb_deploy(object):
             repo = Repo(self.config_dir)
         else:
             repo = Repo(self.web_dir)
-        repo.git_checkout("master")
+        repo.git_checkout("main")
         repo.git_pull()
         return repo.git_all_branch()
 
@@ -209,11 +209,11 @@ class git_moneyweb_deploy(object):
             repo.git_checkout(branch)
             repo.git_pull()
         else:
-            repo.git_checkout("master")
+            repo.git_checkout("main")
         return repo.show_commit()
 
 
-    def export_config(self,branch="master"):  #现金网配置文件灰度与线上公用，测试环境不需要检出配置文件
+    def export_config(self,branch="main"):  #现金网配置文件灰度与线上公用，测试环境不需要检出配置文件
         url = "http://fabu:DSyunweibu110110@git.dtops.cc/config/"+ self.siteid +".git"
         genxin_code_dir(self.config_dir)
         repo = Repo(self.config_dir)
@@ -225,7 +225,7 @@ class git_moneyweb_deploy(object):
             return None
         return self.results
 
-    def export_git(self,what='web',branch="master",reversion=None):
+    def export_git(self,what='web',branch="main",reversion=None):
         if what == 'php_pc' or what == 'php_mobile':
             if what == 'php_pc': clone_dir=self.php_pc_dir
             if what == 'php_mobile': clone_dir=self.php_mobile_dir
@@ -330,9 +330,9 @@ class git_moneyweb_deploy(object):
         print "检出地址:%s"% clone_dir
         if reversion:  #如果提供了版本则拉最新代码后检出到版本
             try:
-                if branch != "master":
+                if branch != "main":
                     print "新分支，先切换主分支"
-                    repo.git_checkout("master")
+                    repo.git_checkout("main")
                     print "新分支，切换主分支完毕，开始拉取最新代码"
                     repo.git_pull() #新建分支先拉取在切换
                     print "新分支，拉取最新代码完成"
@@ -1051,7 +1051,7 @@ def git_update_public_task(uuid,myid,platform="现金网"):
         new_data.save()
         #开始更新
         MyWeb = git_moneyweb_deploy(data.id)
-        #MyWeb.export_config(branch="master")
+        #MyWeb.export_config(branch="main")
         if platform=="现金网":
             MyWeb.export_git(what='js_mobile',branch=latest_update.js_mobile_branches,reversion=latest_update.js_mobile_release) #如果查看分支后版本会错乱,所以取上个版本的web版本号
             MyWeb.export_git(what="js_pc",branch=latest_update.js_pc_branches,reversion=latest_update.js_pc_release)
@@ -1169,7 +1169,7 @@ def git_batch_update_task(myid,platform="现金网",memos=None):
             export_reslut = MyWeb.export_git(what='js_pc',branch=updata.js_pc_branches,reversion=updata.js_pc_release)
             export_reslut = MyWeb.export_git(what='js_mobile',branch=updata.js_mobile_branches,reversion=updata.js_mobile_release)
         else:
-            export_reslut = MyWeb.export_git(what=method,branch="master",reversion=value) #需要判断是不是vue蛮牛或者现金网,pc和手机都要更新,但是这里先不处理
+            export_reslut = MyWeb.export_git(what=method,branch="main",reversion=value) #需要判断是不是vue蛮牛或者现金网,pc和手机都要更新,但是这里先不处理
         
         if export_reslut:
             MyWeb.update_release()

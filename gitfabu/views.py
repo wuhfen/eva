@@ -932,7 +932,7 @@ def one_key_task(request, uuid):
 
 @login_required
 def web_update_code(request, uuid):
-    """一个更新任务添加，现获取所有的分支信息，线上环境只有master分支展示"""
+    """一个更新任务添加，现获取所有的分支信息，线上环境只有main分支展示"""
     data = git_deploy.objects.get(pk=uuid)
 
     WaitTask = data.deploy_update.filter(islog=False)
@@ -946,7 +946,7 @@ def web_update_code(request, uuid):
 
     if request.method == 'GET':
         if data.platform == "现金网" or data.platform == "蛮牛" or data.platform == "VUE蛮牛":
-            all_branch = ['master']
+            all_branch = ['main']
             web_commits = []
         else:
             all_branch = git_moneyweb_deploy(uuid).deploy_all_branch(what='web')
@@ -1242,7 +1242,7 @@ def public_branch_change(request):
         commit = gitrepo.show_commit()
         res = {'res': "OK", "commit": commit}
     else:
-        gitrepo.git_checkout('master')
+        gitrepo.git_checkout('main')
         gitrepo.git_pull()
         all_branch = gitrepo.git_all_branch()
         commit = gitrepo.show_commit()
@@ -1339,7 +1339,7 @@ def vue_pc_batch_update(request, env):
             siteid_version[x.name] = "Locked"
         else:
             path = base_export_dir + x.name + "_pc"
-            pull = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
+            pull = subprocess.Popen(["git", "pull", "origin", "main"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]
@@ -1387,7 +1387,7 @@ def vue_wap_batch_update(request, env):
             siteid_version[x.name] = "Locked"
         else:
             path = base_export_dir + x.name + "_wap"
-            pull = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
+            pull = subprocess.Popen(["git", "pull", "origin", "main"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]
@@ -1434,7 +1434,7 @@ def money_web_batch_update(request, env):
             siteid_version[x.name] = "Locked"
         else:
             path = base_export_dir + x.name + "_js_mobile"
-            pull = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
+            pull = subprocess.Popen(["git", "pull", "origin", "main"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]
@@ -1483,7 +1483,7 @@ def money_pc_batch_update(request, env):
             siteid_version[x.name] = "Locked"
         else:
             path = base_export_dir + x.name + "_js_pc"
-            pull = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
+            pull = subprocess.Popen(["git", "pull", "origin", "main"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             #pull.wait()
             child = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path)
             out, error = [i.decode("utf-8") for i in child.communicate()]

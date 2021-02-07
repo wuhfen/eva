@@ -92,7 +92,7 @@ def change_version_old_to_new(name,platform,classify,method,release,branch=None)
     js_mobile_release = old_data.js_mobile_release
     config_branches = old_data.config_branches
     config_release = old_data.config_release
-    if not branch: branch="master"
+    if not branch: branch="main"
     if method == 'web':
         web_release = release[0:7]
         web_branches = branch

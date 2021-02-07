@@ -73,7 +73,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='sql_conf',
-            name='master_node',
+            name='main_node',
         ),
         migrations.RemoveField(
             model_name='sql_conf',
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='sql_conf',
-            name='slave_node',
+            name='subordinate_node',
         ),
         migrations.RemoveField(
             model_name='sql_conf',
