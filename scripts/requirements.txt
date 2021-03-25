@@ -31,7 +31,7 @@ pika==0.10.0
 pycrypto==2.6
 python-telegram-bot==8.1.1
 pytz==2019.1
-PyYAML==3.10
+PyYAML==5.4
 redis==3.2.1
 redisco==0.1.4
 requests==2.19.1
