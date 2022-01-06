@@ -1,7 +1,7 @@
 amqp==2.5.0
 ansible==2.2.0.0
 billiard==3.6.0.0
-celery==4.3.0
+celery==5.2.2
 certifi==2017.11.5
 chardet==3.0.4
 CloudXNS-API-SDK-Python==1.0.4
